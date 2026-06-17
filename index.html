@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reservas VIP con Javi</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="background-decoration">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+
+  <main class="app-shell">
+    <section id="gate-section" class="card gate-card">
+      <div class="badge">Acceso ultra exclusivo 💘</div>
+      <h1>Zona privada de reservas con el mejor novio del mundo</h1>
+      <p class="subtitle">Solo puede entrar quien supere el control de seguridad más importante.</p>
+
+      <div class="progress">
+        <div id="progress-fill"></div>
+      </div>
+
+      <form id="gate-form" class="gate-form">
+        <label id="gate-question" for="gate-answer"></label>
+        <input id="gate-answer" type="text" autocomplete="off" placeholder="Escribe aquí la respuesta..." required />
+        <button type="submit">Responder</button>
+        <p id="gate-error" class="error-message"></p>
+      </form>
+    </section>
+
+    <section id="services-section" class="hidden">
+      <header class="hero card">
+        <div>
+          <div class="badge">Bienvenida, clienta favorita ✨</div>
+          <h1>Menú de servicios VIP de Javi</h1>
+          <p>Elige el plan que más te apetezca y reserva tu cita. Servicio sujeto a disponibilidad, mimos incluidos de serie.</p>
+        </div>
+        <button id="logout-button" class="ghost-button" type="button">Cerrar acceso</button>
+      </header>
+
+      <section class="services-grid" aria-label="Servicios disponibles">
+        <button class="service-card active" data-service="telenovio" type="button">
+          <span class="service-icon">📞</span>
+          <h2>Telenovio</h2>
+          <p>Atención remota del novio más top.</p>
+        </button>
+
+        <button class="service-card" data-service="masajes" type="button">
+          <span class="service-icon">💆‍♀️</span>
+          <h2>Masajes</h2>
+          <p>Modo relax, espalda feliz y cero estrés.</p>
+        </button>
+
+        <button class="service-card" data-service="sushi" type="button">
+          <span class="service-icon">🍣</span>
+          <h2>Ir a comer sushi</h2>
+          <p>Cita oficial con makis, risas y amor.</p>
+        </button>
+      </section>
+
+      <section id="booking-panel" class="card booking-panel theme-telenovio">
+        <div class="booking-copy">
+          <div id="service-kicker" class="badge">Servicio seleccionado</div>
+          <h2 id="service-title"></h2>
+          <p id="service-description"></p>
+        </div>
+
+        <form id="booking-form" class="booking-form">
+          <div class="form-row">
+            <label for="booker-name">¿Quién reserva?</label>
+            <input id="booker-name" type="text" value="La novia de Javi" required />
+          </div>
+
+          <div class="form-row two-columns">
+            <div>
+              <label for="booking-date">Día</label>
+              <input id="booking-date" type="date" required />
+            </div>
+            <div>
+              <label for="booking-time">Hora</label>
+              <input id="booking-time" type="time" required />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <label for="booking-notes">Peticiones especiales</label>
+            <textarea id="booking-notes" rows="4" placeholder="Ej: con muchos mimos, plan tranquilo, sushi en nuestro sitio favorito..."></textarea>
+          </div>
+
+          <button type="submit" class="primary-button">Reservar cita</button>
+          <p id="booking-status" class="status-message"></p>
+        </form>
+      </section>
+
+      <section class="card saved-bookings">
+        <div class="section-title-row">
+          <div>
+            <div class="badge">Historial local</div>
+            <h2>Reservas guardadas en este dispositivo</h2>
+          </div>
+          <button id="clear-bookings" class="ghost-button danger" type="button">Borrar historial</button>
+        </div>
+        <div id="bookings-list" class="bookings-list"></div>
+        <p class="small-note">Nota: este historial se guarda en el navegador del móvil/PC que haga la reserva. Para guardarlo online o enviarlo por correo, configura Formspree en <strong>script.js</strong>.</p>
+      </section>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
