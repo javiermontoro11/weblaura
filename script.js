@@ -231,7 +231,7 @@ async function handleBookingSubmit(event) {
   }
 
   bookingForm.reset();
-  document.getElementById("booker-name").value = "Ingrese su nombre";
+  document.getElementById("booker-name").value = "Laura la quejica";
 }
 
 function getBookings() {
