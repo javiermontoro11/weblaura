@@ -66,3 +66,5 @@ Esta opción abre el correo del móvil/PC con el mensaje preparado, pero la pers
 Primera pregunta: acepta cualquier respuesta que contenga `javi`, da igual mayúsculas o minúsculas.
 
 Segunda pregunta: aparece como calendario. La fecha correcta es `24/04/2026`.
+
+cucu
