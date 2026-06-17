@@ -4,11 +4,11 @@
 const CONFIG = {
   // Opción recomendada: crea un formulario gratis en https://formspree.io/
   // y pega aquí el endpoint. Ejemplo: "https://formspree.io/f/abcdwxyz"
-  formspreeEndpoint: "",
+  formspreeEndpoint: "https://formspree.io/f/xjgddbjw",
 
   // Si no configuras Formspree, se intentará abrir el correo del dispositivo
   // con un email ya preparado. Cambia este correo por el tuyo.
-  emailDestino: "TU_CORREO_AQUI@gmail.com"
+  emailDestino: "javiermontorogranados@gmail.com"
 };
 
 /****************************************************
