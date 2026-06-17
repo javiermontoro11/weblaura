@@ -231,7 +231,7 @@ async function handleBookingSubmit(event) {
   }
 
   bookingForm.reset();
-  document.getElementById("booker-name").value = "La novia de Javi";
+  document.getElementById("booker-name").value = "Ingrese su nombre";
 }
 
 function getBookings() {
