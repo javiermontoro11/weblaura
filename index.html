@@ -53,6 +53,49 @@
           <div class="availability">Disponible bajo negociación</div>
         </div>
 
+        <div class="surprise-card" id="surprise-card">
+          <div class="surprise-top">
+            <div class="surprise-icon">🎁</div>
+
+            <div>
+              <p class="eyebrow">Pedido secreto</p>
+              <h2>Entrega especial pendiente</h2>
+              <p class="muted">Hay algo preparado en JaviEats. Todavía no está listo, pero ya está en camino.</p>
+            </div>
+          </div>
+
+          <div class="countdown" id="surprise-countdown">
+            <div class="count-box">
+              <strong id="count-days">00</strong>
+              <span>Días</span>
+            </div>
+
+            <div class="count-box">
+              <strong id="count-hours">00</strong>
+              <span>Horas</span>
+            </div>
+
+            <div class="count-box">
+              <strong id="count-minutes">00</strong>
+              <span>Min</span>
+            </div>
+
+            <div class="count-box">
+              <strong id="count-seconds">00</strong>
+              <span>Seg</span>
+            </div>
+          </div>
+
+          <div id="surprise-status" class="surprise-status">
+            Preparando sorpresa
+          </div>
+
+          <div class="surprise-actions">
+            <button id="hint-btn" class="btn btn-secondary" type="button">🔍 Abrir pista</button>
+            <button id="open-surprise-btn" class="btn btn-primary locked" type="button">🔒 Abrir sorpresa</button>
+          </div>
+        </div>
+
         <div class="stats">
           <div class="stat">
             <strong id="total-proposals">0</strong>
@@ -137,6 +180,21 @@
         <div id="booking-list" class="list"></div>
       </section>
 
+      <section id="page-letter" class="page letter-page">
+        <button class="back-link" type="button" data-go="home">← Volver a JaviEats</button>
+
+        <article class="letter-card">
+          <div class="letter-stamp">💌</div>
+
+          <p class="eyebrow">Pedido entregado</p>
+          <h2>Para Laura</h2>
+
+          <div id="letter-content" class="letter-content">
+            <p>Cargando carta...</p>
+          </div>
+        </article>
+      </section>
+
       <nav class="bottom-nav">
         <button class="nav-btn active" type="button" data-page="home">
           🏠
@@ -214,6 +272,29 @@
 
         <p id="proposal-status" class="note"></p>
       </form>
+    </div>
+  </section>
+
+  <section id="hint-modal" class="mini-modal hidden">
+    <div class="mini-modal-backdrop" data-hint-close></div>
+
+    <div class="mini-modal-panel">
+      <button class="modal-close" type="button" data-hint-close>×</button>
+
+      <div class="modal-icon">🔍</div>
+
+      <p class="eyebrow">Pista del pedido secreto</p>
+      <h2>No todo se come</h2>
+
+      <p class="hint-text">
+        Pista: no se come… salvo que seas un baifo.
+      </p>
+
+      <p class="hint-text">
+        Prometo no cebarte.
+      </p>
+
+      <button class="btn btn-primary" type="button" data-hint-close>Vale, seguiré esperando</button>
     </div>
   </section>
 
