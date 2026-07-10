@@ -7,6 +7,9 @@ const STORAGE_KEY = "javieats_propuestas_v1";
 const SESSION_KEY = "javieats_access_ok";
 const QUESTION_COUNT = 2;
 
+const SURPRISE_UNLOCK_DATE = new Date("2026-07-13T19:00:00+02:00");
+const LETTER_FILE = "carta.txt";
+
 const QUESTIONS = [
   {
     text: "¿Cómo le gusta que le llamen al mejor novio del mundo?",
@@ -155,6 +158,17 @@ const allServices = document.getElementById("all-services");
 const totalProposals = document.getElementById("total-proposals");
 const nextPlan = document.getElementById("next-plan");
 
+const surpriseCard = document.getElementById("surprise-card");
+const countDays = document.getElementById("count-days");
+const countHours = document.getElementById("count-hours");
+const countMinutes = document.getElementById("count-minutes");
+const countSeconds = document.getElementById("count-seconds");
+const surpriseStatus = document.getElementById("surprise-status");
+const hintBtn = document.getElementById("hint-btn");
+const openSurpriseBtn = document.getElementById("open-surprise-btn");
+const hintModal = document.getElementById("hint-modal");
+const letterContent = document.getElementById("letter-content");
+
 const modal = document.getElementById("modal");
 const modalIcon = document.getElementById("modal-icon");
 const modalCategory = document.getElementById("modal-category");
@@ -185,6 +199,8 @@ let selectedQuestions = [];
 let questionIndex = 0;
 let calendarDate = new Date();
 let selectedDate = toDateKey(new Date());
+let surpriseTimer = null;
+let letterLoaded = false;
 
 init();
 
@@ -192,6 +208,9 @@ function init() {
   bindEvents();
   renderServices();
   setMinDate();
+  updateSurpriseCountdown();
+
+  surpriseTimer = setInterval(updateSurpriseCountdown, 1000);
 
   if (sessionStorage.getItem(SESSION_KEY) === "true") {
     showApp();
@@ -215,6 +234,13 @@ function bindEvents() {
   document.querySelectorAll("[data-close]").forEach(el => {
     el.addEventListener("click", closeModal);
   });
+
+  document.querySelectorAll("[data-hint-close]").forEach(el => {
+    el.addEventListener("click", closeHint);
+  });
+
+  hintBtn.addEventListener("click", openHint);
+  openSurpriseBtn.addEventListener("click", handleOpenSurprise);
 
   proposalForm.addEventListener("submit", handleProposal);
 
@@ -291,6 +317,7 @@ function showApp() {
   gateScreen.classList.add("hidden");
   appScreen.classList.remove("hidden");
   refresh();
+  updateSurpriseCountdown();
 }
 
 function logout() {
@@ -311,6 +338,7 @@ function showPage(page) {
 
   if (page === "calendar") renderCalendar();
   if (page === "bookings") renderBookings();
+  if (page === "letter") loadLetter();
 }
 
 function renderServices() {
@@ -367,6 +395,106 @@ function openService(id) {
 function closeModal() {
   modal.classList.add("hidden");
   document.body.style.overflow = "";
+}
+
+function openHint() {
+  hintModal.classList.remove("hidden");
+  document.body.style.overflow = "hidden";
+}
+
+function closeHint() {
+  hintModal.classList.add("hidden");
+  document.body.style.overflow = "";
+}
+
+function isSurpriseUnlocked() {
+  return new Date() >= SURPRISE_UNLOCK_DATE;
+}
+
+function updateSurpriseCountdown() {
+  const now = new Date();
+  const diff = Math.max(0, SURPRISE_UNLOCK_DATE.getTime() - now.getTime());
+  const totalSeconds = Math.floor(diff / 1000);
+
+  const days = Math.floor(totalSeconds / 86400);
+  const hours = Math.floor((totalSeconds % 86400) / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+
+  countDays.textContent = String(days).padStart(2, "0");
+  countHours.textContent = String(hours).padStart(2, "0");
+  countMinutes.textContent = String(minutes).padStart(2, "0");
+  countSeconds.textContent = String(seconds).padStart(2, "0");
+
+  if (isSurpriseUnlocked()) {
+    surpriseCard.classList.add("unlocked");
+    surpriseStatus.textContent = "Listo para entregar";
+    openSurpriseBtn.textContent = "💌 Abrir carta";
+    openSurpriseBtn.classList.remove("locked");
+  } else {
+    surpriseCard.classList.remove("unlocked");
+    surpriseStatus.textContent = "Preparando sorpresa · disponible el lunes 13 a las 19:00";
+    openSurpriseBtn.textContent = "🔒 Abrir sorpresa";
+    openSurpriseBtn.classList.add("locked");
+  }
+}
+
+function handleOpenSurprise() {
+  if (!isSurpriseUnlocked()) {
+    showToast("Todavía está en preparación. Puedes abrir la pista mientras tanto.");
+    return;
+  }
+
+  showPage("letter");
+}
+
+async function loadLetter() {
+  if (letterLoaded) return;
+
+  letterContent.innerHTML = `<p>Cargando carta...</p>`;
+
+  try {
+    const response = await fetch(LETTER_FILE, {
+      cache: "no-store"
+    });
+
+    if (!response.ok) {
+      throw new Error("No se ha podido cargar carta.txt");
+    }
+
+    const text = await response.text();
+
+    letterContent.innerHTML = renderLetterText(text);
+    letterLoaded = true;
+  } catch (error) {
+    console.error(error);
+
+    letterContent.innerHTML = `
+      <p>No se ha podido cargar la carta.</p>
+      <p>Revisa que el archivo <strong>carta.txt</strong> esté subido en GitHub al mismo nivel que index.html, style.css y script.js.</p>
+    `;
+  }
+}
+
+function renderLetterText(text) {
+  const cleanText = String(text || "").trim();
+
+  if (!cleanText) {
+    return `<p>La carta está vacía. Revisa el archivo carta.txt.</p>`;
+  }
+
+  const paragraphs = cleanText
+    .split(/\n\s*\n/)
+    .map(paragraph => paragraph.trim())
+    .filter(Boolean);
+
+  if (paragraphs.length > 1) {
+    return paragraphs
+      .map(paragraph => `<p>${escapeHTML(paragraph).replace(/\n/g, "<br>")}</p>`)
+      .join("");
+  }
+
+  return `<p>${escapeHTML(cleanText).replace(/\n/g, "<br>")}</p>`;
 }
 
 async function handleProposal(event) {
