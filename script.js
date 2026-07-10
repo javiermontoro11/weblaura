@@ -1,240 +1,460 @@
-/****************************************************
- * CONFIGURACIÓN RÁPIDA
- ****************************************************/
 const CONFIG = {
-  // Opción recomendada: crea un formulario gratis en https://formspree.io/
-  // y pega aquí el endpoint. Ejemplo: "https://formspree.io/f/abcdwxyz"
   formspreeEndpoint: "https://formspree.io/f/xjgddbjw",
-
-  // Si no configuras Formspree, se intentará abrir el correo del dispositivo
-  // con un email ya preparado. Cambia este correo por el tuyo.
   emailDestino: "javiermontorogranados@gmail.com"
 };
 
-/****************************************************
- * PREGUNTAS DE ACCESO
- ****************************************************/
+const STORAGE_KEY = "javieats_propuestas_v1";
+const SESSION_KEY = "javieats_access_ok";
+const QUESTION_COUNT = 2;
+
 const QUESTIONS = [
   {
     text: "¿Cómo le gusta que le llamen al mejor novio del mundo?",
-    inputType: "text",
-    placeholder: "Escribe aquí la respuesta...",
-    validate: (answer) => normalize(answer).includes("javi"),
-    error: "Casi... pista: empieza por J y acaba por avi 😌"
+    type: "text",
+    placeholder: "Escribe la respuesta...",
+    error: "Pista: empieza por J y acaba por avi.",
+    validate: value => normalize(value).includes("javi")
   },
   {
     text: "¿Cuándo empezaste a tener el privilegio de tener al mejor novio del mundo?",
-    inputType: "date",
-    placeholder: "Selecciona la fecha...",
-    validate: (answer) => answer === "2026-04-24",
-    error: "Mmm... esa fecha es sagrada. Busca bien en el calendario 💘"
+    type: "date",
+    error: "Esa no es la fecha buena.",
+    validate: value => value === "2026-04-24"
+  },
+  {
+    text: "¿Cómo se llaman los perros de Javier?",
+    type: "text",
+    placeholder: "Ej: nombre y nombre",
+    error: "Casi. Son dos y tienen mucho nivel.",
+    validate: value => {
+      const clean = normalize(value).replace(/&/g, " y ");
+      return clean.includes("randy") && clean.includes("nala");
+    }
+  },
+  {
+    text: "¿Cuál fue el sitio donde cenamos antes de que te pidiese salir?",
+    type: "text",
+    placeholder: "Nombre del sitio...",
+    error: "No es ese sitio. Pista: hamburguesas.",
+    validate: value => normalize(value).includes("distrito burger")
   }
 ];
 
-/****************************************************
- * SERVICIOS
- ****************************************************/
-const SERVICES = {
-  telenovio: {
+const SERVICES = [
+  {
+    id: "sushi",
+    icon: "🍣",
+    title: "Sushi Date",
+    category: "Planes para comer",
+    description: "Propuesta para comer o cenar sushi juntos. La elección del sitio se puede negociar.",
+    eta: "1-2 h",
+    durations: ["Comida", "Cena", "Plan completo"],
+    bullets: [
+      "Ideal para antojo serio de sushi.",
+      "La hora final se habla entre los dos.",
+      "Nivel de hambre obligatorio: medio o alto."
+    ]
+  },
+  {
+    id: "masaje",
+    icon: "💆",
+    title: "Masaje",
+    category: "Relax",
+    description: "Espalda, cuello o modo relax. Duración y presión negociables.",
+    eta: "20-45 min",
+    durations: ["20 minutos", "30 minutos", "45 minutos"],
+    bullets: [
+      "Para espalda cargada, cuello o cansancio acumulado.",
+      "Se aceptan indicaciones de presión.",
+      "Servicio sujeto a energía disponible."
+    ]
+  },
+  {
+    id: "telenovio",
     icon: "📞",
     title: "Telenovio",
-    themeClass: "theme-telenovio",
-    description: "Servicio premium de novio a distancia. Incluye llamada, atención personalizada, tonterías bonitas, apoyo emocional y disponibilidad para escuchar dramas, chismes o simplemente hacer compañía."
+    category: "A distancia",
+    description: "Llamada, videollamada o ratito de hablar cuando no podáis veros.",
+    eta: "10-60 min",
+    durations: ["10 minutos", "30 minutos", "1 hora"],
+    bullets: [
+      "Para contar cosas, desahogarse o hablar un rato.",
+      "Modalidad llamada, audio o videollamada.",
+      "Respuesta dependiente de batería y cobertura."
+    ]
   },
-  masajes: {
-    icon: "💆‍♀️",
-    title: "Masajes",
-    themeClass: "theme-masajes",
-    description: "Sesión de relax con el mejor novio del mundo. Espalda, cuello, hombros o modo completo: tú eliges el nivel de mimos y Javi pone las manos mágicas."
+  {
+    id: "peli",
+    icon: "🍿",
+    title: "Peli & Sofá",
+    category: "Plan tranquilo",
+    description: "Peli, sofá, manta y algo rico. Plan sin demasiada logística.",
+    eta: "2-3 h",
+    durations: ["Una peli", "Peli + cena", "Tarde completa"],
+    bullets: [
+      "La peli se negocia.",
+      "Snack recomendado.",
+      "Drama opcional, comodidad obligatoria."
+    ]
   },
-  sushi: {
-    icon: "🍣",
-    title: "Ir a comer sushi",
-    themeClass: "theme-sushi",
-    description: "Plan oficial de cita bonita: sushi, risas, conversación y compañía insuperable. Servicio recomendado para novias con antojo de makis y ganas de pasar tiempo con Javi."
+  {
+    id: "cafe",
+    icon: "☕",
+    title: "Café y Charla",
+    category: "Plan corto",
+    description: "Plan sencillo para veros, hablar y desconectar un rato.",
+    eta: "45-90 min",
+    durations: ["Café rápido", "Merienda", "Plan sin prisa"],
+    bullets: [
+      "Perfecto para días con poco tiempo.",
+      "Sirve para actualizar vida.",
+      "Puede convertirse en cena si se lía."
+    ]
+  },
+  {
+    id: "sorpresa",
+    icon: "🎁",
+    title: "Plan Sorpresa",
+    category: "Sorpresa",
+    description: "Laura elige fecha y Javi se encarga de proponer algo.",
+    eta: "Variable",
+    durations: ["Plan corto", "Plan medio", "Plan completo"],
+    bullets: [
+      "La clienta propone fecha.",
+      "El proveedor prepara idea.",
+      "Puede incluir comida, paseo o plan random."
+    ]
+  },
+  {
+    id: "paseo",
+    icon: "🚗",
+    title: "Paseo / Recogida",
+    category: "Movimiento",
+    description: "Plan de coche, paseo o recogida si cuadra disponibilidad.",
+    eta: "Variable",
+    durations: ["Paseo corto", "Recogida", "Plan con coche"],
+    bullets: [
+      "Sujeto a horarios y gasolina emocional.",
+      "Ideal para moverse sin complicarse.",
+      "Destino negociable."
+    ]
   }
-};
+];
 
-const STORAGE_KEY = "reservas_vip_javi";
-let currentQuestionIndex = 0;
-let selectedService = "telenovio";
-
-const gateSection = document.getElementById("gate-section");
-const servicesSection = document.getElementById("services-section");
+const gateScreen = document.getElementById("gate-screen");
+const appScreen = document.getElementById("app-screen");
 const gateForm = document.getElementById("gate-form");
 const gateQuestion = document.getElementById("gate-question");
-const gateAnswer = document.getElementById("gate-answer");
+const gateInput = document.getElementById("gate-input");
 const gateError = document.getElementById("gate-error");
-const progressFill = document.getElementById("progress-fill");
+const progressBar = document.getElementById("progress-bar");
+const logoutBtn = document.getElementById("logout-btn");
 
-const bookingPanel = document.getElementById("booking-panel");
-const serviceTitle = document.getElementById("service-title");
-const serviceDescription = document.getElementById("service-description");
-const serviceKicker = document.getElementById("service-kicker");
-const bookingForm = document.getElementById("booking-form");
-const bookingStatus = document.getElementById("booking-status");
-const bookingsList = document.getElementById("bookings-list");
-const clearBookingsButton = document.getElementById("clear-bookings");
-const logoutButton = document.getElementById("logout-button");
+const featuredServices = document.getElementById("featured-services");
+const allServices = document.getElementById("all-services");
+const totalProposals = document.getElementById("total-proposals");
+const nextPlan = document.getElementById("next-plan");
+
+const modal = document.getElementById("modal");
+const modalIcon = document.getElementById("modal-icon");
+const modalCategory = document.getElementById("modal-category");
+const modalTitle = document.getElementById("modal-title");
+const modalDescription = document.getElementById("modal-description");
+const modalList = document.getElementById("modal-list");
+
+const proposalForm = document.getElementById("proposal-form");
+const serviceId = document.getElementById("service-id");
+const proposalDate = document.getElementById("proposal-date");
+const proposalTime = document.getElementById("proposal-time");
+const proposalDuration = document.getElementById("proposal-duration");
+const proposalPriority = document.getElementById("proposal-priority");
+const proposalNote = document.getElementById("proposal-note");
+const proposalStatus = document.getElementById("proposal-status");
+
+const calendarTitle = document.getElementById("calendar-title");
+const calendarGrid = document.getElementById("calendar-grid");
+const prevMonth = document.getElementById("prev-month");
+const nextMonth = document.getElementById("next-month");
+const selectedTitle = document.getElementById("selected-title");
+const dayBookings = document.getElementById("day-bookings");
+const bookingList = document.getElementById("booking-list");
+const clearHistory = document.getElementById("clear-history");
+const toast = document.getElementById("toast");
+
+let selectedQuestions = [];
+let questionIndex = 0;
+let calendarDate = new Date();
+let selectedDate = toDateKey(new Date());
 
 init();
 
 function init() {
-  if (sessionStorage.getItem("accesoVipJavi") === "true") {
-    showServices();
-  } else {
-    renderQuestion();
-  }
+  bindEvents();
+  renderServices();
+  setMinDate();
 
-  document.querySelectorAll(".service-card").forEach((card) => {
-    card.addEventListener("click", () => selectService(card.dataset.service));
+  if (sessionStorage.getItem(SESSION_KEY) === "true") {
+    showApp();
+  } else {
+    startGate();
+  }
+}
+
+function bindEvents() {
+  gateForm.addEventListener("submit", handleGate);
+  logoutBtn.addEventListener("click", logout);
+
+  document.querySelectorAll(".nav-btn").forEach(btn => {
+    btn.addEventListener("click", () => showPage(btn.dataset.page));
   });
 
-  gateForm.addEventListener("submit", handleGateSubmit);
-  bookingForm.addEventListener("submit", handleBookingSubmit);
-  clearBookingsButton.addEventListener("click", clearBookings);
-  logoutButton.addEventListener("click", logout);
+  document.querySelectorAll("[data-go]").forEach(btn => {
+    btn.addEventListener("click", () => showPage(btn.dataset.go));
+  });
 
-  renderBookings();
-  selectService(selectedService);
+  document.querySelectorAll("[data-close]").forEach(el => {
+    el.addEventListener("click", closeModal);
+  });
+
+  proposalForm.addEventListener("submit", handleProposal);
+
+  prevMonth.addEventListener("click", () => {
+    calendarDate.setMonth(calendarDate.getMonth() - 1);
+    renderCalendar();
+  });
+
+  nextMonth.addEventListener("click", () => {
+    calendarDate.setMonth(calendarDate.getMonth() + 1);
+    renderCalendar();
+  });
+
+  clearHistory.addEventListener("click", () => {
+    if (!confirm("¿Seguro que quieres borrar el historial local de este móvil?")) return;
+
+    localStorage.removeItem(STORAGE_KEY);
+    refresh();
+    showToast("Historial local borrado.");
+  });
 }
 
-function normalize(value) {
-  return String(value || "")
-    .trim()
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "");
-}
-
-function isCorrectDate(answer) {
-  const cleaned = normalize(answer)
-    .replace(/\s+/g, "")
-    .replace(/de/g, "")
-    .replace(/abril/g, "04")
-    .replace(/[.]/g, "/");
-
-  const accepted = [
-    "24/04/2026",
-    "24-04-2026",
-    "24042026",
-    "2026-04-24",
-    "2026/04/24",
-    "24/4/2026",
-    "24-4-2026"
-  ];
-
-  return accepted.includes(cleaned);
+function startGate() {
+  selectedQuestions = shuffle([...QUESTIONS]).slice(0, QUESTION_COUNT);
+  questionIndex = 0;
+  renderQuestion();
 }
 
 function renderQuestion() {
-  const question = QUESTIONS[currentQuestionIndex];
-  gateQuestion.textContent = question.text;
-  gateAnswer.type = question.inputType || "text";
-  gateAnswer.placeholder = question.placeholder || "";
+  const q = selectedQuestions[questionIndex];
 
-  if (question.inputType === "date") {
-    gateAnswer.min = "2026-01-01";
-    gateAnswer.max = "2026-12-31";
-  } else {
-    gateAnswer.removeAttribute("min");
-    gateAnswer.removeAttribute("max");
-  }
-
-  gateAnswer.value = "";
-  gateAnswer.focus();
+  gateQuestion.textContent = q.text;
   gateError.textContent = "";
-  progressFill.style.width = currentQuestionIndex === 0 ? "50%" : "100%";
+  progressBar.style.width = `${(questionIndex / QUESTION_COUNT) * 100}%`;
+
+  gateInput.innerHTML = `
+    <input
+      id="answer-input"
+      type="${q.type === "date" ? "date" : "text"}"
+      ${q.type === "text" ? `placeholder="${q.placeholder || "Escribe aquí..."}"` : ""}
+      autocomplete="off"
+      required
+    />
+  `;
+
+  setTimeout(() => document.getElementById("answer-input").focus(), 80);
 }
 
-function handleGateSubmit(event) {
+function handleGate(event) {
   event.preventDefault();
-  const question = QUESTIONS[currentQuestionIndex];
-  const answer = gateAnswer.value;
 
-  if (!question.validate(answer)) {
-    gateError.textContent = question.error;
-    gateAnswer.select();
+  const q = selectedQuestions[questionIndex];
+  const input = document.getElementById("answer-input");
+
+  if (!q.validate(input.value)) {
+    gateError.textContent = q.error;
+    input.select?.();
     return;
   }
 
-  currentQuestionIndex += 1;
+  questionIndex++;
 
-  if (currentQuestionIndex >= QUESTIONS.length) {
-    sessionStorage.setItem("accesoVipJavi", "true");
-    showServices();
+  if (questionIndex >= QUESTION_COUNT) {
+    progressBar.style.width = "100%";
+    sessionStorage.setItem(SESSION_KEY, "true");
+    setTimeout(showApp, 220);
     return;
   }
 
   renderQuestion();
 }
 
-function showServices() {
-  gateSection.classList.add("hidden");
-  servicesSection.classList.remove("hidden");
-  selectService(selectedService);
-  renderBookings();
+function showApp() {
+  gateScreen.classList.add("hidden");
+  appScreen.classList.remove("hidden");
+  refresh();
 }
 
 function logout() {
-  sessionStorage.removeItem("accesoVipJavi");
-  currentQuestionIndex = 0;
-  servicesSection.classList.add("hidden");
-  gateSection.classList.remove("hidden");
-  renderQuestion();
+  sessionStorage.removeItem(SESSION_KEY);
+  appScreen.classList.add("hidden");
+  gateScreen.classList.remove("hidden");
+  startGate();
 }
 
-function selectService(serviceKey) {
-  selectedService = serviceKey;
-  const service = SERVICES[serviceKey];
-
-  document.querySelectorAll(".service-card").forEach((card) => {
-    card.classList.toggle("active", card.dataset.service === serviceKey);
+function showPage(page) {
+  document.querySelectorAll(".page").forEach(p => {
+    p.classList.toggle("active", p.id === `page-${page}`);
   });
 
-  bookingPanel.classList.remove("theme-telenovio", "theme-masajes", "theme-sushi");
-  bookingPanel.classList.add(service.themeClass);
-  serviceKicker.textContent = `${service.icon} Servicio seleccionado`;
-  serviceTitle.textContent = service.title;
-  serviceDescription.textContent = service.description;
-  bookingStatus.textContent = "";
+  document.querySelectorAll(".nav-btn").forEach(btn => {
+    btn.classList.toggle("active", btn.dataset.page === page);
+  });
+
+  if (page === "calendar") renderCalendar();
+  if (page === "bookings") renderBookings();
 }
 
-async function handleBookingSubmit(event) {
+function renderServices() {
+  featuredServices.innerHTML = SERVICES.slice(0, 3).map(serviceTemplate).join("");
+  allServices.innerHTML = SERVICES.map(serviceTemplate).join("");
+
+  document.querySelectorAll("[data-service]").forEach(card => {
+    card.addEventListener("click", () => openService(card.dataset.service));
+  });
+}
+
+function serviceTemplate(service) {
+  return `
+    <button class="service-card" type="button" data-service="${service.id}">
+      <div class="service-row">
+        <div class="service-icon">${service.icon}</div>
+
+        <div>
+          <p class="eyebrow">${service.category}</p>
+          <h3>${service.title}</h3>
+          <p>${service.description}</p>
+
+          <div class="chips">
+            <span class="chip">⏱️ ${service.eta}</span>
+            <span class="chip">Proponer plan</span>
+          </div>
+        </div>
+      </div>
+    </button>
+  `;
+}
+
+function openService(id) {
+  const service = SERVICES.find(s => s.id === id);
+  if (!service) return;
+
+  serviceId.value = service.id;
+  modalIcon.textContent = service.icon;
+  modalCategory.textContent = service.category;
+  modalTitle.textContent = service.title;
+  modalDescription.textContent = service.description;
+  modalList.innerHTML = service.bullets.map(item => `<li>${item}</li>`).join("");
+  proposalDuration.innerHTML = service.durations.map(item => `<option value="${item}">${item}</option>`).join("");
+
+  proposalForm.reset();
+  serviceId.value = service.id;
+  proposalStatus.textContent = "";
+  setMinDate();
+
+  modal.classList.remove("hidden");
+  document.body.style.overflow = "hidden";
+}
+
+function closeModal() {
+  modal.classList.add("hidden");
+  document.body.style.overflow = "";
+}
+
+async function handleProposal(event) {
   event.preventDefault();
 
-  const service = SERVICES[selectedService];
-  const booking = {
-    id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
-    service: service.title,
-    person: document.getElementById("booker-name").value.trim(),
-    date: document.getElementById("booking-date").value,
-    time: document.getElementById("booking-time").value,
-    notes: document.getElementById("booking-notes").value.trim(),
+  const service = SERVICES.find(s => s.id === serviceId.value);
+  if (!service) return;
+
+  const proposal = {
+    id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
+    serviceId: service.id,
+    serviceTitle: service.title,
+    serviceIcon: service.icon,
+    category: service.category,
+    date: proposalDate.value,
+    time: proposalTime.value,
+    duration: proposalDuration.value,
+    priority: proposalPriority.value,
+    note: proposalNote.value.trim(),
     createdAt: new Date().toISOString()
   };
 
-  saveBooking(booking);
-  renderBookings();
-  bookingStatus.textContent = "Reserva guardada 💘";
+  proposalStatus.textContent = "Enviando propuesta...";
+
+  saveProposal(proposal);
+  refresh();
 
   try {
-    if (CONFIG.formspreeEndpoint && CONFIG.formspreeEndpoint.startsWith("https://formspree.io/")) {
-      await sendWithFormspree(booking);
-      bookingStatus.textContent = "Reserva guardada y enviada por correo 💌";
-    } else {
-      openMailFallback(booking);
-    }
+    await sendProposalByEmail(proposal);
+
+    proposalStatus.textContent = "Propuesta enviada. Javi la recibe por correo.";
+    showToast("Propuesta enviada a JaviEats.");
+
+    setTimeout(() => {
+      closeModal();
+
+      selectedDate = proposal.date;
+
+      const [year, month] = proposal.date.split("-").map(Number);
+      calendarDate = new Date(year, month - 1, 1);
+
+      showPage("calendar");
+      renderCalendar();
+    }, 850);
   } catch (error) {
     console.error(error);
-    bookingStatus.textContent = "Reserva guardada. El envío por correo ha fallado, revisa la configuración de Formspree.";
+    proposalStatus.textContent = "Guardada en calendario local, pero el correo no ha salido. Revisa Formspree.";
+    showToast("Guardada localmente. Revisa Formspree.");
   }
-
-  bookingForm.reset();
-  document.getElementById("booker-name").value = "Laura la quejica";
 }
 
-function getBookings() {
+async function sendProposalByEmail(proposal) {
+  const payload = {
+    _subject: `Nueva propuesta en JaviEats - ${proposal.serviceTitle}`,
+    destino: CONFIG.emailDestino,
+    servicio: proposal.serviceTitle,
+    categoria: proposal.category,
+    fecha: formatDate(proposal.date),
+    hora: proposal.time,
+    duracion: proposal.duration,
+    nivel_de_ganas: proposal.priority,
+    nota: proposal.note || "Sin nota",
+    creada_en: new Date(proposal.createdAt).toLocaleString("es-ES")
+  };
+
+  const response = await fetch(CONFIG.formspreeEndpoint, {
+    method: "POST",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(payload)
+  });
+
+  if (!response.ok) {
+    throw new Error("Formspree no ha aceptado el envío");
+  }
+}
+
+function saveProposal(proposal) {
+  const proposals = getProposals();
+
+  proposals.unshift(proposal);
+
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(proposals));
+}
+
+function getProposals() {
   try {
     return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
   } catch {
@@ -242,96 +462,187 @@ function getBookings() {
   }
 }
 
-function saveBooking(booking) {
-  const bookings = getBookings();
-  bookings.unshift(booking);
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(bookings));
+function refresh() {
+  const proposals = getProposals();
+
+  totalProposals.textContent = proposals.length;
+
+  const now = new Date();
+
+  const future = proposals
+    .filter(p => new Date(`${p.date}T${p.time}`) >= now)
+    .sort((a, b) => `${a.date}T${a.time}`.localeCompare(`${b.date}T${b.time}`));
+
+  nextPlan.textContent = future[0] ? shortDate(future[0].date) : "—";
+
+  renderBookings();
+  renderCalendar();
 }
 
 function renderBookings() {
-  const bookings = getBookings();
+  const proposals = getProposals();
 
-  if (!bookings.length) {
-    bookingsList.innerHTML = `<div class="booking-item"><strong>Aún no hay reservas.</strong><p>Cuando se reserve algo, aparecerá aquí.</p></div>`;
+  if (!proposals.length) {
+    bookingList.innerHTML = `<div class="empty">Todavía no hay propuestas guardadas en este móvil.</div>`;
     return;
   }
 
-  bookingsList.innerHTML = bookings.map((booking) => {
-    const notes = booking.notes ? `<p><strong>Notas:</strong> ${escapeHTML(booking.notes)}</p>` : "";
-    return `
-      <article class="booking-item">
-        <strong>${escapeHTML(booking.service)} · ${formatDate(booking.date)} a las ${escapeHTML(booking.time)}</strong>
-        <p><strong>Reserva:</strong> ${escapeHTML(booking.person)}</p>
-        ${notes}
-      </article>
+  bookingList.innerHTML = proposals.map(bookingTemplate).join("");
+}
+
+function bookingTemplate(p) {
+  return `
+    <article class="booking-card">
+      <div class="booking-top">
+        <div>
+          <div class="booking-title">${p.serviceIcon} ${p.serviceTitle}</div>
+          <p>${formatDate(p.date)} · ${p.time} · ${p.duration}</p>
+        </div>
+
+        <span class="status">Pendiente</span>
+      </div>
+
+      <p><strong>Nivel:</strong> ${p.priority}</p>
+
+      ${p.note ? `<p><strong>Nota:</strong> ${escapeHTML(p.note)}</p>` : ""}
+    </article>
+  `;
+}
+
+function renderCalendar() {
+  const proposals = getProposals();
+  const year = calendarDate.getFullYear();
+  const month = calendarDate.getMonth();
+
+  calendarTitle.textContent = new Intl.DateTimeFormat("es-ES", {
+    month: "long",
+    year: "numeric"
+  }).format(calendarDate);
+
+  const firstDay = new Date(year, month, 1);
+  const lastDay = new Date(year, month + 1, 0);
+  const startOffset = (firstDay.getDay() + 6) % 7;
+  const todayKey = toDateKey(new Date());
+
+  let html = "";
+
+  for (let i = 0; i < startOffset; i++) {
+    html += `<button class="day is-empty" type="button"></button>`;
+  }
+
+  for (let day = 1; day <= lastDay.getDate(); day++) {
+    const key = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+    const hasBooking = proposals.some(p => p.date === key);
+
+    html += `
+      <button
+        class="day ${key === todayKey ? "is-today" : ""} ${key === selectedDate ? "is-selected" : ""} ${hasBooking ? "has-booking" : ""}"
+        type="button"
+        data-date="${key}"
+      >
+        ${day}
+      </button>
     `;
-  }).join("");
-}
+  }
 
-function clearBookings() {
-  const confirmed = confirm("¿Seguro que quieres borrar el historial local de reservas?");
-  if (!confirmed) return;
-  localStorage.removeItem(STORAGE_KEY);
-  renderBookings();
-}
+  calendarGrid.innerHTML = html;
 
-async function sendWithFormspree(booking) {
-  const response = await fetch(CONFIG.formspreeEndpoint, {
-    method: "POST",
-    headers: {
-      "Accept": "application/json",
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      asunto: `Nueva reserva VIP: ${booking.service}`,
-      servicio: booking.service,
-      reserva_de: booking.person,
-      dia: booking.date,
-      hora: booking.time,
-      notas: booking.notes || "Sin notas especiales",
-      creado: booking.createdAt
-    })
+  document.querySelectorAll("[data-date]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      selectedDate = btn.dataset.date;
+      renderCalendar();
+    });
   });
 
-  if (!response.ok) {
-    throw new Error("No se pudo enviar el formulario.");
-  }
+  renderDayDetail();
 }
 
-function openMailFallback(booking) {
-  if (!CONFIG.emailDestino || CONFIG.emailDestino.includes("TU_CORREO_AQUI")) {
-    bookingStatus.textContent = "Reserva guardada. Para recibir correos, cambia TU_CORREO_AQUI en script.js o configura Formspree.";
+function renderDayDetail() {
+  const proposals = getProposals()
+    .filter(p => p.date === selectedDate)
+    .sort((a, b) => a.time.localeCompare(b.time));
+
+  selectedTitle.textContent = formatDate(selectedDate);
+
+  if (!proposals.length) {
+    dayBookings.innerHTML = `<div class="empty">No hay propuestas para este día.</div>`;
     return;
   }
 
-  const subject = encodeURIComponent(`Nueva reserva VIP: ${booking.service}`);
-  const body = encodeURIComponent(
-`Nueva reserva VIP con Javi
-
-Servicio: ${booking.service}
-Reserva de: ${booking.person}
-Día: ${formatDate(booking.date)}
-Hora: ${booking.time}
-Notas: ${booking.notes || "Sin notas especiales"}
-
-Generado desde la web de reservas.`
-  );
-
-  window.location.href = `mailto:${CONFIG.emailDestino}?subject=${subject}&body=${body}`;
+  dayBookings.innerHTML = proposals.map(bookingTemplate).join("");
 }
 
-function formatDate(value) {
-  if (!value) return "sin fecha";
-  const [year, month, day] = value.split("-");
-  if (!year || !month || !day) return value;
-  return `${day}/${month}/${year}`;
+function setMinDate() {
+  const today = toDateKey(new Date());
+
+  proposalDate.min = today;
+
+  if (!proposalDate.value) {
+    proposalDate.value = today;
+  }
 }
 
-function escapeHTML(value) {
+function normalize(value) {
   return String(value || "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/\s+/g, " ");
+}
+
+function shuffle(array) {
+  return array
+    .map(value => ({ value, sort: Math.random() }))
+    .sort((a, b) => a.sort - b.sort)
+    .map(({ value }) => value);
+}
+
+function toDateKey(date) {
+  const d = new Date(date);
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+}
+
+function formatDate(dateKey) {
+  const [year, month, day] = dateKey.split("-").map(Number);
+
+  return new Intl.DateTimeFormat("es-ES", {
+    weekday: "long",
+    day: "2-digit",
+    month: "long",
+    year: "numeric"
+  }).format(new Date(year, month - 1, day));
+}
+
+function shortDate(dateKey) {
+  const [year, month, day] = dateKey.split("-").map(Number);
+
+  return new Intl.DateTimeFormat("es-ES", {
+    day: "2-digit",
+    month: "short"
+  }).format(new Date(year, month - 1, day));
+}
+
+function escapeHTML(text) {
+  return String(text)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function showToast(message) {
+  toast.textContent = message;
+  toast.classList.remove("hidden");
+
+  clearTimeout(showToast.timer);
+
+  showToast.timer = setTimeout(() => {
+    toast.classList.add("hidden");
+  }, 2600);
 }
