@@ -7,7 +7,7 @@ const STORAGE_KEY = "javieats_propuestas_v1";
 const SESSION_KEY = "javieats_access_ok";
 const QUESTION_COUNT = 2;
 
-const SURPRISE_UNLOCK_DATE = new Date("2026-07-13T10:00:00+02:00");
+const SURPRISE_UNLOCK_DATE = new Date("2026-07-13T19:00:00+02:00");
 const LETTER_FILE = "carta.txt";
 
 const QUESTIONS = [
