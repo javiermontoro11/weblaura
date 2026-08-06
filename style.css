@@ -476,7 +476,7 @@ textarea:focus {
   transform: translateX(-50%);
   width: min(calc(100% - 24px), 516px);
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 6px;
   padding: 8px;
   border: 1px solid rgba(230, 221, 211, 0.95);
@@ -488,18 +488,25 @@ textarea:focus {
 }
 
 .nav-btn {
-  border: 0;
-  background: transparent;
-  border-radius: 18px;
-  padding: 9px 6px;
-  font-weight: 900;
-  color: var(--muted);
   display: grid;
+  justify-items: center;
   gap: 2px;
+  min-width: 0;
+  padding: 8px 2px;
+  border: 0;
+  border-radius: 18px;
+  background: transparent;
+  color: var(--muted);
+  font-weight: 900;
 }
 
 .nav-btn span {
-  font-size: 0.72rem;
+  width: 100%;
+  overflow: hidden;
+  font-size: 0.62rem;
+  line-height: 1.1;
+  text-align: center;
+  white-space: nowrap;
 }
 
 .nav-btn.active {
@@ -1157,5 +1164,18 @@ textarea:focus {
 
   .choice-btn {
     font-size: 0.82rem;
+  }
+    .bottom-nav {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 2px;
+    padding: 6px;
+  }
+
+  .nav-btn {
+    padding: 7px 1px;
+  }
+
+  .nav-btn span {
+    font-size: 0.57rem;
   }
 }
