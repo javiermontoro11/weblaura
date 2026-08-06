@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#f4f0ea" />
 
   <title>JaviEats</title>
 
@@ -30,7 +31,9 @@
 
           <p id="gate-error" class="error"></p>
 
-          <button class="btn btn-primary" type="submit">Continuar</button>
+          <button class="btn btn-primary" type="submit">
+            Continuar
+          </button>
         </form>
       </div>
     </section>
@@ -42,59 +45,64 @@
           <h1>JaviEats</h1>
         </div>
 
-        <button id="logout-btn" class="icon-btn" type="button" title="Cerrar sesión">⏻</button>
+        <button
+          id="logout-btn"
+          class="icon-btn"
+          type="button"
+          title="Cerrar sesión"
+        >
+          ⏻
+        </button>
       </header>
 
       <section id="page-home" class="page active">
         <div class="hero">
           <p class="eyebrow">Hola Laura 👋</p>
+
           <h2>¿Qué plan proponemos hoy?</h2>
-          <p>Elige servicio, fecha y hora. Esto no es pedir por pedir: se propone, se habla y se disfruta juntos.</p>
-          <div class="availability">Disponible bajo negociación</div>
+
+          <p>
+            Elige servicio, fecha y hora. Esto no es pedir por pedir:
+            se propone, se habla y se disfruta juntos.
+          </p>
+
+          <div class="availability">
+            Disponible bajo negociación
+          </div>
         </div>
 
-        <div class="surprise-card" id="surprise-card">
-          <div class="surprise-top">
-            <div class="surprise-icon">🎁</div>
+        <section id="daily-game-card" class="game-card">
+          <div class="game-card-top">
+            <div class="game-icon">✊</div>
 
             <div>
-              <p class="eyebrow">Pedido secreto</p>
-              <h2>Entrega especial pendiente</h2>
-              <p class="muted">Hay algo preparado en JaviEats. Todavía no está listo, pero ya está en camino.</p>
+              <p class="eyebrow">Reto diario</p>
+
+              <h2>Piedra, papel o tijera</h2>
+
+              <p class="muted">
+                Consigue 3 puntos antes de que la máquina consiga 2.
+                Solo hay una partida al día.
+              </p>
             </div>
           </div>
 
-          <div class="countdown" id="surprise-countdown">
-            <div class="count-box">
-              <strong id="count-days">00</strong>
-              <span>Días</span>
-            </div>
-
-            <div class="count-box">
-              <strong id="count-hours">00</strong>
-              <span>Horas</span>
-            </div>
-
-            <div class="count-box">
-              <strong id="count-minutes">00</strong>
-              <span>Min</span>
-            </div>
-
-            <div class="count-box">
-              <strong id="count-seconds">00</strong>
-              <span>Seg</span>
-            </div>
+          <div class="secret-prize-pill">
+            🎁 Premio secreto
           </div>
 
-          <div id="surprise-status" class="surprise-status">
-            Preparando sorpresa
-          </div>
+          <p id="game-home-status" class="game-home-status">
+            Partida disponible.
+          </p>
 
-          <div class="surprise-actions">
-            <button id="hint-btn" class="btn btn-secondary" type="button">🔍 Abrir pista</button>
-            <button id="open-surprise-btn" class="btn btn-primary locked" type="button">🔒 Abrir sorpresa</button>
-          </div>
-        </div>
+          <button
+            id="game-home-button"
+            class="btn btn-primary"
+            type="button"
+          >
+            Jugar partida de hoy
+          </button>
+        </section>
 
         <div class="stats">
           <div class="stat">
@@ -110,14 +118,25 @@
 
         <div class="section-title">
           <h3>Más pedidos</h3>
-          <button class="link-btn" type="button" data-go="services">Ver todo</button>
+
+          <button
+            class="link-btn"
+            type="button"
+            data-go="services"
+          >
+            Ver todo
+          </button>
         </div>
 
         <div id="featured-services" class="services"></div>
 
         <div class="info-card">
           <strong>Cómo funciona</strong>
-          <p>La propuesta se envía por correo a Javi y también se guarda en el calendario de este móvil.</p>
+
+          <p>
+            La propuesta se envía por correo a Javi y también se guarda
+            en el calendario de este móvil.
+          </p>
         </div>
       </section>
 
@@ -142,9 +161,23 @@
 
         <div class="calendar-card">
           <div class="calendar-head">
-            <button id="prev-month" class="icon-btn" type="button">‹</button>
+            <button
+              id="prev-month"
+              class="icon-btn"
+              type="button"
+            >
+              ‹
+            </button>
+
             <h3 id="calendar-title">Mes</h3>
-            <button id="next-month" class="icon-btn" type="button">›</button>
+
+            <button
+              id="next-month"
+              class="icon-btn"
+              type="button"
+            >
+              ›
+            </button>
           </div>
 
           <div class="weekdays">
@@ -165,29 +198,70 @@
         </div>
 
         <div id="day-bookings" class="list"></div>
-      </section>
 
-      <section id="page-bookings" class="page">
-        <div class="section-title">
+        <div class="section-title history-title">
           <div>
             <p class="eyebrow">Historial local</p>
-            <h2>Propuestas enviadas</h2>
+            <h3>Todas las propuestas</h3>
           </div>
 
-          <button id="clear-history" class="link-btn danger" type="button">Limpiar</button>
+          <button
+            id="clear-history"
+            class="link-btn danger"
+            type="button"
+          >
+            Limpiar
+          </button>
         </div>
 
         <div id="booking-list" class="list"></div>
       </section>
 
+      <section id="page-memories" class="page">
+        <div class="memories-hero">
+          <p class="eyebrow">Nuestro archivo</p>
+
+          <h2>Recuerdos</h2>
+
+          <p>
+            Cartas, flores y momentos que merece la pena guardar.
+          </p>
+        </div>
+
+        <div
+          id="memories-list"
+          class="memories-timeline"
+        ></div>
+
+        <div class="section-title vouchers-title">
+          <div>
+            <p class="eyebrow">Premios ganados</p>
+            <h2>Mis vales</h2>
+          </div>
+        </div>
+
+        <div id="voucher-list" class="voucher-list"></div>
+      </section>
+
       <section id="page-letter" class="page letter-page">
-        <button class="back-link" type="button" data-go="home">← Volver a JaviEats</button>
+        <button
+          class="back-link"
+          type="button"
+          data-go="memories"
+        >
+          ← Volver a recuerdos
+        </button>
 
         <article class="letter-card">
           <div class="letter-stamp">💌</div>
 
-          <p class="eyebrow">Pedido entregado</p>
-          <h2>Para Laura</h2>
+          <p id="letter-eyebrow" class="eyebrow">
+            Recuerdo
+          </p>
+
+          <h2 id="letter-title">
+            Para Laura
+          </h2>
 
           <div id="letter-content" class="letter-content">
             <p>Cargando carta...</p>
@@ -196,39 +270,72 @@
       </section>
 
       <nav class="bottom-nav">
-        <button class="nav-btn active" type="button" data-page="home">
+        <button
+          class="nav-btn active"
+          type="button"
+          data-page="home"
+        >
           🏠
           <span>Inicio</span>
         </button>
 
-        <button class="nav-btn" type="button" data-page="services">
+        <button
+          class="nav-btn"
+          type="button"
+          data-page="services"
+        >
           🛵
           <span>Servicios</span>
         </button>
 
-        <button class="nav-btn" type="button" data-page="calendar">
+        <button
+          class="nav-btn"
+          type="button"
+          data-page="calendar"
+        >
           📅
           <span>Calendario</span>
         </button>
 
-        <button class="nav-btn" type="button" data-page="bookings">
-          📦
-          <span>Propuestas</span>
+        <button
+          class="nav-btn"
+          type="button"
+          data-page="memories"
+        >
+          🗃️
+          <span>Recuerdos</span>
         </button>
       </nav>
     </section>
   </main>
 
-  <section id="modal" class="modal hidden">
-    <div class="modal-backdrop" data-close></div>
+  <section id="service-modal" class="modal hidden">
+    <div
+      class="modal-backdrop"
+      data-service-close
+    ></div>
 
     <div class="modal-panel">
-      <button class="modal-close" type="button" data-close>×</button>
+      <button
+        class="modal-close"
+        type="button"
+        data-service-close
+      >
+        ×
+      </button>
 
-      <div id="modal-icon" class="modal-icon">🍣</div>
+      <div id="modal-icon" class="modal-icon">
+        🍣
+      </div>
 
-      <p id="modal-category" class="eyebrow">Categoría</p>
-      <h2 id="modal-title">Servicio</h2>
+      <p id="modal-category" class="eyebrow">
+        Categoría
+      </p>
+
+      <h2 id="modal-title">
+        Servicio
+      </h2>
+
       <p id="modal-description" class="muted"></p>
 
       <ul id="modal-list" class="clean-list"></ul>
@@ -239,62 +346,268 @@
         <div class="form-row">
           <label>
             Fecha
-            <input id="proposal-date" type="date" required />
+
+            <input
+              id="proposal-date"
+              type="date"
+              required
+            />
           </label>
 
           <label>
             Hora
-            <input id="proposal-time" type="time" required />
+
+            <input
+              id="proposal-time"
+              type="time"
+              required
+            />
           </label>
         </div>
 
         <label>
           Duración aproximada
-          <select id="proposal-duration" required></select>
+
+          <select
+            id="proposal-duration"
+            required
+          ></select>
         </label>
 
         <label>
           Nivel de ganas
-          <select id="proposal-priority" required>
-            <option value="Normal">Normal</option>
-            <option value="Me apetece bastante">Me apetece bastante</option>
-            <option value="Hoy estaría muy bien">Hoy estaría muy bien</option>
-            <option value="Plan necesario">Plan necesario</option>
+
+          <select
+            id="proposal-priority"
+            required
+          >
+            <option value="Normal">
+              Normal
+            </option>
+
+            <option value="Me apetece bastante">
+              Me apetece bastante
+            </option>
+
+            <option value="Hoy estaría muy bien">
+              Hoy estaría muy bien
+            </option>
+
+            <option value="Plan necesario">
+              Plan necesario
+            </option>
           </select>
         </label>
 
         <label>
           Nota opcional
-          <textarea id="proposal-note" rows="4" placeholder="Ej: me apetece cenar tranqui, espalda cargada, peli sin drama..."></textarea>
+
+          <textarea
+            id="proposal-note"
+            rows="4"
+            placeholder="Ej: me apetece cenar tranqui, espalda cargada, hoy necesito compañía..."
+          ></textarea>
         </label>
 
-        <button class="btn btn-primary" type="submit">Enviar propuesta</button>
+        <button
+          class="btn btn-primary"
+          type="submit"
+        >
+          Enviar propuesta
+        </button>
 
         <p id="proposal-status" class="note"></p>
       </form>
     </div>
   </section>
 
-  <section id="hint-modal" class="mini-modal hidden">
-    <div class="mini-modal-backdrop" data-hint-close></div>
+  <section id="game-modal" class="modal hidden">
+    <div
+      class="modal-backdrop"
+      data-game-close
+    ></div>
 
-    <div class="mini-modal-panel">
-      <button class="modal-close" type="button" data-hint-close>×</button>
+    <div class="modal-panel game-panel">
+      <button
+        class="modal-close"
+        type="button"
+        data-game-close
+      >
+        ×
+      </button>
 
-      <div class="modal-icon">🔍</div>
+      <div class="modal-icon">
+        🎮
+      </div>
 
-      <p class="eyebrow">Pista del pedido secreto</p>
-      <h2>No todo se come</h2>
-
-      <p class="hint-text">
-        Pista: no se come… salvo que seas un baifo.
+      <p class="eyebrow">
+        Reto diario
       </p>
 
-      <p class="hint-text">
-        Prometo no cebarte.
+      <h2>
+        Piedra, papel o tijera
+      </h2>
+
+      <p class="muted">
+        Tú necesitas 3 puntos. La máquina solo necesita 2.
+        Los empates no suman.
       </p>
 
-      <button class="btn btn-primary" type="button" data-hint-close>Vale, seguiré esperando</button>
+      <div class="scoreboard">
+        <div class="score-box">
+          <span>Laura</span>
+          <strong id="player-score">0</strong>
+        </div>
+
+        <div class="score-divider">
+          —
+        </div>
+
+        <div class="score-box">
+          <span>Máquina</span>
+          <strong id="machine-score">0</strong>
+        </div>
+      </div>
+
+      <p id="game-round-result" class="round-result">
+        Elige tu jugada para empezar.
+      </p>
+
+      <div id="game-choices" class="game-choices">
+        <button
+          class="choice-btn"
+          type="button"
+          data-choice="piedra"
+        >
+          <span>✊</span>
+          Piedra
+        </button>
+
+        <button
+          class="choice-btn"
+          type="button"
+          data-choice="papel"
+        >
+          <span>✋</span>
+          Papel
+        </button>
+
+        <button
+          class="choice-btn"
+          type="button"
+          data-choice="tijera"
+        >
+          <span>✌️</span>
+          Tijera
+        </button>
+      </div>
+
+      <div id="game-final" class="game-final hidden">
+        <div id="game-final-icon" class="game-final-icon">
+          🏆
+        </div>
+
+        <h3 id="game-final-title">
+          Resultado
+        </h3>
+
+        <p id="game-final-text" class="muted"></p>
+
+        <div id="prize-reveal" class="prize-reveal hidden">
+          <p class="eyebrow">
+            Premio desbloqueado
+          </p>
+
+          <h3 id="prize-title">
+            Vale especial
+          </h3>
+
+          <p id="prize-description"></p>
+
+          <div class="prize-actions">
+            <button
+              id="download-voucher-btn"
+              class="btn btn-primary"
+              type="button"
+            >
+              Descargar vale
+            </button>
+
+            <button
+              id="redeem-voucher-btn"
+              class="btn btn-secondary"
+              type="button"
+            >
+              Proponer canje
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <p id="game-daily-note" class="daily-note">
+        La partida se guarda en este dispositivo.
+      </p>
+    </div>
+  </section>
+
+  <section id="memory-modal" class="modal hidden">
+    <div
+      class="modal-backdrop"
+      data-memory-close
+    ></div>
+
+    <div class="modal-panel memory-panel">
+      <button
+        class="modal-close"
+        type="button"
+        data-memory-close
+      >
+        ×
+      </button>
+
+      <p id="memory-modal-date" class="eyebrow">
+        Fecha
+      </p>
+
+      <h2 id="memory-modal-title">
+        Recuerdo
+      </h2>
+
+      <p
+        id="memory-modal-description"
+        class="muted"
+      ></p>
+
+      <div class="gallery-viewer">
+        <button
+          id="gallery-prev"
+          class="gallery-arrow"
+          type="button"
+          aria-label="Foto anterior"
+        >
+          ‹
+        </button>
+
+        <img
+          id="gallery-image"
+          src=""
+          alt="Recuerdo"
+        />
+
+        <button
+          id="gallery-next"
+          class="gallery-arrow"
+          type="button"
+          aria-label="Foto siguiente"
+        >
+          ›
+        </button>
+      </div>
+
+      <p
+        id="gallery-counter"
+        class="gallery-counter"
+      ></p>
     </div>
   </section>
 
