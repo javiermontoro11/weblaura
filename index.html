@@ -17,7 +17,9 @@
         <div class="brand-pill">JaviEats</div>
 
         <h1>Acceso privado</h1>
-        <p class="muted">Antes de entrar toca pasar el control de calidad.</p>
+        <p class="muted">
+          Antes de entrar toca pasar el control de calidad.
+        </p>
 
         <div class="progress">
           <div id="progress-bar" class="progress-bar"></div>
@@ -62,8 +64,8 @@
           <h2>¿Qué plan proponemos hoy?</h2>
 
           <p>
-            Elige servicio, fecha y hora. Esto no es pedir por pedir:
-            se propone, se habla y se disfruta juntos.
+            Elige servicio, fecha y hora. Se propone, se habla
+            y se disfruta juntos.
           </p>
 
           <div class="availability">
@@ -81,14 +83,16 @@
               <h2>Piedra, papel o tijera</h2>
 
               <p class="muted">
-                Consigue 3 puntos antes de que la máquina consiga 2.
-                Solo hay una partida al día.
+                Cinco rondas. Los empates también consumen ronda.
+                Quien consiga más victorias gana.
               </p>
             </div>
           </div>
 
-          <div class="secret-prize-pill">
-            🎁 Premio secreto
+          <div class="game-rules-mini">
+            <span>5 rondas</span>
+            <span>1 intento diario</span>
+            <span>Premio secreto</span>
           </div>
 
           <p id="game-home-status" class="game-home-status">
@@ -134,8 +138,8 @@
           <strong>Cómo funciona</strong>
 
           <p>
-            La propuesta se envía por correo a Javi y también se guarda
-            en el calendario de este móvil.
+            La propuesta se envía por correo a Javi y también
+            se guarda en el calendario de este móvil.
           </p>
         </div>
       </section>
@@ -324,9 +328,7 @@
         ×
       </button>
 
-      <div id="modal-icon" class="modal-icon">
-        🍣
-      </div>
+      <div id="modal-icon" class="modal-icon">🍣</div>
 
       <p id="modal-category" class="eyebrow">
         Categoría
@@ -400,12 +402,15 @@
         </label>
 
         <label>
-          Nota opcional
+          Nota
+          <span id="proposal-note-hint" class="field-hint">
+            Opcional
+          </span>
 
           <textarea
             id="proposal-note"
             rows="4"
-            placeholder="Ej: me apetece cenar tranqui, espalda cargada, hoy necesito compañía..."
+            placeholder="Cuéntale a Javi cualquier detalle..."
           ></textarea>
         </label>
 
@@ -436,9 +441,7 @@
         ×
       </button>
 
-      <div class="modal-icon">
-        🎮
-      </div>
+      <div class="modal-icon">🎮</div>
 
       <p class="eyebrow">
         Reto diario
@@ -449,13 +452,23 @@
       </h2>
 
       <p class="muted">
-        Tú necesitas 3 puntos. La máquina solo necesita 2.
-        Los empates no suman.
+        Se juegan cinco rondas. Los empates consumen ronda.
+        Si acabáis empatados en victorias, habrá muerte súbita.
       </p>
+
+      <div class="round-information">
+        <strong id="game-round-label">
+          Ronda 1 de 5
+        </strong>
+
+        <span id="game-draws">
+          Empates: 0
+        </span>
+      </div>
 
       <div class="scoreboard">
         <div class="score-box">
-          <span>Laura</span>
+          <span>Victorias de Laura</span>
           <strong id="player-score">0</strong>
         </div>
 
@@ -464,8 +477,44 @@
         </div>
 
         <div class="score-box">
-          <span>Máquina</span>
+          <span>Victorias máquina</span>
           <strong id="machine-score">0</strong>
+        </div>
+      </div>
+
+      <div class="choice-arena">
+        <div class="choice-fighter">
+          <span class="fighter-name">Laura</span>
+
+          <div
+            id="player-choice-visual"
+            class="choice-visual"
+          >
+            ❔
+          </div>
+
+          <strong id="player-choice-label">
+            Sin elegir
+          </strong>
+        </div>
+
+        <div class="versus">
+          VS
+        </div>
+
+        <div class="choice-fighter">
+          <span class="fighter-name">Máquina</span>
+
+          <div
+            id="machine-choice-visual"
+            class="choice-visual"
+          >
+            ❔
+          </div>
+
+          <strong id="machine-choice-label">
+            Esperando
+          </strong>
         </div>
       </div>
 
