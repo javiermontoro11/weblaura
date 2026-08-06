@@ -2,49 +2,186 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#f4f0ea" />
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  />
+
+  <meta
+    name="theme-color"
+    content="#f4f0ea"
+  />
 
   <title>JaviEats</title>
 
-  <link rel="stylesheet" href="style.css" />
+  <link
+    rel="stylesheet"
+    href="style.css"
+  />
 </head>
 
 <body>
   <main class="app-shell">
-    <section id="gate-screen" class="screen gate-screen">
+
+    <!-- ===================================================
+         INICIO DE SESIÓN CON SUPABASE
+    ==================================================== -->
+
+    <section
+      id="auth-screen"
+      class="screen auth-screen"
+    >
+      <div class="gate-card auth-card">
+        <div class="brand-pill">
+          JaviEats
+        </div>
+
+        <div class="auth-icon">
+          💌
+        </div>
+
+        <h1>Bienvenido a JaviEats</h1>
+
+        <p class="muted">
+          Este espacio es privado. Inicia sesión con tu cuenta
+          para acceder.
+        </p>
+
+        <form
+          id="login-form"
+          class="form"
+        >
+          <label>
+            Correo electrónico
+
+            <input
+              id="login-email"
+              type="email"
+              autocomplete="email"
+              placeholder="tu@email.com"
+              required
+            />
+          </label>
+
+          <label>
+            Contraseña
+
+            <input
+              id="login-password"
+              type="password"
+              autocomplete="current-password"
+              placeholder="Tu contraseña"
+              required
+            />
+          </label>
+
+          <button
+            id="login-submit"
+            class="btn btn-primary"
+            type="submit"
+          >
+            Iniciar sesión
+          </button>
+
+          <p
+            id="login-status"
+            class="note"
+          ></p>
+        </form>
+
+        <p class="auth-help">
+          Solo pueden acceder Javi y Laura.
+        </p>
+      </div>
+    </section>
+
+
+    <!-- ===================================================
+         CONTROL PRIVADO DE JAVIEATS
+    ==================================================== -->
+
+    <section
+      id="gate-screen"
+      class="screen gate-screen hidden"
+    >
       <div class="gate-card">
-        <div class="brand-pill">JaviEats</div>
+        <div class="brand-pill">
+          JaviEats
+        </div>
 
         <h1>Acceso privado</h1>
+
         <p class="muted">
           Antes de entrar toca pasar el control de calidad.
         </p>
 
         <div class="progress">
-          <div id="progress-bar" class="progress-bar"></div>
+          <div
+            id="progress-bar"
+            class="progress-bar"
+          ></div>
         </div>
 
-        <form id="gate-form" class="form">
+        <form
+          id="gate-form"
+          class="form"
+        >
           <label>
-            <span id="gate-question">Pregunta</span>
+            <span id="gate-question">
+              Pregunta
+            </span>
+
             <span id="gate-input"></span>
           </label>
 
-          <p id="gate-error" class="error"></p>
+          <p
+            id="gate-error"
+            class="error"
+          ></p>
 
-          <button class="btn btn-primary" type="submit">
+          <button
+            class="btn btn-primary"
+            type="submit"
+          >
             Continuar
           </button>
         </form>
       </div>
     </section>
 
-    <section id="app-screen" class="screen hidden">
+
+    <!-- ===================================================
+         APLICACIÓN
+    ==================================================== -->
+
+    <section
+      id="app-screen"
+      class="screen hidden"
+    >
       <header class="app-header">
         <div>
-          <p class="eyebrow">Delivery de planes</p>
+          <p class="eyebrow">
+            Delivery de planes
+          </p>
+
           <h1>JaviEats</h1>
+
+          <div class="session-information">
+            <span
+              id="session-user-name"
+              class="session-user-name"
+            >
+              Usuario
+            </span>
+
+            <span
+              id="sync-status"
+              class="sync-status"
+            >
+              Conectando…
+            </span>
+          </div>
         </div>
 
         <button
@@ -52,14 +189,28 @@
           class="icon-btn"
           type="button"
           title="Cerrar sesión"
+          aria-label="Cerrar sesión"
         >
           ⏻
         </button>
       </header>
 
-      <section id="page-home" class="page active">
+
+      <!-- =================================================
+           INICIO
+      ================================================== -->
+
+      <section
+        id="page-home"
+        class="page active"
+      >
         <div class="hero">
-          <p class="eyebrow">Hola Laura 👋</p>
+          <p
+            id="home-greeting"
+            class="eyebrow"
+          >
+            Hola 👋
+          </p>
 
           <h2>¿Qué plan proponemos hoy?</h2>
 
@@ -73,12 +224,22 @@
           </div>
         </div>
 
-        <section id="daily-game-card" class="game-card">
+
+        <!-- RETO DIARIO -->
+
+        <section
+          id="daily-game-card"
+          class="game-card"
+        >
           <div class="game-card-top">
-            <div class="game-icon">✊</div>
+            <div class="game-icon">
+              ✊
+            </div>
 
             <div>
-              <p class="eyebrow">Reto diario</p>
+              <p class="eyebrow">
+                Reto diario
+              </p>
 
               <h2>Piedra, papel o tijera</h2>
 
@@ -91,12 +252,15 @@
 
           <div class="game-rules-mini">
             <span>5 rondas</span>
-            <span>1 intento diario</span>
+            <span>1 intento diario real</span>
             <span>Premio secreto</span>
           </div>
 
-          <p id="game-home-status" class="game-home-status">
-            Partida disponible.
+          <p
+            id="game-home-status"
+            class="game-home-status"
+          >
+            Comprobando la partida de hoy…
           </p>
 
           <button
@@ -108,17 +272,33 @@
           </button>
         </section>
 
+
+        <!-- ESTADÍSTICAS -->
+
         <div class="stats">
           <div class="stat">
-            <strong id="total-proposals">0</strong>
-            <span>propuestas enviadas</span>
+            <strong id="total-proposals">
+              0
+            </strong>
+
+            <span>
+              propuestas enviadas
+            </span>
           </div>
 
           <div class="stat">
-            <strong id="next-plan">—</strong>
-            <span>próximo plan</span>
+            <strong id="next-plan">
+              —
+            </strong>
+
+            <span>
+              próximo plan
+            </span>
           </div>
         </div>
+
+
+        <!-- SERVICIOS DESTACADOS -->
 
         <div class="section-title">
           <h3>Más pedidos</h3>
@@ -132,34 +312,82 @@
           </button>
         </div>
 
-        <div id="featured-services" class="services"></div>
+        <div
+          id="featured-services"
+          class="services"
+        ></div>
+
+
+        <!-- INFORMACIÓN -->
 
         <div class="info-card">
           <strong>Cómo funciona</strong>
 
           <p>
-            La propuesta se envía por correo a Javi y también
-            se guarda en el calendario de este móvil.
+            La propuesta se guarda en el calendario compartido
+            de JaviEats y aparecerá en los dispositivos de los dos.
           </p>
         </div>
       </section>
 
-      <section id="page-services" class="page">
+
+      <!-- =================================================
+           SERVICIOS
+      ================================================== -->
+
+      <section
+        id="page-services"
+        class="page"
+      >
         <div class="section-title">
           <div>
-            <p class="eyebrow">Catálogo</p>
+            <p class="eyebrow">
+              Catálogo
+            </p>
+
             <h2>Servicios disponibles</h2>
           </div>
         </div>
 
-        <div id="all-services" class="services"></div>
+        <div
+          id="all-services"
+          class="services"
+        ></div>
       </section>
 
-      <section id="page-calendar" class="page">
+
+      <!-- =================================================
+           CALENDARIO
+      ================================================== -->
+
+      <section
+        id="page-calendar"
+        class="page"
+      >
         <div class="section-title">
           <div>
-            <p class="eyebrow">Agenda</p>
+            <p class="eyebrow">
+              Agenda compartida
+            </p>
+
             <h2>Calendario</h2>
+          </div>
+        </div>
+
+        <div class="calendar-sync-card">
+          <span class="calendar-sync-icon">
+            ☁️
+          </span>
+
+          <div>
+            <strong>
+              Calendario sincronizado
+            </strong>
+
+            <p class="muted">
+              Los planes se guardan en Supabase y aparecen
+              en las cuentas de Javi y Laura.
+            </p>
           </div>
         </div>
 
@@ -169,16 +397,20 @@
               id="prev-month"
               class="icon-btn"
               type="button"
+              aria-label="Mes anterior"
             >
               ‹
             </button>
 
-            <h3 id="calendar-title">Mes</h3>
+            <h3 id="calendar-title">
+              Mes
+            </h3>
 
             <button
               id="next-month"
               class="icon-btn"
               type="button"
+              aria-label="Mes siguiente"
             >
               ›
             </button>
@@ -194,18 +426,29 @@
             <span>D</span>
           </div>
 
-          <div id="calendar-grid" class="calendar-grid"></div>
+          <div
+            id="calendar-grid"
+            class="calendar-grid"
+          ></div>
         </div>
 
         <div class="section-title">
-          <h3 id="selected-title">Día seleccionado</h3>
+          <h3 id="selected-title">
+            Día seleccionado
+          </h3>
         </div>
 
-        <div id="day-bookings" class="list"></div>
+        <div
+          id="day-bookings"
+          class="list"
+        ></div>
 
         <div class="section-title history-title">
           <div>
-            <p class="eyebrow">Historial local</p>
+            <p class="eyebrow">
+              Historial compartido
+            </p>
+
             <h3>Todas las propuestas</h3>
           </div>
 
@@ -218,12 +461,232 @@
           </button>
         </div>
 
-        <div id="booking-list" class="list"></div>
+        <div
+          id="booking-list"
+          class="list"
+        ></div>
       </section>
 
-      <section id="page-memories" class="page">
+
+      <!-- =================================================
+           APARTADO LAURA
+      ================================================== -->
+
+      <section
+        id="page-laura"
+        class="page"
+      >
+        <div class="laura-hero">
+          <div class="laura-hero-icon">
+            💌
+          </div>
+
+          <p class="eyebrow">
+            Un espacio para Laura
+          </p>
+
+          <h2>Laura</h2>
+
+          <p>
+            Mensajes, cartas, pensamientos, ideas y todo aquello
+            que quieras contarle a Javi.
+          </p>
+        </div>
+
+
+        <!-- ESCRIBIR A JAVI -->
+
+        <section
+          id="laura-compose-card"
+          class="laura-compose-card"
+        >
+          <div class="section-title">
+            <div>
+              <p class="eyebrow">
+                Escribir algo nuevo
+              </p>
+
+              <h3>Para Javi</h3>
+            </div>
+          </div>
+
+          <form
+            id="laura-message-form"
+            class="form"
+          >
+            <label>
+              ¿Qué quieres escribir?
+
+              <select
+                id="laura-message-type"
+                required
+              >
+                <option value="mensaje">
+                  Mensaje
+                </option>
+
+                <option value="carta">
+                  Carta
+                </option>
+
+                <option value="contarte">
+                  Algo que quiero contarte
+                </option>
+
+                <option value="idea">
+                  Idea para nosotros
+                </option>
+              </select>
+            </label>
+
+            <label>
+              Título
+
+              <span class="field-hint">
+                Opcional
+              </span>
+
+              <input
+                id="laura-message-title"
+                type="text"
+                maxlength="120"
+                placeholder="Ponle un título bonito..."
+              />
+            </label>
+
+            <label>
+              Escribe aquí
+
+              <textarea
+                id="laura-message-content"
+                rows="8"
+                maxlength="12000"
+                placeholder="Cuéntale a Javi lo que quieras..."
+                required
+              ></textarea>
+            </label>
+
+            <button
+              id="save-laura-message"
+              class="btn btn-primary"
+              type="submit"
+            >
+              Guardar para Javi
+            </button>
+
+            <p
+              id="laura-message-status"
+              class="note"
+            ></p>
+          </form>
+        </section>
+
+
+        <!-- PREGUNTA DIARIA -->
+
+        <section
+          id="daily-question-card"
+          class="daily-question-card"
+        >
+          <div class="daily-question-header">
+            <div class="daily-question-icon">
+              💭
+            </div>
+
+            <div>
+              <p class="eyebrow">
+                Pregunta del día
+              </p>
+
+              <p
+                id="daily-question-date"
+                class="daily-question-date"
+              >
+                Hoy
+              </p>
+            </div>
+          </div>
+
+          <h3 id="daily-question-text">
+            Cargando pregunta…
+          </h3>
+
+          <form
+            id="daily-answer-form"
+            class="form"
+          >
+            <label>
+              Tu respuesta
+
+              <textarea
+                id="daily-answer"
+                rows="5"
+                maxlength="6000"
+                placeholder="Responde solamente si te apetece..."
+              ></textarea>
+            </label>
+
+            <button
+              id="save-daily-answer"
+              class="btn btn-primary"
+              type="submit"
+            >
+              Guardar respuesta
+            </button>
+
+            <p
+              id="daily-answer-status"
+              class="note"
+            ></p>
+          </form>
+
+          <div
+            id="daily-answer-view"
+            class="daily-answer-view hidden"
+          >
+            <p class="eyebrow">
+              Respuesta de Laura
+            </p>
+
+            <div
+              id="daily-answer-content"
+              class="daily-answer-content"
+            ></div>
+          </div>
+        </section>
+
+
+        <!-- ESCRITOS ANTERIORES -->
+
+        <div class="section-title laura-history-title">
+          <div>
+            <p class="eyebrow">
+              El rincón de Laura
+            </p>
+
+            <h2>Mensajes y cartas</h2>
+          </div>
+        </div>
+
+        <div
+          id="laura-messages-list"
+          class="laura-messages-list"
+        ></div>
+      </section>
+
+
+      <!-- =================================================
+           RECUERDOS
+      ================================================== -->
+
+      <section
+        id="page-memories"
+        class="page"
+      >
         <div class="memories-hero">
-          <p class="eyebrow">Nuestro archivo</p>
+          <p class="eyebrow">
+            Nuestro archivo
+          </p>
 
           <h2>Recuerdos</h2>
 
@@ -239,15 +702,29 @@
 
         <div class="section-title vouchers-title">
           <div>
-            <p class="eyebrow">Premios ganados</p>
+            <p class="eyebrow">
+              Premios ganados
+            </p>
+
             <h2>Mis vales</h2>
           </div>
         </div>
 
-        <div id="voucher-list" class="voucher-list"></div>
+        <div
+          id="voucher-list"
+          class="voucher-list"
+        ></div>
       </section>
 
-      <section id="page-letter" class="page letter-page">
+
+      <!-- =================================================
+           LECTOR DE CARTAS DE RECUERDOS
+      ================================================== -->
+
+      <section
+        id="page-letter"
+        class="page letter-page"
+      >
         <button
           class="back-link"
           type="button"
@@ -257,9 +734,14 @@
         </button>
 
         <article class="letter-card">
-          <div class="letter-stamp">💌</div>
+          <div class="letter-stamp">
+            💌
+          </div>
 
-          <p id="letter-eyebrow" class="eyebrow">
+          <p
+            id="letter-eyebrow"
+            class="eyebrow"
+          >
             Recuerdo
           </p>
 
@@ -267,11 +749,19 @@
             Para Laura
           </h2>
 
-          <div id="letter-content" class="letter-content">
+          <div
+            id="letter-content"
+            class="letter-content"
+          >
             <p>Cargando carta...</p>
           </div>
         </article>
       </section>
+
+
+      <!-- =================================================
+           MENÚ INFERIOR
+      ================================================== -->
 
       <nav class="bottom-nav">
         <button
@@ -304,6 +794,15 @@
         <button
           class="nav-btn"
           type="button"
+          data-page="laura"
+        >
+          💌
+          <span>Laura</span>
+        </button>
+
+        <button
+          class="nav-btn"
+          type="button"
           data-page="memories"
         >
           🗃️
@@ -313,7 +812,15 @@
     </section>
   </main>
 
-  <section id="service-modal" class="modal hidden">
+
+  <!-- =====================================================
+       MODAL DE SERVICIOS Y PROPUESTAS
+  ====================================================== -->
+
+  <section
+    id="service-modal"
+    class="modal hidden"
+  >
     <div
       class="modal-backdrop"
       data-service-close
@@ -324,13 +831,22 @@
         class="modal-close"
         type="button"
         data-service-close
+        aria-label="Cerrar"
       >
         ×
       </button>
 
-      <div id="modal-icon" class="modal-icon">🍣</div>
+      <div
+        id="modal-icon"
+        class="modal-icon"
+      >
+        🍣
+      </div>
 
-      <p id="modal-category" class="eyebrow">
+      <p
+        id="modal-category"
+        class="eyebrow"
+      >
         Categoría
       </p>
 
@@ -338,12 +854,24 @@
         Servicio
       </h2>
 
-      <p id="modal-description" class="muted"></p>
+      <p
+        id="modal-description"
+        class="muted"
+      ></p>
 
-      <ul id="modal-list" class="clean-list"></ul>
+      <ul
+        id="modal-list"
+        class="clean-list"
+      ></ul>
 
-      <form id="proposal-form" class="form">
-        <input id="service-id" type="hidden" />
+      <form
+        id="proposal-form"
+        class="form"
+      >
+        <input
+          id="service-id"
+          type="hidden"
+        />
 
         <div class="form-row">
           <label>
@@ -403,30 +931,94 @@
 
         <label>
           Nota
-          <span id="proposal-note-hint" class="field-hint">
+
+          <span
+            id="proposal-note-hint"
+            class="field-hint"
+          >
             Opcional
           </span>
 
           <textarea
             id="proposal-note"
             rows="4"
+            maxlength="2000"
             placeholder="Cuéntale a Javi cualquier detalle..."
           ></textarea>
         </label>
 
         <button
+          id="proposal-submit"
           class="btn btn-primary"
           type="submit"
         >
           Enviar propuesta
         </button>
 
-        <p id="proposal-status" class="note"></p>
+        <p
+          id="proposal-status"
+          class="note"
+        ></p>
       </form>
+
+
+      <!-- TICKET DE PROPUESTA -->
+
+      <div
+        id="proposal-success"
+        class="proposal-success hidden"
+      >
+        <div class="proposal-success-icon">
+          🎟️
+        </div>
+
+        <p class="eyebrow">
+          Propuesta enviada
+        </p>
+
+        <h3>
+          Tu pedido se ha guardado
+        </h3>
+
+        <p class="muted">
+          Ya aparece en el calendario compartido de JaviEats.
+        </p>
+
+        <div
+          id="proposal-ticket-preview"
+          class="proposal-ticket-preview"
+        ></div>
+
+        <div class="proposal-ticket-actions">
+          <button
+            id="download-proposal-ticket"
+            class="btn btn-primary"
+            type="button"
+          >
+            Descargar ticket
+          </button>
+
+          <button
+            class="btn btn-secondary"
+            type="button"
+            data-service-close
+          >
+            Cerrar
+          </button>
+        </div>
+      </div>
     </div>
   </section>
 
-  <section id="game-modal" class="modal hidden">
+
+  <!-- =====================================================
+       MODAL DEL RETO DIARIO
+  ====================================================== -->
+
+  <section
+    id="game-modal"
+    class="modal hidden"
+  >
     <div
       class="modal-backdrop"
       data-game-close
@@ -437,11 +1029,14 @@
         class="modal-close"
         type="button"
         data-game-close
+        aria-label="Cerrar"
       >
         ×
       </button>
 
-      <div class="modal-icon">🎮</div>
+      <div class="modal-icon">
+        🎮
+      </div>
 
       <p class="eyebrow">
         Reto diario
@@ -468,8 +1063,13 @@
 
       <div class="scoreboard">
         <div class="score-box">
-          <span>Victorias de Laura</span>
-          <strong id="player-score">0</strong>
+          <span>
+            Victorias de Laura
+          </span>
+
+          <strong id="player-score">
+            0
+          </strong>
         </div>
 
         <div class="score-divider">
@@ -477,14 +1077,21 @@
         </div>
 
         <div class="score-box">
-          <span>Victorias máquina</span>
-          <strong id="machine-score">0</strong>
+          <span>
+            Victorias máquina
+          </span>
+
+          <strong id="machine-score">
+            0
+          </strong>
         </div>
       </div>
 
       <div class="choice-arena">
         <div class="choice-fighter">
-          <span class="fighter-name">Laura</span>
+          <span class="fighter-name">
+            Laura
+          </span>
 
           <div
             id="player-choice-visual"
@@ -503,7 +1110,9 @@
         </div>
 
         <div class="choice-fighter">
-          <span class="fighter-name">Máquina</span>
+          <span class="fighter-name">
+            Máquina
+          </span>
 
           <div
             id="machine-choice-visual"
@@ -518,11 +1127,17 @@
         </div>
       </div>
 
-      <p id="game-round-result" class="round-result">
+      <p
+        id="game-round-result"
+        class="round-result"
+      >
         Elige tu jugada para empezar.
       </p>
 
-      <div id="game-choices" class="game-choices">
+      <div
+        id="game-choices"
+        class="game-choices"
+      >
         <button
           class="choice-btn"
           type="button"
@@ -551,8 +1166,14 @@
         </button>
       </div>
 
-      <div id="game-final" class="game-final hidden">
-        <div id="game-final-icon" class="game-final-icon">
+      <div
+        id="game-final"
+        class="game-final hidden"
+      >
+        <div
+          id="game-final-icon"
+          class="game-final-icon"
+        >
           🏆
         </div>
 
@@ -560,9 +1181,15 @@
           Resultado
         </h3>
 
-        <p id="game-final-text" class="muted"></p>
+        <p
+          id="game-final-text"
+          class="muted"
+        ></p>
 
-        <div id="prize-reveal" class="prize-reveal hidden">
+        <div
+          id="prize-reveal"
+          class="prize-reveal hidden"
+        >
           <p class="eyebrow">
             Premio desbloqueado
           </p>
@@ -593,13 +1220,24 @@
         </div>
       </div>
 
-      <p id="game-daily-note" class="daily-note">
-        La partida se guarda en este dispositivo.
+      <p
+        id="game-daily-note"
+        class="daily-note"
+      >
+        La partida se sincroniza con la cuenta de Laura.
       </p>
     </div>
   </section>
 
-  <section id="memory-modal" class="modal hidden">
+
+  <!-- =====================================================
+       MODAL DE RECUERDOS
+  ====================================================== -->
+
+  <section
+    id="memory-modal"
+    class="modal hidden"
+  >
     <div
       class="modal-backdrop"
       data-memory-close
@@ -610,11 +1248,15 @@
         class="modal-close"
         type="button"
         data-memory-close
+        aria-label="Cerrar"
       >
         ×
       </button>
 
-      <p id="memory-modal-date" class="eyebrow">
+      <p
+        id="memory-modal-date"
+        class="eyebrow"
+      >
         Fecha
       </p>
 
@@ -660,7 +1302,81 @@
     </div>
   </section>
 
-  <div id="toast" class="toast hidden"></div>
+
+  <!-- =====================================================
+       MODAL PARA LEER MENSAJES DE LAURA
+  ====================================================== -->
+
+  <section
+    id="laura-message-modal"
+    class="modal hidden"
+  >
+    <div
+      class="modal-backdrop"
+      data-laura-message-close
+    ></div>
+
+    <div class="modal-panel laura-message-panel">
+      <button
+        class="modal-close"
+        type="button"
+        data-laura-message-close
+        aria-label="Cerrar"
+      >
+        ×
+      </button>
+
+      <div
+        id="laura-message-modal-icon"
+        class="modal-icon"
+      >
+        💌
+      </div>
+
+      <p
+        id="laura-message-modal-type"
+        class="eyebrow"
+      >
+        Mensaje
+      </p>
+
+      <h2 id="laura-message-modal-title">
+        Para Javi
+      </h2>
+
+      <p
+        id="laura-message-modal-date"
+        class="muted"
+      ></p>
+
+      <div
+        id="laura-message-modal-content"
+        class="laura-message-modal-content"
+      ></div>
+
+      <div
+        id="laura-message-modal-actions"
+        class="laura-message-modal-actions"
+      ></div>
+    </div>
+  </section>
+
+
+  <!-- =====================================================
+       TOAST
+  ====================================================== -->
+
+  <div
+    id="toast"
+    class="toast hidden"
+  ></div>
+
+
+  <!-- =====================================================
+       SCRIPTS
+  ====================================================== -->
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <script src="script.js"></script>
 </body>
