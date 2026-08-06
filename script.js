@@ -1,2149 +1,1304 @@
-const CONFIG = {
-  formspreeEndpoint: "https://formspree.io/f/xjgddbjw",
-  emailDestino: "javiermontorogranados@gmail.com"
-};
-
-const STORAGE_KEY = "javieats_propuestas_v1";
-const SESSION_KEY = "javieats_access_ok";
-const GAME_STORAGE_KEY = "javieats_reto_diario_v1";
-const VOUCHER_STORAGE_KEY = "javieats_vales_v1";
-const QUESTION_COUNT = 2;
-
-const SECRET_PRIZE = {
-  id: "masaje-30",
-  title: "Vale por un masaje",
-  description: "Un masaje de 30 minutos",
-  serviceId: "masaje",
-  duration: "30 minutos"
-};
-
-const QUESTIONS = [
-  {
-    text: "¿Cómo le gusta que le llamen al mejor novio del mundo?",
-    type: "text",
-    placeholder: "Escribe la respuesta...",
-    error: "Pista: empieza por J y acaba por avi.",
-    validate: value => normalize(value).includes("javi")
-  },
-  {
-    text: "¿Cuándo empezaste a tener el privilegio de tener al mejor novio del mundo?",
-    type: "date",
-    error: "Esa no es la fecha buena.",
-    validate: value => value === "2026-04-24"
-  },
-  {
-    text: "¿Cómo se llaman los perros de Javier?",
-    type: "text",
-    placeholder: "Ej: nombre y nombre",
-    error: "Casi. Son dos y tienen mucho nivel.",
-    validate: value => {
-      const clean = normalize(value).replace(/&/g, " y ");
-
-      return clean.includes("randy") && clean.includes("nala");
-    }
-  },
-  {
-    text: "¿Cuál fue el sitio donde cenamos antes de que te pidiese salir?",
-    type: "text",
-    placeholder: "Nombre del sitio...",
-    error: "No es ese sitio. Pista: hamburguesas.",
-    validate: value => normalize(value).includes("distrito burger")
-  }
-];
-
-const SERVICES = [
-  {
-    id: "mimos",
-    icon: "🫂",
-    title: "Mimos",
-    category: "Cariño y desconexión",
-    description:
-      "Un rato tranquilo de caricias, abrazos y desconexión. Sin planes complicados y sin necesidad de justificar el pedido.",
-    eta: "15-60 min",
-    durations: [
-      "Mimos express · 15 minutos",
-      "Sesión estándar · 30 minutos",
-      "Modo sin prisa"
-    ],
-    bullets: [
-      "Caricias en el pelo, la espalda o donde se solicite razonablemente.",
-      "Abrazos, sofá o peli de fondo.",
-      "Conversación opcional y derecho a quedarse dormida sin penalización."
-    ]
-  },
-  {
-    id: "masaje",
-    icon: "💆",
-    title: "Masaje",
-    category: "Relax",
-    description:
-      "Espalda, cuello o modo relax. Duración y presión negociables.",
-    eta: "20-45 min",
-    durations: [
-      "20 minutos",
-      "30 minutos",
-      "45 minutos"
-    ],
-    bullets: [
-      "Para espalda cargada, cuello o cansancio acumulado.",
-      "Se aceptan indicaciones de presión.",
-      "Servicio sujeto a energía disponible."
-    ]
-  },
-  {
-    id: "sushi",
-    icon: "🍣",
-    title: "Sushi Date",
-    category: "Planes para comer",
-    description:
-      "Propuesta para comer o cenar sushi juntos. La elección del sitio se puede negociar.",
-    eta: "1-2 h",
-    durations: [
-      "Comida",
-      "Cena",
-      "Plan completo"
-    ],
-    bullets: [
-      "Ideal para antojo serio de sushi.",
-      "La hora final se habla entre los dos.",
-      "Nivel de hambre obligatorio: medio o alto."
-    ]
-  },
-  {
-    id: "telenovio",
-    icon: "🏠",
-    title: "Telenovio",
-    category: "Cuidado a domicilio",
-    description:
-      "Novio a domicilio para días malos, enfermedad, bajón o necesidad de compañía y cuidados en casa.",
-    eta: "Visita variable",
-    durations: [
-      "Visita rápida",
-      "Un par de horas",
-      "Tarde de cuidados",
-      "Modo sin prisa"
-    ],
-    bullets: [
-      "Compañía, manta, peli y cuidados básicos.",
-      "Posibilidad de ir a por comida, medicinas o lo que haga falta.",
-      "Para urgencias reales toca llamar a un profesional; para lo demás, JaviEats intentará acudir."
-    ]
-  },
-  {
-    id: "peli",
-    icon: "🍿",
-    title: "Peli & Sofá",
-    category: "Plan tranquilo",
-    description:
-      "Peli, sofá, manta y algo rico. Plan sin demasiada logística.",
-    eta: "2-3 h",
-    durations: [
-      "Una peli",
-      "Peli + cena",
-      "Tarde completa"
-    ],
-    bullets: [
-      "La peli se negocia.",
-      "Snack recomendado.",
-      "Drama opcional, comodidad obligatoria."
-    ]
-  },
-  {
-    id: "cafe",
-    icon: "☕",
-    title: "Café y Charla",
-    category: "Plan corto",
-    description:
-      "Plan sencillo para veros, hablar y desconectar un rato.",
-    eta: "45-90 min",
-    durations: [
-      "Café rápido",
-      "Merienda",
-      "Plan sin prisa"
-    ],
-    bullets: [
-      "Perfecto para días con poco tiempo.",
-      "Sirve para actualizar vida.",
-      "Puede convertirse en cena si se lía."
-    ]
-  },
-  {
-    id: "sorpresa",
-    icon: "🎁",
-    title: "Plan Sorpresa",
-    category: "Sorpresa",
-    description:
-      "Laura elige fecha y Javi se encarga de proponer algo.",
-    eta: "Variable",
-    durations: [
-      "Plan corto",
-      "Plan medio",
-      "Plan completo"
-    ],
-    bullets: [
-      "La clienta propone fecha.",
-      "El proveedor prepara idea.",
-      "Puede incluir comida, paseo o plan random."
-    ]
-  },
-  {
-    id: "paseo",
-    icon: "🚗",
-    title: "Paseo / Recogida",
-    category: "Movimiento",
-    description:
-      "Plan de coche, paseo o recogida si cuadra disponibilidad.",
-    eta: "Variable",
-    durations: [
-      "Paseo corto",
-      "Recogida",
-      "Plan con coche"
-    ],
-    bullets: [
-      "Sujeto a horarios y gasolina emocional.",
-      "Ideal para moverse sin complicarse.",
-      "Destino negociable."
-    ]
-  }
-];
-
-const MEMORIES = [
-  {
-    id: "2026-04-24",
-    dateLabel: "24/04/2026",
-    title: "El día que empezó oficialmente lo nuestro",
-    description:
-      "Las primeras flores y la carta con la que empezó todo.",
-    type: "letter",
-    cover: "recuerdos/ramo-2026-04-24.jpeg",
-    letterFile: "recuerdos/carta-2026-04-24.txt",
-    letterEyebrow: "24 de abril de 2026",
-    letterTitle: "La carta con la que te pedí salir",
-    actionLabel: "Leer carta"
-  },
-  {
-    id: "2026-05-31",
-    dateLabel: "31/05/2026",
-    title: "Las flores llegaron a la vuelta",
-    description:
-      "El primer mes nos pilló con kilómetros de por medio. Este ramo llegó al volver de Alemania.",
-    type: "gallery",
-    cover: "recuerdos/ramo-2026-05-31.jpeg",
-    images: [
-      "recuerdos/ramo-2026-05-31.jpeg"
-    ],
-    actionLabel: "Ver recuerdo"
-  },
-  {
-    id: "2026-07-13",
-    dateLabel: "13/07/2026",
-    title: "La primera entrega secreta de JaviEats",
-    description:
-      "La carta de nuestros dos primeros meses, guardada para volver a leerla cuando quieras.",
-    type: "letter",
-    emoji: "💌",
-    letterFile: "recuerdos/carta-2026-07-13.txt",
-    letterEyebrow: "13 de julio de 2026",
-    letterTitle: "Nuestra carta de los dos primeros meses",
-    actionLabel: "Volver a leer"
-  },
-  {
-    id: "2026-07-24",
-    dateLabel: "24/07/2026",
-    title: "Nuestro tercer mes",
-    description:
-      "El tercer ramo y la foto con la que quedó oficialmente entregado.",
-    type: "gallery",
-    cover: "recuerdos/ramo-2026-07-24.jpeg",
-    images: [
-      "recuerdos/ramo-2026-07-24.jpeg",
-      "recuerdos/laura-ramo-2026-07-24.jpeg"
-    ],
-    actionLabel: "Ver 2 fotos"
-  }
-];
-
-const gateScreen = document.getElementById("gate-screen");
-const appScreen = document.getElementById("app-screen");
-const gateForm = document.getElementById("gate-form");
-const gateQuestion = document.getElementById("gate-question");
-const gateInput = document.getElementById("gate-input");
-const gateError = document.getElementById("gate-error");
-const progressBar = document.getElementById("progress-bar");
-const logoutBtn = document.getElementById("logout-btn");
-
-const featuredServices = document.getElementById("featured-services");
-const allServices = document.getElementById("all-services");
-const totalProposals = document.getElementById("total-proposals");
-const nextPlan = document.getElementById("next-plan");
-
-const gameHomeStatus = document.getElementById("game-home-status");
-const gameHomeButton = document.getElementById("game-home-button");
-const gameModal = document.getElementById("game-modal");
-const playerScore = document.getElementById("player-score");
-const machineScore = document.getElementById("machine-score");
-const gameRoundResult = document.getElementById("game-round-result");
-const gameChoices = document.getElementById("game-choices");
-const gameFinal = document.getElementById("game-final");
-const gameFinalIcon = document.getElementById("game-final-icon");
-const gameFinalTitle = document.getElementById("game-final-title");
-const gameFinalText = document.getElementById("game-final-text");
-const prizeReveal = document.getElementById("prize-reveal");
-const prizeTitle = document.getElementById("prize-title");
-const prizeDescription = document.getElementById("prize-description");
-const downloadVoucherBtn = document.getElementById(
-  "download-voucher-btn"
-);
-const redeemVoucherBtn = document.getElementById(
-  "redeem-voucher-btn"
-);
-const gameDailyNote = document.getElementById("game-daily-note");
-
-const serviceModal = document.getElementById("service-modal");
-const modalIcon = document.getElementById("modal-icon");
-const modalCategory = document.getElementById("modal-category");
-const modalTitle = document.getElementById("modal-title");
-const modalDescription = document.getElementById(
-  "modal-description"
-);
-const modalList = document.getElementById("modal-list");
-
-const proposalForm = document.getElementById("proposal-form");
-const serviceId = document.getElementById("service-id");
-const proposalDate = document.getElementById("proposal-date");
-const proposalTime = document.getElementById("proposal-time");
-const proposalDuration = document.getElementById(
-  "proposal-duration"
-);
-const proposalPriority = document.getElementById(
-  "proposal-priority"
-);
-const proposalNote = document.getElementById("proposal-note");
-const proposalStatus = document.getElementById("proposal-status");
-
-const calendarTitle = document.getElementById("calendar-title");
-const calendarGrid = document.getElementById("calendar-grid");
-const prevMonth = document.getElementById("prev-month");
-const nextMonth = document.getElementById("next-month");
-const selectedTitle = document.getElementById("selected-title");
-const dayBookings = document.getElementById("day-bookings");
-const bookingList = document.getElementById("booking-list");
-const clearHistory = document.getElementById("clear-history");
-
-const memoriesList = document.getElementById("memories-list");
-const voucherList = document.getElementById("voucher-list");
-const letterEyebrow = document.getElementById("letter-eyebrow");
-const letterTitle = document.getElementById("letter-title");
-const letterContent = document.getElementById("letter-content");
-
-const memoryModal = document.getElementById("memory-modal");
-const memoryModalDate = document.getElementById(
-  "memory-modal-date"
-);
-const memoryModalTitle = document.getElementById(
-  "memory-modal-title"
-);
-const memoryModalDescription = document.getElementById(
-  "memory-modal-description"
-);
-const galleryImage = document.getElementById("gallery-image");
-const galleryPrev = document.getElementById("gallery-prev");
-const galleryNext = document.getElementById("gallery-next");
-const galleryCounter = document.getElementById(
-  "gallery-counter"
-);
-
-const toast = document.getElementById("toast");
-
-let selectedQuestions = [];
-let questionIndex = 0;
-let calendarDate = new Date();
-let selectedDate = toDateKey(new Date());
-
-let currentGallery = [];
-let currentGalleryIndex = 0;
-let loadedLetterFile = "";
-let dailyTimer = null;
-
-init();
-
-function init() {
-  bindEvents();
-  renderServices();
-  renderMemories();
-  renderVouchers();
-  setMinDate();
-  updateDailyGameCard();
-
-  dailyTimer = setInterval(updateDailyGameCard, 1000);
-
-  if (sessionStorage.getItem(SESSION_KEY) === "true") {
-    showApp();
-  } else {
-    startGate();
-  }
+:root {
+  --bg: #f4f0ea;
+  --card: #ffffff;
+  --text: #111111;
+  --muted: #6f6a64;
+  --line: #e6ddd3;
+  --dark: #111111;
+  --accent: #e85d45;
+  --accent-soft: #ffe0d7;
+  --gold-soft: #fff1c9;
+  --green-soft: #dff3e4;
+  --green: #24653a;
+  --shadow: 0 18px 45px rgba(0, 0, 0, 0.12);
+  --radius-xl: 30px;
+  --radius-lg: 22px;
+  --radius-md: 16px;
 }
 
-function bindEvents() {
-  gateForm.addEventListener("submit", handleGate);
-  logoutBtn.addEventListener("click", logout);
+* {
+  box-sizing: border-box;
+}
 
-  document.querySelectorAll(".nav-btn").forEach(button => {
-    button.addEventListener("click", () => {
-      showPage(button.dataset.page);
-    });
-  });
+html {
+  scroll-behavior: smooth;
+}
 
-  document.querySelectorAll("[data-go]").forEach(button => {
-    button.addEventListener("click", () => {
-      showPage(button.dataset.go);
-    });
-  });
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background:
+    radial-gradient(circle at top left, rgba(232, 93, 69, 0.25), transparent 35%),
+    radial-gradient(circle at top right, rgba(255, 193, 122, 0.28), transparent 32%),
+    var(--bg);
+  color: var(--text);
+}
 
-  document
-    .querySelectorAll("[data-service-close]")
-    .forEach(element => {
-      element.addEventListener("click", closeServiceModal);
-    });
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
 
-  document
-    .querySelectorAll("[data-game-close]")
-    .forEach(element => {
-      element.addEventListener("click", closeGameModal);
-    });
+button {
+  cursor: pointer;
+}
 
-  document
-    .querySelectorAll("[data-memory-close]")
-    .forEach(element => {
-      element.addEventListener("click", closeMemoryModal);
-    });
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.58;
+}
 
-  gameHomeButton.addEventListener("click", openGameModal);
+img {
+  display: block;
+  max-width: 100%;
+}
 
-  document.querySelectorAll("[data-choice]").forEach(button => {
-    button.addEventListener("click", () => {
-      playRound(button.dataset.choice);
-    });
-  });
+.hidden {
+  display: none !important;
+}
 
-  downloadVoucherBtn.addEventListener("click", () => {
-    const voucher = getTodayVoucher();
+.app-shell {
+  width: min(100%, 540px);
+  min-height: 100vh;
+  margin: 0 auto;
+  position: relative;
+  padding-bottom: 96px;
+}
 
-    if (voucher) {
-      downloadVoucher(voucher);
-    }
-  });
+.screen {
+  min-height: 100vh;
+}
 
-  redeemVoucherBtn.addEventListener("click", () => {
-    const voucher = getTodayVoucher();
+.gate-screen {
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
 
-    if (voucher) {
-      redeemVoucher(voucher);
-    }
-  });
+.gate-card {
+  width: 100%;
+  padding: 28px;
+  border: 1px solid rgba(255, 255, 255, 0.75);
+  border-radius: var(--radius-xl);
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(16px);
+}
 
-  proposalForm.addEventListener("submit", handleProposal);
+.brand-pill {
+  display: inline-flex;
+  margin-bottom: 22px;
+  padding: 9px 14px;
+  border-radius: 999px;
+  background: var(--dark);
+  color: #fff;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+}
 
-  prevMonth.addEventListener("click", () => {
-    calendarDate.setMonth(calendarDate.getMonth() - 1);
-    renderCalendar();
-  });
+h1,
+h2,
+h3,
+p {
+  margin-top: 0;
+}
 
-  nextMonth.addEventListener("click", () => {
-    calendarDate.setMonth(calendarDate.getMonth() + 1);
-    renderCalendar();
-  });
+h1 {
+  margin-bottom: 12px;
+  font-size: clamp(2.2rem, 10vw, 3.4rem);
+  line-height: 0.92;
+  letter-spacing: -0.085em;
+}
 
-  clearHistory.addEventListener("click", () => {
-    const confirmed = confirm(
-      "¿Seguro que quieres borrar el historial local de este móvil?"
+h2 {
+  margin-bottom: 10px;
+  font-size: 1.6rem;
+  line-height: 1.05;
+  letter-spacing: -0.055em;
+}
+
+h3 {
+  margin-bottom: 6px;
+  letter-spacing: -0.025em;
+}
+
+.muted {
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.eyebrow {
+  margin-bottom: 7px;
+  color: var(--accent);
+  text-transform: uppercase;
+  font-size: 0.74rem;
+  letter-spacing: 0.13em;
+  font-weight: 900;
+}
+
+.progress {
+  height: 9px;
+  margin: 24px 0;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #eee3da;
+}
+
+.progress-bar {
+  width: 0%;
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--accent), var(--dark));
+  transition: width 0.25s ease;
+}
+
+.form {
+  display: grid;
+  gap: 14px;
+}
+
+label {
+  display: grid;
+  gap: 8px;
+  font-weight: 750;
+}
+
+.field-hint {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+input,
+select,
+textarea {
+  width: 100%;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  outline: none;
+  background: #fff;
+  color: var(--text);
+}
+
+textarea {
+  resize: vertical;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px rgba(232, 93, 69, 0.15);
+}
+
+.btn {
+  padding: 15px 18px;
+  border: 0;
+  border-radius: 18px;
+  font-weight: 900;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
+    opacity 0.15s ease;
+}
+
+.btn:active {
+  transform: scale(0.98);
+}
+
+.btn-primary {
+  background: var(--dark);
+  color: #fff;
+  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.16);
+}
+
+.btn-secondary {
+  background: var(--accent-soft);
+  color: var(--dark);
+}
+
+.error {
+  min-height: 20px;
+  margin: 0;
+  color: #b42318;
+  font-weight: 750;
+}
+
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 18px 12px;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(244, 240, 234, 0.98),
+      rgba(244, 240, 234, 0.86)
     );
-
-    if (!confirmed) {
-      return;
-    }
-
-    localStorage.removeItem(STORAGE_KEY);
-    refresh();
-    showToast("Historial local borrado.");
-  });
-
-  memoriesList.addEventListener("click", event => {
-    const button = event.target.closest("[data-memory-id]");
-
-    if (!button) {
-      return;
-    }
-
-    openMemory(button.dataset.memoryId);
-  });
-
-  voucherList.addEventListener("click", event => {
-    const downloadButton = event.target.closest(
-      "[data-voucher-download]"
-    );
-
-    const redeemButton = event.target.closest(
-      "[data-voucher-redeem]"
-    );
-
-    if (downloadButton) {
-      const voucher = getVouchers().find(
-        item =>
-          item.id === downloadButton.dataset.voucherDownload
-      );
-
-      if (voucher) {
-        downloadVoucher(voucher);
-      }
-    }
-
-    if (redeemButton) {
-      const voucher = getVouchers().find(
-        item =>
-          item.id === redeemButton.dataset.voucherRedeem
-      );
-
-      if (voucher) {
-        redeemVoucher(voucher);
-      }
-    }
-  });
-
-  galleryPrev.addEventListener("click", () => {
-    changeGalleryImage(-1);
-  });
-
-  galleryNext.addEventListener("click", () => {
-    changeGalleryImage(1);
-  });
+  backdrop-filter: blur(12px);
 }
 
-function startGate() {
-  selectedQuestions = shuffle([...QUESTIONS]).slice(
-    0,
-    QUESTION_COUNT
-  );
-
-  questionIndex = 0;
-
-  renderQuestion();
+.app-header h1 {
+  margin: 0;
+  font-size: 2rem;
 }
 
-function renderQuestion() {
-  const question = selectedQuestions[questionIndex];
-
-  gateQuestion.textContent = question.text;
-  gateError.textContent = "";
-
-  progressBar.style.width =
-    `${(questionIndex / QUESTION_COUNT) * 100}%`;
-
-  gateInput.innerHTML = `
-    <input
-      id="answer-input"
-      type="${question.type === "date" ? "date" : "text"}"
-      ${
-        question.type === "text"
-          ? `placeholder="${question.placeholder || "Escribe aquí..."}"`
-          : ""
-      }
-      autocomplete="off"
-      required
-    />
-  `;
-
-  setTimeout(() => {
-    document.getElementById("answer-input").focus();
-  }, 80);
+.icon-btn {
+  width: 42px;
+  height: 42px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.82);
+  font-weight: 900;
 }
 
-function handleGate(event) {
-  event.preventDefault();
+.page {
+  display: none;
+  padding: 8px 18px 18px;
+}
 
-  const question = selectedQuestions[questionIndex];
-  const input = document.getElementById("answer-input");
+.page.active {
+  display: block;
+}
 
-  if (!question.validate(input.value)) {
-    gateError.textContent = question.error;
+.hero {
+  position: relative;
+  overflow: hidden;
+  padding: 24px;
+  border-radius: var(--radius-xl);
+  background: var(--dark);
+  color: #fff;
+  box-shadow: var(--shadow);
+}
 
-    if (typeof input.select === "function") {
-      input.select();
-    }
+.hero::after {
+  content: "";
+  position: absolute;
+  right: -60px;
+  bottom: -70px;
+  width: 160px;
+  height: 160px;
+  border-radius: 999px;
+  background: rgba(232, 93, 69, 0.5);
+}
 
-    return;
+.hero p {
+  position: relative;
+  z-index: 2;
+  color: rgba(255, 255, 255, 0.78);
+  line-height: 1.5;
+}
+
+.hero h2,
+.hero .eyebrow {
+  position: relative;
+  z-index: 2;
+}
+
+.availability {
+  position: relative;
+  z-index: 2;
+  display: inline-flex;
+  margin-top: 8px;
+  padding: 9px 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  font-size: 0.88rem;
+  font-weight: 850;
+}
+
+.game-card {
+  margin: 16px 0 14px;
+  padding: 18px;
+  border: 1px solid rgba(232, 93, 69, 0.18);
+  border-radius: var(--radius-xl);
+  background:
+    radial-gradient(
+      circle at top right,
+      rgba(255, 214, 221, 0.8),
+      transparent 34%
+    ),
+    linear-gradient(135deg, #fffdf8, #fff2e7);
+  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.08);
+}
+
+.game-card-top {
+  display: grid;
+  grid-template-columns: 58px 1fr;
+  gap: 14px;
+  align-items: start;
+}
+
+.game-icon {
+  display: grid;
+  place-items: center;
+  width: 58px;
+  height: 58px;
+  border-radius: 21px;
+  background: var(--dark);
+  color: #fff;
+  font-size: 1.7rem;
+  box-shadow: 0 12px 22px rgba(0, 0, 0, 0.16);
+}
+
+.game-rules-mini {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin: 8px 0 12px;
+}
+
+.game-rules-mini span {
+  display: inline-flex;
+  padding: 7px 10px;
+  border-radius: 999px;
+  background: var(--gold-soft);
+  color: #775200;
+  font-size: 0.76rem;
+  font-weight: 900;
+}
+
+.game-home-status {
+  margin-bottom: 13px;
+  color: var(--muted);
+  line-height: 1.45;
+  font-weight: 750;
+}
+
+.game-card .btn {
+  width: 100%;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 14px 0 20px;
+}
+
+.stat {
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--card);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06);
+}
+
+.stat strong {
+  display: block;
+  font-size: 1.45rem;
+  letter-spacing: -0.05em;
+}
+
+.stat span {
+  color: var(--muted);
+  font-size: 0.86rem;
+  font-weight: 700;
+}
+
+.section-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 12px;
+  margin: 22px 0 12px;
+}
+
+.section-title h2,
+.section-title h3 {
+  margin: 0;
+}
+
+.history-title,
+.vouchers-title {
+  margin-top: 30px;
+}
+
+.link-btn {
+  padding: 5px;
+  border: 0;
+  background: transparent;
+  color: var(--accent);
+  font-weight: 900;
+}
+
+.services {
+  display: grid;
+  gap: 13px;
+}
+
+.service-card {
+  width: 100%;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--card);
+  text-align: left;
+  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.07);
+}
+
+.service-row {
+  display: grid;
+  grid-template-columns: 52px 1fr;
+  gap: 14px;
+  align-items: start;
+}
+
+.service-icon {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 18px;
+  background: var(--accent-soft);
+  font-size: 1.55rem;
+}
+
+.service-card p {
+  margin-bottom: 11px;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 7px 10px;
+  border-radius: 999px;
+  background: #f5eee7;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 850;
+}
+
+.info-card {
+  margin-top: 18px;
+  padding: 16px;
+  border: 1px dashed #d6c9bd;
+  border-radius: var(--radius-lg);
+  background: rgba(255, 255, 255, 0.62);
+}
+
+.info-card p {
+  margin-bottom: 0;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.bottom-nav {
+  position: fixed;
+  left: 50%;
+  bottom: 14px;
+  z-index: 50;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  width: min(calc(100% - 24px), 516px);
+  padding: 8px;
+  border: 1px solid rgba(230, 221, 211, 0.95);
+  border-radius: 25px;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.16);
+  backdrop-filter: blur(18px);
+  transform: translateX(-50%);
+}
+
+.nav-btn {
+  display: grid;
+  gap: 2px;
+  padding: 9px 6px;
+  border: 0;
+  border-radius: 18px;
+  background: transparent;
+  color: var(--muted);
+  font-weight: 900;
+}
+
+.nav-btn span {
+  font-size: 0.72rem;
+}
+
+.nav-btn.active {
+  background: var(--dark);
+  color: #fff;
+}
+
+.calendar-card {
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-xl);
+  background: var(--card);
+  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.07);
+}
+
+.calendar-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.calendar-head h3 {
+  margin: 0;
+  text-transform: capitalize;
+}
+
+.weekdays,
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+}
+
+.weekdays span {
+  padding-bottom: 5px;
+  color: var(--muted);
+  text-align: center;
+  font-size: 0.75rem;
+  font-weight: 900;
+}
+
+.day {
+  position: relative;
+  min-height: 46px;
+  border: 1px solid transparent;
+  border-radius: 15px;
+  background: #faf6f1;
+  color: var(--text);
+  font-weight: 850;
+}
+
+.day.is-empty {
+  visibility: hidden;
+}
+
+.day.is-today {
+  border-color: var(--accent);
+}
+
+.day.is-selected {
+  background: var(--dark);
+  color: #fff;
+}
+
+.day.has-booking::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 7px;
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: var(--accent);
+  transform: translateX(-50%);
+}
+
+.day.is-selected.has-booking::after {
+  background: #fff;
+}
+
+.list {
+  display: grid;
+  gap: 11px;
+}
+
+.booking-card {
+  padding: 15px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--card);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06);
+}
+
+.booking-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  gap: 12px;
+}
+
+.booking-title {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 1.02rem;
+  font-weight: 950;
+}
+
+.status {
+  display: inline-flex;
+  padding: 6px 9px;
+  border-radius: 999px;
+  background: #fff0c2;
+  color: #8a5b00;
+  white-space: nowrap;
+  font-size: 0.72rem;
+  font-weight: 900;
+}
+
+.booking-card p {
+  margin: 8px 0 0;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+.empty {
+  padding: 18px;
+  border: 1px dashed #d6c9bd;
+  border-radius: var(--radius-lg);
+  background: rgba(255, 255, 255, 0.58);
+  color: var(--muted);
+  text-align: center;
+  font-weight: 750;
+}
+
+.memories-hero {
+  padding: 24px;
+  border-radius: var(--radius-xl);
+  background: linear-gradient(135deg, #111111, #2e2925);
+  color: #fff;
+  box-shadow: var(--shadow);
+}
+
+.memories-hero p:last-child {
+  margin-bottom: 0;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.memories-timeline {
+  position: relative;
+  display: grid;
+  gap: 18px;
+  margin-top: 20px;
+  padding-left: 17px;
+}
+
+.memories-timeline::before {
+  content: "";
+  position: absolute;
+  top: 8px;
+  bottom: 8px;
+  left: 5px;
+  width: 2px;
+  background: #dfd1c5;
+}
+
+.memory-card {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-xl);
+  background: var(--card);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
+}
+
+.timeline-dot {
+  position: absolute;
+  top: 23px;
+  left: -18px;
+  z-index: 3;
+  width: 13px;
+  height: 13px;
+  border: 3px solid var(--bg);
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.memory-date {
+  position: absolute;
+  top: 13px;
+  left: 13px;
+  z-index: 2;
+  padding: 7px 10px;
+  border-radius: 999px;
+  background: rgba(17, 17, 17, 0.82);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 900;
+  backdrop-filter: blur(8px);
+}
+
+.memory-cover {
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+}
+
+.memory-placeholder {
+  display: grid;
+  place-items: center;
+  min-height: 185px;
+  background:
+    radial-gradient(
+      circle at top right,
+      rgba(232, 93, 69, 0.22),
+      transparent 34%
+    ),
+    linear-gradient(135deg, #fffdf8, #fff2e7);
+  font-size: 3.4rem;
+}
+
+.memory-body {
+  padding: 17px;
+}
+
+.memory-body p {
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.memory-open-btn {
+  width: 100%;
+}
+
+.voucher-list {
+  display: grid;
+  gap: 13px;
+}
+
+.voucher-card {
+  position: relative;
+  overflow: hidden;
+  padding: 19px;
+  border: 2px solid var(--dark);
+  border-radius: var(--radius-xl);
+  background:
+    radial-gradient(
+      circle at top right,
+      rgba(232, 93, 69, 0.24),
+      transparent 34%
+    ),
+    #fff;
+  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.09);
+}
+
+.voucher-card::after {
+  content: "";
+  position: absolute;
+  right: -20px;
+  bottom: -20px;
+  width: 95px;
+  height: 95px;
+  border: 18px solid rgba(232, 93, 69, 0.1);
+  border-radius: 50%;
+}
+
+.voucher-mark {
+  display: inline-flex;
+  margin-bottom: 16px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: var(--dark);
+  color: #fff;
+  font-weight: 900;
+}
+
+.voucher-card p {
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.voucher-code {
+  display: inline-flex;
+  margin: 4px 0 14px;
+  padding: 8px 10px;
+  border: 1px dashed #b8a99c;
+  border-radius: 12px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-weight: 900;
+}
+
+.voucher-buttons,
+.prize-actions {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: end center;
+}
+
+.modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.46);
+}
+
+.modal-panel {
+  position: relative;
+  width: min(100%, 540px);
+  max-height: 92vh;
+  overflow: auto;
+  padding: 22px;
+  border-radius: 30px 30px 0 0;
+  background: #fff;
+  box-shadow: 0 -20px 50px rgba(0, 0, 0, 0.25);
+  animation: slideUp 0.18s ease;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0.7;
+    transform: translateY(35px);
   }
 
-  questionIndex++;
-
-  if (questionIndex >= QUESTION_COUNT) {
-    progressBar.style.width = "100%";
-
-    sessionStorage.setItem(SESSION_KEY, "true");
-
-    setTimeout(showApp, 220);
-
-    return;
-  }
-
-  renderQuestion();
-}
-
-function showApp() {
-  gateScreen.classList.add("hidden");
-  appScreen.classList.remove("hidden");
-
-  refresh();
-  updateDailyGameCard();
-}
-
-function logout() {
-  sessionStorage.removeItem(SESSION_KEY);
-
-  appScreen.classList.add("hidden");
-  gateScreen.classList.remove("hidden");
-
-  startGate();
-}
-
-function showPage(page) {
-  document.querySelectorAll(".page").forEach(section => {
-    const isActive = section.id === `page-${page}`;
-
-    section.classList.toggle("active", isActive);
-  });
-
-  document.querySelectorAll(".nav-btn").forEach(button => {
-    const isActive = button.dataset.page === page;
-
-    button.classList.toggle("active", isActive);
-  });
-
-  if (page === "calendar") {
-    renderCalendar();
-    renderBookings();
-  }
-
-  if (page === "memories") {
-    renderMemories();
-    renderVouchers();
-  }
-
-  window.scrollTo({
-    top: 0,
-    behavior: "smooth"
-  });
-}
-
-function renderServices() {
-  featuredServices.innerHTML = SERVICES
-    .slice(0, 3)
-    .map(serviceTemplate)
-    .join("");
-
-  allServices.innerHTML = SERVICES
-    .map(serviceTemplate)
-    .join("");
-
-  document.querySelectorAll("[data-service]").forEach(card => {
-    card.addEventListener("click", () => {
-      openService(card.dataset.service);
-    });
-  });
-}
-
-function serviceTemplate(service) {
-  return `
-    <button
-      class="service-card"
-      type="button"
-      data-service="${service.id}"
-    >
-      <div class="service-row">
-        <div class="service-icon">
-          ${service.icon}
-        </div>
-
-        <div>
-          <p class="eyebrow">
-            ${service.category}
-          </p>
-
-          <h3>
-            ${service.title}
-          </h3>
-
-          <p>
-            ${service.description}
-          </p>
-
-          <div class="chips">
-            <span class="chip">
-              ⏱️ ${service.eta}
-            </span>
-
-            <span class="chip">
-              Proponer plan
-            </span>
-          </div>
-        </div>
-      </div>
-    </button>
-  `;
-}
-
-function openService(id, options = {}) {
-  const service = SERVICES.find(item => item.id === id);
-
-  if (!service) {
-    return;
-  }
-
-  proposalForm.reset();
-
-  serviceId.value = service.id;
-  modalIcon.textContent = service.icon;
-  modalCategory.textContent = service.category;
-  modalTitle.textContent = service.title;
-  modalDescription.textContent = service.description;
-
-  modalList.innerHTML = service.bullets
-    .map(item => `<li>${item}</li>`)
-    .join("");
-
-  proposalDuration.innerHTML = service.durations
-    .map(
-      item =>
-        `<option value="${item}">${item}</option>`
-    )
-    .join("");
-
-  proposalStatus.textContent = "";
-
-  setMinDate();
-
-  if (
-    options.duration &&
-    service.durations.includes(options.duration)
-  ) {
-    proposalDuration.value = options.duration;
-  }
-
-  if (options.note) {
-    proposalNote.value = options.note;
-  }
-
-  serviceModal.classList.remove("hidden");
-  document.body.style.overflow = "hidden";
-}
-
-function closeServiceModal() {
-  serviceModal.classList.add("hidden");
-  document.body.style.overflow = "";
-}
-
-function getDailyGame() {
-  const today = toDateKey(new Date());
-
-  try {
-    const saved = JSON.parse(
-      localStorage.getItem(GAME_STORAGE_KEY)
-    );
-
-    if (saved && saved.date === today) {
-      return saved;
-    }
-  } catch (error) {
-    console.error(
-      "No se ha podido leer la partida guardada.",
-      error
-    );
-  }
-
-  return {
-    date: today,
-    started: false,
-    completed: false,
-    playerScore: 0,
-    machineScore: 0,
-    rounds: [],
-    result: null
-  };
-}
-
-function saveDailyGame(game) {
-  localStorage.setItem(
-    GAME_STORAGE_KEY,
-    JSON.stringify(game)
-  );
-}
-
-function openGameModal() {
-  renderGameModal();
-
-  gameModal.classList.remove("hidden");
-  document.body.style.overflow = "hidden";
-}
-
-function closeGameModal() {
-  gameModal.classList.add("hidden");
-  document.body.style.overflow = "";
-
-  updateDailyGameCard();
-}
-
-function playRound(playerChoice) {
-  const game = getDailyGame();
-
-  if (game.completed) {
-    return;
-  }
-
-  game.started = true;
-
-  const choices = [
-    "piedra",
-    "papel",
-    "tijera"
-  ];
-
-  const randomIndex = Math.floor(
-    Math.random() * choices.length
-  );
-
-  const machineChoice = choices[randomIndex];
-
-  const outcome = getRoundOutcome(
-    playerChoice,
-    machineChoice
-  );
-
-  if (outcome === "win") {
-    game.playerScore++;
-  }
-
-  if (outcome === "lose") {
-    game.machineScore++;
-  }
-
-  game.rounds.push({
-    playerChoice,
-    machineChoice,
-    outcome
-  });
-
-  if (game.playerScore >= 3) {
-    game.completed = true;
-    game.result = "win";
-
-    createVoucherForWin(game.date);
-  } else if (game.machineScore >= 2) {
-    game.completed = true;
-    game.result = "lose";
-  }
-
-  saveDailyGame(game);
-  renderGameModal();
-  updateDailyGameCard();
-  renderVouchers();
-}
-
-function getRoundOutcome(playerChoice, machineChoice) {
-  if (playerChoice === machineChoice) {
-    return "draw";
-  }
-
-  const wins = {
-    piedra: "tijera",
-    papel: "piedra",
-    tijera: "papel"
-  };
-
-  if (wins[playerChoice] === machineChoice) {
-    return "win";
-  }
-
-  return "lose";
-}
-
-function renderGameModal() {
-  const game = getDailyGame();
-
-  playerScore.textContent = game.playerScore;
-  machineScore.textContent = game.machineScore;
-
-  if (game.rounds.length > 0) {
-    const lastRound =
-      game.rounds[game.rounds.length - 1];
-
-    gameRoundResult.textContent =
-      roundMessage(lastRound);
-  } else {
-    gameRoundResult.textContent =
-      "Elige tu jugada para empezar.";
-  }
-
-  gameChoices.classList.toggle(
-    "hidden",
-    game.completed
-  );
-
-  gameFinal.classList.toggle(
-    "hidden",
-    !game.completed
-  );
-
-  prizeReveal.classList.add("hidden");
-
-  if (!game.completed) {
-    if (game.started) {
-      gameDailyNote.textContent =
-        "Partida en curso. Si cierras la web, el marcador se conservará.";
-    } else {
-      gameDailyNote.textContent =
-        "El intento de hoy comienza cuando hagas la primera jugada.";
-    }
-
-    return;
-  }
-
-  if (game.result === "win") {
-    const voucher = getTodayVoucher();
-
-    gameFinalIcon.textContent = "🏆";
-
-    gameFinalTitle.textContent =
-      "Has ganado el reto diario";
-
-    gameFinalText.textContent =
-      "La máquina ha sido derrotada. Ya puedes descubrir el premio de hoy.";
-
-    prizeReveal.classList.remove("hidden");
-
-    prizeTitle.textContent =
-      voucher?.title || SECRET_PRIZE.title;
-
-    prizeDescription.textContent =
-      voucher?.description ||
-      SECRET_PRIZE.description;
-  } else {
-    gameFinalIcon.textContent = "🤖";
-
-    gameFinalTitle.textContent =
-      "La máquina gana hoy";
-
-    gameFinalText.textContent =
-      "El intento diario se ha agotado. Mañana habrá una partida nueva y una secuencia diferente.";
-  }
-
-  gameDailyNote.textContent =
-    `Nuevo intento en ${timeUntilTomorrow()}.`;
-}
-
-function roundMessage(round) {
-  const labels = {
-    piedra: "Piedra ✊",
-    papel: "Papel ✋",
-    tijera: "Tijera ✌️"
-  };
-
-  const resultText = {
-    win: "Punto para Laura.",
-    lose: "Punto para la máquina.",
-    draw: "Empate. No suma nadie."
-  };
-
-  return (
-    `Laura: ${labels[round.playerChoice]} · ` +
-    `Máquina: ${labels[round.machineChoice]}. ` +
-    resultText[round.outcome]
-  );
-}
-
-function updateDailyGameCard() {
-  const game = getDailyGame();
-
-  if (!game.started) {
-    gameHomeStatus.textContent =
-      "Partida disponible. El premio seguirá oculto hasta que ganes.";
-
-    gameHomeButton.textContent =
-      "Jugar partida de hoy";
-
-    return;
-  }
-
-  if (!game.completed) {
-    gameHomeStatus.textContent =
-      `Partida en curso · Laura ${game.playerScore} - ` +
-      `${game.machineScore} Máquina`;
-
-    gameHomeButton.textContent =
-      "Continuar partida";
-
-    return;
-  }
-
-  if (game.result === "win") {
-    gameHomeStatus.textContent =
-      "Reto superado · premio desbloqueado · " +
-      `nuevo intento en ${timeUntilTomorrow()}`;
-
-    gameHomeButton.textContent =
-      "Ver premio";
-  } else {
-    gameHomeStatus.textContent =
-      "Intento agotado · " +
-      `nuevo reto en ${timeUntilTomorrow()}`;
-
-    gameHomeButton.textContent =
-      "Ver resultado";
-  }
-}
-
-function timeUntilTomorrow() {
-  const now = new Date();
-  const tomorrow = new Date(now);
-
-  tomorrow.setHours(24, 0, 0, 0);
-
-  const difference = Math.max(
-    0,
-    tomorrow.getTime() - now.getTime()
-  );
-
-  const hours = Math.floor(
-    difference / 3600000
-  );
-
-  const minutes = Math.floor(
-    (difference % 3600000) / 60000
-  );
-
-  const seconds = Math.floor(
-    (difference % 60000) / 1000
-  );
-
-  return (
-    `${String(hours).padStart(2, "0")} h · ` +
-    `${String(minutes).padStart(2, "0")} min · ` +
-    `${String(seconds).padStart(2, "0")} s`
-  );
-}
-
-function createVoucherForWin(date) {
-  const vouchers = getVouchers();
-
-  const id =
-    `vale-${SECRET_PRIZE.id}-${date}`;
-
-  const alreadyExists = vouchers.some(
-    item => item.id === id
-  );
-
-  if (alreadyExists) {
-    return;
-  }
-
-  vouchers.unshift({
-    id,
-    date,
-    title: SECRET_PRIZE.title,
-    description: SECRET_PRIZE.description,
-    serviceId: SECRET_PRIZE.serviceId,
-    duration: SECRET_PRIZE.duration,
-    code: `JE-${date.replaceAll("-", "")}`
-  });
-
-  localStorage.setItem(
-    VOUCHER_STORAGE_KEY,
-    JSON.stringify(vouchers)
-  );
-}
-
-function getVouchers() {
-  try {
-    return (
-      JSON.parse(
-        localStorage.getItem(VOUCHER_STORAGE_KEY)
-      ) || []
-    );
-  } catch (error) {
-    console.error(
-      "No se han podido cargar los vales.",
-      error
-    );
-
-    return [];
-  }
-}
-
-function getTodayVoucher() {
-  const today = toDateKey(new Date());
-
-  return (
-    getVouchers().find(
-      item => item.date === today
-    ) || null
-  );
-}
-
-function renderVouchers() {
-  const vouchers = getVouchers();
-
-  if (!vouchers.length) {
-    voucherList.innerHTML = `
-      <div class="empty">
-        Todavía no hay vales ganados.
-        El reto diario puede cambiar eso.
-      </div>
-    `;
-
-    return;
-  }
-
-  voucherList.innerHTML = vouchers
-    .map(
-      voucher => `
-        <article class="voucher-card">
-          <div class="voucher-mark">
-            JaviEats
-          </div>
-
-          <p class="eyebrow">
-            Premio conseguido ·
-            ${shortDate(voucher.date)}
-          </p>
-
-          <h3>
-            ${escapeHTML(voucher.title)}
-          </h3>
-
-          <p>
-            ${escapeHTML(voucher.description)}
-          </p>
-
-          <span class="voucher-code">
-            ${escapeHTML(voucher.code)}
-          </span>
-
-          <div class="voucher-buttons">
-            <button
-              class="btn btn-primary"
-              type="button"
-              data-voucher-download="${voucher.id}"
-            >
-              Descargar vale
-            </button>
-
-            <button
-              class="btn btn-secondary"
-              type="button"
-              data-voucher-redeem="${voucher.id}"
-            >
-              Proponer canje
-            </button>
-          </div>
-        </article>
-      `
-    )
-    .join("");
-}
-
-function redeemVoucher(voucher) {
-  closeGameModal();
-  showPage("services");
-
-  openService(voucher.serviceId, {
-    duration: voucher.duration,
-    note:
-      `Vale ${voucher.code} ganado en el ` +
-      "reto diario de JaviEats."
-  });
-}
-
-function downloadVoucher(voucher) {
-  const canvas = document.createElement("canvas");
-
-  canvas.width = 1200;
-  canvas.height = 1600;
-
-  const context = canvas.getContext("2d");
-
-  if (!context) {
-    showToast(
-      "No se ha podido generar el vale."
-    );
-
-    return;
-  }
-
-  context.fillStyle = "#f4f0ea";
-  context.fillRect(
-    0,
-    0,
-    canvas.width,
-    canvas.height
-  );
-
-  context.fillStyle = "#111111";
-
-  roundRect(
-    context,
-    90,
-    90,
-    1020,
-    1420,
-    54
-  );
-
-  context.fill();
-
-  context.fillStyle = "#ffffff";
-
-  roundRect(
-    context,
-    120,
-    120,
-    960,
-    1360,
-    42
-  );
-
-  context.fill();
-
-  context.fillStyle = "#e85d45";
-
-  roundRect(
-    context,
-    180,
-    180,
-    840,
-    120,
-    60
-  );
-
-  context.fill();
-
-  context.fillStyle = "#ffffff";
-  context.textAlign = "center";
-  context.font = "900 54px Arial";
-  context.fillText(
-    "JaviEats",
-    600,
-    258
-  );
-
-  context.fillStyle = "#111111";
-  context.font = "900 44px Arial";
-  context.fillText(
-    "VALE DESBLOQUEADO",
-    600,
-    430
-  );
-
-  context.fillStyle = "#e85d45";
-  context.font = "900 82px Arial";
-
-  wrapCanvasText(
-    context,
-    voucher.title,
-    600,
-    610,
-    820,
-    92
-  );
-
-  context.fillStyle = "#6f6a64";
-  context.font = "600 42px Arial";
-
-  wrapCanvasText(
-    context,
-    voucher.description,
-    600,
-    840,
-    760,
-    58
-  );
-
-  context.fillStyle = "#111111";
-  context.font = "700 34px Arial";
-
-  context.fillText(
-    `Ganado el ${formatDateCompact(voucher.date)}`,
-    600,
-    1040
-  );
-
-  context.strokeStyle = "#e6ddd3";
-  context.lineWidth = 4;
-  context.setLineDash([18, 14]);
-
-  context.beginPath();
-  context.moveTo(220, 1120);
-  context.lineTo(980, 1120);
-  context.stroke();
-
-  context.setLineDash([]);
-
-  context.fillStyle = "#111111";
-  context.font = "900 36px monospace";
-
-  context.fillText(
-    voucher.code,
-    600,
-    1215
-  );
-
-  context.fillStyle = "#6f6a64";
-  context.font = "500 28px Arial";
-
-  wrapCanvasText(
-    context,
-    "Canjeable bajo disponibilidad. Enséñaselo a Javi para hacerlo oficial.",
-    600,
-    1330,
-    780,
-    42
-  );
-
-  const link = document.createElement("a");
-
-  link.download =
-    `vale-javieats-${voucher.date}.png`;
-
-  link.href =
-    canvas.toDataURL("image/png");
-
-  document.body.appendChild(link);
-
-  link.click();
-  link.remove();
-
-  showToast("Vale descargado.");
-}
-
-function roundRect(
-  context,
-  x,
-  y,
-  width,
-  height,
-  radius
-) {
-  const adjustedRadius = Math.min(
-    radius,
-    width / 2,
-    height / 2
-  );
-
-  context.beginPath();
-
-  context.moveTo(
-    x + adjustedRadius,
-    y
-  );
-
-  context.arcTo(
-    x + width,
-    y,
-    x + width,
-    y + height,
-    adjustedRadius
-  );
-
-  context.arcTo(
-    x + width,
-    y + height,
-    x,
-    y + height,
-    adjustedRadius
-  );
-
-  context.arcTo(
-    x,
-    y + height,
-    x,
-    y,
-    adjustedRadius
-  );
-
-  context.arcTo(
-    x,
-    y,
-    x + width,
-    y,
-    adjustedRadius
-  );
-
-  context.closePath();
-}
-
-function wrapCanvasText(
-  context,
-  text,
-  centerX,
-  startY,
-  maxWidth,
-  lineHeight
-) {
-  const words = String(text).split(" ");
-  const lines = [];
-
-  let line = "";
-
-  words.forEach(word => {
-    const testLine = line
-      ? `${line} ${word}`
-      : word;
-
-    const testWidth =
-      context.measureText(testLine).width;
-
-    if (
-      testWidth > maxWidth &&
-      line
-    ) {
-      lines.push(line);
-      line = word;
-    } else {
-      line = testLine;
-    }
-  });
-
-  if (line) {
-    lines.push(line);
-  }
-
-  lines.forEach((lineText, index) => {
-    context.fillText(
-      lineText,
-      centerX,
-      startY + index * lineHeight
-    );
-  });
-}
-
-function renderMemories() {
-  memoriesList.innerHTML = MEMORIES
-    .map(
-      memory => `
-        <article class="memory-card">
-          <div class="timeline-dot"></div>
-
-          <div class="memory-date">
-            ${memory.dateLabel}
-          </div>
-
-          ${
-            memory.cover
-              ? `
-                <img
-                  class="memory-cover"
-                  src="${memory.cover}"
-                  alt="${escapeHTML(memory.title)}"
-                  loading="lazy"
-                />
-              `
-              : `
-                <div class="memory-placeholder">
-                  ${memory.emoji || "💌"}
-                </div>
-              `
-          }
-
-          <div class="memory-body">
-            <h3>
-              ${escapeHTML(memory.title)}
-            </h3>
-
-            <p>
-              ${escapeHTML(memory.description)}
-            </p>
-
-            <button
-              class="btn btn-secondary memory-open-btn"
-              type="button"
-              data-memory-id="${memory.id}"
-            >
-              ${memory.actionLabel}
-            </button>
-          </div>
-        </article>
-      `
-    )
-    .join("");
-}
-
-function openMemory(id) {
-  const memory = MEMORIES.find(
-    item => item.id === id
-  );
-
-  if (!memory) {
-    return;
-  }
-
-  if (memory.type === "letter") {
-    letterEyebrow.textContent =
-      memory.letterEyebrow;
-
-    letterTitle.textContent =
-      memory.letterTitle;
-
-    showPage("letter");
-    loadLetter(memory.letterFile);
-
-    return;
-  }
-
-  currentGallery = memory.images || [];
-  currentGalleryIndex = 0;
-
-  memoryModalDate.textContent =
-    memory.dateLabel;
-
-  memoryModalTitle.textContent =
-    memory.title;
-
-  memoryModalDescription.textContent =
-    memory.description;
-
-  renderGalleryImage();
-
-  memoryModal.classList.remove("hidden");
-  document.body.style.overflow = "hidden";
-}
-
-async function loadLetter(file) {
-  if (
-    loadedLetterFile === file &&
-    letterContent.dataset.loaded === "true"
-  ) {
-    return;
-  }
-
-  letterContent.dataset.loaded = "false";
-
-  letterContent.innerHTML = `
-    <p>Cargando carta...</p>
-  `;
-
-  try {
-    const response = await fetch(file, {
-      cache: "no-store"
-    });
-
-    if (!response.ok) {
-      throw new Error(
-        `No se ha podido cargar ${file}`
-      );
-    }
-
-    const text = await response.text();
-
-    letterContent.innerHTML =
-      renderLetterText(text);
-
-    letterContent.dataset.loaded = "true";
-    loadedLetterFile = file;
-  } catch (error) {
-    console.error(error);
-
-    letterContent.innerHTML = `
-      <p>
-        No se ha podido cargar esta carta.
-      </p>
-
-      <p>
-        Revisa que el archivo
-        <strong>${escapeHTML(file)}</strong>
-        exista en GitHub y que el nombre coincida
-        exactamente.
-      </p>
-    `;
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
-function renderLetterText(text) {
-  const cleanText = String(text || "").trim();
-
-  if (!cleanText) {
-    return `
-      <p>La carta está vacía.</p>
-    `;
-  }
-
-  const paragraphs = cleanText
-    .split(/\n\s*\n/)
-    .map(paragraph => paragraph.trim())
-    .filter(Boolean);
-
-  return paragraphs
-    .map(
-      paragraph => `
-        <p>
-          ${escapeHTML(paragraph).replace(/\n/g, "<br>")}
-        </p>
-      `
-    )
-    .join("");
+.modal-close {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  z-index: 5;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: #fff;
+  font-size: 1.4rem;
+  font-weight: 900;
 }
 
-function closeMemoryModal() {
-  memoryModal.classList.add("hidden");
-  document.body.style.overflow = "";
+.modal-icon {
+  display: grid;
+  place-items: center;
+  width: 62px;
+  height: 62px;
+  margin-bottom: 12px;
+  border-radius: 22px;
+  background: var(--accent-soft);
+  font-size: 2rem;
 }
 
-function changeGalleryImage(direction) {
-  if (currentGallery.length <= 1) {
-    return;
-  }
-
-  currentGalleryIndex =
-    (
-      currentGalleryIndex +
-      direction +
-      currentGallery.length
-    ) % currentGallery.length;
-
-  renderGalleryImage();
+.clean-list {
+  display: grid;
+  gap: 8px;
+  margin: 12px 0 18px;
+  padding: 0;
+  list-style: none;
 }
 
-function renderGalleryImage() {
-  if (!currentGallery.length) {
-    return;
-  }
-
-  galleryImage.src =
-    currentGallery[currentGalleryIndex];
-
-  galleryCounter.textContent =
-    `${currentGalleryIndex + 1} de ` +
-    currentGallery.length;
-
-  const showArrows =
-    currentGallery.length > 1;
-
-  galleryPrev.classList.toggle(
-    "hidden",
-    !showArrows
-  );
-
-  galleryNext.classList.toggle(
-    "hidden",
-    !showArrows
-  );
-
-  galleryCounter.classList.toggle(
-    "hidden",
-    !showArrows
-  );
+.clean-list li {
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: #f8f2ec;
+  color: var(--muted);
+  font-weight: 720;
 }
 
-async function handleProposal(event) {
-  event.preventDefault();
-
-  const service = SERVICES.find(
-    item => item.id === serviceId.value
-  );
-
-  if (!service) {
-    return;
-  }
-
-  const proposal = {
-    id:
-      `${Date.now()}-` +
-      Math.random().toString(16).slice(2),
-
-    serviceId: service.id,
-    serviceTitle: service.title,
-    serviceIcon: service.icon,
-    category: service.category,
-    date: proposalDate.value,
-    time: proposalTime.value,
-    duration: proposalDuration.value,
-    priority: proposalPriority.value,
-    note: proposalNote.value.trim(),
-    createdAt: new Date().toISOString()
-  };
-
-  proposalStatus.textContent =
-    "Enviando propuesta...";
-
-  saveProposal(proposal);
-  refresh();
-
-  try {
-    await sendProposalByEmail(proposal);
-
-    proposalStatus.textContent =
-      "Propuesta enviada. Javi la recibe por correo.";
-
-    showToast(
-      "Propuesta enviada a JaviEats."
-    );
-
-    setTimeout(() => {
-      closeServiceModal();
-
-      selectedDate = proposal.date;
-
-      const [year, month] =
-        proposal.date.split("-").map(Number);
-
-      calendarDate = new Date(
-        year,
-        month - 1,
-        1
-      );
-
-      showPage("calendar");
-      renderCalendar();
-    }, 850);
-  } catch (error) {
-    console.error(error);
-
-    proposalStatus.textContent =
-      "Guardada en calendario local, pero el correo no ha salido. Revisa Formspree.";
-
-    showToast(
-      "Guardada localmente. Revisa Formspree."
-    );
-  }
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 11px;
 }
 
-async function sendProposalByEmail(proposal) {
-  const payload = {
-    _subject:
-      `Nueva propuesta en JaviEats - ` +
-      proposal.serviceTitle,
+.note {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.4;
+  font-weight: 750;
+}
 
-    destino:
-      CONFIG.emailDestino,
+.game-panel {
+  background:
+    radial-gradient(
+      circle at top right,
+      rgba(255, 214, 221, 0.55),
+      transparent 32%
+    ),
+    #fff;
+}
 
-    servicio:
-      proposal.serviceTitle,
+.round-information {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin: 18px 0 10px;
+  padding: 11px 13px;
+  border-radius: 16px;
+  background: #f8f2ec;
+}
 
-    categoria:
-      proposal.category,
+.round-information strong {
+  font-size: 0.94rem;
+}
 
-    fecha:
-      formatDate(proposal.date),
+.round-information span {
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 800;
+}
 
-    hora:
-      proposal.time,
+.scoreboard {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 14px;
+}
 
-    duracion:
-      proposal.duration,
+.score-box {
+  padding: 14px 8px;
+  border-radius: 20px;
+  background: #fff;
+  text-align: center;
+  box-shadow: 0 8px 19px rgba(0, 0, 0, 0.06);
+}
 
-    nivel_de_ganas:
-      proposal.priority,
+.score-box span {
+  display: block;
+  min-height: 32px;
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-weight: 800;
+}
 
-    nota:
-      proposal.note || "Sin nota",
+.score-box strong {
+  display: block;
+  margin-top: 4px;
+  font-size: 2.2rem;
+  letter-spacing: -0.08em;
+}
 
-    creada_en:
-      new Date(
-        proposal.createdAt
-      ).toLocaleString("es-ES")
-  };
+.score-divider {
+  color: var(--muted);
+  font-weight: 900;
+}
 
-  const response = await fetch(
-    CONFIG.formspreeEndpoint,
-    {
-      method: "POST",
+.choice-arena {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 10px;
+  align-items: center;
+  padding: 15px;
+  border-radius: 24px;
+  background: var(--dark);
+  color: #fff;
+}
 
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json"
-      },
+.choice-fighter {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  text-align: center;
+}
 
-      body: JSON.stringify(payload)
-    }
-  );
+.fighter-name {
+  color: rgba(255, 255, 255, 0.68);
+  font-size: 0.76rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
 
-  if (!response.ok) {
-    throw new Error(
-      "Formspree no ha aceptado el envío"
-    );
+.choice-visual {
+  display: grid;
+  place-items: center;
+  width: 78px;
+  height: 78px;
+  border: 2px solid rgba(255, 255, 255, 0.16);
+  border-radius: 25px;
+  background: rgba(255, 255, 255, 0.1);
+  font-size: 2.65rem;
+}
+
+.choice-visual.thinking {
+  animation: machineThinking 0.28s linear infinite alternate;
+}
+
+@keyframes machineThinking {
+  from {
+    transform: rotate(-7deg) scale(0.96);
+  }
+
+  to {
+    transform: rotate(7deg) scale(1.04);
   }
 }
 
-function saveProposal(proposal) {
-  const proposals = getProposals();
-
-  proposals.unshift(proposal);
-
-  localStorage.setItem(
-    STORAGE_KEY,
-    JSON.stringify(proposals)
-  );
+.choice-fighter strong {
+  min-height: 20px;
+  font-size: 0.82rem;
 }
 
-function getProposals() {
-  try {
-    return (
-      JSON.parse(
-        localStorage.getItem(STORAGE_KEY)
-      ) || []
-    );
-  } catch (error) {
-    console.error(
-      "No se han podido cargar las propuestas.",
-      error
-    );
+.versus {
+  color: var(--accent);
+  font-size: 0.8rem;
+  font-weight: 950;
+}
 
-    return [];
+.round-result {
+  display: grid;
+  place-items: center;
+  min-height: 62px;
+  margin: 13px 0 0;
+  padding: 13px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: #fff;
+  text-align: center;
+  line-height: 1.4;
+  font-weight: 800;
+}
+
+.game-choices {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 9px;
+  margin-top: 14px;
+}
+
+.choice-btn {
+  display: grid;
+  gap: 5px;
+  padding: 13px 7px;
+  border: 1px solid var(--line);
+  border-radius: 19px;
+  background: #fff;
+  font-weight: 900;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+}
+
+.choice-btn span {
+  font-size: 1.8rem;
+}
+
+.choice-btn:hover {
+  border-color: var(--accent);
+}
+
+.game-final {
+  margin-top: 18px;
+  text-align: center;
+}
+
+.game-final-icon {
+  margin-bottom: 8px;
+  font-size: 3.2rem;
+}
+
+.prize-reveal {
+  margin-top: 17px;
+  padding: 18px;
+  border: 1px solid rgba(232, 93, 69, 0.22);
+  border-radius: 22px;
+  background: linear-gradient(135deg, #fff5d6, #ffe4dc);
+}
+
+.prize-reveal p {
+  line-height: 1.45;
+}
+
+.daily-note {
+  margin: 16px 0 0;
+  color: var(--muted);
+  text-align: center;
+  font-size: 0.82rem;
+  font-weight: 750;
+}
+
+.memory-panel {
+  padding-bottom: 26px;
+}
+
+.gallery-viewer {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: 260px;
+  margin-top: 16px;
+  overflow: hidden;
+  border-radius: 24px;
+  background: #111;
+}
+
+.gallery-viewer img {
+  width: 100%;
+  max-height: 65vh;
+  object-fit: contain;
+}
+
+.gallery-arrow {
+  position: absolute;
+  top: 50%;
+  z-index: 3;
+  width: 42px;
+  height: 42px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.88);
+  color: #111;
+  font-size: 1.7rem;
+  font-weight: 900;
+  transform: translateY(-50%);
+}
+
+#gallery-prev {
+  left: 12px;
+}
+
+#gallery-next {
+  right: 12px;
+}
+
+.gallery-counter {
+  margin: 10px 0 0;
+  color: var(--muted);
+  text-align: center;
+  font-weight: 850;
+}
+
+.letter-page {
+  padding-bottom: 110px;
+}
+
+.back-link {
+  margin-bottom: 14px;
+  padding: 11px 14px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.72);
+  color: var(--dark);
+  font-weight: 900;
+}
+
+.letter-card {
+  position: relative;
+  overflow: hidden;
+  padding: 26px;
+  border: 1px solid rgba(232, 93, 69, 0.16);
+  border-radius: var(--radius-xl);
+  background:
+    radial-gradient(
+      circle at top right,
+      rgba(255, 232, 239, 0.98),
+      transparent 36%
+    ),
+    linear-gradient(180deg, #fffdf8, #ffffff);
+  box-shadow: var(--shadow);
+}
+
+.letter-card::before {
+  content: "";
+  position: absolute;
+  top: -45px;
+  right: -45px;
+  width: 130px;
+  height: 130px;
+  border-radius: 999px;
+  background: rgba(232, 93, 69, 0.08);
+}
+
+.letter-stamp {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 62px;
+  height: 62px;
+  margin-bottom: 14px;
+  border-radius: 22px;
+  background: var(--dark);
+  color: #fff;
+  font-size: 2rem;
+}
+
+.letter-card h2,
+.letter-card .eyebrow,
+.letter-content {
+  position: relative;
+  z-index: 2;
+}
+
+.letter-content {
+  margin-top: 18px;
+  color: #2d2926;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.04rem;
+  line-height: 1.78;
+}
+
+.letter-content p {
+  margin-bottom: 18px;
+}
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 92px;
+  z-index: 120;
+  width: min(calc(100% - 30px), 500px);
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: var(--dark);
+  color: #fff;
+  text-align: center;
+  font-weight: 850;
+  box-shadow: var(--shadow);
+  transform: translateX(-50%);
+}
+
+.danger {
+  color: #b42318;
+}
+
+@media (min-width: 640px) {
+  .modal {
+    place-items: center;
+  }
+
+  .modal-panel {
+    max-height: 88vh;
+    border-radius: var(--radius-xl);
   }
 }
 
-function refresh() {
-  const proposals = getProposals();
-
-  totalProposals.textContent =
-    proposals.length;
-
-  const now = new Date();
-
-  const futureProposals = proposals
-    .filter(proposal => {
-      const proposalDateTime = new Date(
-        `${proposal.date}T${proposal.time}`
-      );
-
-      return proposalDateTime >= now;
-    })
-    .sort((proposalA, proposalB) => {
-      const dateA =
-        `${proposalA.date}T${proposalA.time}`;
-
-      const dateB =
-        `${proposalB.date}T${proposalB.time}`;
-
-      return dateA.localeCompare(dateB);
-    });
-
-  nextPlan.textContent =
-    futureProposals[0]
-      ? shortDate(futureProposals[0].date)
-      : "—";
-
-  renderBookings();
-  renderCalendar();
-  renderVouchers();
-}
-
-function renderBookings() {
-  const proposals = getProposals();
-
-  if (!proposals.length) {
-    bookingList.innerHTML = `
-      <div class="empty">
-        Todavía no hay propuestas guardadas
-        en este móvil.
-      </div>
-    `;
-
-    return;
+@media (max-width: 420px) {
+  .voucher-buttons,
+  .prize-actions {
+    grid-template-columns: 1fr;
   }
 
-  bookingList.innerHTML = proposals
-    .map(bookingTemplate)
-    .join("");
-}
-
-function bookingTemplate(proposal) {
-  return `
-    <article class="booking-card">
-      <div class="booking-top">
-        <div>
-          <div class="booking-title">
-            ${proposal.serviceIcon}
-            ${proposal.serviceTitle}
-          </div>
-
-          <p>
-            ${formatDate(proposal.date)} ·
-            ${proposal.time} ·
-            ${proposal.duration}
-          </p>
-        </div>
-
-        <span class="status">
-          Pendiente
-        </span>
-      </div>
-
-      <p>
-        <strong>Nivel:</strong>
-        ${proposal.priority}
-      </p>
-
-      ${
-        proposal.note
-          ? `
-            <p>
-              <strong>Nota:</strong>
-              ${escapeHTML(proposal.note)}
-            </p>
-          `
-          : ""
-      }
-    </article>
-  `;
-}
-
-function renderCalendar() {
-  const proposals = getProposals();
-
-  const year = calendarDate.getFullYear();
-  const month = calendarDate.getMonth();
-
-  calendarTitle.textContent =
-    new Intl.DateTimeFormat("es-ES", {
-      month: "long",
-      year: "numeric"
-    }).format(calendarDate);
-
-  const firstDay = new Date(
-    year,
-    month,
-    1
-  );
-
-  const lastDay = new Date(
-    year,
-    month + 1,
-    0
-  );
-
-  const startOffset =
-    (firstDay.getDay() + 6) % 7;
-
-  const todayKey =
-    toDateKey(new Date());
-
-  let html = "";
-
-  for (
-    let index = 0;
-    index < startOffset;
-    index++
-  ) {
-    html += `
-      <button
-        class="day is-empty"
-        type="button"
-      ></button>
-    `;
+  .game-choices {
+    gap: 6px;
   }
 
-  for (
-    let day = 1;
-    day <= lastDay.getDate();
-    day++
-  ) {
-    const key =
-      `${year}-` +
-      `${String(month + 1).padStart(2, "0")}-` +
-      `${String(day).padStart(2, "0")}`;
-
-    const hasBooking = proposals.some(
-      proposal => proposal.date === key
-    );
-
-    const todayClass =
-      key === todayKey
-        ? "is-today"
-        : "";
-
-    const selectedClass =
-      key === selectedDate
-        ? "is-selected"
-        : "";
-
-    const bookingClass =
-      hasBooking
-        ? "has-booking"
-        : "";
-
-    html += `
-      <button
-        class="
-          day
-          ${todayClass}
-          ${selectedClass}
-          ${bookingClass}
-        "
-        type="button"
-        data-date="${key}"
-      >
-        ${day}
-      </button>
-    `;
+  .choice-btn {
+    font-size: 0.82rem;
   }
 
-  calendarGrid.innerHTML = html;
-
-  document
-    .querySelectorAll("[data-date]")
-    .forEach(button => {
-      button.addEventListener("click", () => {
-        selectedDate = button.dataset.date;
-
-        renderCalendar();
-      });
-    });
-
-  renderDayDetail();
-}
-
-function renderDayDetail() {
-  const proposals = getProposals()
-    .filter(
-      proposal =>
-        proposal.date === selectedDate
-    )
-    .sort(
-      (proposalA, proposalB) =>
-        proposalA.time.localeCompare(
-          proposalB.time
-        )
-    );
-
-  selectedTitle.textContent =
-    formatDate(selectedDate);
-
-  if (!proposals.length) {
-    dayBookings.innerHTML = `
-      <div class="empty">
-        No hay propuestas para este día.
-      </div>
-    `;
-
-    return;
+  .choice-visual {
+    width: 66px;
+    height: 66px;
+    font-size: 2.2rem;
   }
 
-  dayBookings.innerHTML = proposals
-    .map(bookingTemplate)
-    .join("");
-}
-
-function setMinDate() {
-  const today = toDateKey(new Date());
-
-  proposalDate.min = today;
-
-  if (!proposalDate.value) {
-    proposalDate.value = today;
+  .round-information {
+    align-items: start;
+    flex-direction: column;
   }
-}
-
-function normalize(value) {
-  return String(value || "")
-    .trim()
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/\s+/g, " ");
-}
-
-function shuffle(array) {
-  return array
-    .map(value => ({
-      value,
-      sort: Math.random()
-    }))
-    .sort(
-      (itemA, itemB) =>
-        itemA.sort - itemB.sort
-    )
-    .map(({ value }) => value);
-}
-
-function toDateKey(date) {
-  const currentDate = new Date(date);
-
-  const year =
-    currentDate.getFullYear();
-
-  const month = String(
-    currentDate.getMonth() + 1
-  ).padStart(2, "0");
-
-  const day = String(
-    currentDate.getDate()
-  ).padStart(2, "0");
-
-  return `${year}-${month}-${day}`;
-}
-
-function formatDate(dateKey) {
-  const [year, month, day] =
-    dateKey.split("-").map(Number);
-
-  return new Intl.DateTimeFormat(
-    "es-ES",
-    {
-      weekday: "long",
-      day: "2-digit",
-      month: "long",
-      year: "numeric"
-    }
-  ).format(
-    new Date(year, month - 1, day)
-  );
-}
-
-function formatDateCompact(dateKey) {
-  const [year, month, day] =
-    dateKey.split("-").map(Number);
-
-  return new Intl.DateTimeFormat(
-    "es-ES",
-    {
-      day: "2-digit",
-      month: "long",
-      year: "numeric"
-    }
-  ).format(
-    new Date(year, month - 1, day)
-  );
-}
-
-function shortDate(dateKey) {
-  const [year, month, day] =
-    dateKey.split("-").map(Number);
-
-  return new Intl.DateTimeFormat(
-    "es-ES",
-    {
-      day: "2-digit",
-      month: "short"
-    }
-  ).format(
-    new Date(year, month - 1, day)
-  );
-}
-
-function escapeHTML(text) {
-  return String(text)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
-}
-
-function showToast(message) {
-  toast.textContent = message;
-  toast.classList.remove("hidden");
-
-  clearTimeout(showToast.timer);
-
-  showToast.timer = setTimeout(() => {
-    toast.classList.add("hidden");
-  }, 2600);
 }
