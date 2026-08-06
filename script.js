@@ -11,7 +11,7 @@ const USER_IDS = {
   LAURA: "ef4258bf-5897-4594-86ac-a134fcd1feec"
 };
 
-const SESSION_KEY = "javieats_access_ok_v3";
+const PRE_AUTH_GATE_KEY = "javieats_gate_before_login_v1";
 const QUESTION_COUNT = 2;
 const REGULAR_GAME_ROUNDS = 5;
 const SYNC_INTERVAL_MS = 60_000;
@@ -423,6 +423,7 @@ const lauraMessageModalActions = document.getElementById(
 const toast = document.getElementById("toast");
 
 let supabaseClient = null;
+let pendingSession = null;
 let currentUser = null;
 let currentRole = "unknown";
 let selectedQuestions = [];
@@ -483,11 +484,22 @@ async function init() {
   supabaseClient.auth.onAuthStateChange((event, session) => {
     if (event === "SIGNED_OUT") {
       resetAppSession();
-      showAuthScreen();
+      pendingSession = null;
+
+      sessionStorage.removeItem(
+        PRE_AUTH_GATE_KEY
+      );
+
+      showGateScreen();
     }
 
     if (event === "TOKEN_REFRESHED" && session?.user) {
       currentUser = session.user;
+      pendingSession = session;
+    }
+
+    if (event === "SIGNED_IN" && session?.user) {
+      pendingSession = session;
     }
   });
 
@@ -501,16 +513,40 @@ async function init() {
       throw error;
     }
 
-    if (!session?.user) {
-      showAuthScreen();
+    pendingSession = session || null;
+
+    const gatePassed =
+      sessionStorage.getItem(
+        PRE_AUTH_GATE_KEY
+      ) === "true";
+
+    if (!gatePassed) {
+      showGateScreen();
       return;
     }
 
-    await handleAuthenticatedSession(session);
+    await continueAfterGate();
   } catch (error) {
     console.error(error);
-    showAuthError("No se ha podido comprobar la sesión.");
+
+    sessionStorage.removeItem(
+      PRE_AUTH_GATE_KEY
+    );
+
+    showGateScreen();
   }
+}
+
+async function continueAfterGate() {
+  if (pendingSession?.user) {
+    await handleAuthenticatedSession(
+      pendingSession
+    );
+
+    return;
+  }
+
+  showAuthScreen();
 }
 
 function bindEvents() {
@@ -675,7 +711,9 @@ async function handleLogin(event) {
 }
 
 async function handleAuthenticatedSession(session) {
-  const role = getRoleFromUser(session.user);
+  const role = getRoleFromUser(
+    session.user
+  );
 
   if (role === "unknown") {
     await supabaseClient.auth.signOut();
@@ -689,14 +727,9 @@ async function handleAuthenticatedSession(session) {
 
   currentUser = session.user;
   currentRole = role;
+  pendingSession = session;
 
-  if (
-    sessionStorage.getItem(getGateSessionKey()) === "true"
-  ) {
-    await showApp();
-  } else {
-    showGateScreen();
-  }
+  await showApp();
 }
 
 function getRoleFromUser(user) {
@@ -792,18 +825,20 @@ function handleGate(event) {
 
   questionIndex++;
 
-  if (questionIndex >= QUESTION_COUNT) {
-    progressBar.style.width = "100%";
+if (questionIndex >= QUESTION_COUNT) {
+  progressBar.style.width = "100%";
 
-    sessionStorage.setItem(
-      getGateSessionKey(),
-      "true"
-    );
+  sessionStorage.setItem(
+    PRE_AUTH_GATE_KEY,
+    "true"
+  );
 
-    setTimeout(() => showApp(), 220);
+  setTimeout(() => {
+    continueAfterGate();
+  }, 220);
 
-    return;
-  }
+  return;
+}
 
   renderQuestion();
 }
@@ -848,7 +883,12 @@ function applyRoleUI() {
 }
 
 async function logout() {
-  sessionStorage.removeItem(getGateSessionKey());
+  sessionStorage.removeItem(
+    PRE_AUTH_GATE_KEY
+  );
+
+  pendingSession = null;
+
   await supabaseClient.auth.signOut();
 }
 
