@@ -2,1382 +2,355 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  />
-
-  <meta
-    name="theme-color"
-    content="#f4f0ea"
-  />
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#f4f0ea" />
   <title>JaviEats</title>
-
-  <link
-    rel="stylesheet"
-    href="style.css"
-  />
+  <link rel="stylesheet" href="style.css" />
 </head>
-
 <body>
   <main class="app-shell">
-
-    <!-- ===================================================
-         INICIO DE SESIÓN CON SUPABASE
-    ==================================================== -->
-
-    <section
-      id="auth-screen"
-      class="screen auth-screen"
-    >
-      <div class="gate-card auth-card">
-        <div class="brand-pill">
-          JaviEats
-        </div>
-
-        <div class="auth-icon">
-          💌
-        </div>
-
-        <h1>Bienvenido a JaviEats</h1>
-
-        <p class="muted">
-          Este espacio es privado. Inicia sesión con tu cuenta
-          para acceder.
-        </p>
-
-        <form
-          id="login-form"
-          class="form"
-        >
-          <label>
-            Correo electrónico
-
-            <input
-              id="login-email"
-              type="email"
-              autocomplete="email"
-              placeholder="tu@email.com"
-              required
-            />
-          </label>
-
-          <label>
-            Contraseña
-
-            <input
-              id="login-password"
-              type="password"
-              autocomplete="current-password"
-              placeholder="Tu contraseña"
-              required
-            />
-          </label>
-
-          <button
-            id="login-submit"
-            class="btn btn-primary"
-            type="submit"
-          >
-            Iniciar sesión
-          </button>
-
-          <p
-            id="login-status"
-            class="note"
-          ></p>
-        </form>
-
-        <p class="auth-help">
-          Solo pueden acceder Javi y Laura.
-        </p>
-      </div>
-    </section>
-
-
-    <!-- ===================================================
-         CONTROL PRIVADO DE JAVIEATS
-    ==================================================== -->
-
-    <section
-      id="gate-screen"
-      class="screen gate-screen hidden"
-    >
+    <!-- 1) Preguntas privadas -->
+    <section id="gate-screen" class="screen gate-screen">
       <div class="gate-card">
-        <div class="brand-pill">
-          JaviEats
-        </div>
-
+        <div class="brand-pill">JaviEats</div>
         <h1>Acceso privado</h1>
-
-        <p class="muted">
-          Antes de entrar toca pasar el control de calidad.
-        </p>
-
-        <div class="progress">
-          <div
-            id="progress-bar"
-            class="progress-bar"
-          ></div>
-        </div>
-
-        <form
-          id="gate-form"
-          class="form"
-        >
+        <p class="muted">Antes de entrar toca pasar el control de calidad.</p>
+        <div class="progress"><div id="progress-bar" class="progress-bar"></div></div>
+        <form id="gate-form" class="form">
           <label>
-            <span id="gate-question">
-              Pregunta
-            </span>
-
+            <span id="gate-question">Pregunta</span>
             <span id="gate-input"></span>
           </label>
-
-          <p
-            id="gate-error"
-            class="error"
-          ></p>
-
-          <button
-            class="btn btn-primary"
-            type="submit"
-          >
-            Continuar
-          </button>
+          <p id="gate-error" class="error"></p>
+          <button class="btn btn-primary" type="submit">Continuar</button>
         </form>
       </div>
     </section>
 
+    <!-- 2) Login Supabase -->
+    <section id="auth-screen" class="screen auth-screen hidden">
+      <div class="gate-card auth-card">
+        <div class="brand-pill">JaviEats</div>
+        <div class="auth-icon">💌</div>
+        <h1>Bienvenido a JaviEats</h1>
+        <p class="muted">Este espacio es privado. Inicia sesión con tu cuenta para acceder.</p>
+        <form id="login-form" class="form">
+          <label>Correo electrónico
+            <input id="login-email" type="email" autocomplete="email" placeholder="tu@email.com" required />
+          </label>
+          <label>Contraseña
+            <input id="login-password" type="password" autocomplete="current-password" placeholder="Tu contraseña" required />
+          </label>
+          <button id="login-submit" class="btn btn-primary" type="submit">Iniciar sesión</button>
+          <p id="login-status" class="note"></p>
+        </form>
+        <p class="auth-help">Solo pueden acceder Javi y Laura.</p>
+      </div>
+    </section>
 
-    <!-- ===================================================
-         APLICACIÓN
-    ==================================================== -->
-
-    <section
-      id="app-screen"
-      class="screen hidden"
-    >
+    <!-- 3) App -->
+    <section id="app-screen" class="screen hidden">
       <header class="app-header">
         <div>
-          <p class="eyebrow">
-            Delivery de planes
-          </p>
-
+          <p class="eyebrow">Delivery de planes</p>
           <h1>JaviEats</h1>
-
           <div class="session-information">
-            <span
-              id="session-user-name"
-              class="session-user-name"
-            >
-              Usuario
-            </span>
-
-            <span
-              id="sync-status"
-              class="sync-status"
-            >
-              Conectando…
-            </span>
+            <span id="session-user-name" class="session-user-name">Usuario</span>
+            <span id="sync-status" class="sync-status">Conectando…</span>
           </div>
         </div>
-
-        <button
-          id="logout-btn"
-          class="icon-btn"
-          type="button"
-          title="Cerrar sesión"
-          aria-label="Cerrar sesión"
-        >
-          ⏻
-        </button>
+        <button id="logout-btn" class="icon-btn" type="button" title="Cerrar sesión" aria-label="Cerrar sesión">⏻</button>
       </header>
 
-
-      <!-- =================================================
-           INICIO
-      ================================================== -->
-
-      <section
-        id="page-home"
-        class="page active"
-      >
+      <section id="page-home" class="page active">
         <div class="hero">
-          <p
-            id="home-greeting"
-            class="eyebrow"
-          >
-            Hola 👋
-          </p>
-
+          <p id="home-greeting" class="eyebrow">Hola 👋</p>
           <h2>¿Qué plan proponemos hoy?</h2>
-
-          <p>
-            Elige servicio, fecha y hora. Se propone, se habla
-            y se disfruta juntos.
-          </p>
-
-          <div class="availability">
-            Disponible bajo negociación
-          </div>
+          <p>Elige servicio, fecha y hora. Se propone, se habla y se disfruta juntos.</p>
+          <div class="availability">Disponible bajo negociación</div>
         </div>
 
-
-        <!-- RETO DIARIO -->
-
-        <section
-          id="daily-game-card"
-          class="game-card"
-        >
+        <section id="daily-game-card" class="game-card">
           <div class="game-card-top">
-            <div class="game-icon">
-              ✊
-            </div>
-
+            <div class="game-icon">✊</div>
             <div>
-              <p class="eyebrow">
-                Reto diario
-              </p>
-
+              <p class="eyebrow">Reto diario</p>
               <h2>Piedra, papel o tijera</h2>
-
-              <p class="muted">
-                Cinco rondas. Los empates también consumen ronda.
-                Quien consiga más victorias gana.
-              </p>
+              <p class="muted">Cinco rondas. Los empates también consumen ronda. Quien consiga más victorias gana.</p>
             </div>
           </div>
-
           <div class="game-rules-mini">
-            <span>5 rondas</span>
-            <span>1 intento diario real</span>
-            <span>Premio secreto</span>
+            <span>5 rondas</span><span>1 intento diario real</span><span>Premio secreto</span>
           </div>
-
-          <p
-            id="game-home-status"
-            class="game-home-status"
-          >
-            Comprobando la partida de hoy…
-          </p>
-
-          <button
-            id="game-home-button"
-            class="btn btn-primary"
-            type="button"
-          >
-            Jugar partida de hoy
-          </button>
+          <p id="game-home-status" class="game-home-status">Comprobando la partida de hoy…</p>
+          <button id="game-home-button" class="btn btn-primary" type="button">Jugar partida de hoy</button>
         </section>
 
-
-        <!-- ESTADÍSTICAS -->
-
         <div class="stats">
-          <div class="stat">
-            <strong id="total-proposals">
-              0
-            </strong>
-
-            <span>
-              propuestas enviadas
-            </span>
-          </div>
-
-          <div class="stat">
-            <strong id="next-plan">
-              —
-            </strong>
-
-            <span>
-              próximo plan
-            </span>
-          </div>
+          <div class="stat"><strong id="total-proposals">0</strong><span>planes guardados</span></div>
+          <div class="stat"><strong id="next-plan">—</strong><span>próximo plan</span></div>
         </div>
-
-
-        <!-- SERVICIOS DESTACADOS -->
 
         <div class="section-title">
           <h3>Más pedidos</h3>
-
-          <button
-            class="link-btn"
-            type="button"
-            data-go="services"
-          >
-            Ver todo
-          </button>
+          <button class="link-btn" type="button" data-go="services">Ver todo</button>
         </div>
-
-        <div
-          id="featured-services"
-          class="services"
-        ></div>
-
-
-        <!-- INFORMACIÓN -->
-
+        <div id="featured-services" class="services"></div>
         <div class="info-card">
           <strong>Cómo funciona</strong>
-
-          <p>
-            La propuesta se guarda en el calendario compartido
-            de JaviEats y aparecerá en los dispositivos de los dos.
-          </p>
+          <p>Las propuestas y los planes libres se guardan en el calendario compartido de JaviEats.</p>
         </div>
       </section>
 
-
-      <!-- =================================================
-           SERVICIOS
-      ================================================== -->
-
-      <section
-        id="page-services"
-        class="page"
-      >
-        <div class="section-title">
-          <div>
-            <p class="eyebrow">
-              Catálogo
-            </p>
-
-            <h2>Servicios disponibles</h2>
-          </div>
-        </div>
-
-        <div
-          id="all-services"
-          class="services"
-        ></div>
+      <section id="page-services" class="page">
+        <div class="section-title"><div><p class="eyebrow">Catálogo</p><h2>Servicios disponibles</h2></div></div>
+        <div id="all-services" class="services"></div>
       </section>
 
-
-      <!-- =================================================
-           CALENDARIO
-      ================================================== -->
-
-      <section
-        id="page-calendar"
-        class="page"
-      >
-        <div class="section-title">
-          <div>
-            <p class="eyebrow">
-              Agenda compartida
-            </p>
-
-            <h2>Calendario</h2>
-          </div>
-        </div>
-
+      <section id="page-calendar" class="page">
+        <div class="section-title"><div><p class="eyebrow">Agenda compartida</p><h2>Calendario</h2></div></div>
         <div class="calendar-sync-card">
-          <span class="calendar-sync-icon">
-            ☁️
-          </span>
-
-          <div>
-            <strong>
-              Calendario sincronizado
-            </strong>
-
-            <p class="muted">
-              Los planes se guardan en Supabase y aparecen
-              en las cuentas de Javi y Laura.
-            </p>
-          </div>
+          <span class="calendar-sync-icon">☁️</span>
+          <div><strong>Calendario sincronizado</strong><p class="muted">Los planes aparecen en las cuentas de Javi y Laura.</p></div>
         </div>
-
         <div class="calendar-card">
           <div class="calendar-head">
-            <button
-              id="prev-month"
-              class="icon-btn"
-              type="button"
-              aria-label="Mes anterior"
-            >
-              ‹
-            </button>
-
-            <h3 id="calendar-title">
-              Mes
-            </h3>
-
-            <button
-              id="next-month"
-              class="icon-btn"
-              type="button"
-              aria-label="Mes siguiente"
-            >
-              ›
-            </button>
+            <button id="prev-month" class="icon-btn" type="button" aria-label="Mes anterior">‹</button>
+            <h3 id="calendar-title">Mes</h3>
+            <button id="next-month" class="icon-btn" type="button" aria-label="Mes siguiente">›</button>
           </div>
-
-          <div class="weekdays">
-            <span>L</span>
-            <span>M</span>
-            <span>X</span>
-            <span>J</span>
-            <span>V</span>
-            <span>S</span>
-            <span>D</span>
-          </div>
-
-          <div
-            id="calendar-grid"
-            class="calendar-grid"
-          ></div>
+          <div class="weekdays"><span>L</span><span>M</span><span>X</span><span>J</span><span>V</span><span>S</span><span>D</span></div>
+          <div id="calendar-grid" class="calendar-grid"></div>
         </div>
 
-        <div class="section-title">
-          <h3 id="selected-title">
-            Día seleccionado
-          </h3>
+        <div class="section-title"><h3 id="selected-title">Día seleccionado</h3></div>
+        <div id="day-bookings" class="list"></div>
+        <div class="calendar-add-plan">
+          <button id="add-custom-plan-btn" class="btn btn-primary" type="button">＋ Añadir plan a este día</button>
+          <p class="calendar-add-plan-help">Añade una cena, viaje, cita, recordatorio o cualquier plan compartido.</p>
         </div>
-
-        <div
-          id="day-bookings"
-          class="list"
-        ></div>
 
         <div class="section-title history-title">
-          <div>
-            <p class="eyebrow">
-              Historial compartido
-            </p>
-
-            <h3>Todas las propuestas</h3>
-          </div>
-
-          <button
-            id="clear-history"
-            class="link-btn danger"
-            type="button"
-          >
-            Limpiar
-          </button>
+          <div><p class="eyebrow">Historial compartido</p><h3>Todos los planes</h3></div>
+          <button id="clear-history" class="link-btn danger" type="button">Limpiar</button>
         </div>
-
-        <div
-          id="booking-list"
-          class="list"
-        ></div>
+        <div id="booking-list" class="list"></div>
       </section>
 
-
-      <!-- =================================================
-           APARTADO LAURA
-      ================================================== -->
-
-      <section
-        id="page-laura"
-        class="page"
-      >
+      <section id="page-laura" class="page">
         <div class="laura-hero">
-          <div class="laura-hero-icon">
-            💌
-          </div>
-
-          <p class="eyebrow">
-            Un espacio para Laura
-          </p>
-
+          <div class="laura-hero-icon">💌</div>
+          <p class="eyebrow">Un espacio para Laura</p>
           <h2>Laura</h2>
-
-          <p>
-            Mensajes, cartas, pensamientos, ideas y todo aquello
-            que quieras contarle a Javi.
-          </p>
+          <p>Mensajes, cartas, pensamientos, ideas y todo aquello que quieras contarle a Javi.</p>
         </div>
 
-
-        <!-- ESCRIBIR A JAVI -->
-
-        <section
-          id="laura-compose-card"
-          class="laura-compose-card"
-        >
-          <div class="section-title">
-            <div>
-              <p class="eyebrow">
-                Escribir algo nuevo
-              </p>
-
-              <h3>Para Javi</h3>
-            </div>
-          </div>
-
-          <form
-            id="laura-message-form"
-            class="form"
-          >
-            <label>
-              ¿Qué quieres escribir?
-
-              <select
-                id="laura-message-type"
-                required
-              >
-                <option value="mensaje">
-                  Mensaje
-                </option>
-
-                <option value="carta">
-                  Carta
-                </option>
-
-                <option value="contarte">
-                  Algo que quiero contarte
-                </option>
-
-                <option value="idea">
-                  Idea para nosotros
-                </option>
+        <section id="laura-compose-card" class="laura-compose-card">
+          <div class="section-title"><div><p class="eyebrow">Escribir algo nuevo</p><h3>Para Javi</h3></div></div>
+          <form id="laura-message-form" class="form">
+            <label>¿Qué quieres escribir?
+              <select id="laura-message-type" required>
+                <option value="mensaje">Mensaje</option>
+                <option value="carta">Carta</option>
+                <option value="contarte">Algo que quiero contarte</option>
+                <option value="idea">Idea para nosotros</option>
               </select>
             </label>
-
-            <label>
-              Título
-
-              <span class="field-hint">
-                Opcional
-              </span>
-
-              <input
-                id="laura-message-title"
-                type="text"
-                maxlength="120"
-                placeholder="Ponle un título bonito..."
-              />
+            <label>Título <span class="field-hint">Opcional</span>
+              <input id="laura-message-title" type="text" maxlength="120" placeholder="Ponle un título bonito..." />
             </label>
-
-            <label>
-              Escribe aquí
-
-              <textarea
-                id="laura-message-content"
-                rows="8"
-                maxlength="12000"
-                placeholder="Cuéntale a Javi lo que quieras..."
-                required
-              ></textarea>
+            <label>Escribe aquí
+              <textarea id="laura-message-content" rows="8" maxlength="12000" placeholder="Cuéntale a Javi lo que quieras..." required></textarea>
             </label>
-
-            <button
-              id="save-laura-message"
-              class="btn btn-primary"
-              type="submit"
-            >
-              Guardar para Javi
-            </button>
-
-            <p
-              id="laura-message-status"
-              class="note"
-            ></p>
+            <button id="save-laura-message" class="btn btn-primary" type="submit">Guardar para Javi</button>
+            <p id="laura-message-status" class="note"></p>
           </form>
         </section>
 
-
-        <!-- PREGUNTA DIARIA -->
-
-        <section
-          id="daily-question-card"
-          class="daily-question-card"
-        >
+        <section id="daily-question-card" class="daily-question-card">
           <div class="daily-question-header">
-            <div class="daily-question-icon">
-              💭
-            </div>
-
-            <div>
-              <p class="eyebrow">
-                Pregunta del día
-              </p>
-
-              <p
-                id="daily-question-date"
-                class="daily-question-date"
-              >
-                Hoy
-              </p>
-            </div>
+            <div class="daily-question-icon">💭</div>
+            <div><p class="eyebrow">Pregunta del día</p><p id="daily-question-date" class="daily-question-date">Hoy</p></div>
           </div>
-
-          <h3 id="daily-question-text">
-            Cargando pregunta…
-          </h3>
-
-          <form
-            id="daily-answer-form"
-            class="form"
-          >
-            <label>
-              Tu respuesta
-
-              <textarea
-                id="daily-answer"
-                rows="5"
-                maxlength="6000"
-                placeholder="Responde solamente si te apetece..."
-              ></textarea>
+          <h3 id="daily-question-text">Cargando pregunta…</h3>
+          <form id="daily-answer-form" class="form">
+            <label>Tu respuesta
+              <textarea id="daily-answer" rows="5" maxlength="6000" placeholder="Responde solamente si te apetece..."></textarea>
             </label>
-
-            <button
-              id="save-daily-answer"
-              class="btn btn-primary"
-              type="submit"
-            >
-              Guardar respuesta
-            </button>
-
-            <p
-              id="daily-answer-status"
-              class="note"
-            ></p>
+            <button id="save-daily-answer" class="btn btn-primary" type="submit">Guardar respuesta</button>
+            <p id="daily-answer-status" class="note"></p>
           </form>
-
-          <div
-            id="daily-answer-view"
-            class="daily-answer-view hidden"
-          >
-            <p class="eyebrow">
-              Respuesta de Laura
-            </p>
-
-            <div
-              id="daily-answer-content"
-              class="daily-answer-content"
-            ></div>
+          <div id="daily-answer-view" class="daily-answer-view hidden">
+            <p class="eyebrow">Respuesta de Laura</p>
+            <div id="daily-answer-content" class="daily-answer-content"></div>
           </div>
         </section>
 
-
-        <!-- ESCRITOS ANTERIORES -->
-
-        <div class="section-title laura-history-title">
-          <div>
-            <p class="eyebrow">
-              El rincón de Laura
-            </p>
-
-            <h2>Mensajes y cartas</h2>
-          </div>
-        </div>
-
-        <div
-          id="laura-messages-list"
-          class="laura-messages-list"
-        ></div>
+        <div class="section-title laura-history-title"><div><p class="eyebrow">El rincón de Laura</p><h2>Mensajes y cartas</h2></div></div>
+        <div id="laura-messages-list" class="laura-messages-list"></div>
       </section>
 
-
-      <!-- =================================================
-           RECUERDOS
-      ================================================== -->
-
-      <section
-        id="page-memories"
-        class="page"
-      >
-        <div class="memories-hero">
-          <p class="eyebrow">
-            Nuestro archivo
-          </p>
-
-          <h2>Recuerdos</h2>
-
-          <p>
-            Cartas, flores y momentos que merece la pena guardar.
-          </p>
-        </div>
-
-        <div
-          id="memories-list"
-          class="memories-timeline"
-        ></div>
-
-        <div class="section-title vouchers-title">
-          <div>
-            <p class="eyebrow">
-              Premios ganados
-            </p>
-
-            <h2>Mis vales</h2>
-          </div>
-        </div>
-
-        <div
-          id="voucher-list"
-          class="voucher-list"
-        ></div>
+      <section id="page-memories" class="page">
+        <div class="memories-hero"><p class="eyebrow">Nuestro archivo</p><h2>Recuerdos</h2><p>Cartas, flores y momentos que merece la pena guardar.</p></div>
+        <div id="memories-list" class="memories-timeline"></div>
+        <div class="section-title vouchers-title"><div><p class="eyebrow">Premios ganados</p><h2>Mis vales</h2></div></div>
+        <div id="voucher-list" class="voucher-list"></div>
       </section>
 
-
-      <!-- =================================================
-           LECTOR DE CARTAS DE RECUERDOS
-      ================================================== -->
-
-      <section
-        id="page-letter"
-        class="page letter-page"
-      >
-        <button
-          class="back-link"
-          type="button"
-          data-go="memories"
-        >
-          ← Volver a recuerdos
-        </button>
-
+      <section id="page-letter" class="page letter-page">
+        <button class="back-link" type="button" data-go="memories">← Volver a recuerdos</button>
         <article class="letter-card">
-          <div class="letter-stamp">
-            💌
-          </div>
-
-          <p
-            id="letter-eyebrow"
-            class="eyebrow"
-          >
-            Recuerdo
-          </p>
-
-          <h2 id="letter-title">
-            Para Laura
-          </h2>
-
-          <div
-            id="letter-content"
-            class="letter-content"
-          >
-            <p>Cargando carta...</p>
-          </div>
+          <div class="letter-stamp">💌</div>
+          <p id="letter-eyebrow" class="eyebrow">Recuerdo</p>
+          <h2 id="letter-title">Para Laura</h2>
+          <div id="letter-content" class="letter-content"><p>Cargando carta...</p></div>
         </article>
       </section>
 
-
-      <!-- =================================================
-           MENÚ INFERIOR
-      ================================================== -->
-
       <nav class="bottom-nav">
-        <button
-          class="nav-btn active"
-          type="button"
-          data-page="home"
-        >
-          🏠
-          <span>Inicio</span>
-        </button>
-
-        <button
-          class="nav-btn"
-          type="button"
-          data-page="services"
-        >
-          🛵
-          <span>Servicios</span>
-        </button>
-
-        <button
-          class="nav-btn"
-          type="button"
-          data-page="calendar"
-        >
-          📅
-          <span>Calendario</span>
-        </button>
-
-        <button
-          class="nav-btn"
-          type="button"
-          data-page="laura"
-        >
-          💌
-          <span>Laura</span>
-        </button>
-
-        <button
-          class="nav-btn"
-          type="button"
-          data-page="memories"
-        >
-          🗃️
-          <span>Recuerdos</span>
-        </button>
+        <button class="nav-btn active" type="button" data-page="home">🏠<span>Inicio</span></button>
+        <button class="nav-btn" type="button" data-page="services">🛵<span>Servicios</span></button>
+        <button class="nav-btn" type="button" data-page="calendar">📅<span>Calendario</span></button>
+        <button class="nav-btn" type="button" data-page="laura">💌<span>Laura</span></button>
+        <button class="nav-btn" type="button" data-page="memories">🗃️<span>Recuerdos</span></button>
       </nav>
     </section>
   </main>
 
-
-  <!-- =====================================================
-       MODAL DE SERVICIOS Y PROPUESTAS
-  ====================================================== -->
-
-  <section
-    id="service-modal"
-    class="modal hidden"
-  >
-    <div
-      class="modal-backdrop"
-      data-service-close
-    ></div>
-
+  <!-- Modal servicio -->
+  <section id="service-modal" class="modal hidden">
+    <div class="modal-backdrop" data-service-close></div>
     <div class="modal-panel">
-      <button
-        class="modal-close"
-        type="button"
-        data-service-close
-        aria-label="Cerrar"
-      >
-        ×
-      </button>
-
-      <div
-        id="modal-icon"
-        class="modal-icon"
-      >
-        🍣
-      </div>
-
-      <p
-        id="modal-category"
-        class="eyebrow"
-      >
-        Categoría
-      </p>
-
-      <h2 id="modal-title">
-        Servicio
-      </h2>
-
-      <p
-        id="modal-description"
-        class="muted"
-      ></p>
-
-      <ul
-        id="modal-list"
-        class="clean-list"
-      ></ul>
-
-      <form
-        id="proposal-form"
-        class="form"
-      >
-        <input
-          id="service-id"
-          type="hidden"
-        />
-
+      <button class="modal-close" type="button" data-service-close aria-label="Cerrar">×</button>
+      <div id="modal-icon" class="modal-icon">🍣</div>
+      <p id="modal-category" class="eyebrow">Categoría</p>
+      <h2 id="modal-title">Servicio</h2>
+      <p id="modal-description" class="muted"></p>
+      <ul id="modal-list" class="clean-list"></ul>
+      <form id="proposal-form" class="form">
+        <input id="service-id" type="hidden" />
         <div class="form-row">
-          <label>
-            Fecha
-
-            <input
-              id="proposal-date"
-              type="date"
-              required
-            />
-          </label>
-
-          <label>
-            Hora
-
-            <input
-              id="proposal-time"
-              type="time"
-              required
-            />
-          </label>
+          <label>Fecha<input id="proposal-date" type="date" required /></label>
+          <label>Hora<input id="proposal-time" type="time" required /></label>
         </div>
-
-        <label>
-          Duración aproximada
-
-          <select
-            id="proposal-duration"
-            required
-          ></select>
-        </label>
-
-        <label>
-          Nivel de ganas
-
-          <select
-            id="proposal-priority"
-            required
-          >
-            <option value="Normal">
-              Normal
-            </option>
-
-            <option value="Me apetece bastante">
-              Me apetece bastante
-            </option>
-
-            <option value="Hoy estaría muy bien">
-              Hoy estaría muy bien
-            </option>
-
-            <option value="Plan necesario">
-              Plan necesario
-            </option>
+        <label>Duración aproximada<select id="proposal-duration" required></select></label>
+        <label>Nivel de ganas
+          <select id="proposal-priority" required>
+            <option value="Normal">Normal</option>
+            <option value="Me apetece bastante">Me apetece bastante</option>
+            <option value="Hoy estaría muy bien">Hoy estaría muy bien</option>
+            <option value="Plan necesario">Plan necesario</option>
           </select>
         </label>
-
-        <label>
-          Nota
-
-          <span
-            id="proposal-note-hint"
-            class="field-hint"
-          >
-            Opcional
-          </span>
-
-          <textarea
-            id="proposal-note"
-            rows="4"
-            maxlength="2000"
-            placeholder="Cuéntale a Javi cualquier detalle..."
-          ></textarea>
+        <label>Nota <span id="proposal-note-hint" class="field-hint">Opcional</span>
+          <textarea id="proposal-note" rows="4" maxlength="2000" placeholder="Cuéntale a Javi cualquier detalle..."></textarea>
         </label>
-
-        <button
-          id="proposal-submit"
-          class="btn btn-primary"
-          type="submit"
-        >
-          Enviar propuesta
-        </button>
-
-        <p
-          id="proposal-status"
-          class="note"
-        ></p>
+        <button id="proposal-submit" class="btn btn-primary" type="submit">Enviar propuesta</button>
+        <p id="proposal-status" class="note"></p>
       </form>
-
-
-      <!-- TICKET DE PROPUESTA -->
-
-      <div
-        id="proposal-success"
-        class="proposal-success hidden"
-      >
-        <div class="proposal-success-icon">
-          🎟️
-        </div>
-
-        <p class="eyebrow">
-          Propuesta enviada
-        </p>
-
-        <h3>
-          Tu pedido se ha guardado
-        </h3>
-
-        <p class="muted">
-          Ya aparece en el calendario compartido de JaviEats.
-        </p>
-
-        <div
-          id="proposal-ticket-preview"
-          class="proposal-ticket-preview"
-        ></div>
-
+      <div id="proposal-success" class="proposal-success hidden">
+        <div class="proposal-success-icon">🎟️</div><p class="eyebrow">Propuesta enviada</p><h3>Tu pedido se ha guardado</h3>
+        <p class="muted">Ya aparece en el calendario compartido de JaviEats.</p>
+        <div id="proposal-ticket-preview" class="proposal-ticket-preview"></div>
         <div class="proposal-ticket-actions">
-          <button
-            id="download-proposal-ticket"
-            class="btn btn-primary"
-            type="button"
-          >
-            Descargar ticket
-          </button>
-
-          <button
-            class="btn btn-secondary"
-            type="button"
-            data-service-close
-          >
-            Cerrar
-          </button>
+          <button id="download-proposal-ticket" class="btn btn-primary" type="button">Descargar ticket</button>
+          <button class="btn btn-secondary" type="button" data-service-close>Cerrar</button>
         </div>
       </div>
     </div>
   </section>
 
+  <!-- Modal plan libre -->
+  <section id="custom-plan-modal" class="modal hidden">
+    <div class="modal-backdrop" data-custom-plan-close></div>
+    <div class="modal-panel custom-plan-panel">
+      <button class="modal-close" type="button" data-custom-plan-close aria-label="Cerrar">×</button>
+      <div class="modal-icon">📌</div>
+      <p class="eyebrow">Calendario compartido</p>
+      <h2>Añadir plan</h2>
+      <p class="muted">No es una invitación ni una propuesta de servicio: es un evento compartido para los dos.</p>
+      <form id="custom-plan-form" class="form">
+        <label>Título<input id="custom-plan-title" type="text" maxlength="120" placeholder="Ej: Cena en Madrid" required /></label>
+        <label>Fecha<input id="custom-plan-date" type="date" required /></label>
+        <label class="all-day-option"><input id="custom-plan-all-day" type="checkbox" /><span>Todo el día</span></label>
+        <label id="custom-plan-time-label">Hora<input id="custom-plan-time" type="time" /></label>
+        <label>Descripción <span class="field-hint">Opcional</span>
+          <textarea id="custom-plan-description" rows="5" maxlength="2000" placeholder="Añade cualquier detalle..."></textarea>
+        </label>
+        <button id="custom-plan-submit" class="btn btn-primary" type="submit">Guardar plan</button>
+        <p id="custom-plan-status" class="note"></p>
+      </form>
+    </div>
+  </section>
 
-  <!-- =====================================================
-       MODAL DEL RETO DIARIO
-  ====================================================== -->
-
-  <section
-    id="game-modal"
-    class="modal hidden"
-  >
-    <div
-      class="modal-backdrop"
-      data-game-close
-    ></div>
-
+  <!-- Modal juego -->
+  <section id="game-modal" class="modal hidden">
+    <div class="modal-backdrop" data-game-close></div>
     <div class="modal-panel game-panel">
-      <button
-        class="modal-close"
-        type="button"
-        data-game-close
-        aria-label="Cerrar"
-      >
-        ×
-      </button>
-
-      <div class="modal-icon">
-        🎮
-      </div>
-
-      <p class="eyebrow">
-        Reto diario
-      </p>
-
-      <h2>
-        Piedra, papel o tijera
-      </h2>
-
-      <p class="muted">
-        Se juegan cinco rondas. Los empates consumen ronda.
-        Si acabáis empatados en victorias, habrá muerte súbita.
-      </p>
-
-      <div class="round-information">
-        <strong id="game-round-label">
-          Ronda 1 de 5
-        </strong>
-
-        <span id="game-draws">
-          Empates: 0
-        </span>
-      </div>
-
+      <button class="modal-close" type="button" data-game-close aria-label="Cerrar">×</button>
+      <div class="modal-icon">🎮</div>
+      <p class="eyebrow">Reto diario</p><h2>Piedra, papel o tijera</h2>
+      <p class="muted">Se juegan cinco rondas. Los empates consumen ronda. Si acabáis empatados en victorias, habrá muerte súbita.</p>
+      <div class="round-information"><strong id="game-round-label">Ronda 1 de 5</strong><span id="game-draws">Empates: 0</span></div>
       <div class="scoreboard">
-        <div class="score-box">
-          <span>
-            Victorias de Laura
-          </span>
-
-          <strong id="player-score">
-            0
-          </strong>
-        </div>
-
-        <div class="score-divider">
-          —
-        </div>
-
-        <div class="score-box">
-          <span>
-            Victorias máquina
-          </span>
-
-          <strong id="machine-score">
-            0
-          </strong>
-        </div>
+        <div class="score-box"><span>Victorias de Laura</span><strong id="player-score">0</strong></div>
+        <div class="score-divider">—</div>
+        <div class="score-box"><span>Victorias máquina</span><strong id="machine-score">0</strong></div>
       </div>
-
       <div class="choice-arena">
-        <div class="choice-fighter">
-          <span class="fighter-name">
-            Laura
-          </span>
-
-          <div
-            id="player-choice-visual"
-            class="choice-visual"
-          >
-            ❔
-          </div>
-
-          <strong id="player-choice-label">
-            Sin elegir
-          </strong>
-        </div>
-
-        <div class="versus">
-          VS
-        </div>
-
-        <div class="choice-fighter">
-          <span class="fighter-name">
-            Máquina
-          </span>
-
-          <div
-            id="machine-choice-visual"
-            class="choice-visual"
-          >
-            ❔
-          </div>
-
-          <strong id="machine-choice-label">
-            Esperando
-          </strong>
-        </div>
+        <div class="choice-fighter"><span class="fighter-name">Laura</span><div id="player-choice-visual" class="choice-visual">❔</div><strong id="player-choice-label">Sin elegir</strong></div>
+        <div class="versus">VS</div>
+        <div class="choice-fighter"><span class="fighter-name">Máquina</span><div id="machine-choice-visual" class="choice-visual">❔</div><strong id="machine-choice-label">Esperando</strong></div>
       </div>
-
-      <p
-        id="game-round-result"
-        class="round-result"
-      >
-        Elige tu jugada para empezar.
-      </p>
-
-      <div
-        id="game-choices"
-        class="game-choices"
-      >
-        <button
-          class="choice-btn"
-          type="button"
-          data-choice="piedra"
-        >
-          <span>✊</span>
-          Piedra
-        </button>
-
-        <button
-          class="choice-btn"
-          type="button"
-          data-choice="papel"
-        >
-          <span>✋</span>
-          Papel
-        </button>
-
-        <button
-          class="choice-btn"
-          type="button"
-          data-choice="tijera"
-        >
-          <span>✌️</span>
-          Tijera
-        </button>
+      <p id="game-round-result" class="round-result">Elige tu jugada para empezar.</p>
+      <div id="game-choices" class="game-choices">
+        <button class="choice-btn" type="button" data-choice="piedra"><span>✊</span>Piedra</button>
+        <button class="choice-btn" type="button" data-choice="papel"><span>✋</span>Papel</button>
+        <button class="choice-btn" type="button" data-choice="tijera"><span>✌️</span>Tijera</button>
       </div>
-
-      <div
-        id="game-final"
-        class="game-final hidden"
-      >
-        <div
-          id="game-final-icon"
-          class="game-final-icon"
-        >
-          🏆
-        </div>
-
-        <h3 id="game-final-title">
-          Resultado
-        </h3>
-
-        <p
-          id="game-final-text"
-          class="muted"
-        ></p>
-
-        <div
-          id="prize-reveal"
-          class="prize-reveal hidden"
-        >
-          <p class="eyebrow">
-            Premio desbloqueado
-          </p>
-
-          <h3 id="prize-title">
-            Vale especial
-          </h3>
-
-          <p id="prize-description"></p>
-
+      <div id="game-final" class="game-final hidden">
+        <div id="game-final-icon" class="game-final-icon">🏆</div><h3 id="game-final-title">Resultado</h3><p id="game-final-text" class="muted"></p>
+        <div id="prize-reveal" class="prize-reveal hidden">
+          <p class="eyebrow">Premio desbloqueado</p><h3 id="prize-title">Vale especial</h3><p id="prize-description"></p>
           <div class="prize-actions">
-            <button
-              id="download-voucher-btn"
-              class="btn btn-primary"
-              type="button"
-            >
-              Descargar vale
-            </button>
-
-            <button
-              id="redeem-voucher-btn"
-              class="btn btn-secondary"
-              type="button"
-            >
-              Proponer canje
-            </button>
+            <button id="download-voucher-btn" class="btn btn-primary" type="button">Descargar vale</button>
+            <button id="redeem-voucher-btn" class="btn btn-secondary" type="button">Proponer canje</button>
           </div>
         </div>
       </div>
-
-      <p
-        id="game-daily-note"
-        class="daily-note"
-      >
-        La partida se sincroniza con la cuenta de Laura.
-      </p>
+      <p id="game-daily-note" class="daily-note">La partida se sincroniza con la cuenta de Laura.</p>
     </div>
   </section>
 
-
-  <!-- =====================================================
-       MODAL DE RECUERDOS
-  ====================================================== -->
-
-  <section
-    id="memory-modal"
-    class="modal hidden"
-  >
-    <div
-      class="modal-backdrop"
-      data-memory-close
-    ></div>
-
+  <!-- Modal recuerdos -->
+  <section id="memory-modal" class="modal hidden">
+    <div class="modal-backdrop" data-memory-close></div>
     <div class="modal-panel memory-panel">
-      <button
-        class="modal-close"
-        type="button"
-        data-memory-close
-        aria-label="Cerrar"
-      >
-        ×
-      </button>
-
-      <p
-        id="memory-modal-date"
-        class="eyebrow"
-      >
-        Fecha
-      </p>
-
-      <h2 id="memory-modal-title">
-        Recuerdo
-      </h2>
-
-      <p
-        id="memory-modal-description"
-        class="muted"
-      ></p>
-
+      <button class="modal-close" type="button" data-memory-close aria-label="Cerrar">×</button>
+      <p id="memory-modal-date" class="eyebrow">Fecha</p><h2 id="memory-modal-title">Recuerdo</h2><p id="memory-modal-description" class="muted"></p>
       <div class="gallery-viewer">
-        <button
-          id="gallery-prev"
-          class="gallery-arrow"
-          type="button"
-          aria-label="Foto anterior"
-        >
-          ‹
-        </button>
-
-        <img
-          id="gallery-image"
-          src=""
-          alt="Recuerdo"
-        />
-
-        <button
-          id="gallery-next"
-          class="gallery-arrow"
-          type="button"
-          aria-label="Foto siguiente"
-        >
-          ›
-        </button>
+        <button id="gallery-prev" class="gallery-arrow" type="button" aria-label="Foto anterior">‹</button>
+        <img id="gallery-image" src="" alt="Recuerdo" />
+        <button id="gallery-next" class="gallery-arrow" type="button" aria-label="Foto siguiente">›</button>
       </div>
-
-      <p
-        id="gallery-counter"
-        class="gallery-counter"
-      ></p>
+      <p id="gallery-counter" class="gallery-counter"></p>
     </div>
   </section>
 
-
-  <!-- =====================================================
-       MODAL PARA LEER MENSAJES DE LAURA
-  ====================================================== -->
-
-  <section
-    id="laura-message-modal"
-    class="modal hidden"
-  >
-    <div
-      class="modal-backdrop"
-      data-laura-message-close
-    ></div>
-
+  <!-- Modal mensaje Laura -->
+  <section id="laura-message-modal" class="modal hidden">
+    <div class="modal-backdrop" data-laura-message-close></div>
     <div class="modal-panel laura-message-panel">
-      <button
-        class="modal-close"
-        type="button"
-        data-laura-message-close
-        aria-label="Cerrar"
-      >
-        ×
-      </button>
-
-      <div
-        id="laura-message-modal-icon"
-        class="modal-icon"
-      >
-        💌
-      </div>
-
-      <p
-        id="laura-message-modal-type"
-        class="eyebrow"
-      >
-        Mensaje
-      </p>
-
-      <h2 id="laura-message-modal-title">
-        Para Javi
-      </h2>
-
-      <p
-        id="laura-message-modal-date"
-        class="muted"
-      ></p>
-
-      <div
-        id="laura-message-modal-content"
-        class="laura-message-modal-content"
-      ></div>
-
-      <div
-        id="laura-message-modal-actions"
-        class="laura-message-modal-actions"
-      ></div>
+      <button class="modal-close" type="button" data-laura-message-close aria-label="Cerrar">×</button>
+      <div id="laura-message-modal-icon" class="modal-icon">💌</div>
+      <p id="laura-message-modal-type" class="eyebrow">Mensaje</p><h2 id="laura-message-modal-title">Para Javi</h2><p id="laura-message-modal-date" class="muted"></p>
+      <div id="laura-message-modal-content" class="laura-message-modal-content"></div>
+      <div id="laura-message-modal-actions" class="laura-message-modal-actions"></div>
     </div>
   </section>
 
-
-  <!-- =====================================================
-       TOAST
-  ====================================================== -->
-
-  <div
-    id="toast"
-    class="toast hidden"
-  ></div>
-
-
-  <!-- =====================================================
-       SCRIPTS
-  ====================================================== -->
-
+  <div id="toast" class="toast hidden"></div>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
   <script src="script.js"></script>
 </body>
 </html>
