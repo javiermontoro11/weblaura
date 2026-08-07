@@ -476,7 +476,7 @@ textarea:focus {
   transform: translateX(-50%);
   width: min(calc(100% - 24px), 516px);
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 6px;
   padding: 8px;
   border: 1px solid rgba(230, 221, 211, 0.95);
@@ -488,25 +488,18 @@ textarea:focus {
 }
 
 .nav-btn {
-  display: grid;
-  justify-items: center;
-  gap: 2px;
-  min-width: 0;
-  padding: 8px 2px;
   border: 0;
-  border-radius: 18px;
   background: transparent;
-  color: var(--muted);
+  border-radius: 18px;
+  padding: 9px 6px;
   font-weight: 900;
+  color: var(--muted);
+  display: grid;
+  gap: 2px;
 }
 
 .nav-btn span {
-  width: 100%;
-  overflow: hidden;
-  font-size: 0.62rem;
-  line-height: 1.1;
-  text-align: center;
-  white-space: nowrap;
+  font-size: 0.72rem;
 }
 
 .nav-btn.active {
@@ -1165,17 +1158,423 @@ textarea:focus {
   .choice-btn {
     font-size: 0.82rem;
   }
-    .bottom-nav {
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-    gap: 2px;
-    padding: 6px;
-  }
+}
 
-  .nav-btn {
-    padding: 7px 1px;
-  }
+/* =========================================================
+   JAVIEATS 2.3.1 - SUPABASE, LAURA Y CALENDARIO COMPARTIDO
+========================================================= */
 
-  .nav-btn span {
-    font-size: 0.57rem;
-  }
+.auth-screen {
+  display: grid;
+  place-items: center;
+  min-height: 100vh;
+  padding: 24px;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 540px;
+  margin: auto;
+}
+
+.auth-icon {
+  margin: -4px 0 10px;
+  font-size: 1.5rem;
+}
+
+.auth-help {
+  margin: 14px 0 0;
+  color: var(--muted);
+  text-align: center;
+  font-size: 0.88rem;
+}
+
+.session-information {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 5px;
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.session-user-name::after {
+  content: "·";
+  margin-left: 5px;
+}
+
+.sync-status.is-loading { opacity: .65; }
+.sync-status.is-error { color: #b42318; }
+
+.calendar-sync-card {
+  display: grid;
+  grid-template-columns: 44px 1fr;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 14px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: rgba(255,255,255,.72);
+}
+
+.calendar-sync-card p { margin: 3px 0 0; }
+.calendar-sync-icon { font-size: 1.45rem; }
+
+.calendar-add-plan {
+  display: grid;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.calendar-add-plan .btn { width: 100%; }
+
+.calendar-add-plan-help {
+  margin: 0;
+  color: var(--muted);
+  text-align: center;
+  font-size: .78rem;
+  line-height: 1.4;
+}
+
+.custom-plan-panel {
+  background:
+    radial-gradient(circle at top right, rgba(255,214,221,.46), transparent 34%),
+    #fff;
+}
+
+.all-day-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: #faf6f1;
+}
+
+.all-day-option input {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+}
+
+.all-day-option span { font-weight: 850; }
+
+.booking-type {
+  display: inline-flex;
+  margin-top: 8px;
+  padding: 5px 9px;
+  border-radius: 999px;
+  background: #ece9ff;
+  color: #4f46a5;
+  font-size: .72rem;
+  font-weight: 900;
+}
+
+.booking-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 13px;
+}
+
+.booking-actions button {
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 12px;
+  font-size: .76rem;
+  font-weight: 900;
+}
+
+.action-confirm { background: var(--green-soft); color: var(--green); }
+.action-complete { background: #e8efff; color: #23488b; }
+.action-cancel { background: #fff0c2; color: #8a5b00; }
+.action-delete { background: #ffe1df; color: #9d241b; }
+
+.status-confirmada { background: var(--green-soft); color: var(--green); }
+.status-realizada { background: #e8efff; color: #23488b; }
+.status-cancelada { background: #f1efed; color: #786f68; }
+
+.proposal-success {
+  display: grid;
+  gap: 12px;
+  text-align: center;
+}
+
+.proposal-success-icon { font-size: 3rem; }
+
+.proposal-ticket-preview {
+  padding: 16px;
+  border: 1px dashed #cab9aa;
+  border-radius: var(--radius-lg);
+  background: #faf6f1;
+  text-align: left;
+}
+
+.proposal-ticket-preview p { margin: 6px 0 0; }
+
+.proposal-ticket-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.laura-hero {
+  position: relative;
+  overflow: hidden;
+  padding: 24px;
+  border-radius: var(--radius-xl);
+  background: linear-gradient(135deg, #fff2ef, #fffaf3);
+  border: 1px solid rgba(232,93,69,.18);
+  box-shadow: 0 14px 32px rgba(0,0,0,.07);
+}
+
+.laura-hero p:last-child {
+  margin-bottom: 0;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.laura-hero-icon {
+  display: grid;
+  place-items: center;
+  width: 58px;
+  height: 58px;
+  margin-bottom: 14px;
+  border-radius: 20px;
+  background: var(--dark);
+  font-size: 1.7rem;
+}
+
+.laura-compose-card,
+.daily-question-card {
+  margin-top: 16px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-xl);
+  background: #fff;
+  box-shadow: 0 12px 28px rgba(0,0,0,.06);
+}
+
+.daily-question-card {
+  background:
+    radial-gradient(circle at top right, rgba(255,241,201,.8), transparent 38%),
+    #fff;
+}
+
+.daily-question-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.daily-question-icon {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 17px;
+  background: var(--gold-soft);
+  font-size: 1.4rem;
+}
+
+.daily-question-date {
+  margin: 0;
+  color: var(--muted);
+  font-size: .82rem;
+  font-weight: 750;
+  text-transform: capitalize;
+}
+
+.daily-answer-view {
+  padding: 15px;
+  border-radius: var(--radius-lg);
+  background: #faf6f1;
+}
+
+.daily-answer-content {
+  white-space: pre-wrap;
+  line-height: 1.6;
+}
+
+.laura-messages-list {
+  display: grid;
+  gap: 12px;
+}
+
+.laura-message-card {
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: #fff;
+  box-shadow: 0 10px 24px rgba(0,0,0,.06);
+}
+
+.laura-message-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.laura-message-type {
+  color: var(--accent);
+  font-size: .72rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+}
+
+.laura-message-date {
+  flex: 0 0 auto;
+  color: var(--muted);
+  font-size: .72rem;
+  font-weight: 750;
+}
+
+.laura-message-preview {
+  margin: 9px 0 0;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.message-badges,
+.laura-message-buttons,
+.laura-message-modal-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.message-badge {
+  padding: 6px 9px;
+  border-radius: 999px;
+  font-size: .72rem;
+  font-weight: 900;
+}
+.message-badge.favorite { background: #ffe8e2; color: #a43e2d; }
+.message-badge.saved { background: #ece9ff; color: #4f46a5; }
+
+.btn-small { padding: 9px 11px; border-radius: 12px; font-size: .78rem; }
+.btn-danger { background: #ffe1df; color: #9d241b; }
+
+.laura-message-modal-content {
+  margin-top: 18px;
+  white-space: pre-wrap;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.03rem;
+  line-height: 1.75;
+}
+
+.voucher-state {
+  display: inline-flex;
+  padding: 6px 9px;
+  border-radius: 999px;
+  background: var(--green-soft);
+  color: var(--green);
+  font-size: .72rem;
+  font-weight: 900;
+}
+.voucher-state.is-used { background: #f1efed; color: #786f68; }
+
+/* Arena simétrica y centrada */
+.choice-arena {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  gap: 14px;
+  align-items: center;
+  margin-top: 15px;
+  padding: 18px 14px;
+  border-radius: 24px;
+  background: var(--dark);
+  color: #fff;
+}
+
+.choice-fighter {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-align: center;
+}
+
+.fighter-name {
+  width: 100%;
+  overflow: hidden;
+  color: rgba(255,255,255,.68);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: .76rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+}
+
+.choice-visual {
+  display: grid;
+  place-items: center;
+  width: 82px;
+  height: 82px;
+  border: 2px solid rgba(255,255,255,.16);
+  border-radius: 25px;
+  background: rgba(255,255,255,.1);
+  font-size: 2.55rem;
+}
+
+.choice-fighter strong {
+  width: 100%;
+  min-height: 20px;
+  overflow: hidden;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: .84rem;
+}
+
+.versus {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.1);
+  color: var(--accent);
+  font-size: .76rem;
+  font-weight: 950;
+}
+
+.bottom-nav {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.nav-btn {
+  min-width: 0;
+  justify-items: center;
+  padding: 8px 2px;
+}
+
+.nav-btn span {
+  width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: clip;
+  text-align: center;
+  font-size: .62rem;
+  line-height: 1.1;
+}
+
+@media (max-width: 420px) {
+  .bottom-nav { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 2px; padding: 6px; }
+  .nav-btn { padding: 7px 1px; }
+  .nav-btn span { font-size: .57rem; }
+  .choice-arena { gap: 7px; padding: 15px 8px; }
+  .choice-visual { width: 68px; height: 68px; border-radius: 21px; font-size: 2.15rem; }
+  .versus { width: 32px; height: 32px; font-size: .68rem; }
+  .proposal-ticket-actions { grid-template-columns: 1fr; }
 }
