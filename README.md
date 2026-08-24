@@ -1,36 +1,34 @@
 # JaviEats 💌
 
-**Versión actual: 2.3**
+**Versión actual: 2.4**
 
 JaviEats es una aplicación web privada creada para Laura y Javi.
 
-Permite proponer planes, consultar un calendario compartido, guardar mensajes y cartas, responder una pregunta diaria, jugar a un reto de piedra, papel o tijera y conservar recuerdos especiales.
+Permite proponer planes, consultar un calendario compartido, guardar mensajes y cartas, responder una pregunta diaria, jugar a un reto de piedra, papel o tijera, completar el puzle del masaje y conservar recuerdos especiales.
 
 ---
 
-# Versión actual
+## 🚀 Última versión — v2.4
 
-## JaviEats 2.3 — Conexión compartida
+### Puzle del masaje
 
-La versión 2.3 introduce la conexión real entre las cuentas de Laura y Javi mediante Supabase.
+La versión 2.4 convierte el premio del reto diario en una recompensa acumulada. Ganar una partida ya no entrega directamente un masaje: añade una pieza a un puzle de seis piezas.
 
 ### Novedades principales
 
-- Inicio mediante preguntas privadas antes del login.
-- Inicio de sesión con correo y contraseña después de superar las preguntas.
-- Sesión persistente mediante Supabase Auth.
-- Calendario compartido entre Laura y Javi.
-- Propuestas guardadas en la nube.
-- Estados para los planes.
-- Apartado propio de Laura.
-- Mensajes, cartas, pensamientos e ideas sincronizados.
-- Pregunta diaria opcional.
-- Respuestas sincronizadas entre dispositivos.
-- Piedra, papel o tijera con un intento diario real.
-- Partida validada desde Supabase.
-- Vales sincronizados.
-- Tickets descargables en PNG.
-- Menú inferior con cinco apartados en una sola línea.
+- Una partida diaria ganada equivale a una pieza.
+- Puzle visual de seis piezas sincronizado mediante Supabase.
+- Las piezas se descubren en posiciones aleatorias y nunca se repiten.
+- Las derrotas no eliminan el progreso conseguido.
+- El vale de masaje de 30 minutos se crea únicamente al colocar la sexta pieza.
+- Al completar un puzle, la próxima victoria inicia uno nuevo.
+- Laura ve el progreso del puzle en un popup al entrar en la aplicación.
+- El progreso también aparece en Inicio y dentro del resultado del reto.
+- Animación especial al conseguir una pieza nueva.
+- Los vales obtenidos antes de la versión 2.4 se conservan.
+- Nuevas tablas `puzzles_premio` y `piezas_puzzle` con RLS.
+- La entrega de pieza y la creación del vale se realizan dentro de la función PostgreSQL del reto.
+- La función anterior se conserva como copia de seguridad sin permisos de ejecución desde la API.
 
 ---
 
@@ -80,6 +78,7 @@ La pantalla de inicio muestra:
 - Saludo personalizado según el usuario.
 - Estado de sincronización.
 - Reto diario.
+- Progreso del puzle del masaje.
 - Número total de propuestas.
 - Próximo plan.
 - Servicios destacados.
@@ -261,13 +260,32 @@ La jugada de la máquina se genera dentro de Supabase.
 
 Javi puede ver la partida y el resultado, pero no puede jugar.
 
+## Premio acumulado
+
+- Cada partida completa ganada entrega una pieza del puzle.
+- El puzle contiene seis piezas.
+- Las piezas no se pierden al perder una partida.
+- Una misma partida no puede entregar más de una pieza.
+- Al conseguir la sexta pieza se crea el vale del masaje.
+- La siguiente victoria después de completar un puzle inicia un nuevo ciclo.
+
+---
+
+# Puzle del masaje
+
+El progreso se guarda en Supabase y se muestra:
+
+- En un popup automático para Laura al entrar en JaviEats.
+- En la tarjeta del reto de la página Inicio.
+- Dentro del modal del juego al terminar una partida ganada.
+
+El puzle revela una ilustración completa de JaviEats al reunir las seis piezas.
+
 ---
 
 # Vales
 
-Cuando Laura gana el reto diario recibe:
-
-> Vale por un masaje de 30 minutos
+Laura recibe un vale de masaje de 30 minutos solamente cuando completa las seis piezas del puzle.
 
 Los vales se guardan en Supabase.
 
@@ -313,6 +331,8 @@ La aplicación utiliza las siguientes tablas:
 - `retos_diarios`
 - `rondas_reto`
 - `vales`
+- `puzzles_premio`
+- `piezas_puzzle`
 
 También utiliza estas funciones PostgreSQL:
 
@@ -334,6 +354,7 @@ Permisos principales:
 - Solo Laura puede escribir mensajes y cartas.
 - Solo Laura puede responder la pregunta diaria.
 - Solo Laura puede jugar al reto.
+- Solo la función segura del reto puede crear piezas y completar puzles.
 - Javi y Laura pueden consultar el calendario.
 - Javi y Laura pueden leer los escritos.
 - Solo Javi puede administrar estados de propuestas.
@@ -374,6 +395,11 @@ JaviEats/
 ├── style.css
 ├── script.js
 ├── README.md
+├── supabase-v2.4.sql
+├── supabase-v2.4-rollback.sql
+├── INSTALACION-v2.4.md
+├── assets/
+│   └── puzzle-masaje.svg
 └── recuerdos/
     ├── carta-2026-04-24.txt
     ├── carta-2026-07-13.txt
@@ -387,63 +413,22 @@ JaviEats/
 
 # Historial de versiones
 
-## JaviEats 1.0 — Primera versión
+## v2.4 — Puzle del masaje
 
-- Página de inicio.
-- Catálogo de servicios.
-- Modal para proponer planes.
-- Fecha, hora, duración, nivel de ganas y nota.
-- Envío mediante Formspree.
-- Diseño móvil.
-- Menú inferior.
+- Una pieza por cada partida diaria ganada.
+- Puzle visual de seis piezas.
+- Progreso persistente y compartido mediante Supabase.
+- Popup automático para Laura al entrar.
+- Piezas aleatorias sin repeticiones.
+- Las derrotas no restan progreso.
+- Vale de masaje creado únicamente al completar el puzle.
+- Inicio automático de un nuevo puzle con la siguiente victoria.
+- Animación al descubrir una pieza.
+- Conservación de los vales anteriores.
+- Nuevas tablas y políticas RLS.
+- Actualización de la función `jugar_ronda_reto(text)`.
 
-## JaviEats 1.1 — Acceso privado
-
-- Preguntas personales antes de entrar.
-- Selección aleatoria de preguntas.
-- Validación de respuestas.
-- Dos preguntas por acceso.
-- Sesión temporal con `sessionStorage`.
-- Botón para cerrar el acceso.
-
-## JaviEats 1.2 — Calendario local
-
-- Calendario mensual.
-- Selección de días.
-- Indicador de días con planes.
-- Historial local.
-- Próximo plan.
-- Total de propuestas.
-- Persistencia mediante `localStorage`.
-
-## JaviEats 2.0 — Recuerdos
-
-- Línea temporal de recuerdos.
-- Galería de fotografías.
-- Lector de cartas.
-- Archivos de texto externos.
-- Fotografías guardadas en el repositorio.
-- Navegación entre recuerdos.
-
-## JaviEats 2.1 — Reto diario
-
-- Minijuego de piedra, papel o tijera.
-- Cinco rondas.
-- Empates que consumen ronda.
-- Contador de victorias.
-- Muerte súbita.
-- Premio secreto.
-- Vale por un masaje.
-- Descarga del vale en PNG.
-
-## JaviEats 2.2 — Mejoras de contenido
-
-- Revisión de todos los servicios.
-- Nota obligatoria para Plan diferente.
-- Historial debajo del calendario.
-- Mejoras visuales en el reto y en los vales.
-
-## JaviEats 2.3 — Conexión compartida
+## v2.3 — Conexión compartida
 
 - Supabase Auth.
 - Preguntas privadas antes del login.
@@ -462,6 +447,62 @@ JaviEats/
 - Tickets descargables.
 - Permisos diferenciados.
 - Menú de cinco botones en una sola línea.
+
+## v2.2 — Mejoras de contenido
+
+- Revisión de todos los servicios.
+- Nota obligatoria para Plan diferente.
+- Historial debajo del calendario.
+- Mejoras visuales en el reto y en los vales.
+
+## v2.1 — Reto diario
+
+- Minijuego de piedra, papel o tijera.
+- Cinco rondas.
+- Empates que consumen ronda.
+- Contador de victorias.
+- Muerte súbita.
+- Premio secreto.
+- Vale por un masaje.
+- Descarga del vale en PNG.
+
+## v2.0 — Recuerdos
+
+- Línea temporal de recuerdos.
+- Galería de fotografías.
+- Lector de cartas.
+- Archivos de texto externos.
+- Fotografías guardadas en el repositorio.
+- Navegación entre recuerdos.
+
+## v1.2 — Calendario local
+
+- Calendario mensual.
+- Selección de días.
+- Indicador de días con planes.
+- Historial local.
+- Próximo plan.
+- Total de propuestas.
+- Persistencia mediante `localStorage`.
+
+## v1.1 — Acceso privado
+
+- Preguntas personales antes de entrar.
+- Selección aleatoria de preguntas.
+- Validación de respuestas.
+- Dos preguntas por acceso.
+- Sesión temporal con `sessionStorage`.
+- Botón para cerrar el acceso.
+
+## v1.0 — Primera versión
+
+- Página de inicio.
+- Catálogo de servicios.
+- Modal para proponer planes.
+- Fecha, hora, duración, nivel de ganas y nota.
+- Envío mediante Formspree.
+- Diseño móvil.
+- Menú inferior.
 
 ---
 
