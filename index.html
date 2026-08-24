@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#f4f0ea" />
   <title>JaviEats</title>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css?v=2.4" />
 </head>
 <body>
   <main class="app-shell">
@@ -76,12 +76,23 @@
             <div>
               <p class="eyebrow">Reto diario</p>
               <h2>Piedra, papel o tijera</h2>
-              <p class="muted">Cinco rondas. Los empates también consumen ronda. Quien consiga más victorias gana.</p>
+              <p class="muted">Cinco rondas. Los empates también consumen ronda. Cada partida ganada añade una pieza al puzle del masaje.</p>
             </div>
           </div>
           <div class="game-rules-mini">
-            <span>5 rondas</span><span>1 intento diario real</span><span>Premio secreto</span>
+            <span>5 rondas</span><span>1 intento diario real</span><span>6 piezas = masaje</span>
           </div>
+
+          <div class="puzzle-home-card">
+            <div class="puzzle-home-copy">
+              <p class="eyebrow">Puzle del masaje</p>
+              <strong id="home-puzzle-count">0 de 6 piezas</strong>
+              <p id="home-puzzle-text">Gana partidas para ir descubriendo el premio.</p>
+              <button id="open-puzzle-btn" class="puzzle-link-btn" type="button">Ver puzle completo</button>
+            </div>
+            <div id="home-puzzle-grid" class="puzzle-grid puzzle-grid-mini" role="img" aria-label="0 de 6 piezas conseguidas"></div>
+          </div>
+
           <p id="game-home-status" class="game-home-status">Comprobando la partida de hoy…</p>
           <button id="game-home-button" class="btn btn-primary" type="button">Jugar partida de hoy</button>
         </section>
@@ -90,7 +101,6 @@
           <div class="stat"><strong id="total-proposals">0</strong><span>planes guardados</span></div>
           <div class="stat"><strong id="next-plan">—</strong><span>próximo plan</span></div>
         </div>
-
         <div class="section-title">
           <h3>Más pedidos</h3>
           <button class="link-btn" type="button" data-go="services">Ver todo</button>
@@ -122,14 +132,12 @@
           <div class="weekdays"><span>L</span><span>M</span><span>X</span><span>J</span><span>V</span><span>S</span><span>D</span></div>
           <div id="calendar-grid" class="calendar-grid"></div>
         </div>
-
         <div class="section-title"><h3 id="selected-title">Día seleccionado</h3></div>
         <div id="day-bookings" class="list"></div>
         <div class="calendar-add-plan">
           <button id="add-custom-plan-btn" class="btn btn-primary" type="button">＋ Añadir plan a este día</button>
           <p class="calendar-add-plan-help">Añade una cena, viaje, cita, recordatorio o cualquier plan compartido.</p>
         </div>
-
         <div class="section-title history-title">
           <div><p class="eyebrow">Historial compartido</p><h3>Todos los planes</h3></div>
           <button id="clear-history" class="link-btn danger" type="button">Limpiar</button>
@@ -144,7 +152,6 @@
           <h2>Laura</h2>
           <p>Mensajes, cartas, pensamientos, ideas y todo aquello que quieras contarle a Javi.</p>
         </div>
-
         <section id="laura-compose-card" class="laura-compose-card">
           <div class="section-title"><div><p class="eyebrow">Escribir algo nuevo</p><h3>Para Javi</h3></div></div>
           <form id="laura-message-form" class="form">
@@ -166,7 +173,6 @@
             <p id="laura-message-status" class="note"></p>
           </form>
         </section>
-
         <section id="daily-question-card" class="daily-question-card">
           <div class="daily-question-header">
             <div class="daily-question-icon">💭</div>
@@ -185,7 +191,6 @@
             <div id="daily-answer-content" class="daily-answer-content"></div>
           </div>
         </section>
-
         <div class="section-title laura-history-title"><div><p class="eyebrow">El rincón de Laura</p><h2>Mensajes y cartas</h2></div></div>
         <div id="laura-messages-list" class="laura-messages-list"></div>
       </section>
@@ -283,6 +288,27 @@
     </div>
   </section>
 
+  <!-- Modal de bienvenida del puzle -->
+  <section id="puzzle-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="puzzle-modal-title">
+    <div class="modal-backdrop" data-puzzle-close></div>
+    <div class="modal-panel puzzle-panel">
+      <button class="modal-close" type="button" data-puzzle-close aria-label="Cerrar">×</button>
+      <div class="puzzle-modal-icon">🧩</div>
+      <p class="eyebrow">Tu progreso</p>
+      <h2 id="puzzle-modal-title">Puzle del masaje</h2>
+      <p id="puzzle-modal-text" class="puzzle-modal-text">Cada partida ganada descubre una pieza. Completa las seis para conseguir el masaje.</p>
+      <div id="puzzle-modal-grid" class="puzzle-grid puzzle-grid-large" role="img" aria-label="0 de 6 piezas conseguidas"></div>
+      <div class="puzzle-progress-summary">
+        <strong id="puzzle-modal-count">0 de 6 piezas</strong>
+        <span id="puzzle-modal-reward">Premio: masaje de 30 minutos</span>
+      </div>
+      <div class="puzzle-modal-actions">
+        <button id="puzzle-modal-primary" class="btn btn-primary" type="button">Jugar reto de hoy</button>
+        <button class="btn btn-secondary" type="button" data-puzzle-close>Seguir en JaviEats</button>
+      </div>
+    </div>
+  </section>
+
   <!-- Modal juego -->
   <section id="game-modal" class="modal hidden">
     <div class="modal-backdrop" data-game-close></div>
@@ -290,7 +316,7 @@
       <button class="modal-close" type="button" data-game-close aria-label="Cerrar">×</button>
       <div class="modal-icon">🎮</div>
       <p class="eyebrow">Reto diario</p><h2>Piedra, papel o tijera</h2>
-      <p class="muted">Se juegan cinco rondas. Los empates consumen ronda. Si acabáis empatados en victorias, habrá muerte súbita.</p>
+      <p class="muted">Se juegan cinco rondas. Los empates consumen ronda. Si acabáis empatados en victorias, habrá muerte súbita. Ganar la partida completa descubre una pieza del puzle.</p>
       <div class="round-information"><strong id="game-round-label">Ronda 1 de 5</strong><span id="game-draws">Empates: 0</span></div>
       <div class="scoreboard">
         <div class="score-box"><span>Victorias de Laura</span><strong id="player-score">0</strong></div>
@@ -310,15 +336,22 @@
       </div>
       <div id="game-final" class="game-final hidden">
         <div id="game-final-icon" class="game-final-icon">🏆</div><h3 id="game-final-title">Resultado</h3><p id="game-final-text" class="muted"></p>
+        <div id="piece-reveal" class="piece-reveal hidden">
+          <p class="eyebrow">Puzle del masaje</p>
+          <h3 id="piece-reveal-title">¡Nueva pieza conseguida!</h3>
+          <p id="piece-reveal-text">Tu progreso se ha guardado en Supabase.</p>
+          <div id="game-puzzle-grid" class="puzzle-grid puzzle-grid-game" role="img" aria-label="0 de 6 piezas conseguidas"></div>
+          <strong id="game-puzzle-count" class="game-puzzle-count">0 de 6 piezas</strong>
+        </div>
         <div id="prize-reveal" class="prize-reveal hidden">
-          <p class="eyebrow">Premio desbloqueado</p><h3 id="prize-title">Vale especial</h3><p id="prize-description"></p>
+          <p class="eyebrow">Puzle completado</p><h3 id="prize-title">Masaje de 30 minutos</h3><p id="prize-description"></p>
           <div class="prize-actions">
             <button id="download-voucher-btn" class="btn btn-primary" type="button">Descargar vale</button>
             <button id="redeem-voucher-btn" class="btn btn-secondary" type="button">Proponer canje</button>
           </div>
         </div>
       </div>
-      <p id="game-daily-note" class="daily-note">La partida se sincroniza con la cuenta de Laura.</p>
+      <p id="game-daily-note" class="daily-note">La partida y el puzle se sincronizan con la cuenta de Laura.</p>
     </div>
   </section>
 
@@ -351,6 +384,6 @@
 
   <div id="toast" class="toast hidden"></div>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="script.js"></script>
+  <script src="script.js?v=2.4"></script>
 </body>
 </html>
