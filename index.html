@@ -5,50 +5,93 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#f4f0ea" />
   <title>JaviEats</title>
-  <link rel="stylesheet" href="style.css?v=2.5.1" />
+  <link rel="stylesheet" href="style.css?v=2.5.2" />
 </head>
 <body>
   <main class="app-shell">
-    <!-- 1) Preguntas privadas -->
-    <section id="gate-screen" class="screen gate-screen">
-      <div class="gate-card">
-        <div class="brand-pill">JaviEats</div>
-        <h1>Acceso privado</h1>
-        <p class="muted">Antes de entrar toca pasar el control de calidad.</p>
-        <div class="progress"><div id="progress-bar" class="progress-bar"></div></div>
-        <form id="gate-form" class="form">
-          <label>
-            <span id="gate-question">Pregunta</span>
-            <span id="gate-input"></span>
-          </label>
-          <p id="gate-error" class="error"></p>
-          <button class="btn btn-primary" type="submit">Continuar</button>
-        </form>
+    <!-- 1) Arranque -->
+    <section id="boot-screen" class="screen boot-screen">
+      <div class="boot-mark" aria-label="Abriendo JaviEats">
+        <span class="boot-heart">♥</span>
+        <strong>JaviEats</strong>
+        <small>Abriendo lo vuestro…</small>
       </div>
     </section>
 
-    <!-- 2) Login Supabase -->
+    <!-- 2) Entrada -->
     <section id="auth-screen" class="screen auth-screen hidden">
-      <div class="gate-card auth-card">
+      <div class="entry-card auth-card">
         <div class="brand-pill">JaviEats</div>
-        <div class="auth-icon">💌</div>
-        <h1>Bienvenido a JaviEats</h1>
-        <p class="muted">Este espacio es privado. Inicia sesión con tu cuenta para acceder.</p>
-        <form id="login-form" class="form">
-          <label>Correo electrónico
-            <input id="login-email" type="email" autocomplete="email" placeholder="tu@email.com" required />
-          </label>
-          <label>Contraseña
-            <input id="login-password" type="password" autocomplete="current-password" placeholder="Tu contraseña" required />
-          </label>
-          <button id="login-submit" class="btn btn-primary" type="submit">Iniciar sesión</button>
-          <p id="login-status" class="note"></p>
-        </form>
-        <p class="auth-help">Solo pueden acceder Javi y Laura.</p>
+
+        <div id="profile-selector" class="auth-profile-step">
+          <p class="eyebrow">Un sitio para los dos</p>
+          <h1>¿Quién está entrando?</h1>
+          <p class="muted auth-lead">Elige tu perfil. El correo ya lo sabe JaviEats; tú solo tendrás que poner tu contraseña.</p>
+
+          <div class="profile-selector" role="group" aria-label="Selecciona tu perfil">
+            <button class="profile-card profile-card-javi" type="button" data-auth-profile="javi">
+              <span class="profile-avatar">J</span>
+              <span class="profile-copy">
+                <strong>Javi</strong>
+                <small>Entrar como Javi</small>
+              </span>
+              <span class="profile-arrow" aria-hidden="true">→</span>
+            </button>
+
+            <button class="profile-card profile-card-laura" type="button" data-auth-profile="laura">
+              <span class="profile-avatar">L</span>
+              <span class="profile-copy">
+                <strong>Laura</strong>
+                <small>Entrar como Laura</small>
+              </span>
+              <span class="profile-arrow" aria-hidden="true">→</span>
+            </button>
+          </div>
+
+          <p id="auth-global-status" class="note auth-global-status" aria-live="polite"></p>
+          <p class="auth-help">Si ya existe una sesión válida en este dispositivo, la próxima vez entrarás directamente.</p>
+        </div>
+
+        <div id="password-panel" class="auth-password-step hidden">
+          <button id="auth-back-btn" class="auth-back-btn" type="button">← No soy <span id="auth-back-name">este perfil</span></button>
+
+          <div class="selected-profile-card">
+            <span id="auth-selected-avatar" class="selected-profile-avatar">J</span>
+            <div>
+              <p class="eyebrow">Bienvenido de nuevo</p>
+              <h1 id="auth-selected-name">Hola, Javi</h1>
+              <p id="auth-selected-hint" class="muted">Solo falta tu contraseña.</p>
+            </div>
+          </div>
+
+          <form id="login-form" class="form auth-password-form">
+            <input id="login-email" type="hidden" />
+            <label>Contraseña
+              <input id="login-password" type="password" autocomplete="current-password" placeholder="Tu contraseña" required />
+            </label>
+            <button id="login-submit" class="btn btn-primary" type="submit">Entrar en JaviEats</button>
+            <p id="login-status" class="note auth-login-status" aria-live="polite"></p>
+          </form>
+        </div>
       </div>
     </section>
 
-    <!-- 3) App -->
+    <!-- 3) Bienvenida -->
+    <section id="welcome-screen" class="screen welcome-screen hidden" aria-live="polite">
+      <div class="welcome-card">
+        <div class="welcome-brand">JaviEats</div>
+        <div id="welcome-avatar" class="welcome-avatar">J</div>
+        <p class="eyebrow">Todo lo vuestro, listo</p>
+        <h1 id="welcome-title">Buenas, Javi</h1>
+        <p id="welcome-message" class="welcome-message">Preparando JaviEats…</p>
+        <div class="welcome-summary">
+          <span id="welcome-summary-primary" class="welcome-summary-chip">Sincronizando…</span>
+          <span id="welcome-summary-secondary" class="welcome-summary-chip">Un momento</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4) App -->
     <section id="app-screen" class="screen hidden">
       <header class="app-header">
         <div>
@@ -469,6 +512,6 @@
 
   <div id="toast" class="toast hidden"></div>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="script.js?v=2.5.1"></script>
+  <script src="script.js?v=2.5.2"></script>
 </body>
 </html>
