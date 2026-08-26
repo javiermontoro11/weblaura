@@ -4,7 +4,7 @@
 
 JaviEats es una aplicación web privada creada para Laura y Javi.
 
-Permite proponer planes, consultar un calendario compartido, guardar mensajes y cartas, responder juntos a “¿Y si…?”, jugar a un reto de piedra, papel o tijera, completar el puzle del masaje y conservar recuerdos especiales.
+Permite proponer planes, consultar un calendario compartido, guardar mensajes y cartas, responder juntos a “¿Y si…?”, jugar aL reto de piedra, papel o tijera, completar el puzle del masaje y conservar recuerdos especiales.
 
 ---
 
