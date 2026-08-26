@@ -15,6 +15,7 @@ const QUESTION_COUNT = 2;
 const REGULAR_GAME_ROUNDS = 5;
 const SYNC_INTERVAL_MS = 60_000;
 const PUZZLE_TOTAL_PIECES = 6;
+const Y_SI_REVEAL_MS = 900;
 
 const CHOICES = {
   piedra: { label: "Piedra", emoji: "✊" },
@@ -339,14 +340,34 @@ const lauraMessageTitle = $("laura-message-title");
 const lauraMessageContent = $("laura-message-content");
 const saveLauraMessage = $("save-laura-message");
 const lauraMessageStatus = $("laura-message-status");
-const dailyQuestionDate = $("daily-question-date");
-const dailyQuestionText = $("daily-question-text");
-const dailyAnswerForm = $("daily-answer-form");
-const dailyAnswer = $("daily-answer");
-const saveDailyAnswer = $("save-daily-answer");
-const dailyAnswerStatus = $("daily-answer-status");
-const dailyAnswerView = $("daily-answer-view");
-const dailyAnswerContent = $("daily-answer-content");
+
+const ySiStatusBadge = $("y-si-status-badge");
+const ySiCompatibility = $("y-si-compatibility");
+const ySiCompatibilityTitle = $("y-si-compatibility-title");
+const ySiCompatibilityText = $("y-si-compatibility-text");
+const ySiHeartFill = $("y-si-heart-fill");
+const ySiSharedCount = $("y-si-shared-count");
+const ySiMatchCount = $("y-si-match-count");
+const ySiBestStreak = $("y-si-best-streak");
+const ySiQuestionDate = $("y-si-question-date");
+const ySiQuestionText = $("y-si-question-text");
+const ySiOptions = $("y-si-options");
+const ySiSubmit = $("y-si-submit");
+const ySiStatusNote = $("y-si-status-note");
+const ySiResult = $("y-si-result");
+const ySiResultLoading = $("y-si-result-loading");
+const ySiResultContent = $("y-si-result-content");
+const ySiResultIcon = $("y-si-result-icon");
+const ySiResultTitle = $("y-si-result-title");
+const ySiResultCopy = $("y-si-result-copy");
+const ySiJaviAnswer = $("y-si-javi-answer");
+const ySiLauraAnswer = $("y-si-laura-answer");
+const ySiSpecial = $("y-si-special");
+const ySiHistoryBtn = $("y-si-history-btn");
+const ySiHistoryModal = $("y-si-history-modal");
+const ySiHistorySummary = $("y-si-history-summary");
+const ySiHistoryList = $("y-si-history-list");
+
 const lauraMessagesList = $("laura-messages-list");
 
 const memoriesList = $("memories-list");
@@ -395,17 +416,23 @@ let appReady = false;
 let puzzleWelcomeShown = false;
 let recentPuzzlePieceNumber = null;
 let puzzlePieceAnimationTimer = null;
+let ySiSelectedOption = null;
+let ySiSelectedDayId = null;
+let ySiHistoryFilter = "all";
+let ySiRevealTimer = null;
+let ySiRevealInProgress = false;
 
 const state = {
   proposals: [],
   messages: [],
   marks: [],
-  questions: [],
-  dailyResponse: null,
   vouchers: [],
   puzzle: null,
   puzzlePieces: [],
-  puzzleLoadError: false
+  puzzleLoadError: false,
+  ySiCurrent: null,
+  ySiHistory: [],
+  ySiLoadError: false
 };
 
 init();
@@ -486,10 +513,17 @@ function bindEvents() {
   document.querySelectorAll("[data-laura-message-close]").forEach(el => el.addEventListener("click", closeLauraMessageModal));
   document.querySelectorAll("[data-custom-plan-close]").forEach(el => el.addEventListener("click", closeCustomPlanModal));
   document.querySelectorAll("[data-puzzle-close]").forEach(el => el.addEventListener("click", closePuzzleModal));
+  document.querySelectorAll("[data-y-si-history-close]").forEach(el => el.addEventListener("click", closeYSiHistoryModal));
 
   gameHomeButton.addEventListener("click", openGameModal);
   openPuzzleBtn.addEventListener("click", () => openPuzzleModal());
   puzzleModalPrimary.addEventListener("click", handlePuzzlePrimaryAction);
+  ySiOptions.addEventListener("click", handleYSiOptionClick);
+  ySiSubmit.addEventListener("click", handleYSiAnswer);
+  ySiHistoryBtn.addEventListener("click", openYSiHistoryModal);
+  document.querySelectorAll("[data-y-si-filter]").forEach(button => {
+    button.addEventListener("click", () => setYSiHistoryFilter(button.dataset.ySiFilter));
+  });
   document.querySelectorAll("[data-choice]").forEach(button => {
     button.addEventListener("click", () => playGameRound(button.dataset.choice));
   });
@@ -523,7 +557,6 @@ function bindEvents() {
   [bookingList, dayBookings].forEach(container => container.addEventListener("click", handleBookingAction));
 
   lauraMessageForm.addEventListener("submit", handleLauraMessage);
-  dailyAnswerForm.addEventListener("submit", handleDailyAnswer);
   lauraMessagesList.addEventListener("click", handleLauraMessageListClick);
   lauraMessageModalActions.addEventListener("click", handleLauraMessageModalAction);
 
@@ -655,7 +688,7 @@ function applyRoleUI() {
   lauraComposeCard.classList.toggle("hidden", !isLaura);
   clearHistory.classList.toggle("hidden", currentRole !== "javi");
   renderServices();
-  renderDailyQuestion();
+  renderYSi();
   updateDailyGameCard();
 }
 
@@ -675,12 +708,19 @@ function resetAppSession() {
   state.proposals = [];
   state.messages = [];
   state.marks = [];
-  state.questions = [];
-  state.dailyResponse = null;
   state.vouchers = [];
   state.puzzle = null;
   state.puzzlePieces = [];
   state.puzzleLoadError = false;
+  state.ySiCurrent = null;
+  state.ySiHistory = [];
+  state.ySiLoadError = false;
+  ySiSelectedOption = null;
+  ySiSelectedDayId = null;
+  ySiHistoryFilter = "all";
+  ySiRevealInProgress = false;
+  if (ySiRevealTimer) clearTimeout(ySiRevealTimer);
+  ySiRevealTimer = null;
   puzzleWelcomeShown = false;
   recentPuzzlePieceNumber = null;
   if (puzzlePieceAnimationTimer) clearTimeout(puzzlePieceAnimationTimer);
@@ -700,7 +740,6 @@ function showPage(page) {
   }
   if (page === "laura") {
     renderLauraMessages();
-    renderDailyQuestion();
   }
   if (page === "memories") {
     renderMemories();
@@ -732,36 +771,48 @@ async function loadAllData({ silent = false } = {}) {
   if (!silent) setSyncState("loading", "Sincronizando…");
   try {
     const today = toDateKeyMadrid(new Date());
-    const questionsPromise = state.questions.length ? Promise.resolve(state.questions) : fetchQuestions();
     const puzzlePromise = fetchPuzzleProgress().catch(error => {
       console.error("No se ha podido cargar el puzle de la versión 2.4:", error);
       return { puzzle: null, pieces: [], loadError: true };
     });
-    const [proposals, messages, marks, questions, dailyResponse, vouchers, gameData, puzzleProgress] = await Promise.all([
+    const ySiCurrentPromise = fetchYSiCurrent().catch(error => {
+      console.error("No se ha podido cargar ¿Y si...?:", error);
+      return { loadError: true };
+    });
+    const ySiHistoryPromise = fetchYSiHistory().catch(error => {
+      console.error("No se ha podido cargar el historial de ¿Y si...?:", error);
+      return [];
+    });
+    const [proposals, messages, marks, vouchers, gameData, puzzleProgress, ySiCurrent, ySiHistory] = await Promise.all([
       fetchProposals(),
       fetchMessages(),
       fetchMarks(),
-      questionsPromise,
-      fetchDailyResponse(today),
       fetchVouchers(),
       fetchTodayGame(today),
-      puzzlePromise
+      puzzlePromise,
+      ySiCurrentPromise,
+      ySiHistoryPromise
     ]);
     state.proposals = proposals;
     state.messages = messages;
     state.marks = marks;
-    state.questions = questions;
-    state.dailyResponse = dailyResponse;
     state.vouchers = vouchers;
     dailyGame = gameData.game;
     dailyRounds = gameData.rounds;
     state.puzzle = puzzleProgress.puzzle;
     state.puzzlePieces = puzzleProgress.pieces;
     state.puzzleLoadError = Boolean(puzzleProgress.loadError);
+    state.ySiCurrent = ySiCurrent?.loadError ? null : ySiCurrent;
+    state.ySiHistory = Array.isArray(ySiHistory) ? ySiHistory : [];
+    state.ySiLoadError = Boolean(ySiCurrent?.loadError);
     refreshUI();
+    maybeRevealYSiResult();
     setSyncState("ok", `Sincronizado · ${currentTimeLabel()}`);
     if (state.puzzleLoadError && !silent) {
       showToast("JaviEats funciona, pero falta aplicar o revisar la migración del puzle v2.4.");
+    }
+    if (state.ySiLoadError && !silent) {
+      showToast("La sección ¿Y si...? necesita la migración de Supabase v2.5.");
     }
   } catch (error) {
     console.error(error);
@@ -785,15 +836,15 @@ async function fetchMarks() {
   if (error) throw error;
   return data || [];
 }
-async function fetchQuestions() {
-  const { data, error } = await supabaseClient.from("preguntas_diarias").select("*").eq("activa", true).order("orden", { ascending: true });
-  if (error) throw error;
-  return data || [];
-}
-async function fetchDailyResponse(dateKey) {
-  const { data, error } = await supabaseClient.from("respuestas_diarias").select("*").eq("fecha", dateKey).maybeSingle();
+async function fetchYSiCurrent() {
+  const { data, error } = await supabaseClient.rpc("obtener_y_si_actual");
   if (error) throw error;
   return data || null;
+}
+async function fetchYSiHistory() {
+  const { data, error } = await supabaseClient.rpc("obtener_y_si_historial");
+  if (error) throw error;
+  return Array.isArray(data) ? data : [];
 }
 async function fetchVouchers() {
   const { data, error } = await supabaseClient.from("vales").select("*").order("created_at", { ascending: false });
@@ -838,7 +889,7 @@ function refreshUI() {
   renderBookings();
   renderCalendar();
   renderLauraMessages();
-  renderDailyQuestion();
+  renderYSi();
   renderMemories();
   renderVouchers();
   renderPuzzleProgress();
@@ -1308,58 +1359,266 @@ async function toggleMessageMark(messageId, field) {
 }
 function getMessageMark(messageId) { return state.marks.find(item => item.mensaje_id === messageId) || null; }
 
-function getDailyQuestion() {
-  if (!state.questions.length) return null;
-  if (state.dailyResponse) {
-    const answered = state.questions.find(q => q.id === state.dailyResponse.pregunta_id);
-    if (answered) return answered;
-  }
-  const [year, month, day] = toDateKeyMadrid(new Date()).split("-").map(Number);
-  const dayNumber = Math.floor(Date.UTC(year, month - 1, day) / 86400000);
-  return state.questions[dayNumber % state.questions.length];
+function ySiOptionLabel(current, optionNumber) {
+  const options = Array.isArray(current?.opciones) ? current.opciones : [];
+  const index = Number(optionNumber) - 1;
+  return index >= 0 && index < options.length ? String(options[index]) : "—";
 }
-function renderDailyQuestion() {
-  const question = getDailyQuestion();
-  const isLaura = currentRole === "laura";
-  dailyQuestionDate.textContent = new Intl.DateTimeFormat("es-ES", { timeZone: "Europe/Madrid", weekday: "long", day: "2-digit", month: "long" }).format(new Date());
-  if (!question) {
-    dailyQuestionText.textContent = "No se ha podido cargar la pregunta de hoy.";
-    dailyAnswerForm.classList.add("hidden");
-    dailyAnswerView.classList.add("hidden");
+
+function calculateYSiStats() {
+  const history = Array.isArray(state.ySiHistory) ? [...state.ySiHistory] : [];
+  history.sort((a, b) => String(a.fecha).localeCompare(String(b.fecha)));
+  const total = history.length;
+  const matches = history.filter(item => Boolean(item.coincide)).length;
+  const compatibility = total ? Math.round((matches / total) * 100) : 0;
+  let streak = 0;
+  let bestStreak = 0;
+  for (const item of history) {
+    if (item.coincide) {
+      streak += 1;
+      bestStreak = Math.max(bestStreak, streak);
+    } else {
+      streak = 0;
+    }
+  }
+  return { total, matches, compatibility, bestStreak };
+}
+
+function updateYSiCompatibility() {
+  const stats = calculateYSiStats();
+  const percent = Math.min(100, Math.max(0, stats.compatibility));
+  ySiCompatibility.textContent = `${percent}%`;
+  ySiSharedCount.textContent = String(stats.total);
+  ySiMatchCount.textContent = String(stats.matches);
+  ySiBestStreak.textContent = String(stats.bestStreak);
+
+  const heartHeight = 92 * (percent / 100);
+  ySiHeartFill.setAttribute("y", String(92 - heartHeight));
+  ySiHeartFill.setAttribute("height", String(heartHeight));
+
+  if (!stats.total) {
+    ySiCompatibilityTitle.textContent = "Aún está por descubrir";
+    ySiCompatibilityText.textContent = "Responded vuestra primera pregunta para empezar a llenar el corazón.";
+  } else if (percent >= 80) {
+    ySiCompatibilityTitle.textContent = "Muchas coincidencias";
+    ySiCompatibilityText.textContent = `Coincidís en ${stats.matches} de ${stats.total} preguntas compartidas.`;
+  } else if (percent >= 60) {
+    ySiCompatibilityTitle.textContent = "Bastantes puntos en común";
+    ySiCompatibilityText.textContent = `Coincidís en ${stats.matches} de ${stats.total} preguntas compartidas.`;
+  } else if (percent >= 40) {
+    ySiCompatibilityTitle.textContent = "Una mezcla interesante";
+    ySiCompatibilityText.textContent = `Coincidís en ${stats.matches} de ${stats.total} preguntas compartidas.`;
+  } else {
+    ySiCompatibilityTitle.textContent = "Muchas respuestas distintas";
+    ySiCompatibilityText.textContent = `Coincidís en ${stats.matches} de ${stats.total} preguntas compartidas.`;
+  }
+}
+
+function renderYSiOptions(current) {
+  if (!current || !Array.isArray(current.opciones)) {
+    ySiOptions.innerHTML = "";
     return;
   }
-  dailyQuestionText.textContent = question.pregunta;
-  dailyAnswerStatus.textContent = "";
-  if (isLaura) {
-    dailyAnswerForm.classList.remove("hidden");
-    dailyAnswerView.classList.add("hidden");
-    dailyAnswer.value = state.dailyResponse?.respuesta || "";
-    saveDailyAnswer.textContent = state.dailyResponse ? "Actualizar respuesta" : "Guardar respuesta";
+  const ownAnswer = Number(current.mi_respuesta) || null;
+  const locked = Boolean(ownAnswer || current.ambos_respondieron);
+  ySiOptions.innerHTML = current.opciones.map((option, index) => {
+    const number = index + 1;
+    const selected = number === (ownAnswer || ySiSelectedOption);
+    return `<button class="y-si-option${selected ? " is-selected" : ""}" type="button" role="radio" aria-checked="${selected ? "true" : "false"}" data-y-si-option="${number}" ${locked ? "disabled" : ""}><span class="y-si-option-letter">${String.fromCharCode(65 + index)}</span><span>${escapeHTML(String(option))}</span></button>`;
+  }).join("");
+  ySiSubmit.disabled = locked || !ySiSelectedOption;
+  ySiSubmit.classList.toggle("hidden", locked);
+}
+
+function renderYSiResult() {
+  const current = state.ySiCurrent;
+  if (!current?.ambos_respondieron) {
+    ySiResult.classList.add("hidden");
+    ySiResultLoading.classList.add("hidden");
+    ySiResultContent.classList.remove("hidden");
+    return;
+  }
+
+  const match = Boolean(current.coincide);
+  ySiResult.classList.remove("hidden");
+  ySiResultIcon.textContent = match ? "💞" : "👀";
+  ySiResultTitle.textContent = match ? "¡Coincidencia!" : "Esta vez pensáis diferente";
+  ySiResultCopy.textContent = match
+    ? "Habéis elegido exactamente la misma opción."
+    : "Dos respuestas distintas para la misma situación.";
+  ySiJaviAnswer.textContent = ySiOptionLabel(current, current.javi_respuesta);
+  ySiLauraAnswer.textContent = ySiOptionLabel(current, current.laura_respuesta);
+  ySiSpecial.classList.toggle("hidden", !(match && current.destacada));
+
+  if (ySiRevealInProgress) {
+    ySiResultLoading.classList.remove("hidden");
+    ySiResultContent.classList.add("hidden");
   } else {
-    dailyAnswerForm.classList.add("hidden");
-    dailyAnswerView.classList.remove("hidden");
-    dailyAnswerContent.textContent = state.dailyResponse?.respuesta || "Laura todavía no ha respondido la pregunta de hoy.";
+    ySiResultLoading.classList.add("hidden");
+    ySiResultContent.classList.remove("hidden");
   }
 }
-async function handleDailyAnswer(event) {
-  event.preventDefault();
-  if (currentRole !== "laura") return;
-  const question = getDailyQuestion();
-  const answer = dailyAnswer.value.trim();
-  if (!question) { dailyAnswerStatus.textContent = "No se ha podido cargar la pregunta."; return; }
-  if (!answer) { dailyAnswerStatus.textContent = "Escribe una respuesta antes de guardarla."; return; }
-  saveDailyAnswer.disabled = true;
-  dailyAnswerStatus.textContent = "Guardando respuesta...";
-  try {
-    const { data, error } = await supabaseClient.from("respuestas_diarias").upsert({ pregunta_id: question.id, user_id: currentUser.id, fecha: toDateKeyMadrid(new Date()), respuesta: answer }, { onConflict: "user_id,fecha" }).select().single();
-    if (error) throw error;
-    state.dailyResponse = data;
-    renderDailyQuestion();
-    dailyAnswerStatus.textContent = "Respuesta guardada.";
-    showToast("Respuesta del día guardada.");
-  } catch (error) { console.error(error); dailyAnswerStatus.textContent = "No se ha podido guardar la respuesta. Revisa la conexión."; }
-  finally { saveDailyAnswer.disabled = false; }
+
+function renderYSi() {
+  updateYSiCompatibility();
+  const current = state.ySiCurrent;
+
+  if (!current) {
+    ySiQuestionDate.textContent = "¿Y si…?";
+    ySiOptions.innerHTML = "";
+    ySiSubmit.classList.add("hidden");
+    ySiResult.classList.add("hidden");
+    if (state.ySiLoadError) {
+      ySiStatusBadge.textContent = "No disponible";
+      ySiQuestionText.textContent = "No se ha podido cargar la pregunta compartida.";
+      ySiStatusNote.textContent = "Aplica la migración v2.5 de Supabase y vuelve a intentarlo.";
+    } else {
+      ySiStatusBadge.textContent = "Preparando…";
+      ySiQuestionText.textContent = "Cargando pregunta…";
+      ySiStatusNote.textContent = "";
+    }
+    renderYSiHistory();
+    return;
+  }
+
+  if (ySiSelectedDayId !== current.id) {
+    ySiSelectedDayId = current.id;
+    ySiSelectedOption = null;
+  }
+
+  ySiQuestionDate.textContent = current.es_de_hoy
+    ? "Pregunta de hoy"
+    : `Pregunta pendiente · ${formatDateCompact(current.fecha)}`;
+  ySiQuestionText.textContent = current.pregunta;
+
+  const iAmJavi = currentRole === "javi";
+  const otherName = iAmJavi ? "Laura" : "Javi";
+  const otherAnswered = iAmJavi ? current.laura_ha_respondido : current.javi_ha_respondido;
+
+  if (current.ambos_respondieron) {
+    ySiStatusBadge.textContent = current.coincide ? "Coincidencia" : "Resultado listo";
+    ySiStatusNote.textContent = "Los dos habéis respondido. Mañana aparecerá una nueva situación.";
+  } else if (current.mi_respuesta) {
+    ySiStatusBadge.textContent = `Esperando a ${otherName}`;
+    ySiStatusNote.textContent = `Tu respuesta está guardada. La elección de ${otherName} seguirá oculta hasta que responda.`;
+  } else if (otherAnswered) {
+    ySiStatusBadge.textContent = "Te toca";
+    ySiStatusNote.textContent = `${otherName} ya ha respondido. Su elección está bloqueada hasta que tú contestes.`;
+  } else {
+    ySiStatusBadge.textContent = "Nueva pregunta";
+    ySiStatusNote.textContent = "Elige una opción. Tu respuesta no se enseñará hasta que ambos hayáis contestado.";
+  }
+
+  renderYSiOptions(current);
+  renderYSiResult();
+  renderYSiHistory();
 }
+
+function handleYSiOptionClick(event) {
+  const button = event.target.closest("[data-y-si-option]");
+  if (!button || button.disabled || state.ySiCurrent?.mi_respuesta) return;
+  ySiSelectedOption = Number(button.dataset.ySiOption);
+  renderYSiOptions(state.ySiCurrent);
+}
+
+async function handleYSiAnswer() {
+  if (!currentUser || !state.ySiCurrent || !ySiSelectedOption || state.ySiCurrent.mi_respuesta) return;
+  ySiSubmit.disabled = true;
+  ySiStatusNote.textContent = "Guardando tu respuesta…";
+  try {
+    const { data, error } = await supabaseClient.rpc("responder_y_si", { p_opcion: ySiSelectedOption });
+    if (error) throw error;
+    state.ySiCurrent = data;
+    state.ySiHistory = await fetchYSiHistory();
+    ySiSelectedOption = null;
+    renderYSi();
+    showToast("Respuesta guardada.");
+    if (state.ySiCurrent?.ambos_respondieron) maybeRevealYSiResult({ force: true });
+  } catch (error) {
+    console.error(error);
+    ySiStatusNote.textContent = friendlyYSiError(error);
+    ySiSubmit.disabled = false;
+  }
+}
+
+function maybeRevealYSiResult({ force = false } = {}) {
+  const current = state.ySiCurrent;
+  if (!current?.ambos_respondieron || !current.id) return;
+  const key = `javieats_y_si_revealed_${current.id}`;
+  if (!force && sessionStorage.getItem(key) === "true") return;
+  if (ySiRevealTimer) clearTimeout(ySiRevealTimer);
+  ySiRevealInProgress = true;
+  renderYSiResult();
+  ySiRevealTimer = setTimeout(() => {
+    ySiRevealInProgress = false;
+    ySiResultLoading.classList.add("hidden");
+    ySiResultContent.classList.remove("hidden");
+    ySiResultContent.classList.remove("is-revealed");
+    void ySiResultContent.offsetWidth;
+    ySiResultContent.classList.add("is-revealed");
+    sessionStorage.setItem(key, "true");
+    ySiRevealTimer = null;
+  }, Y_SI_REVEAL_MS);
+}
+
+function openYSiHistoryModal() {
+  renderYSiHistory();
+  ySiHistoryModal.classList.remove("hidden");
+  document.body.style.overflow = "hidden";
+}
+
+function closeYSiHistoryModal() {
+  ySiHistoryModal.classList.add("hidden");
+  document.body.style.overflow = "";
+}
+
+function setYSiHistoryFilter(filter) {
+  ySiHistoryFilter = ["all", "match", "different"].includes(filter) ? filter : "all";
+  document.querySelectorAll("[data-y-si-filter]").forEach(button => {
+    button.classList.toggle("is-active", button.dataset.ySiFilter === ySiHistoryFilter);
+  });
+  renderYSiHistory();
+}
+
+function renderYSiHistory() {
+  if (!ySiHistoryList || !ySiHistorySummary) return;
+  const history = Array.isArray(state.ySiHistory) ? state.ySiHistory : [];
+  const stats = calculateYSiStats();
+  ySiHistorySummary.textContent = stats.total
+    ? `${stats.matches} coincidencias en ${stats.total} preguntas compartidas · ${stats.compatibility}% de compatibilidad JaviEats.`
+    : "Aquí aparecerán las preguntas que ya habéis respondido los dos.";
+
+  const filtered = history.filter(item => {
+    if (ySiHistoryFilter === "match") return Boolean(item.coincide);
+    if (ySiHistoryFilter === "different") return !item.coincide;
+    return true;
+  });
+
+  if (!filtered.length) {
+    ySiHistoryList.innerHTML = `<div class="empty">${history.length ? "No hay resultados con este filtro." : "Todavía no habéis completado ninguna pregunta entre los dos."}</div>`;
+    return;
+  }
+
+  ySiHistoryList.innerHTML = filtered.map(item => {
+    const javi = ySiOptionLabel(item, item.javi_respuesta);
+    const laura = ySiOptionLabel(item, item.laura_respuesta);
+    return `<article class="y-si-history-item ${item.coincide ? "is-match" : "is-different"}">
+      <div class="y-si-history-item-top"><span>${item.coincide ? "💞 Coincidencia" : "👀 Diferentes"}</span><time>${escapeHTML(formatDateCompact(item.fecha))}</time></div>
+      <h3>${escapeHTML(item.pregunta)}</h3>
+      <div class="y-si-history-answers"><span><b>Javi</b>${escapeHTML(javi)}</span><span><b>Laura</b>${escapeHTML(laura)}</span></div>
+      ${item.coincide && item.destacada ? '<p class="y-si-history-special">Coincidencia destacada 👀</p>' : ""}
+    </article>`;
+  }).join("");
+}
+
+function friendlyYSiError(error) {
+  const message = String(error?.message || "").toLowerCase();
+  if (message.includes("ya has respondido")) return "Ya has respondido esta pregunta.";
+  if (message.includes("opcion") || message.includes("opción")) return "Esa opción no es válida.";
+  if (message.includes("acceso")) return "Esta cuenta no puede participar en ¿Y si…?.";
+  return "No se ha podido guardar la respuesta. Revisa la conexión.";
+}
+
 
 async function openGameModal() {
   if (currentRole === "laura") {
