@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#f4f0ea" />
   <title>JaviEats</title>
-  <link rel="stylesheet" href="style.css?v=2.5" />
+  <link rel="stylesheet" href="style.css?v=2.5.1" />
 </head>
 <body>
   <main class="app-shell">
@@ -111,12 +111,13 @@
             </div>
           </div>
 
-          <div class="y-si-question-panel">
-            <p id="y-si-question-date" class="y-si-question-date">Pregunta actual</p>
-            <h3 id="y-si-question-text">Cargando pregunta…</h3>
-            <div id="y-si-options" class="y-si-options" role="radiogroup" aria-label="Opciones de respuesta"></div>
-            <button id="y-si-submit" class="btn btn-primary y-si-submit" type="button" disabled>Guardar mi respuesta</button>
-            <p id="y-si-status-note" class="note y-si-status-note"></p>
+          <div class="y-si-daily-summary">
+            <div>
+              <p class="eyebrow">Ronda de hoy</p>
+              <strong id="y-si-today-title">0 de 5 completadas</strong>
+              <p id="y-si-today-text" class="muted">Podéis completar hasta cinco situaciones juntos hoy.</p>
+            </div>
+            <div id="y-si-daily-dots" class="y-si-daily-dots" aria-label="Progreso diario"></div>
           </div>
 
           <div id="y-si-result" class="y-si-result hidden" aria-live="polite">
@@ -125,6 +126,7 @@
               <strong>Comparando respuestas…</strong>
             </div>
             <div id="y-si-result-content" class="y-si-result-content">
+              <p id="y-si-result-meta" class="y-si-result-meta">Último resultado</p>
               <div id="y-si-result-icon" class="y-si-result-icon">💞</div>
               <p class="eyebrow">Resultado</p>
               <h3 id="y-si-result-title">¡Coincidencia!</h3>
@@ -135,6 +137,17 @@
               </div>
               <p id="y-si-special" class="y-si-special hidden">👀 Esta coincidencia no era tan obvia.</p>
             </div>
+          </div>
+
+          <div class="y-si-question-panel">
+            <p id="y-si-question-date" class="y-si-question-date">Pregunta actual</p>
+            <h3 id="y-si-question-text">Cargando pregunta…</h3>
+            <div id="y-si-options" class="y-si-options" role="radiogroup" aria-label="Opciones de respuesta"></div>
+            <div class="y-si-question-actions">
+              <button id="y-si-submit" class="btn btn-primary y-si-submit" type="button" disabled>Guardar mi respuesta</button>
+              <button id="y-si-skip" class="btn btn-secondary y-si-skip hidden" type="button">↻ Cambiar pregunta · 1 al día</button>
+            </div>
+            <p id="y-si-status-note" class="note y-si-status-note"></p>
           </div>
 
           <div class="y-si-actions">
@@ -456,6 +469,6 @@
 
   <div id="toast" class="toast hidden"></div>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="script.js?v=2.5"></script>
+  <script src="script.js?v=2.5.1"></script>
 </body>
 </html>
