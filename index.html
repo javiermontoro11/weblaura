@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#f4f0ea" />
   <title>JaviEats</title>
-  <link rel="stylesheet" href="style.css?v=2.4" />
+  <link rel="stylesheet" href="style.css?v=2.5" />
 </head>
 <body>
   <main class="app-shell">
@@ -65,10 +65,82 @@
       <section id="page-home" class="page active">
         <div class="hero">
           <p id="home-greeting" class="eyebrow">Hola 👋</p>
-          <h2>¿Qué plan proponemos hoy?</h2>
-          <p>Elige servicio, fecha y hora. Se propone, se habla y se disfruta juntos.</p>
-          <div class="availability">Disponible bajo negociación</div>
+          <h2>Todo lo nuestro, en un solo sitio</h2>
+          <p>Planes, recuerdos, juegos y pequeñas cosas para compartir los dos.</p>
+          <div class="availability">JaviEats · para Javi y Laura</div>
         </div>
+
+        <section id="y-si-card" class="y-si-card">
+          <div class="y-si-top">
+            <div class="y-si-heading">
+              <div class="y-si-icon">💭</div>
+              <div>
+                <p class="eyebrow">Para los dos</p>
+                <h2>¿Y si…?</h2>
+                <p class="muted">Responded sin ver al otro. El resultado se desbloquea cuando los dos hayáis elegido.</p>
+              </div>
+            </div>
+            <span id="y-si-status-badge" class="y-si-status-badge">Preparando…</span>
+          </div>
+
+          <div class="y-si-compatibility-card">
+            <div class="y-si-heart-wrap" aria-hidden="true">
+              <svg class="y-si-heart" viewBox="0 0 100 92" role="img">
+                <defs>
+                  <clipPath id="y-si-heart-clip">
+                    <path d="M50 88C44 81 9 59 9 31C9 15 27 7 40 17C44 20 48 25 50 30C52 25 56 20 60 17C73 7 91 15 91 31C91 59 56 81 50 88Z"></path>
+                  </clipPath>
+                </defs>
+                <path class="y-si-heart-base" d="M50 88C44 81 9 59 9 31C9 15 27 7 40 17C44 20 48 25 50 30C52 25 56 20 60 17C73 7 91 15 91 31C91 59 56 81 50 88Z"></path>
+                <g clip-path="url(#y-si-heart-clip)">
+                  <rect id="y-si-heart-fill" class="y-si-heart-fill" x="0" y="92" width="100" height="0"></rect>
+                </g>
+                <path class="y-si-heart-outline" d="M50 88C44 81 9 59 9 31C9 15 27 7 40 17C44 20 48 25 50 30C52 25 56 20 60 17C73 7 91 15 91 31C91 59 56 81 50 88Z"></path>
+              </svg>
+              <strong id="y-si-compatibility" class="y-si-heart-percent">0%</strong>
+            </div>
+            <div class="y-si-compatibility-copy">
+              <p class="eyebrow">Compatibilidad JaviEats</p>
+              <strong id="y-si-compatibility-title">Aún está por descubrir</strong>
+              <p id="y-si-compatibility-text" class="muted">Responded vuestra primera pregunta para empezar a llenar el corazón.</p>
+              <div class="y-si-mini-stats">
+                <span><b id="y-si-shared-count">0</b> compartidas</span>
+                <span><b id="y-si-match-count">0</b> coincidencias</span>
+                <span><b id="y-si-best-streak">0</b> mejor racha</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="y-si-question-panel">
+            <p id="y-si-question-date" class="y-si-question-date">Pregunta actual</p>
+            <h3 id="y-si-question-text">Cargando pregunta…</h3>
+            <div id="y-si-options" class="y-si-options" role="radiogroup" aria-label="Opciones de respuesta"></div>
+            <button id="y-si-submit" class="btn btn-primary y-si-submit" type="button" disabled>Guardar mi respuesta</button>
+            <p id="y-si-status-note" class="note y-si-status-note"></p>
+          </div>
+
+          <div id="y-si-result" class="y-si-result hidden" aria-live="polite">
+            <div id="y-si-result-loading" class="y-si-result-loading hidden">
+              <span class="y-si-spinner"></span>
+              <strong>Comparando respuestas…</strong>
+            </div>
+            <div id="y-si-result-content" class="y-si-result-content">
+              <div id="y-si-result-icon" class="y-si-result-icon">💞</div>
+              <p class="eyebrow">Resultado</p>
+              <h3 id="y-si-result-title">¡Coincidencia!</h3>
+              <p id="y-si-result-copy" class="muted"></p>
+              <div class="y-si-answer-grid">
+                <div class="y-si-answer-card"><span>Javi</span><strong id="y-si-javi-answer">—</strong></div>
+                <div class="y-si-answer-card"><span>Laura</span><strong id="y-si-laura-answer">—</strong></div>
+              </div>
+              <p id="y-si-special" class="y-si-special hidden">👀 Esta coincidencia no era tan obvia.</p>
+            </div>
+          </div>
+
+          <div class="y-si-actions">
+            <button id="y-si-history-btn" class="link-btn" type="button">Ver historial de respuestas</button>
+          </div>
+        </section>
 
         <section id="daily-game-card" class="game-card">
           <div class="game-card-top">
@@ -173,24 +245,6 @@
             <p id="laura-message-status" class="note"></p>
           </form>
         </section>
-        <section id="daily-question-card" class="daily-question-card">
-          <div class="daily-question-header">
-            <div class="daily-question-icon">💭</div>
-            <div><p class="eyebrow">Pregunta del día</p><p id="daily-question-date" class="daily-question-date">Hoy</p></div>
-          </div>
-          <h3 id="daily-question-text">Cargando pregunta…</h3>
-          <form id="daily-answer-form" class="form">
-            <label>Tu respuesta
-              <textarea id="daily-answer" rows="5" maxlength="6000" placeholder="Responde solamente si te apetece..."></textarea>
-            </label>
-            <button id="save-daily-answer" class="btn btn-primary" type="submit">Guardar respuesta</button>
-            <p id="daily-answer-status" class="note"></p>
-          </form>
-          <div id="daily-answer-view" class="daily-answer-view hidden">
-            <p class="eyebrow">Respuesta de Laura</p>
-            <div id="daily-answer-content" class="daily-answer-content"></div>
-          </div>
-        </section>
         <div class="section-title laura-history-title"><div><p class="eyebrow">El rincón de Laura</p><h2>Mensajes y cartas</h2></div></div>
         <div id="laura-messages-list" class="laura-messages-list"></div>
       </section>
@@ -285,6 +339,24 @@
         <button id="custom-plan-submit" class="btn btn-primary" type="submit">Guardar plan</button>
         <p id="custom-plan-status" class="note"></p>
       </form>
+    </div>
+  </section>
+
+  <!-- Historial compartido de ¿Y si...? -->
+  <section id="y-si-history-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="y-si-history-title">
+    <div class="modal-backdrop" data-y-si-history-close></div>
+    <div class="modal-panel y-si-history-panel">
+      <button class="modal-close" type="button" data-y-si-history-close aria-label="Cerrar">×</button>
+      <div class="modal-icon">💞</div>
+      <p class="eyebrow">Los dos</p>
+      <h2 id="y-si-history-title">Nuestro historial de “¿Y si…?”</h2>
+      <p id="y-si-history-summary" class="muted">Aquí aparecerán las preguntas que ya habéis respondido los dos.</p>
+      <div class="y-si-history-filters" role="group" aria-label="Filtrar historial">
+        <button class="y-si-filter is-active" type="button" data-y-si-filter="all">Todas</button>
+        <button class="y-si-filter" type="button" data-y-si-filter="match">Coincidencias</button>
+        <button class="y-si-filter" type="button" data-y-si-filter="different">Diferentes</button>
+      </div>
+      <div id="y-si-history-list" class="y-si-history-list"></div>
     </div>
   </section>
 
@@ -384,6 +456,6 @@
 
   <div id="toast" class="toast hidden"></div>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="script.js?v=2.4"></script>
+  <script src="script.js?v=2.5"></script>
 </body>
 </html>
