@@ -1,34 +1,41 @@
 # JaviEats 💌
 
-**Versión actual: 2.4**
+**Versión actual: 2.5**
 
 JaviEats es una aplicación web privada creada para Laura y Javi.
 
-Permite proponer planes, consultar un calendario compartido, guardar mensajes y cartas, responder una pregunta diaria, jugar a un reto de piedra, papel o tijera, completar el puzle del masaje y conservar recuerdos especiales.
+Permite proponer planes, consultar un calendario compartido, guardar mensajes y cartas, responder juntos a “¿Y si…?”, jugar a un reto de piedra, papel o tijera, completar el puzle del masaje y conservar recuerdos especiales.
 
 ---
 
-## 🚀 Última versión — v2.4
+## 🚀 Última versión — v2.5
 
-### Puzle del masaje
+### ¿Y si…? + recordatorios inteligentes
 
-La versión 2.4 convierte el premio del reto diario en una recompensa acumulada. Ganar una partida ya no entrega directamente un masaje: añade una pieza a un puzle de seis piezas.
+La versión 2.5 refuerza JaviEats como una aplicación compartida para Javi y Laura. La antigua pregunta diaria de Laura deja paso a “¿Y si…?”, una experiencia cerrada para los dos, y se añade la infraestructura para recordar el reto de piedra, papel o tijera sin enviar correos todos los días.
 
 ### Novedades principales
 
-- Una partida diaria ganada equivale a una pieza.
-- Puzle visual de seis piezas sincronizado mediante Supabase.
-- Las piezas se descubren en posiciones aleatorias y nunca se repiten.
-- Las derrotas no eliminan el progreso conseguido.
-- El vale de masaje de 30 minutos se crea únicamente al colocar la sexta pieza.
-- Al completar un puzle, la próxima victoria inicia uno nuevo.
-- Laura ve el progreso del puzle en un popup al entrar en la aplicación.
-- El progreso también aparece en Inicio y dentro del resultado del reto.
-- Animación especial al conseguir una pieza nueva.
-- Los vales obtenidos antes de la versión 2.4 se conservan.
-- Nuevas tablas `puzzles_premio` y `piezas_puzzle` con RLS.
-- La entrega de pieza y la creación del vale se realizan dentro de la función PostgreSQL del reto.
-- La función anterior se conserva como copia de seguridad sin permisos de ejecución desde la API.
+- Nueva sección compartida **“¿Y si…?”** en Inicio.
+- Batería inicial de **80 preguntas cerradas**.
+- Las preguntas no se repiten hasta agotar la temporada completa.
+- Si una pregunta queda pendiente, se mantiene hasta que ambos respondan.
+- Javi y Laura responden sin poder ver la elección del otro.
+- El resultado solo se revela cuando los dos han participado.
+- Animación breve de “Comparando respuestas…”.
+- Coincidencias y respuestas diferentes claramente diferenciadas.
+- Algunas coincidencias están marcadas como destacadas.
+- Corazón visual de **Compatibilidad JaviEats 0–100%**.
+- Contadores de preguntas compartidas, coincidencias y mejor racha.
+- Historial filtrable: Todas / Coincidencias / Diferentes.
+- La compatibilidad se calcula a partir de resultados reales; no se guarda como un número editable.
+- Las tablas antiguas `preguntas_diarias` y `respuestas_diarias` se conservan, pero el frontend v2.5 deja de utilizarlas.
+- Nueva tabla `recordatorios_email` para controlar el intervalo entre avisos.
+- Edge Function `recordatorio-reto` preparada para enviar un correo si el reto sigue pendiente.
+- Comprobación a las 18:00 de Europe/Madrid, respetando horario de verano e invierno.
+- Máximo un recordatorio cada 3 días.
+- El correo muestra el progreso actual del puzle.
+- Formspree se mantiene intacto para los avisos de nuevas propuestas.
 
 ---
 
@@ -77,6 +84,7 @@ La pantalla de inicio muestra:
 
 - Saludo personalizado según el usuario.
 - Estado de sincronización.
+- “¿Y si…?” compartido y Compatibilidad JaviEats.
 - Reto diario.
 - Progreso del puzle del masaje.
 - Número total de propuestas.
@@ -213,21 +221,32 @@ No existe estado de lectura ni sistema de chat.
 
 ---
 
-# Pregunta diaria
+# ¿Y si…?
 
-Dentro del apartado Laura aparece una pregunta diferente cada día.
-
-Laura puede responderla si le apetece.
+“¿Y si…?” es una experiencia compartida para Javi y Laura. Ambos reciben exactamente la misma situación y eligen una respuesta cerrada sin conocer la elección del otro.
 
 Características:
 
-- Una pregunta diaria.
-- Una única respuesta por día.
-- Respuesta editable.
-- Sin obligación de responder.
-- Sin conversación posterior.
-- Javi puede leer la respuesta.
-- Javi no puede responder desde la aplicación.
+- 80 preguntas iniciales.
+- Entre 2 y 4 opciones por pregunta.
+- Una única respuesta por usuario y pregunta.
+- La respuesta queda bloqueada después de guardarla.
+- La elección del otro permanece oculta hasta que ambos contestan.
+- Una pregunta pendiente se arrastra al día siguiente en lugar de perderse.
+- Cuando ambos responden, el resultado permanece visible hasta el día siguiente.
+- No se repite una pregunta dentro de la misma temporada.
+- Al terminar la batería activa comienza automáticamente una nueva temporada.
+- El historial solo muestra preguntas completadas por los dos.
+
+## Compatibilidad JaviEats
+
+El corazón de compatibilidad es un indicador lúdico basado únicamente en las preguntas de “¿Y si…?”. No pretende medir una relación real.
+
+```text
+compatibilidad = coincidencias / preguntas completadas por ambos × 100
+```
+
+También se muestran el número de preguntas compartidas, las coincidencias acumuladas y la mejor racha consecutiva.
 
 ---
 
@@ -333,6 +352,12 @@ La aplicación utiliza las siguientes tablas:
 - `vales`
 - `puzzles_premio`
 - `piezas_puzzle`
+- `y_si_preguntas`
+- `y_si_dias`
+- `y_si_respuestas`
+- `recordatorios_email`
+
+`preguntas_diarias` y `respuestas_diarias` se conservan como estructura legacy de versiones anteriores, pero el frontend v2.5 ya no las utiliza.
 
 También utiliza estas funciones PostgreSQL:
 
@@ -340,6 +365,9 @@ También utiliza estas funciones PostgreSQL:
 iniciar_reto_diario()
 jugar_ronda_reto(text)
 canjear_vale(uuid)
+obtener_y_si_actual()
+responder_y_si(integer)
+obtener_y_si_historial()
 ```
 
 ---
@@ -352,7 +380,8 @@ Permisos principales:
 
 - Solo Laura puede crear propuestas.
 - Solo Laura puede escribir mensajes y cartas.
-- Solo Laura puede responder la pregunta diaria.
+- Javi y Laura pueden responder “¿Y si…?” desde sus propias cuentas.
+- La respuesta del otro no se expone hasta que ambos han contestado.
 - Solo Laura puede jugar al reto.
 - Solo la función segura del reto puede crear piezas y completar puzles.
 - Javi y Laura pueden consultar el calendario.
@@ -379,9 +408,12 @@ Nunca se debe publicar:
 - JavaScript
 - Supabase
 - Supabase Auth
+- Supabase Edge Functions
+- Supabase Cron
 - PostgreSQL
 - Row Level Security
 - Formspree
+- Brevo (correo transaccional)
 - GitHub
 - Vercel
 
@@ -395,9 +427,15 @@ JaviEats/
 ├── style.css
 ├── script.js
 ├── README.md
-├── supabase-v2.4.sql
-├── supabase-v2.4-rollback.sql
-├── INSTALACION-v2.4.md
+├── supabase-v2.5.sql
+├── supabase-v2.5-rollback.sql
+├── cron-v2.5-template.sql
+├── INSTALACION-v2.5.md
+├── supabase/
+│   ├── config.toml.snippet
+│   └── functions/
+│       └── recordatorio-reto/
+│           └── index.ts
 ├── assets/
 │   └── puzzle-masaje.svg
 └── recuerdos/
@@ -412,6 +450,22 @@ JaviEats/
 ---
 
 # Historial de versiones
+
+## v2.5 — ¿Y si…? compartido y recordatorios
+
+- 80 preguntas cerradas para Javi y Laura.
+- Respuestas privadas hasta que ambos participan.
+- Preguntas sin repetición dentro de la temporada.
+- Arrastre automático de preguntas pendientes.
+- Resultado con animación de comparación.
+- Corazón de Compatibilidad JaviEats.
+- Estadísticas de coincidencias y mejor racha.
+- Historial filtrable.
+- Nuevas tablas y RPC protegidas para que no se pueda espiar la respuesta del otro.
+- Preparación de recordatorio del reto mediante Edge Function.
+- Control de máximo un correo cada 3 días.
+- Ejecución compatible con Europe/Madrid y cambios CET/CEST.
+- Formspree permanece para las propuestas de planes.
 
 ## v2.4 — Puzle del masaje
 
