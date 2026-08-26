@@ -67,21 +67,7 @@ img {
   min-height: 100vh;
 }
 
-.gate-screen {
-  display: grid;
-  place-items: center;
-  padding: 24px;
-}
 
-.gate-card {
-  width: 100%;
-  background: rgba(255, 255, 255, 0.9);
-  border: 1px solid rgba(255, 255, 255, 0.75);
-  border-radius: var(--radius-xl);
-  padding: 28px;
-  box-shadow: var(--shadow);
-  backdrop-filter: blur(16px);
-}
 
 .brand-pill {
   display: inline-flex;
@@ -134,21 +120,7 @@ h3 {
   margin-bottom: 7px;
 }
 
-.progress {
-  height: 9px;
-  border-radius: 999px;
-  background: #eee3da;
-  overflow: hidden;
-  margin: 24px 0;
-}
 
-.progress-bar {
-  height: 100%;
-  width: 0%;
-  background: linear-gradient(90deg, var(--accent), var(--dark));
-  border-radius: 999px;
-  transition: width 0.25s ease;
-}
 
 .form {
   display: grid;
@@ -2552,5 +2524,373 @@ textarea:focus {
   .y-si-question-actions .btn {
     width: 100%;
     flex-basis: auto;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   JaviEats 2.5.2 · Entrada rápida Javi / Laura
+   -------------------------------------------------------------------------- */
+
+.boot-screen,
+.welcome-screen {
+  display: grid;
+  place-items: center;
+  min-height: 100vh;
+  padding: 24px;
+}
+
+.boot-mark {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  text-align: center;
+  animation: auth-soft-in .45s ease both;
+}
+
+.boot-heart {
+  display: grid;
+  place-items: center;
+  width: 62px;
+  height: 62px;
+  border-radius: 22px;
+  background: var(--dark);
+  color: #fff;
+  font-size: 1.8rem;
+  box-shadow: var(--shadow);
+  animation: boot-heartbeat 1.2s ease-in-out infinite;
+}
+
+.boot-mark strong {
+  margin-top: 6px;
+  font-size: 1.55rem;
+  letter-spacing: -.055em;
+}
+
+.boot-mark small {
+  color: var(--muted);
+  font-weight: 750;
+}
+
+.auth-screen {
+  display: grid;
+  place-items: center;
+  min-height: 100vh;
+  padding: 24px;
+}
+
+.entry-card {
+  width: 100%;
+  max-width: 540px;
+  padding: 28px;
+  border: 1px solid rgba(255, 255, 255, .78);
+  border-radius: var(--radius-xl);
+  background: rgba(255, 255, 255, .92);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(18px);
+  animation: auth-soft-in .35s ease both;
+}
+
+.auth-lead {
+  max-width: 430px;
+  margin-bottom: 22px;
+}
+
+.profile-selector {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.profile-card {
+  min-width: 0;
+  min-height: 174px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-rows: auto 1fr;
+  gap: 12px 8px;
+  align-items: start;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  background: #fff;
+  color: var(--text);
+  text-align: left;
+  box-shadow: 0 9px 24px rgba(0, 0, 0, .055);
+  transition: transform .16s ease, border-color .16s ease, box-shadow .16s ease;
+}
+
+.profile-card:active {
+  transform: scale(.985);
+}
+
+.profile-card:focus-visible {
+  outline: 3px solid rgba(232, 93, 69, .25);
+  outline-offset: 3px;
+}
+
+.profile-card-javi {
+  background: linear-gradient(155deg, #fff 0%, #f4f1ed 100%);
+}
+
+.profile-card-laura {
+  background: linear-gradient(155deg, #fff 0%, #fff0eb 100%);
+}
+
+.profile-avatar,
+.selected-profile-avatar,
+.welcome-avatar {
+  display: grid;
+  place-items: center;
+  border-radius: 22px;
+  background: var(--dark);
+  color: #fff;
+  font-weight: 950;
+  letter-spacing: -.05em;
+}
+
+.profile-avatar {
+  width: 58px;
+  height: 58px;
+  grid-column: 1;
+  font-size: 1.45rem;
+}
+
+.profile-card-laura .profile-avatar {
+  background: var(--accent);
+}
+
+.profile-copy {
+  min-width: 0;
+  grid-column: 1 / -1;
+  align-self: end;
+}
+
+.profile-copy strong,
+.profile-copy small {
+  display: block;
+}
+
+.profile-copy strong {
+  margin-bottom: 4px;
+  font-size: 1.15rem;
+  letter-spacing: -.035em;
+}
+
+.profile-copy small {
+  color: var(--muted);
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.profile-arrow {
+  grid-column: 2;
+  grid-row: 1;
+  align-self: center;
+  font-size: 1.15rem;
+  font-weight: 950;
+}
+
+.auth-global-status {
+  min-height: 20px;
+  margin: 12px 0 0;
+  color: #b42318;
+  font-weight: 750;
+  text-align: center;
+}
+
+.auth-password-step {
+  animation: auth-slide-in .26s ease both;
+}
+
+.auth-back-btn {
+  border: 0;
+  padding: 0;
+  margin: 0 0 24px;
+  background: transparent;
+  color: var(--muted);
+  font-weight: 850;
+}
+
+.selected-profile-card {
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr);
+  gap: 16px;
+  align-items: center;
+  margin-bottom: 22px;
+}
+
+.selected-profile-avatar {
+  width: 72px;
+  height: 72px;
+  font-size: 1.8rem;
+}
+
+.selected-profile-card.is-laura .selected-profile-avatar {
+  background: var(--accent);
+}
+
+.selected-profile-card h1 {
+  margin-bottom: 5px;
+  font-size: clamp(2rem, 9vw, 2.8rem);
+}
+
+.selected-profile-card .eyebrow {
+  margin-bottom: 5px;
+}
+
+.selected-profile-card .muted {
+  margin-bottom: 0;
+}
+
+.auth-password-form {
+  gap: 12px;
+}
+
+.auth-login-status {
+  min-height: 21px;
+  margin: 0;
+  color: var(--muted);
+  font-weight: 750;
+  text-align: center;
+}
+
+.welcome-card {
+  width: 100%;
+  max-width: 470px;
+  padding: 32px 26px;
+  border: 1px solid rgba(255, 255, 255, .8);
+  border-radius: 32px;
+  background: rgba(255, 255, 255, .92);
+  box-shadow: var(--shadow);
+  text-align: center;
+  backdrop-filter: blur(18px);
+  animation: welcome-pop .42s cubic-bezier(.2,.8,.2,1) both;
+}
+
+.welcome-brand {
+  display: inline-flex;
+  margin-bottom: 20px;
+  padding: 8px 13px;
+  border-radius: 999px;
+  background: var(--dark);
+  color: #fff;
+  font-size: .82rem;
+  font-weight: 950;
+  letter-spacing: -.02em;
+}
+
+.welcome-avatar {
+  width: 78px;
+  height: 78px;
+  margin: 0 auto 18px;
+  font-size: 1.95rem;
+  box-shadow: 0 14px 30px rgba(0, 0, 0, .14);
+}
+
+.welcome-card.is-laura .welcome-avatar {
+  background: var(--accent);
+}
+
+.welcome-card h1 {
+  margin-bottom: 10px;
+  font-size: clamp(2.25rem, 10vw, 3.1rem);
+}
+
+.welcome-message {
+  max-width: 370px;
+  margin: 0 auto 18px;
+  color: var(--muted);
+  font-weight: 720;
+  line-height: 1.45;
+}
+
+.welcome-summary {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+
+.welcome-summary-chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 8px 11px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #fff;
+  color: #4f4a45;
+  font-size: .78rem;
+  font-weight: 850;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .profile-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(232, 93, 69, .32);
+    box-shadow: 0 14px 30px rgba(0, 0, 0, .085);
+  }
+}
+
+@media (max-width: 380px) {
+  .auth-screen,
+  .boot-screen,
+  .welcome-screen {
+    padding: 16px;
+  }
+
+  .entry-card,
+  .welcome-card {
+    padding: 23px 18px;
+  }
+
+  .profile-card {
+    min-height: 156px;
+    padding: 13px;
+  }
+
+  .profile-avatar {
+    width: 52px;
+    height: 52px;
+  }
+
+  .selected-profile-card {
+    grid-template-columns: 62px minmax(0, 1fr);
+    gap: 12px;
+  }
+
+  .selected-profile-avatar {
+    width: 62px;
+    height: 62px;
+  }
+}
+
+@keyframes auth-soft-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes auth-slide-in {
+  from { opacity: 0; transform: translateX(12px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes welcome-pop {
+  from { opacity: 0; transform: scale(.97) translateY(8px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@keyframes boot-heartbeat {
+  0%, 100% { transform: scale(1); }
+  45% { transform: scale(1.065); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .boot-mark,
+  .boot-heart,
+  .entry-card,
+  .auth-password-step,
+  .welcome-card {
+    animation: none !important;
   }
 }
