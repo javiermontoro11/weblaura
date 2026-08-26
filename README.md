@@ -1,6 +1,6 @@
 # JaviEats 💌
 
-**Versión actual: 2.5.1**
+**Versión actual: 2.5.2**
 
 JaviEats es una aplicación web privada creada para Laura y Javi.
 
@@ -8,7 +8,28 @@ Permite proponer planes, consultar un calendario compartido, guardar mensajes y 
 
 ---
 
-## 🚀 Última versión — v2.5.1
+## 🚀 Última versión — v2.5.2
+
+### Entrada rápida y personalizada
+
+La versión 2.5.2 elimina el antiguo gate de preguntas privadas y convierte el acceso en una experiencia mucho más rápida para Javi y Laura.
+
+### Novedades principales
+
+- Eliminadas las preguntas privadas previas al login.
+- Si el dispositivo conserva una sesión válida de Supabase, **JaviEats entra automáticamente** sin pedir correo ni contraseña otra vez.
+- Nueva pantalla breve de bienvenida personalizada para Javi o Laura mientras se sincronizan los datos.
+- La bienvenida muestra un pequeño resumen del estado actual, como Compatibilidad JaviEats, turno de “¿Y si…?”, progreso del puzle o planes guardados.
+- Cuando no existe sesión, aparece un selector visual **Javi / Laura**.
+- El correo queda asociado internamente al perfil elegido y el usuario solo escribe su contraseña.
+- Botón para volver atrás si se ha elegido el perfil equivocado.
+- Los enlaces `?open=ysi` de los correos mantienen su comportamiento y, tras autenticar, llevan directamente a “¿Y si…?”.
+- Se mantiene `persistSession`, `autoRefreshToken`, control de acceso por UUID y todas las reglas de Supabase existentes.
+- No hay cambios de tablas, RLS, RPC, Edge Functions, Brevo ni Formspree en esta versión.
+
+---
+
+## v2.5.1
 
 ### ¿Y si…? en modo asíncrono real
 
@@ -41,24 +62,35 @@ La versión 2.5.1 convierte “¿Y si…?” en una experiencia compartida con r
 
 # Flujo de acceso
 
-El orden de entrada es:
+## Dispositivo con sesión válida
 
 ```text
-Preguntas privadas
+Abrir JaviEats
 ↓
-Correo y contraseña
+Supabase recupera la sesión
+↓
+Bienvenida personalizada
 ↓
 JaviEats
 ```
 
-Las preguntas personales actúan como primer control de acceso.
+No es necesario volver a introducir credenciales mientras la sesión siga siendo válida.
 
-Después se solicita el correo y la contraseña de una de las dos cuentas autorizadas.
+## Dispositivo sin sesión
 
-Solo existen dos usuarios válidos:
+```text
+¿Quién está entrando?
+↓
+Javi / Laura
+↓
+Contraseña
+↓
+Bienvenida personalizada
+↓
+JaviEats
+```
 
-- Javi
-- Laura
+El correo no se escribe manualmente: JaviEats utiliza el correo asociado al perfil seleccionado. La autenticación sigue realizándose con Supabase Auth y únicamente se admiten los UUID autorizados de Javi y Laura.
 
 ---
 
@@ -432,6 +464,7 @@ JaviEats/
 ├── style.css
 ├── script.js
 ├── README.md
+├── INSTALACION-v2.5.2.md
 ├── supabase-v2.5.1.sql
 ├── COMPROBACION-v2.5.1.sql
 ├── INSTALACION-v2.5.1.md
@@ -454,6 +487,18 @@ JaviEats/
 ---
 
 # Historial de versiones
+
+## v2.5.2 — Entrada rápida Javi / Laura
+
+- Fuera el gate antiguo de preguntas privadas.
+- Sesión persistente: si Supabase conserva la sesión, entrada automática.
+- Selector visual de perfil cuando no existe sesión.
+- Correo asociado internamente a Javi o Laura.
+- Solo se solicita contraseña tras elegir perfil.
+- Bienvenida personalizada mientras se sincroniza la aplicación.
+- Resumen de Compatibilidad, turno de “¿Y si…?”, puzle o planes durante la bienvenida.
+- Los enlaces `?open=ysi` siguen llevando a la pregunta pendiente después de entrar.
+- Sin cambios de base de datos ni infraestructura de correo.
 
 ## v2.5.1 — Cinco preguntas al día y turnos por correo
 
