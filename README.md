@@ -1,41 +1,41 @@
 # JaviEats 💌
 
-**Versión actual: 2.5**
+**Versión actual: 2.5.1**
 
 JaviEats es una aplicación web privada creada para Laura y Javi.
 
-Permite proponer planes, consultar un calendario compartido, guardar mensajes y cartas, responder juntos a “¿Y si…?”, jugar aL reto de piedra, papel o tijera, completar el puzle del masaje y conservar recuerdos especiales.
+Permite proponer planes, consultar un calendario compartido, guardar mensajes y cartas, responder juntos a “¿Y si…?”, jugar a un reto de piedra, papel o tijera, completar el puzle del masaje y conservar recuerdos especiales.
 
 ---
 
-## 🚀 Última versión — v2.5
+## 🚀 Última versión — v2.5.1
 
-### ¿Y si…? + recordatorios inteligentes
+### ¿Y si…? en modo asíncrono real
 
-La versión 2.5 refuerza JaviEats como una aplicación compartida para Javi y Laura. La antigua pregunta diaria de Laura deja paso a “¿Y si…?”, una experiencia cerrada para los dos, y se añade la infraestructura para recordar el reto de piedra, papel o tijera sin enviar correos todos los días.
+La versión 2.5.1 convierte “¿Y si…?” en una experiencia compartida con ritmo propio: Javi y Laura pueden completar hasta cinco preguntas cerradas al día, recibir otra en cuanto ambos responden y avisarse por correo cuando el turno queda pendiente.
 
 ### Novedades principales
 
-- Nueva sección compartida **“¿Y si…?”** en Inicio.
-- Batería inicial de **80 preguntas cerradas**.
-- Las preguntas no se repiten hasta agotar la temporada completa.
-- Si una pregunta queda pendiente, se mantiene hasta que ambos respondan.
-- Javi y Laura responden sin poder ver la elección del otro.
-- El resultado solo se revela cuando los dos han participado.
-- Animación breve de “Comparando respuestas…”.
-- Coincidencias y respuestas diferentes claramente diferenciadas.
-- Algunas coincidencias están marcadas como destacadas.
-- Corazón visual de **Compatibilidad JaviEats 0–100%**.
-- Contadores de preguntas compartidas, coincidencias y mejor racha.
-- Historial filtrable: Todas / Coincidencias / Diferentes.
-- La compatibilidad se calcula a partir de resultados reales; no se guarda como un número editable.
-- Las tablas antiguas `preguntas_diarias` y `respuestas_diarias` se conservan, pero el frontend v2.5 deja de utilizarlas.
-- Nueva tabla `recordatorios_email` para controlar el intervalo entre avisos.
-- Edge Function `recordatorio-reto` preparada para enviar un correo si el reto sigue pendiente.
-- Comprobación a las 18:00 de Europe/Madrid, respetando horario de verano e invierno.
-- Máximo un recordatorio cada 3 días.
-- El correo muestra el progreso actual del puzle.
-- Formspree se mantiene intacto para los avisos de nuevas propuestas.
+- Batería ampliada de **80 a 300 preguntas cerradas**.
+- Máximo de **5 preguntas completadas por día**.
+- Al responder ambos, aparece inmediatamente una nueva pregunta mientras queden huecos del día.
+- Contador diario `0/5 → 5/5` y resumen de coincidencias del día.
+- Las preguntas pendientes **caducan al cambiar de día**: no se arrastran.
+- El contador diario se reinicia cada día en horario `Europe/Madrid`.
+- La Compatibilidad JaviEats histórica **no se reinicia**.
+- Las preguntas ya vistas, aunque caduquen o se salten, no se repiten dentro de la misma temporada.
+- Se intenta alternar categorías para evitar varias preguntas parecidas seguidas.
+- **1 cambio de pregunta al día**, disponible solo mientras nadie haya respondido.
+- El último resultado permanece visible mientras aparece la siguiente pregunta.
+- Historial con fecha y posición de la pregunta dentro del día.
+- Nueva cola `y_si_notificaciones` para avisos de turno.
+- Cuando una persona responde primero, se programa un correo al otro para **2 minutos después**.
+- Si la otra persona responde antes de esos 2 minutos, el correo se cancela.
+- El correo nunca revela la respuesta del primero; solo muestra la pregunta y avisa de que toca responder.
+- El enlace del correo abre JaviEats y lleva directamente a “¿Y si…?”.
+- El aviso se envía mediante **Supabase Database Webhook + Edge Function + Brevo**; no hace falta un Cron permanente.
+- El recordatorio fijo de las 18:00 para piedra, papel o tijera queda aplazado.
+- Formspree sigue intacto para los avisos de nuevos planes.
 
 ---
 
@@ -227,16 +227,20 @@ No existe estado de lectura ni sistema de chat.
 
 Características:
 
-- 80 preguntas iniciales.
+- Batería de **300 preguntas cerradas**.
 - Entre 2 y 4 opciones por pregunta.
-- Una única respuesta por usuario y pregunta.
-- La respuesta queda bloqueada después de guardarla.
+- Hasta **5 preguntas completadas al día** entre los dos.
+- En cuanto ambos responden, el resultado se revela y queda disponible la siguiente pregunta del día.
+- Una única respuesta por usuario y pregunta; después de guardarla queda bloqueada.
 - La elección del otro permanece oculta hasta que ambos contestan.
-- Una pregunta pendiente se arrastra al día siguiente en lugar de perderse.
-- Cuando ambos responden, el resultado permanece visible hasta el día siguiente.
-- No se repite una pregunta dentro de la misma temporada.
+- Si una pregunta queda pendiente al cambiar de día, caduca y la jornada siguiente comienza en `0/5`.
+- La Compatibilidad JaviEats y el historial acumulado no se reinician al cambiar de día.
+- Las preguntas vistas, saltadas o caducadas no se repiten dentro de la misma temporada.
+- Se intenta alternar categorías para no encadenar preguntas demasiado parecidas.
+- Existe **un cambio compartido de pregunta al día**, disponible únicamente antes de que alguien responda.
+- Cuando el primero responde, se prepara un aviso por email para el otro a los dos minutos; si el segundo responde antes, el aviso se cancela.
+- El historial solo muestra preguntas completadas por los dos y permite distinguir coincidencias y respuestas diferentes.
 - Al terminar la batería activa comienza automáticamente una nueva temporada.
-- El historial solo muestra preguntas completadas por los dos.
 
 ## Compatibilidad JaviEats
 
@@ -355,9 +359,9 @@ La aplicación utiliza las siguientes tablas:
 - `y_si_preguntas`
 - `y_si_dias`
 - `y_si_respuestas`
-- `recordatorios_email`
+- `y_si_notificaciones`
 
-`preguntas_diarias` y `respuestas_diarias` se conservan como estructura legacy de versiones anteriores, pero el frontend v2.5 ya no las utiliza.
+`preguntas_diarias` y `respuestas_diarias` se conservan como estructura legacy de versiones anteriores, pero el frontend actual ya no las utiliza. Si `recordatorios_email` llegó a crearse durante las pruebas de v2.5, puede conservarse: la v2.5.1 no lo consulta ni lo necesita.
 
 También utiliza estas funciones PostgreSQL:
 
@@ -367,6 +371,7 @@ jugar_ronda_reto(text)
 canjear_vale(uuid)
 obtener_y_si_actual()
 responder_y_si(integer)
+saltar_y_si_actual()
 obtener_y_si_historial()
 ```
 
@@ -409,7 +414,7 @@ Nunca se debe publicar:
 - Supabase
 - Supabase Auth
 - Supabase Edge Functions
-- Supabase Cron
+- Supabase Database Webhooks
 - PostgreSQL
 - Row Level Security
 - Formspree
@@ -427,14 +432,13 @@ JaviEats/
 ├── style.css
 ├── script.js
 ├── README.md
-├── supabase-v2.5.sql
-├── supabase-v2.5-rollback.sql
-├── cron-v2.5-template.sql
-├── INSTALACION-v2.5.md
+├── supabase-v2.5.1.sql
+├── COMPROBACION-v2.5.1.sql
+├── INSTALACION-v2.5.1.md
 ├── supabase/
 │   ├── config.toml.snippet
 │   └── functions/
-│       └── recordatorio-reto/
+│       └── turno-y-si/
 │           └── index.ts
 ├── assets/
 │   └── puzzle-masaje.svg
@@ -450,6 +454,22 @@ JaviEats/
 ---
 
 # Historial de versiones
+
+## v2.5.1 — Cinco preguntas al día y turnos por correo
+
+- Batería total de 300 preguntas cerradas.
+- Hasta cinco preguntas completadas por día.
+- Nueva pregunta inmediata al completar una entre los dos.
+- Caducidad diaria de preguntas pendientes.
+- Reinicio diario del contador, sin reiniciar la compatibilidad histórica.
+- Un cambio de pregunta conjunto al día.
+- Alternancia de categorías.
+- Resumen diario y progreso 0/5.
+- Último resultado visible junto a la nueva pregunta.
+- Aviso de turno por email programado 2 minutos después de la primera respuesta.
+- Cancelación automática del email si la otra persona responde antes.
+- Supabase Database Webhook + Edge Function `turno-y-si` + Brevo.
+- Sin recordatorio fijo de las 18:00 en esta versión.
 
 ## v2.5 — ¿Y si…? compartido y recordatorios
 
