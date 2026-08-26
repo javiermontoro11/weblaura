@@ -10,51 +10,31 @@ const USER_IDS = {
   LAURA: "ef4258bf-5897-4594-86ac-a134fcd1feec"
 };
 
-const PRE_AUTH_GATE_KEY = "javieats_gate_before_login_v1";
-const QUESTION_COUNT = 2;
+const AUTH_PROFILES = {
+  javi: {
+    name: "Javi",
+    email: "javiermontorogranados@gmail.com",
+    initial: "J"
+  },
+  laura: {
+    name: "Laura",
+    email: "lauramoramegal@gmail.com",
+    initial: "L"
+  }
+};
+
 const REGULAR_GAME_ROUNDS = 5;
 const SYNC_INTERVAL_MS = 60_000;
 const PUZZLE_TOTAL_PIECES = 6;
 const Y_SI_REVEAL_MS = 900;
+const WELCOME_MIN_LOAD_MS = 650;
+const WELCOME_SUMMARY_MS = 850;
 
 const CHOICES = {
   piedra: { label: "Piedra", emoji: "✊" },
   papel: { label: "Papel", emoji: "✋" },
   tijera: { label: "Tijera", emoji: "✌️" }
 };
-
-const QUESTIONS = [
-  {
-    text: "¿Cómo le gusta que le llamen al mejor novio del mundo?",
-    type: "text",
-    placeholder: "Escribe la respuesta...",
-    error: "Pista: empieza por J y acaba por avi.",
-    validate: value => normalize(value).includes("javi")
-  },
-  {
-    text: "¿Cuándo empezaste a tener el privilegio de tener al mejor novio del mundo?",
-    type: "date",
-    error: "Esa no es la fecha buena.",
-    validate: value => value === "2026-04-24"
-  },
-  {
-    text: "¿Cómo se llaman los perros de Javier?",
-    type: "text",
-    placeholder: "Ej: nombre y nombre",
-    error: "Casi. Son dos y tienen mucho nivel.",
-    validate: value => {
-      const clean = normalize(value).replace(/&/g, " y ");
-      return clean.includes("randy") && clean.includes("nala");
-    }
-  },
-  {
-    text: "¿Cuál fue el sitio donde cenamos antes de que te pidiese salir?",
-    type: "text",
-    placeholder: "Nombre del sitio...",
-    error: "No es ese sitio. Pista: hamburguesas.",
-    validate: value => normalize(value).includes("distrito burger")
-  }
-];
 
 const SERVICES = [
   {
@@ -229,19 +209,29 @@ const MEMORIES = [
 
 const $ = id => document.getElementById(id);
 
+const bootScreen = $("boot-screen");
 const authScreen = $("auth-screen");
+const profileSelector = $("profile-selector");
+const passwordPanel = $("password-panel");
+const authGlobalStatus = $("auth-global-status");
+const authBackBtn = $("auth-back-btn");
+const authBackName = $("auth-back-name");
+const authSelectedAvatar = $("auth-selected-avatar");
+const authSelectedName = $("auth-selected-name");
+const authSelectedHint = $("auth-selected-hint");
 const loginForm = $("login-form");
 const loginEmail = $("login-email");
 const loginPassword = $("login-password");
 const loginSubmit = $("login-submit");
 const loginStatus = $("login-status");
-const gateScreen = $("gate-screen");
+const welcomeScreen = $("welcome-screen");
+const welcomeCard = welcomeScreen?.querySelector(".welcome-card");
+const welcomeAvatar = $("welcome-avatar");
+const welcomeTitle = $("welcome-title");
+const welcomeMessage = $("welcome-message");
+const welcomeSummaryPrimary = $("welcome-summary-primary");
+const welcomeSummarySecondary = $("welcome-summary-secondary");
 const appScreen = $("app-screen");
-const gateForm = $("gate-form");
-const gateQuestion = $("gate-question");
-const gateInput = $("gate-input");
-const gateError = $("gate-error");
-const progressBar = $("progress-bar");
 const logoutBtn = $("logout-btn");
 const sessionUserName = $("session-user-name");
 const syncStatus = $("sync-status");
@@ -402,8 +392,7 @@ let supabaseClient = null;
 let pendingSession = null;
 let currentUser = null;
 let currentRole = "unknown";
-let selectedQuestions = [];
-let questionIndex = 0;
+let selectedAuthProfile = null;
 let calendarDate = new Date();
 let selectedDate = toDateKeyMadrid(new Date());
 let currentGallery = [];
@@ -467,8 +456,7 @@ async function init() {
     if (event === "SIGNED_OUT") {
       resetAppSession();
       pendingSession = null;
-      sessionStorage.removeItem(PRE_AUTH_GATE_KEY);
-      showGateScreen();
+      showAuthScreen({ resetProfile: true });
     }
     if ((event === "TOKEN_REFRESHED" || event === "SIGNED_IN") && session?.user) {
       pendingSession = session;
@@ -481,30 +469,24 @@ async function init() {
     if (error) throw error;
     pendingSession = session || null;
 
-    const gatePassed = sessionStorage.getItem(PRE_AUTH_GATE_KEY) === "true";
-    if (!gatePassed) {
-      showGateScreen();
+    if (pendingSession?.user) {
+      await handleAuthenticatedSession(pendingSession);
       return;
     }
-    await continueAfterGate();
+
+    showAuthScreen({ resetProfile: true });
   } catch (error) {
     console.error(error);
-    sessionStorage.removeItem(PRE_AUTH_GATE_KEY);
-    showGateScreen();
+    showAuthScreen({ resetProfile: true });
   }
-}
-
-async function continueAfterGate() {
-  if (pendingSession?.user) {
-    await handleAuthenticatedSession(pendingSession);
-    return;
-  }
-  showAuthScreen();
 }
 
 function bindEvents() {
   loginForm.addEventListener("submit", handleLogin);
-  gateForm.addEventListener("submit", handleGate);
+  document.querySelectorAll("[data-auth-profile]").forEach(button => {
+    button.addEventListener("click", () => selectAuthProfile(button.dataset.authProfile));
+  });
+  authBackBtn.addEventListener("click", () => showAuthProfileSelector());
   logoutBtn.addEventListener("click", logout);
 
   document.querySelectorAll(".nav-btn").forEach(button => {
@@ -582,77 +564,83 @@ function bindEvents() {
   });
 }
 
-function startGate() {
-  selectedQuestions = shuffle([...QUESTIONS]).slice(0, QUESTION_COUNT);
-  questionIndex = 0;
-  renderQuestion();
-}
 
-function renderQuestion() {
-  const question = selectedQuestions[questionIndex];
-  gateQuestion.textContent = question.text;
-  gateError.textContent = "";
-  progressBar.style.width = `${(questionIndex / QUESTION_COUNT) * 100}%`;
-  gateInput.innerHTML = `<input id="answer-input" type="${question.type === "date" ? "date" : "text"}" ${question.type === "text" ? `placeholder="${escapeHTML(question.placeholder || "Escribe aquí...")}"` : ""} autocomplete="off" required />`;
-  setTimeout(() => $("answer-input")?.focus(), 80);
-}
-function handleGate(event) {
-  event.preventDefault();
-  const question = selectedQuestions[questionIndex];
-  const input = $("answer-input");
-  if (!question.validate(input.value)) {
-    gateError.textContent = question.error;
-    input.select?.();
-    return;
-  }
-  questionIndex++;
-  if (questionIndex >= QUESTION_COUNT) {
-    progressBar.style.width = "100%";
-    sessionStorage.setItem(PRE_AUTH_GATE_KEY, "true");
-    setTimeout(() => continueAfterGate(), 220);
-    return;
-  }
-  renderQuestion();
-}
-
-function showGateScreen() {
-  authScreen.classList.add("hidden");
+function showAuthScreen({ resetProfile = false } = {}) {
+  bootScreen?.classList.add("hidden");
+  welcomeScreen?.classList.add("hidden");
   appScreen.classList.add("hidden");
-  gateScreen.classList.remove("hidden");
-  startGate();
-}
-
-function showAuthScreen() {
   authScreen.classList.remove("hidden");
-  gateScreen.classList.add("hidden");
-  appScreen.classList.add("hidden");
   loginStatus.textContent = "";
+  authGlobalStatus.textContent = "";
   appReady = false;
+  if (resetProfile || !selectedAuthProfile) showAuthProfileSelector();
+}
+
+function showAuthProfileSelector() {
+  selectedAuthProfile = null;
+  loginEmail.value = "";
+  loginPassword.value = "";
+  loginStatus.textContent = "";
+  authGlobalStatus.textContent = "";
+  profileSelector.classList.remove("hidden");
+  passwordPanel.classList.add("hidden");
+}
+
+function selectAuthProfile(profileKey) {
+  const profile = AUTH_PROFILES[profileKey];
+  if (!profile) return;
+  selectedAuthProfile = profileKey;
+  loginEmail.value = profile.email;
+  loginPassword.value = "";
+  loginStatus.textContent = "";
+  authBackName.textContent = profile.name;
+  authSelectedAvatar.textContent = profile.initial;
+  authSelectedName.textContent = `Hola, ${profile.name}`;
+  authSelectedHint.textContent = "JaviEats ya sabe tu correo. Solo falta tu contraseña.";
+  passwordPanel.querySelector(".selected-profile-card")?.classList.toggle("is-laura", profileKey === "laura");
+  profileSelector.classList.add("hidden");
+  passwordPanel.classList.remove("hidden");
+  setTimeout(() => loginPassword.focus(), 90);
 }
 
 function showAuthError(message) {
-  showAuthScreen();
-  loginStatus.textContent = message;
+  showAuthScreen({ resetProfile: false });
+  if (selectedAuthProfile) loginStatus.textContent = message;
+  else authGlobalStatus.textContent = message;
 }
 
 async function handleLogin(event) {
   event.preventDefault();
-  loginStatus.textContent = "Iniciando sesión...";
+  const profile = AUTH_PROFILES[selectedAuthProfile];
+  if (!profile) {
+    showAuthProfileSelector();
+    return;
+  }
+
+  loginStatus.textContent = "Entrando…";
   loginSubmit.disabled = true;
   try {
     const { data, error } = await supabaseClient.auth.signInWithPassword({
-      email: loginEmail.value.trim(),
+      email: profile.email,
       password: loginPassword.value
     });
     if (error) throw error;
     if (!data.session?.user) throw new Error("La sesión no se ha creado correctamente.");
-    loginForm.reset();
+
+    const actualRole = getRoleFromUser(data.session.user);
+    if (actualRole !== selectedAuthProfile) {
+      await supabaseClient.auth.signOut();
+      throw new Error("Esta contraseña no corresponde al perfil seleccionado.");
+    }
+
+    loginPassword.value = "";
     loginStatus.textContent = "";
     pendingSession = data.session;
     await handleAuthenticatedSession(data.session);
   } catch (error) {
     console.error(error);
     loginStatus.textContent = friendlyAuthError(error);
+    loginPassword.select?.();
   } finally {
     loginSubmit.disabled = false;
   }
@@ -679,14 +667,75 @@ function getRoleFromUser(user) {
 
 async function showApp() {
   authScreen.classList.add("hidden");
-  gateScreen.classList.add("hidden");
-  appScreen.classList.remove("hidden");
+  bootScreen?.classList.add("hidden");
+  appScreen.classList.add("hidden");
+  showWelcomeScreen();
   applyRoleUI();
   appReady = true;
   startSyncTimer();
+
+  const startedAt = Date.now();
   await loadAllData();
+  const remainingLoadTime = Math.max(0, WELCOME_MIN_LOAD_MS - (Date.now() - startedAt));
+  if (remainingLoadTime) await delay(remainingLoadTime);
+
+  updateWelcomeSummary();
+  await delay(WELCOME_SUMMARY_MS);
+
+  welcomeScreen?.classList.add("hidden");
+  appScreen.classList.remove("hidden");
   maybeShowPuzzleWelcome();
   maybeFocusYSiFromUrl();
+}
+
+function showWelcomeScreen() {
+  const isLaura = currentRole === "laura";
+  const name = isLaura ? "Laura" : "Javi";
+  welcomeScreen?.classList.remove("hidden");
+  welcomeCard?.classList.toggle("is-laura", isLaura);
+  if (welcomeAvatar) welcomeAvatar.textContent = isLaura ? "L" : "J";
+  if (welcomeTitle) welcomeTitle.textContent = `Buenas, ${name}`;
+  if (welcomeMessage) welcomeMessage.textContent = "Preparando lo vuestro…";
+  if (welcomeSummaryPrimary) welcomeSummaryPrimary.textContent = "Sincronizando…";
+  if (welcomeSummarySecondary) welcomeSummarySecondary.textContent = "Un momento";
+}
+
+function updateWelcomeSummary() {
+  if (!currentUser) return;
+  const isLaura = currentRole === "laura";
+  const otherName = isLaura ? "Javi" : "Laura";
+  const current = state.ySiCurrent;
+  const stats = calculateYSiStats();
+  const otherAnswered = current
+    ? (isLaura ? Boolean(current.javi_ha_respondido) : Boolean(current.laura_ha_respondido))
+    : false;
+
+  if (current && !current.limite_alcanzado && !current.mi_respuesta && otherAnswered) {
+    welcomeMessage.textContent = `${otherName} ya ha respondido. Ahora te toca a ti 👀`;
+  } else if (current && !current.limite_alcanzado && current.mi_respuesta && !otherAnswered) {
+    welcomeMessage.textContent = `Tu respuesta está guardada. Esperando a ${otherName}.`;
+  } else if (current?.limite_alcanzado) {
+    welcomeMessage.textContent = "Las cinco preguntas de hoy están completadas ❤️";
+  } else {
+    welcomeMessage.textContent = "Todo lo vuestro está preparado.";
+  }
+
+  welcomeSummaryPrimary.textContent = stats.total
+    ? `❤️ Compatibilidad ${stats.compatibility}%`
+    : "❤️ Compatibilidad por descubrir";
+
+  if (isLaura) {
+    welcomeSummarySecondary.textContent = `🧩 Puzle ${getPuzzlePieceCount()}/${PUZZLE_TOTAL_PIECES}`;
+  } else if (current && !current.limite_alcanzado) {
+    const position = Number(current.posicion_dia) || Math.min(5, (Number(current.completadas_hoy) || 0) + 1);
+    welcomeSummarySecondary.textContent = `💭 ¿Y si…? ${position}/5`;
+  } else {
+    welcomeSummarySecondary.textContent = `📅 ${state.proposals.length} planes guardados`;
+  }
+}
+
+function delay(milliseconds) {
+  return new Promise(resolve => setTimeout(resolve, milliseconds));
 }
 
 function maybeFocusYSiFromUrl() {
@@ -713,8 +762,8 @@ function applyRoleUI() {
 }
 
 async function logout() {
-  sessionStorage.removeItem(PRE_AUTH_GATE_KEY);
   pendingSession = null;
+  selectedAuthProfile = null;
   await supabaseClient.auth.signOut();
 }
 
@@ -2274,8 +2323,6 @@ function voucherCode(voucher) { return `JE-${dateFromTimestamp(voucher.created_a
 function sortProposalsByDate(a, b) { return `${a.plan_date}T${normalizeTimeForDate(a.plan_time)}`.localeCompare(`${b.plan_date}T${normalizeTimeForDate(b.plan_time)}`); }
 function proposalToDate(p) { return new Date(`${p.plan_date}T${normalizeTimeForDate(p.plan_time)}`); }
 function normalizeTimeForDate(time) { const clean = String(time || "00:00").slice(0, 8); return clean.length === 5 ? `${clean}:00` : clean; }
-function normalize(value) { return String(value || "").trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, " "); }
-function shuffle(array) { return array.map(value => ({ value, sort: Math.random() })).sort((a, b) => a.sort - b.sort).map(({ value }) => value); }
 function toDateKeyMadrid(date) {
   const parts = new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/Madrid", year: "numeric", month: "2-digit", day: "2-digit" }).formatToParts(new Date(date));
   const values = Object.fromEntries(parts.filter(p => p.type !== "literal").map(p => [p.type, p.value]));
@@ -2298,9 +2345,10 @@ function truncateText(text, maxLength) { const clean = String(text || "").trim()
 function escapeHTML(text) { return String(text ?? "").replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#039;"); }
 function friendlyAuthError(error) {
   const message = String(error?.message || "").toLowerCase();
-  if (message.includes("invalid login credentials")) return "Correo o contraseña incorrectos.";
+  if (message.includes("invalid login credentials")) return "Contraseña incorrecta para este perfil.";
   if (message.includes("email not confirmed")) return "La cuenta todavía no está confirmada en Supabase.";
   if (message.includes("failed to fetch")) return "No hay conexión con Supabase.";
+  if (message.includes("no corresponde al perfil")) return "Esta contraseña no corresponde al perfil seleccionado.";
   return "No se ha podido iniciar sesión. Revisa los datos.";
 }
 function friendlyGameError(error) {
