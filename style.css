@@ -2446,3 +2446,111 @@ textarea:focus {
     animation: none;
   }
 }
+
+/* --------------------------------------------------------------------------
+   JaviEats v2.5.1 · ¿Y si...? hasta 5 veces al día
+   -------------------------------------------------------------------------- */
+
+.y-si-daily-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin: 18px 0;
+  padding: 16px 18px;
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  background: rgba(255,255,255,.72);
+}
+
+.y-si-daily-summary strong {
+  display: block;
+  margin: 3px 0 5px;
+  font-size: 1.08rem;
+}
+
+.y-si-daily-summary p {
+  margin: 0;
+}
+
+.y-si-daily-dots {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex: 0 0 auto;
+}
+
+.y-si-daily-dot {
+  display: grid;
+  place-items: center;
+  width: 27px;
+  height: 27px;
+  border-radius: 50%;
+  border: 1px solid rgba(117, 79, 84, .18);
+  background: rgba(117, 79, 84, .07);
+  color: var(--accent);
+  font-size: .78rem;
+  transition: transform .2s ease, background .2s ease, border-color .2s ease;
+}
+
+.y-si-daily-dot.is-done {
+  background: rgba(199, 112, 124, .16);
+  border-color: rgba(199, 112, 124, .35);
+  transform: scale(1.04);
+}
+
+.y-si-result {
+  margin-bottom: 18px;
+}
+
+.y-si-result-meta {
+  margin: 0 0 10px;
+  font-size: .78rem;
+  font-weight: 800;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.y-si-question-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+}
+
+.y-si-question-actions .btn {
+  flex: 1 1 210px;
+}
+
+.y-si-skip {
+  border-style: dashed;
+}
+
+@media (max-width: 620px) {
+  .y-si-daily-summary {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .y-si-daily-dots {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .y-si-daily-dot {
+    width: 31px;
+    height: 31px;
+  }
+
+  .y-si-question-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .y-si-question-actions .btn {
+    width: 100%;
+    flex-basis: auto;
+  }
+}
