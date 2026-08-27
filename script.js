@@ -435,6 +435,13 @@ const state = {
   ySiLoadError: false
 };
 
+window.JaviEatsApp = {
+  getRole: () => currentRole,
+  showPage: page => showPage(page),
+  showToast: message => showToast(message),
+  openGameModal: () => openGameModal()
+};
+
 init();
 
 async function init() {
@@ -823,6 +830,8 @@ function maybeFocusYSiFromUrl() {
     }
   }
 
+  showPage("minigames");
+  window.JaviEatsMinigames?.open?.("ysi", { force: true });
   setTimeout(() => card.scrollIntoView({ behavior: "smooth", block: "start" }), 250);
   params.delete("open");
   params.delete("for");
@@ -841,6 +850,7 @@ function applyRoleUI() {
   renderServices();
   renderYSi();
   updateDailyGameCard();
+  window.JaviEatsMinigames?.refreshAccess?.();
 }
 
 async function logout() {
@@ -880,6 +890,7 @@ function resetAppSession() {
 }
 
 function showPage(page) {
+  if (page === "draw") page = "minigames";
   document.querySelectorAll(".page").forEach(section => {
     section.classList.toggle("active", section.id === `page-${page}`);
   });
@@ -896,6 +907,9 @@ function showPage(page) {
   if (page === "memories") {
     renderMemories();
     renderVouchers();
+  }
+  if (page === "minigames") {
+    window.JaviEatsMinigames?.showHub?.();
   }
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
