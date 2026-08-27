@@ -1,48 +1,151 @@
 # JaviEats 💌
 
-**Versión actual: 2.6**
+**Versión actual: 2.7**
 
 JaviEats es una aplicación web privada creada para Laura y Javi.
 
-Permite proponer planes, consultar un calendario compartido, guardar mensajes y cartas, responder juntos a “¿Y si…?”, jugar a retos, completar el puzle del masaje, conservar recuerdos y echar partidas de dibujo cuando Javi y Laura están juntos.
+Permite proponer planes, consultar un calendario compartido, guardar mensajes y cartas, responder juntos a “¿Y si…?”, jugar al reto diario de piedra, papel o tijera, completar el puzle del masaje, conservar recuerdos y abrir una zona de minijuegos pensada tanto para jugar por separado como cuando Javi y Laura están juntos.
 
 ---
 
-## 🚀 Última versión — v2.6
+## 🚀 Última versión — v2.7
 
-### Dibuja · conquista por categorías
+### Minijuegos · nueva sección general
 
-La versión 2.6 estrena un apartado presencial pensado para jugar juntos en el mismo dispositivo. No es un Pictionary genérico: mezcla gustos de Javi y Laura con cultura pop, fútbol, cine, series, personajes públicos e Internet/tendencias.
+La versión 2.7 convierte la antigua pestaña **Dibuja** en una sección completa de **🎮 Minijuegos**. La idea es que JaviEats tenga un único lugar desde el que abrir todos los juegos actuales y los que se añadan en el futuro.
 
 ### Novedades principales
 
-- Nuevo apartado **🎨 Dibuja** en la navegación inferior.
-- Tablero de **9 categorías**: Fútbol, Pop & Disney, Series, Películas, Música urbana, Marvel & Sagas, Famosos & públicos, Internet & Tendencias y Mix.
-- **270 conceptos iniciales** (30 por sección), organizados en `draw-data.js` para poder actualizar las tendencias sin tocar la lógica del juego.
-- Fútbol funciona como territorio más favorable a Javi y Pop & Disney como territorio más favorable a Laura; el resto mezcla contenido compartido, general y actual.
-- La Casa de Papel y Outer Banks tienen más profundidad porque ambos conocen bien esas series.
-- Pop & Disney evita objetos ambiguos: prioriza títulos, protagonistas y personajes claramente identificables.
-- Una moneda animada decide quién empieza adivinando.
-- Quien empieza adivinando elige la primera categoría.
-- Cada territorio se juega con **3 conceptos** y hacen falta **2 aciertos** para conquistarlo.
-- Si el adivinador no llega a 2 aciertos, el territorio lo conquista quien dibuja.
-- El ganador de cada territorio elige la siguiente categoría y comienza adivinando.
-- La partida termina cuando alguien conquista **5 de los 9 territorios**.
-- Lienzo táctil compatible con móvil, ratón y stylus, con cuatro colores, dos grosores, goma y borrado completo.
-- Temporizador de **40 segundos** por dibujo.
-- La respuesta se dice en voz alta; quien dibuja marca `Acertado` o `No acertado`.
-- No requiere nuevas tablas ni SQL: la partida vive localmente en el navegador.
-- Se guarda un pequeño historial local de cartas recientes para reducir repeticiones entre partidas.
-- Navegación inferior adaptada a seis apartados manteniendo una sola línea en móvil.
+- La pestaña inferior `Dibuja` pasa a llamarse **🎮 Minijuegos**.
+- La página Inicio incorpora un **acceso rápido a Minijuegos**.
+- La portada de Minijuegos reúne cuatro experiencias:
+  - `💭 ¿Y si…?`
+  - `✊ Piedra, papel o tijera`
+  - `🎨 Dibuja`
+  - `🚫 No lo digas`
+- `¿Y si…?` conserva toda su lógica, historial, compatibilidad y límite de hasta cinco preguntas diarias.
+- `Piedra, papel o tijera` conserva el intento diario, las cinco rondas, la muerte súbita, el puzle de seis piezas y el vale de masaje.
+- `Dibuja` se rehace con una batería diseñada específicamente para cosas que **sí tienen sentido dibujar**.
+- `No lo digas` estrena una batería distinta para futbolistas, artistas, famosos, personajes, series, películas, tendencias y conceptos que funcionan mejor mediante pistas verbales.
+- La lógica de los dos juegos presenciales vive en `minigames.js`.
+- Las dos baterías completas viven en `minigames-data.js`.
+- Los antiguos `draw-data.js` y `draw-game.js` dejan de utilizarse y se eliminan del proyecto.
+- No hay migraciones SQL ni cambios en Supabase, Brevo, Vault, Formspree o Edge Functions para instalar la v2.7.
 
-### Corrección incluida de “¿Y si…?”
+### Acceso por perfil y estreno para Laura
 
-- Los correos de turno pasan a enlazar a `?open=ysi&for=javi|laura&turn=<id>`.
-- Si el navegador tiene abierta la cuenta equivocada, JaviEats avisa antes de entrar y permite cambiar al perfil correcto o continuar con la sesión actual.
-- Si no existe sesión, el enlace selecciona automáticamente el perfil destinatario y solo pide su contraseña.
-- Después de cambiar de cuenta se conserva el destino y se abre directamente “¿Y si…?”.
-- Si el turno del correo ya está resuelto, la aplicación lo indica de forma limpia y muestra el estado actual.
-- Esta corrección solo requiere volver a desplegar la Edge Function `turno-y-si`; no hay cambios de SQL.
+**Javi** puede abrir los cuatro minijuegos desde el momento en que se despliega la versión, para poder probarlos antes del estreno.
+
+**Laura**, hasta el **30 de agosto de 2026 a las 22:00 (Europe/Madrid)**, solo puede abrir:
+
+- `¿Y si…?`
+- `Piedra, papel o tijera`
+
+Mientras tanto, `Dibuja` y `No lo digas` aparecen visibles pero bloqueados con una cuenta atrás en tiempo real. El bloqueo no es solo visual: la navegación también impide abrir esos juegos antes de la fecha.
+
+Al llegar la hora indicada, ambos se desbloquean automáticamente sin necesidad de publicar una nueva versión.
+
+### 🎨 Dibuja · duelos rápidos por territorios
+
+Dibuja deja de intentar utilizar nombres o referencias difíciles de representar y se centra en conceptos visuales.
+
+Reglas actuales:
+
+- Hay **9 categorías** disponibles.
+- Una moneda decide quién elige la primera categoría y quién hace el primer dibujo del duelo.
+- Cada categoría se resuelve con **dos intentos**: uno dibuja Javi y otro dibuja Laura.
+- Cada intento utiliza una palabra distinta de la misma categoría.
+- Hay **60 segundos** como máximo por dibujo.
+- Si solo uno consigue que el otro acierte, esa persona conquista la categoría.
+- Si los dos lo consiguen, gana quien haya necesitado menos tiempo.
+- Si ninguno lo consigue o los dos tardan exactamente lo mismo, la categoría queda libre y puede volver a elegirse.
+- Después de cada territorio cambia quién elige la siguiente categoría.
+- Gana la partida quien conquista **3 territorios**.
+- El juego registra localmente conceptos recientes para reducir repeticiones entre partidas.
+- El lienzo funciona con ratón, móvil y stylus e incluye colores, goma y borrado completo.
+
+Categorías de Dibuja:
+
+```text
+Fútbol
+Pop & Disney
+Series & TV
+Películas
+Música
+Héroes & Sagas
+Comida & Casa
+Internet & Juegos
+Mix
+```
+
+La batería contiene **225 conceptos visuales**, 25 por categoría.
+
+### 🚫 No lo digas · pistas contra reloj
+
+No lo digas aprovecha justamente las referencias que no funcionan bien dibujando.
+
+Ejemplo de carta:
+
+```text
+Objetivo: JOHN B
+Prohibidas: Outer Banks · Sarah · Pogues
+```
+
+La persona que da las pistas debe conseguir que la otra diga la palabra objetivo sin utilizar ninguna de las tres palabras prohibidas.
+
+Reglas actuales:
+
+- Sorteo inicial para decidir quién da pistas primero.
+- **2 turnos por persona**.
+- **45 segundos por turno**.
+- Cada acierto suma **1 punto** a quien está dando las pistas.
+- Cada carta contiene una palabra objetivo y **3 palabras prohibidas**.
+- Se puede pasar una carta y continuar con la siguiente.
+- Si se utiliza una palabra prohibida, esa carta queda anulada.
+- Al terminar los cuatro turnos gana quien tenga más puntos.
+- Si hay empate, se juegan tandas de desempate de **30 segundos** hasta romperlo.
+- Se guarda un historial local de cartas recientes para reducir repeticiones.
+
+Categorías de No lo digas:
+
+```text
+Fútbol
+Pop & Disney
+Series
+Películas
+Música
+Marvel & Sagas
+Famosos & públicos
+Internet & Tendencias
+Mix
+```
+
+La batería contiene **225 cartas**, 25 por categoría. Cada una incluye su objetivo y tres palabras prohibidas.
+
+### Batería total v2.7
+
+```text
+Dibuja       225 conceptos
+No lo digas  225 cartas
+-----------------------
+Total         450 retos
+```
+
+La separación entre ambas baterías es deliberada: una palabra puede ser muy buena para un juego verbal y pésima para dibujar. La v2.7 prioriza que cada concepto esté en el juego donde realmente funciona.
+
+---
+
+## v2.6 — Dibuja original y enlaces inteligentes de “¿Y si…?”
+
+La v2.6 introdujo la primera versión de Dibuja y dejó preparada la corrección de los enlaces de turno de “¿Y si…?”. La mecánica original de Dibuja queda sustituida por la v2.7, pero la corrección de los enlaces se conserva.
+
+### Corrección de “¿Y si…?” incluida desde v2.6
+
+- Los correos de turno pueden enlazar a `?open=ysi&for=javi|laura&turn=<id>`.
+- Si el navegador tiene abierta la cuenta equivocada, JaviEats avisa antes de entrar.
+- Permite cambiar al perfil destinatario conservando el destino del enlace.
+- Si no existe sesión, el enlace puede seleccionar automáticamente el perfil correcto y pedir solo su contraseña.
+- Si el turno ya está resuelto, la aplicación lo indica y muestra el estado actual de “¿Y si…?”.
 
 ---
 
@@ -142,10 +245,10 @@ Servicios
 Calendario
 Laura
 Recuerdos
-Dibuja
+Minijuegos
 ```
 
-Los seis botones aparecen en una sola línea en el menú inferior.
+Los seis botones aparecen en una sola línea en el menú inferior. `Minijuegos` sustituye a la antigua entrada independiente de `Dibuja`.
 
 ---
 
@@ -162,6 +265,7 @@ La pantalla de inicio muestra:
 - Próximo plan.
 - Servicios destacados.
 - Acceso rápido al catálogo.
+- Acceso rápido a Minijuegos.
 
 ---
 
@@ -289,6 +393,46 @@ Javi no puede:
 - Crear mensajes en nombre de Laura.
 
 No existe estado de lectura ni sistema de chat.
+
+---
+
+
+# Minijuegos
+
+La sección **Minijuegos** funciona como hub de las experiencias jugables de JaviEats.
+
+Desde una única pantalla permite abrir:
+
+- `¿Y si…?`
+- `Piedra, papel o tijera`
+- `Dibuja`
+- `No lo digas`
+
+Los dos primeros continúan utilizando Supabase porque su estado debe mantenerse entre dispositivos y entre las cuentas de Javi y Laura.
+
+`Dibuja` y `No lo digas` están pensados para jugar juntos en un mismo dispositivo. Su partida es local y no necesita tablas nuevas ni sincronización en tiempo real.
+
+## Dibuja
+
+- 9 categorías.
+- Dos dibujos por territorio, uno por persona.
+- 60 segundos por dibujo.
+- Si ambos consiguen un acierto, decide el tiempo.
+- Primero en conquistar 3 territorios gana.
+- 225 conceptos dibujables.
+
+## No lo digas
+
+- 2 turnos por persona.
+- 45 segundos por turno.
+- 1 punto por cada objetivo acertado.
+- 3 palabras prohibidas por carta.
+- Desempate en tandas de 30 segundos.
+- 225 cartas completas.
+
+## Desbloqueo de Laura
+
+Hasta el `30/08/2026 22:00 Europe/Madrid`, Laura ve `Dibuja` y `No lo digas` bloqueados con cuenta atrás. Javi puede utilizarlos antes para pruebas. El desbloqueo se produce automáticamente al llegar la fecha.
 
 ---
 
@@ -502,7 +646,11 @@ JaviEats/
 ├── index.html
 ├── style.css
 ├── script.js
+├── minigames-data.js
+├── minigames.js
 ├── README.md
+├── INSTALACION-v2.7.md
+├── INSTALACION-v2.6.md
 ├── INSTALACION-v2.5.2.md
 ├── supabase-v2.5.1.sql
 ├── COMPROBACION-v2.5.1.sql
@@ -523,9 +671,39 @@ JaviEats/
     └── laura-ramo-2026-07-24.jpeg
 ```
 
+Los archivos `draw-data.js` y `draw-game.js` pertenecían a la implementación de la v2.6 y ya no forman parte de la versión actual.
+
 ---
 
 # Historial de versiones
+
+## v2.7 — Minijuegos
+
+- `Dibuja` pasa a integrarse dentro de una nueva pestaña general `Minijuegos`.
+- Acceso rápido a Minijuegos desde Inicio.
+- Hub con `¿Y si…?`, `Piedra, papel o tijera`, `Dibuja` y `No lo digas`.
+- Dibuja rehecho como duelo de dos intentos por categoría.
+- 60 segundos por dibujo.
+- Victoria al conquistar 3 territorios.
+- Batería de 225 conceptos realmente dibujables.
+- Nuevo juego `No lo digas` con 225 cartas y tres palabras prohibidas por carta.
+- Dos turnos de 45 segundos por persona en No lo digas.
+- Desempate en tandas de 30 segundos.
+- Baterías y lógica separadas en `minigames-data.js` y `minigames.js`.
+- Eliminados `draw-data.js` y `draw-game.js`.
+- Laura mantiene bloqueados los dos juegos nuevos hasta el 30/08/2026 a las 22:00, con cuenta atrás y desbloqueo automático.
+- Javi puede probarlos antes del estreno.
+- Sin cambios de base de datos ni backend.
+
+## v2.6 — Primera versión de Dibuja
+
+- Primera incorporación de Dibuja como juego presencial.
+- Tablero de nueve categorías y batería propia.
+- Introducción de la idea de conquistar territorios.
+- Corrección de enlaces de email de “¿Y si…?” con destinatario explícito.
+- Detección de sesión abierta con el perfil equivocado.
+- Conservación del destino al cambiar de usuario.
+- La mecánica original de Dibuja queda sustituida por la implementación simplificada de v2.7.
 
 ## v2.5.2 — Entrada rápida Javi / Laura
 
