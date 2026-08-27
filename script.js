@@ -211,6 +211,11 @@ const $ = id => document.getElementById(id);
 
 const bootScreen = $("boot-screen");
 const authScreen = $("auth-screen");
+const turnProfileMismatch = $("turn-profile-mismatch");
+const turnProfileMismatchTitle = $("turn-profile-mismatch-title");
+const turnProfileMismatchCopy = $("turn-profile-mismatch-copy");
+const turnProfileSwitchBtn = $("turn-profile-switch-btn");
+const turnProfileContinueBtn = $("turn-profile-continue-btn");
 const profileSelector = $("profile-selector");
 const passwordPanel = $("password-panel");
 const authGlobalStatus = $("auth-global-status");
@@ -468,13 +473,23 @@ async function init() {
     const { data: { session }, error } = await supabaseClient.auth.getSession();
     if (error) throw error;
     pendingSession = session || null;
+    const requestedRole = getRequestedTurnRole();
 
     if (pendingSession?.user) {
+      const sessionRole = getRoleFromUser(pendingSession.user);
+      if (requestedRole && sessionRole !== "unknown" && requestedRole !== sessionRole) {
+        showTurnProfileMismatch(pendingSession, requestedRole);
+        return;
+      }
       await handleAuthenticatedSession(pendingSession);
       return;
     }
 
     showAuthScreen({ resetProfile: true });
+    if (requestedRole) {
+      selectAuthProfile(requestedRole);
+      loginStatus.textContent = `Este turno es para ${AUTH_PROFILES[requestedRole].name}. Introduce tu contraseña para continuar.`;
+    }
   } catch (error) {
     console.error(error);
     showAuthScreen({ resetProfile: true });
@@ -487,6 +502,8 @@ function bindEvents() {
     button.addEventListener("click", () => selectAuthProfile(button.dataset.authProfile));
   });
   authBackBtn.addEventListener("click", () => showAuthProfileSelector());
+  turnProfileSwitchBtn?.addEventListener("click", handleTurnProfileSwitch);
+  turnProfileContinueBtn?.addEventListener("click", handleTurnProfileContinue);
   logoutBtn.addEventListener("click", logout);
 
   document.querySelectorAll(".nav-btn").forEach(button => {
@@ -565,11 +582,62 @@ function bindEvents() {
 }
 
 
+function getRequestedTurnRole() {
+  const params = new URLSearchParams(window.location.search);
+  const role = String(params.get("for") || "").toLowerCase();
+  return role === "javi" || role === "laura" ? role : null;
+}
+
+function showTurnProfileMismatch(session, requestedRole) {
+  const currentRoleFromSession = getRoleFromUser(session?.user);
+  const requested = AUTH_PROFILES[requestedRole];
+  const current = AUTH_PROFILES[currentRoleFromSession];
+  if (!requested || !current) {
+    handleAuthenticatedSession(session);
+    return;
+  }
+
+  pendingSession = session;
+  bootScreen?.classList.add("hidden");
+  welcomeScreen?.classList.add("hidden");
+  appScreen.classList.add("hidden");
+  authScreen.classList.remove("hidden");
+  profileSelector.classList.add("hidden");
+  passwordPanel.classList.add("hidden");
+  turnProfileMismatch?.classList.remove("hidden");
+  turnProfileMismatchTitle.textContent = `Este turno es para ${requested.name}`;
+  turnProfileMismatchCopy.textContent = `Ahora mismo este navegador está abierto como ${current.name}. Puedes cambiar a ${requested.name} o seguir con la sesión actual.`;
+  turnProfileSwitchBtn.textContent = `Cambiar a ${requested.name}`;
+  turnProfileContinueBtn.textContent = `Seguir como ${current.name}`;
+}
+
+async function handleTurnProfileSwitch() {
+  const requestedRole = getRequestedTurnRole();
+  if (!requestedRole) return;
+  turnProfileSwitchBtn.disabled = true;
+  try {
+    pendingSession = null;
+    await supabaseClient.auth.signOut();
+    showAuthScreen({ resetProfile: true });
+    selectAuthProfile(requestedRole);
+    loginStatus.textContent = `Este turno es para ${AUTH_PROFILES[requestedRole].name}. Introduce tu contraseña para continuar.`;
+  } finally {
+    turnProfileSwitchBtn.disabled = false;
+  }
+}
+
+async function handleTurnProfileContinue() {
+  if (!pendingSession?.user) return;
+  turnProfileMismatch?.classList.add("hidden");
+  await handleAuthenticatedSession(pendingSession);
+}
+
 function showAuthScreen({ resetProfile = false } = {}) {
   bootScreen?.classList.add("hidden");
   welcomeScreen?.classList.add("hidden");
   appScreen.classList.add("hidden");
   authScreen.classList.remove("hidden");
+  turnProfileMismatch?.classList.add("hidden");
   loginStatus.textContent = "";
   authGlobalStatus.textContent = "";
   appReady = false;
@@ -577,6 +645,7 @@ function showAuthScreen({ resetProfile = false } = {}) {
 }
 
 function showAuthProfileSelector() {
+  turnProfileMismatch?.classList.add("hidden");
   selectedAuthProfile = null;
   loginEmail.value = "";
   loginPassword.value = "";
@@ -587,6 +656,7 @@ function showAuthProfileSelector() {
 }
 
 function selectAuthProfile(profileKey) {
+  turnProfileMismatch?.classList.add("hidden");
   const profile = AUTH_PROFILES[profileKey];
   if (!profile) return;
   selectedAuthProfile = profileKey;
@@ -743,8 +813,20 @@ function maybeFocusYSiFromUrl() {
   if (params.get("open") !== "ysi") return;
   const card = $("y-si-card");
   if (!card) return;
+
+  const requestedTurnId = params.get("turn");
+  if (requestedTurnId) {
+    const current = state.ySiCurrent;
+    const alreadyResolved = !current?.id || current.id !== requestedTurnId || Boolean(current.mi_respuesta);
+    if (alreadyResolved) {
+      setTimeout(() => showToast("Ese turno ya está resuelto. Te mostramos el estado actual de ¿Y si…?"), 350);
+    }
+  }
+
   setTimeout(() => card.scrollIntoView({ behavior: "smooth", block: "start" }), 250);
   params.delete("open");
+  params.delete("for");
+  params.delete("turn");
   const query = params.toString();
   const cleanUrl = `${window.location.pathname}${query ? `?${query}` : ""}${window.location.hash}`;
   window.history.replaceState({}, "", cleanUrl);
