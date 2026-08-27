@@ -1,14 +1,52 @@
 # JaviEats 💌
 
-**Versión actual: 2.5.2**
+**Versión actual: 2.6**
 
 JaviEats es una aplicación web privada creada para Laura y Javi.
 
-Permite proponer planes, consultar un calendario compartido, guardar mensajes y cartas, responder juntos a “¿Y si…?”, jugar a un reto de piedra, papel o tijera, completar el puzle del masaje y conservar recuerdos especiales.
+Permite proponer planes, consultar un calendario compartido, guardar mensajes y cartas, responder juntos a “¿Y si…?”, jugar a retos, completar el puzle del masaje, conservar recuerdos y echar partidas de dibujo cuando Javi y Laura están juntos.
 
 ---
 
-## 🚀 Última versión — v2.5.2
+## 🚀 Última versión — v2.6
+
+### Dibuja · conquista por categorías
+
+La versión 2.6 estrena un apartado presencial pensado para jugar juntos en el mismo dispositivo. No es un Pictionary genérico: mezcla gustos de Javi y Laura con cultura pop, fútbol, cine, series, personajes públicos e Internet/tendencias.
+
+### Novedades principales
+
+- Nuevo apartado **🎨 Dibuja** en la navegación inferior.
+- Tablero de **9 categorías**: Fútbol, Pop & Disney, Series, Películas, Música urbana, Marvel & Sagas, Famosos & públicos, Internet & Tendencias y Mix.
+- **270 conceptos iniciales** (30 por sección), organizados en `draw-data.js` para poder actualizar las tendencias sin tocar la lógica del juego.
+- Fútbol funciona como territorio más favorable a Javi y Pop & Disney como territorio más favorable a Laura; el resto mezcla contenido compartido, general y actual.
+- La Casa de Papel y Outer Banks tienen más profundidad porque ambos conocen bien esas series.
+- Pop & Disney evita objetos ambiguos: prioriza títulos, protagonistas y personajes claramente identificables.
+- Una moneda animada decide quién empieza adivinando.
+- Quien empieza adivinando elige la primera categoría.
+- Cada territorio se juega con **3 conceptos** y hacen falta **2 aciertos** para conquistarlo.
+- Si el adivinador no llega a 2 aciertos, el territorio lo conquista quien dibuja.
+- El ganador de cada territorio elige la siguiente categoría y comienza adivinando.
+- La partida termina cuando alguien conquista **5 de los 9 territorios**.
+- Lienzo táctil compatible con móvil, ratón y stylus, con cuatro colores, dos grosores, goma y borrado completo.
+- Temporizador de **40 segundos** por dibujo.
+- La respuesta se dice en voz alta; quien dibuja marca `Acertado` o `No acertado`.
+- No requiere nuevas tablas ni SQL: la partida vive localmente en el navegador.
+- Se guarda un pequeño historial local de cartas recientes para reducir repeticiones entre partidas.
+- Navegación inferior adaptada a seis apartados manteniendo una sola línea en móvil.
+
+### Corrección incluida de “¿Y si…?”
+
+- Los correos de turno pasan a enlazar a `?open=ysi&for=javi|laura&turn=<id>`.
+- Si el navegador tiene abierta la cuenta equivocada, JaviEats avisa antes de entrar y permite cambiar al perfil correcto o continuar con la sesión actual.
+- Si no existe sesión, el enlace selecciona automáticamente el perfil destinatario y solo pide su contraseña.
+- Después de cambiar de cuenta se conserva el destino y se abre directamente “¿Y si…?”.
+- Si el turno del correo ya está resuelto, la aplicación lo indica de forma limpia y muestra el estado actual.
+- Esta corrección solo requiere volver a desplegar la Edge Function `turno-y-si`; no hay cambios de SQL.
+
+---
+
+## v2.5.2
 
 ### Entrada rápida y personalizada
 
@@ -104,9 +142,10 @@ Servicios
 Calendario
 Laura
 Recuerdos
+Dibuja
 ```
 
-Los cinco botones aparecen en una sola línea en el menú inferior.
+Los seis botones aparecen en una sola línea en el menú inferior.
 
 ---
 
