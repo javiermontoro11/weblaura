@@ -1,653 +1,626 @@
 <!DOCTYPE html>
+
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#f4f0ea" />
-  <title>JaviEats</title>
-  <link rel="stylesheet" href="style.css?v=2.6" />
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="#f4f0ea" name="theme-color"/>
+<title>JaviEats</title>
+<link href="style.css?v=2.7" rel="stylesheet"/>
 </head>
 <body>
-  <main class="app-shell">
-    <!-- 1) Arranque -->
-    <section id="boot-screen" class="screen boot-screen">
-      <div class="boot-mark" aria-label="Abriendo JaviEats">
-        <span class="boot-heart">♥</span>
-        <strong>JaviEats</strong>
-        <small>Abriendo lo vuestro…</small>
-      </div>
-    </section>
+<main class="app-shell">
+<!-- 1) Arranque -->
+<section class="screen boot-screen" id="boot-screen">
+<div aria-label="Abriendo JaviEats" class="boot-mark">
+<span class="boot-heart">♥</span>
+<strong>JaviEats</strong>
+<small>Abriendo lo vuestro…</small>
+</div>
+</section>
+<!-- 2) Entrada -->
+<section class="screen auth-screen hidden" id="auth-screen">
+<div class="entry-card auth-card">
+<div class="brand-pill">JaviEats</div>
+<div aria-live="polite" class="turn-profile-mismatch hidden" id="turn-profile-mismatch">
+<div class="turn-profile-mismatch-icon">👀</div>
+<p class="eyebrow">Enlace de turno</p>
+<h1 id="turn-profile-mismatch-title">Este turno es para Javi</h1>
+<p class="muted" id="turn-profile-mismatch-copy">Ahora mismo este navegador tiene abierta otra cuenta.</p>
+<div class="turn-profile-mismatch-actions">
+<button class="btn btn-primary" id="turn-profile-switch-btn" type="button">Cambiar de cuenta</button>
+<button class="btn btn-secondary" id="turn-profile-continue-btn" type="button">Seguir con la sesión actual</button>
+</div>
+</div>
+<div class="auth-profile-step" id="profile-selector">
+<p class="eyebrow">Un sitio para los dos</p>
+<h1>¿Quién está entrando?</h1>
+<p class="muted auth-lead">Elige tu perfil. El correo ya lo sabe JaviEats; tú solo tendrás que poner tu contraseña.</p>
+<div aria-label="Selecciona tu perfil" class="profile-selector" role="group">
+<button class="profile-card profile-card-javi" data-auth-profile="javi" type="button">
+<span class="profile-avatar">J</span>
+<span class="profile-copy">
+<strong>Javi</strong>
+<small>Entrar como Javi</small>
+</span>
+<span aria-hidden="true" class="profile-arrow">→</span>
+</button>
+<button class="profile-card profile-card-laura" data-auth-profile="laura" type="button">
+<span class="profile-avatar">L</span>
+<span class="profile-copy">
+<strong>Laura</strong>
+<small>Entrar como Laura</small>
+</span>
+<span aria-hidden="true" class="profile-arrow">→</span>
+</button>
+</div>
+<p aria-live="polite" class="note auth-global-status" id="auth-global-status"></p>
+<p class="auth-help">Si ya existe una sesión válida en este dispositivo, la próxima vez entrarás directamente.</p>
+</div>
+<div class="auth-password-step hidden" id="password-panel">
+<button class="auth-back-btn" id="auth-back-btn" type="button">← No soy <span id="auth-back-name">este perfil</span></button>
+<div class="selected-profile-card">
+<span class="selected-profile-avatar" id="auth-selected-avatar">J</span>
+<div>
+<p class="eyebrow">Bienvenido de nuevo</p>
+<h1 id="auth-selected-name">Hola, Javi</h1>
+<p class="muted" id="auth-selected-hint">Solo falta tu contraseña.</p>
+</div>
+</div>
+<form class="form auth-password-form" id="login-form">
+<input id="login-email" type="hidden"/>
+<label>Contraseña
+              <input autocomplete="current-password" id="login-password" placeholder="Tu contraseña" required="" type="password"/>
+</label>
+<button class="btn btn-primary" id="login-submit" type="submit">Entrar en JaviEats</button>
+<p aria-live="polite" class="note auth-login-status" id="login-status"></p>
+</form>
+</div>
+</div>
+</section>
+<!-- 3) Bienvenida -->
+<section aria-live="polite" class="screen welcome-screen hidden" id="welcome-screen">
+<div class="welcome-card">
+<div class="welcome-brand">JaviEats</div>
+<div class="welcome-avatar" id="welcome-avatar">J</div>
+<p class="eyebrow">Todo lo vuestro, listo</p>
+<h1 id="welcome-title">Buenas, Javi</h1>
+<p class="welcome-message" id="welcome-message">Preparando JaviEats…</p>
+<div class="welcome-summary">
+<span class="welcome-summary-chip" id="welcome-summary-primary">Sincronizando…</span>
+<span class="welcome-summary-chip" id="welcome-summary-secondary">Un momento</span>
+</div>
+</div>
+</section>
+<!-- 4) App -->
+<section class="screen hidden" id="app-screen">
+<header class="app-header">
+<div>
+<p class="eyebrow">Delivery de planes</p>
+<h1>JaviEats</h1>
+<div class="session-information">
+<span class="session-user-name" id="session-user-name">Usuario</span>
+<span class="sync-status" id="sync-status">Conectando…</span>
+</div>
+</div>
+<button aria-label="Cerrar sesión" class="icon-btn" id="logout-btn" title="Cerrar sesión" type="button">⏻</button>
+</header>
+<section class="page active" id="page-home">
+<div class="hero">
+<p class="eyebrow" id="home-greeting">Hola 👋</p>
+<h2>Todo lo nuestro, en un solo sitio</h2>
+<p>Planes, recuerdos, juegos y pequeñas cosas para compartir los dos.</p>
+<div class="availability">JaviEats · para Javi y Laura</div>
+</div><button aria-label="Abrir Minijuegos" class="minigames-home-card" data-go="minigames" type="button">
+<div class="minigames-home-icon">🎮</div>
+<div class="minigames-home-copy">
+<p class="eyebrow">Para jugar</p>
+<h2>Minijuegos</h2>
+<p>¿Y si…?, el reto diario y juegos para cuando estéis juntos.</p>
+</div>
+<span aria-hidden="true" class="minigames-home-arrow">→</span>
+</button>
 
-    <!-- 2) Entrada -->
-    <section id="auth-screen" class="screen auth-screen hidden">
-      <div class="entry-card auth-card">
-        <div class="brand-pill">JaviEats</div>
 
-        <div id="turn-profile-mismatch" class="turn-profile-mismatch hidden" aria-live="polite">
-          <div class="turn-profile-mismatch-icon">👀</div>
-          <p class="eyebrow">Enlace de turno</p>
-          <h1 id="turn-profile-mismatch-title">Este turno es para Javi</h1>
-          <p id="turn-profile-mismatch-copy" class="muted">Ahora mismo este navegador tiene abierta otra cuenta.</p>
-          <div class="turn-profile-mismatch-actions">
-            <button id="turn-profile-switch-btn" class="btn btn-primary" type="button">Cambiar de cuenta</button>
-            <button id="turn-profile-continue-btn" class="btn btn-secondary" type="button">Seguir con la sesión actual</button>
-          </div>
-        </div>
+<div class="stats">
+<div class="stat"><strong id="total-proposals">0</strong><span>planes guardados</span></div>
+<div class="stat"><strong id="next-plan">—</strong><span>próximo plan</span></div>
+</div>
+<div class="section-title">
+<h3>Más pedidos</h3>
+<button class="link-btn" data-go="services" type="button">Ver todo</button>
+</div>
+<div class="services" id="featured-services"></div>
+<div class="info-card">
+<strong>Cómo funciona</strong>
+<p>Las propuestas y los planes libres se guardan en el calendario compartido de JaviEats.</p>
+</div>
+</section>
+<section class="page" id="page-services">
+<div class="section-title"><div><p class="eyebrow">Catálogo</p><h2>Servicios disponibles</h2></div></div>
+<div class="services" id="all-services"></div>
+</section>
+<section class="page" id="page-calendar">
+<div class="section-title"><div><p class="eyebrow">Agenda compartida</p><h2>Calendario</h2></div></div>
+<div class="calendar-sync-card">
+<span class="calendar-sync-icon">☁️</span>
+<div><strong>Calendario sincronizado</strong><p class="muted">Los planes aparecen en las cuentas de Javi y Laura.</p></div>
+</div>
+<div class="calendar-card">
+<div class="calendar-head">
+<button aria-label="Mes anterior" class="icon-btn" id="prev-month" type="button">‹</button>
+<h3 id="calendar-title">Mes</h3>
+<button aria-label="Mes siguiente" class="icon-btn" id="next-month" type="button">›</button>
+</div>
+<div class="weekdays"><span>L</span><span>M</span><span>X</span><span>J</span><span>V</span><span>S</span><span>D</span></div>
+<div class="calendar-grid" id="calendar-grid"></div>
+</div>
+<div class="section-title"><h3 id="selected-title">Día seleccionado</h3></div>
+<div class="list" id="day-bookings"></div>
+<div class="calendar-add-plan">
+<button class="btn btn-primary" id="add-custom-plan-btn" type="button">＋ Añadir plan a este día</button>
+<p class="calendar-add-plan-help">Añade una cena, viaje, cita, recordatorio o cualquier plan compartido.</p>
+</div>
+<div class="section-title history-title">
+<div><p class="eyebrow">Historial compartido</p><h3>Todos los planes</h3></div>
+<button class="link-btn danger" id="clear-history" type="button">Limpiar</button>
+</div>
+<div class="list" id="booking-list"></div>
+</section>
+<section class="page" id="page-laura">
+<div class="laura-hero">
+<div class="laura-hero-icon">💌</div>
+<p class="eyebrow">Un espacio para Laura</p>
+<h2>Laura</h2>
+<p>Mensajes, cartas, pensamientos, ideas y todo aquello que quieras contarle a Javi.</p>
+</div>
+<section class="laura-compose-card" id="laura-compose-card">
+<div class="section-title"><div><p class="eyebrow">Escribir algo nuevo</p><h3>Para Javi</h3></div></div>
+<form class="form" id="laura-message-form">
+<label>¿Qué quieres escribir?
+              <select id="laura-message-type" required="">
+<option value="mensaje">Mensaje</option>
+<option value="carta">Carta</option>
+<option value="contarte">Algo que quiero contarte</option>
+<option value="idea">Idea para nosotros</option>
+</select>
+</label>
+<label>Título <span class="field-hint">Opcional</span>
+<input id="laura-message-title" maxlength="120" placeholder="Ponle un título bonito..." type="text"/>
+</label>
+<label>Escribe aquí
+              <textarea id="laura-message-content" maxlength="12000" placeholder="Cuéntale a Javi lo que quieras..." required="" rows="8"></textarea>
+</label>
+<button class="btn btn-primary" id="save-laura-message" type="submit">Guardar para Javi</button>
+<p class="note" id="laura-message-status"></p>
+</form>
+</section>
+<div class="section-title laura-history-title"><div><p class="eyebrow">El rincón de Laura</p><h2>Mensajes y cartas</h2></div></div>
+<div class="laura-messages-list" id="laura-messages-list"></div>
+</section>
+<section class="page" id="page-memories">
+<div class="memories-hero"><p class="eyebrow">Nuestro archivo</p><h2>Recuerdos</h2><p>Cartas, flores y momentos que merece la pena guardar.</p></div>
+<div class="memories-timeline" id="memories-list"></div>
+<div class="section-title vouchers-title"><div><p class="eyebrow">Premios ganados</p><h2>Mis vales</h2></div></div>
+<div class="voucher-list" id="voucher-list"></div>
+</section>
+<section class="page minigames-page" id="page-minigames">
+<section id="minigames-hub">
+<div class="minigames-hero">
+<div>
+<p class="eyebrow">Para jugar los dos</p>
+<h2>Minijuegos</h2>
+<p>Cuatro formas distintas de jugar. Dos funcionan cada día y dos están pensadas para cuando estéis juntos con el mismo móvil.</p>
+</div>
+<span class="minigames-hero-badge">🎮 4 juegos</span>
+</div>
+<div class="minigames-grid">
+<button class="minigame-card minigame-card-ysi" data-minigame-open="ysi" type="button">
+<span class="minigame-card-icon">💭</span>
+<span class="minigame-card-copy"><small>Para los dos</small><strong>¿Y si…?</strong><span>Responded sin ver al otro y descubrid vuestra compatibilidad.</span></span>
+<span class="minigame-card-status">Disponible</span>
+</button>
+<button class="minigame-card minigame-card-rps" data-minigame-open="rps" type="button">
+<span class="minigame-card-icon">✊</span>
+<span class="minigame-card-copy"><small>Reto diario</small><strong>Piedra, papel o tijera</strong><span>La partida diaria de Laura y el puzle del masaje.</span></span>
+<span class="minigame-card-status">Disponible</span>
+</button>
+<button class="minigame-card minigame-card-draw" data-minigame-lock="draw" data-minigame-open="draw" type="button">
+<span class="minigame-card-icon">🎨</span>
+<span class="minigame-card-copy"><small>Juntos · mismo dispositivo</small><strong>Dibuja</strong><span>Duelos rápidos por categorías. Primero en conquistar 3 gana.</span></span>
+<span class="minigame-card-status" data-minigame-lock-state="">Disponible</span>
+<span class="minigame-countdown hidden" data-minigame-countdown=""></span>
+</button>
+<button class="minigame-card minigame-card-taboo" data-minigame-lock="taboo" data-minigame-open="taboo" type="button">
+<span class="minigame-card-icon">🚫</span>
+<span class="minigame-card-copy"><small>Juntos · mismo dispositivo</small><strong>No lo digas</strong><span>Consigue que el otro acierte sin decir ninguna palabra prohibida.</span></span>
+<span class="minigame-card-status" data-minigame-lock-state="">Disponible</span>
+<span class="minigame-countdown hidden" data-minigame-countdown=""></span>
+</button>
+</div>
+<div class="minigames-note-card">
+<strong>Partidas cortas, reglas fáciles.</strong>
+<p>Dibuja usa conceptos realmente visuales. No lo digas se queda con futbolistas, artistas, personajes, famosos y referencias que funcionan mucho mejor hablando.</p>
+</div>
+</section>
+<section class="minigame-panel hidden" data-minigame-panel="ysi">
+<button class="back-link minigame-back" data-minigame-back="" type="button">← Volver a Minijuegos</button>
+<section class="y-si-card" id="y-si-card">
+<div class="y-si-top">
+<div class="y-si-heading">
+<div class="y-si-icon">💭</div>
+<div>
+<p class="eyebrow">Para los dos</p>
+<h2>¿Y si…?</h2>
+<p class="muted">Responded sin ver al otro. El resultado se desbloquea cuando los dos hayáis elegido.</p>
+</div>
+</div>
+<span class="y-si-status-badge" id="y-si-status-badge">Preparando…</span>
+</div>
+<div class="y-si-compatibility-card">
+<div aria-hidden="true" class="y-si-heart-wrap">
+<svg class="y-si-heart" role="img" viewbox="0 0 100 92">
+<defs>
+<clippath id="y-si-heart-clip">
+<path d="M50 88C44 81 9 59 9 31C9 15 27 7 40 17C44 20 48 25 50 30C52 25 56 20 60 17C73 7 91 15 91 31C91 59 56 81 50 88Z"></path>
+</clippath>
+</defs>
+<path class="y-si-heart-base" d="M50 88C44 81 9 59 9 31C9 15 27 7 40 17C44 20 48 25 50 30C52 25 56 20 60 17C73 7 91 15 91 31C91 59 56 81 50 88Z"></path>
+<g clip-path="url(#y-si-heart-clip)">
+<rect class="y-si-heart-fill" height="0" id="y-si-heart-fill" width="100" x="0" y="92"></rect>
+</g>
+<path class="y-si-heart-outline" d="M50 88C44 81 9 59 9 31C9 15 27 7 40 17C44 20 48 25 50 30C52 25 56 20 60 17C73 7 91 15 91 31C91 59 56 81 50 88Z"></path>
+</svg>
+<strong class="y-si-heart-percent" id="y-si-compatibility">0%</strong>
+</div>
+<div class="y-si-compatibility-copy">
+<p class="eyebrow">Compatibilidad JaviEats</p>
+<strong id="y-si-compatibility-title">Aún está por descubrir</strong>
+<p class="muted" id="y-si-compatibility-text">Responded vuestra primera pregunta para empezar a llenar el corazón.</p>
+<div class="y-si-mini-stats">
+<span><b id="y-si-shared-count">0</b> compartidas</span>
+<span><b id="y-si-match-count">0</b> coincidencias</span>
+<span><b id="y-si-best-streak">0</b> mejor racha</span>
+</div>
+</div>
+</div>
+<div class="y-si-daily-summary">
+<div>
+<p class="eyebrow">Ronda de hoy</p>
+<strong id="y-si-today-title">0 de 5 completadas</strong>
+<p class="muted" id="y-si-today-text">Podéis completar hasta cinco situaciones juntos hoy.</p>
+</div>
+<div aria-label="Progreso diario" class="y-si-daily-dots" id="y-si-daily-dots"></div>
+</div>
+<div aria-live="polite" class="y-si-result hidden" id="y-si-result">
+<div class="y-si-result-loading hidden" id="y-si-result-loading">
+<span class="y-si-spinner"></span>
+<strong>Comparando respuestas…</strong>
+</div>
+<div class="y-si-result-content" id="y-si-result-content">
+<p class="y-si-result-meta" id="y-si-result-meta">Último resultado</p>
+<div class="y-si-result-icon" id="y-si-result-icon">💞</div>
+<p class="eyebrow">Resultado</p>
+<h3 id="y-si-result-title">¡Coincidencia!</h3>
+<p class="muted" id="y-si-result-copy"></p>
+<div class="y-si-answer-grid">
+<div class="y-si-answer-card"><span>Javi</span><strong id="y-si-javi-answer">—</strong></div>
+<div class="y-si-answer-card"><span>Laura</span><strong id="y-si-laura-answer">—</strong></div>
+</div>
+<p class="y-si-special hidden" id="y-si-special">👀 Esta coincidencia no era tan obvia.</p>
+</div>
+</div>
+<div class="y-si-question-panel">
+<p class="y-si-question-date" id="y-si-question-date">Pregunta actual</p>
+<h3 id="y-si-question-text">Cargando pregunta…</h3>
+<div aria-label="Opciones de respuesta" class="y-si-options" id="y-si-options" role="radiogroup"></div>
+<div class="y-si-question-actions">
+<button class="btn btn-primary y-si-submit" disabled="" id="y-si-submit" type="button">Guardar mi respuesta</button>
+<button class="btn btn-secondary y-si-skip hidden" id="y-si-skip" type="button">↻ Cambiar pregunta · 1 al día</button>
+</div>
+<p class="note y-si-status-note" id="y-si-status-note"></p>
+</div>
+<div class="y-si-actions">
+<button class="link-btn" id="y-si-history-btn" type="button">Ver historial de respuestas</button>
+</div>
+</section>
+</section>
+<section class="minigame-panel hidden" data-minigame-panel="rps">
+<button class="back-link minigame-back" data-minigame-back="" type="button">← Volver a Minijuegos</button>
+<section class="game-card" id="daily-game-card">
+<div class="game-card-top">
+<div class="game-icon">✊</div>
+<div>
+<p class="eyebrow">Reto diario</p>
+<h2>Piedra, papel o tijera</h2>
+<p class="muted">Cinco rondas. Los empates también consumen ronda. Cada partida ganada añade una pieza al puzle del masaje.</p>
+</div>
+</div>
+<div class="game-rules-mini">
+<span>5 rondas</span><span>1 intento diario real</span><span>6 piezas = masaje</span>
+</div>
+<div class="puzzle-home-card">
+<div class="puzzle-home-copy">
+<p class="eyebrow">Puzle del masaje</p>
+<strong id="home-puzzle-count">0 de 6 piezas</strong>
+<p id="home-puzzle-text">Gana partidas para ir descubriendo el premio.</p>
+<button class="puzzle-link-btn" id="open-puzzle-btn" type="button">Ver puzle completo</button>
+</div>
+<div aria-label="0 de 6 piezas conseguidas" class="puzzle-grid puzzle-grid-mini" id="home-puzzle-grid" role="img"></div>
+</div>
+<p class="game-home-status" id="game-home-status">Comprobando la partida de hoy…</p>
+<button class="btn btn-primary" id="game-home-button" type="button">Jugar partida de hoy</button>
+</section>
+</section>
+<section class="minigame-panel hidden draw-page" data-minigame-panel="draw">
+<button class="back-link minigame-back" data-minigame-back="" type="button">← Volver a Minijuegos</button>
+<div class="draw-hero">
+<div>
+<p class="eyebrow">Duelo de dibujo</p>
+<h2>Dibuja</h2>
+<p>Elegís categoría, dibujáis una vez cada uno y gana el territorio quien consiga que el otro acierte más rápido.</p>
+</div>
+<span class="draw-hero-badge">Primero a 3</span>
+</div>
+<section class="draw-lobby" id="draw-lobby">
+<div class="draw-match-score">
+<div class="draw-player-score draw-player-javi"><span>Javi</span><strong id="draw-score-javi">0</strong><small>territorios</small></div>
+<div class="draw-score-center"><span>VS</span><small>Primero a 3</small></div>
+<div class="draw-player-score draw-player-laura"><span>Laura</span><strong id="draw-score-laura">0</strong><small>territorios</small></div>
+</div>
+<div class="draw-coin-card">
+<div aria-hidden="true" class="draw-coin" id="draw-coin"><span>J</span><span>L</span></div>
+<div><p class="eyebrow">¿Quién elige primero?</p><h3 id="draw-turn-title">Lanzad la moneda para empezar</h3><p class="muted" id="draw-turn-copy">Decidirá quién elige la primera categoría y dibuja primero.</p></div>
+<button class="btn btn-primary" id="draw-start-btn" type="button">Lanzar moneda</button>
+</div>
+<div class="draw-board-head"><div><p class="eyebrow">9 categorías disponibles</p><h3>Conquista 3 y ganas</h3></div><button class="link-btn hidden" id="draw-reset-btn" type="button">Nueva partida</button></div>
+<div aria-label="Categorías de Dibuja" class="draw-board" id="draw-board"></div>
+<div class="draw-rules-card"><strong>Así se decide un territorio</strong><p>Cada uno dibuja una palabra distinta de la misma categoría. Si solo uno consigue un acierto, gana esa persona. Si acertáis los dos, gana quien tardó menos. Tenéis 60 segundos por dibujo.</p></div>
+</section>
+<section aria-live="polite" class="draw-round hidden" id="draw-round">
+<div class="draw-round-head">
+<div class="draw-round-meta"><span class="draw-section-chip" id="draw-section-chip">📺 Series</span><span class="draw-card-progress" id="draw-attempt-progress">Dibujo 1 de 2</span></div>
+<div class="draw-round-roles">
+<div><small>Dibuja</small><strong id="draw-drawer-name">Javi</strong></div>
+<div><small>Adivina</small><strong id="draw-guesser-name">Laura</strong></div>
+<div><small>Duelo</small><strong id="draw-duel-state">Primer intento</strong></div>
+</div>
+</div>
+<div class="draw-secret-stage" id="draw-secret-stage">
+<div class="draw-secret-icon">🙈</div>
+<p class="eyebrow" id="draw-secret-warning">Laura, no mires 👀</p>
+<h3 id="draw-secret-title">Javi, mira lo que tienes que dibujar</h3>
+<p class="muted">La palabra desaparece al empezar. No se pueden escribir letras ni números.</p>
+<button class="btn btn-primary" id="draw-reveal-card-btn" type="button">Mostrar concepto</button>
+<div class="draw-card-reveal hidden" id="draw-card-reveal"><span>TIENES QUE DIBUJAR</span><strong id="draw-card-word">—</strong><button class="btn btn-primary" id="draw-begin-card-btn" type="button">Ya la tengo · Empezar</button></div>
+</div>
+<div class="draw-canvas-stage hidden" id="draw-canvas-stage">
+<div class="draw-timer-row"><div class="draw-timer-copy"><span>Tiempo</span><strong id="draw-timer">60</strong></div><div class="draw-timer-track"><div class="draw-timer-bar" id="draw-timer-bar"></div></div><span class="draw-target">Máximo 60 s</span></div>
+<div class="draw-canvas-wrap"><canvas aria-label="Lienzo para dibujar" height="600" id="draw-canvas" width="900"></canvas></div>
+<div aria-label="Herramientas de dibujo" class="draw-tools">
+<div aria-label="Color" class="draw-colors" role="group"><button aria-label="Negro" class="draw-color is-active" data-draw-color="#171414" type="button"></button><button aria-label="Rojo" class="draw-color" data-draw-color="#e85d45" type="button"></button><button aria-label="Azul" class="draw-color" data-draw-color="#2563eb" type="button"></button><button aria-label="Verde" class="draw-color" data-draw-color="#16a34a" type="button"></button></div>
+<div aria-label="Grosor" class="draw-brushes" role="group"><button class="draw-tool is-active" data-draw-width="6" type="button">Fino</button><button class="draw-tool" data-draw-width="14" type="button">Grueso</button><button class="draw-tool" id="draw-eraser-btn" type="button">Goma</button><button class="draw-tool" id="draw-clear-btn" type="button">Borrar</button></div>
+</div>
+<div class="draw-judge-actions"><button class="btn btn-secondary" id="draw-miss-btn" type="button">No acertado</button><button class="btn btn-primary" id="draw-hit-btn" type="button">✓ Acertado</button></div>
+<p class="draw-judge-note">Cuando la persona adivine, quien dibuja pulsa “Acertado” y guardamos el tiempo.</p>
+</div>
+</section>
+<section aria-live="polite" class="draw-result hidden" id="draw-result"><div class="draw-result-icon" id="draw-result-icon">🏆</div><p class="eyebrow">Territorio resuelto</p><h3 id="draw-result-title">Javi conquista Series</h3><p class="muted" id="draw-result-copy"></p><button class="btn btn-primary" id="draw-next-section-btn" type="button">Elegir siguiente categoría</button></section>
+<section aria-live="polite" class="draw-final hidden" id="draw-final"><div class="draw-final-crown">🏆</div><p class="eyebrow">Fin de la partida</p><h2 id="draw-final-title">Javi gana Dibuja</h2><p class="muted" id="draw-final-copy">Ha conquistado 3 territorios.</p><div class="draw-final-board" id="draw-final-board"></div><button class="btn btn-primary" id="draw-rematch-btn" type="button">Revancha</button></section>
+</section>
+<section class="minigame-panel hidden taboo-page" data-minigame-panel="taboo">
+<button class="back-link minigame-back" data-minigame-back="" type="button">← Volver a Minijuegos</button>
+<div class="taboo-hero"><div><p class="eyebrow">Pistas contra reloj</p><h2>No lo digas</h2><p>Haz que el otro diga la palabra principal sin utilizar ninguna de las tres palabras prohibidas.</p></div><span class="taboo-hero-badge">45 s · 2 turnos cada uno</span></div>
+<section id="taboo-lobby">
+<div class="draw-match-score taboo-score"><div class="draw-player-score draw-player-javi"><span>Javi</span><strong id="taboo-score-javi">0</strong><small>puntos</small></div><div class="draw-score-center"><span>VS</span><small>Más aciertos</small></div><div class="draw-player-score draw-player-laura"><span>Laura</span><strong id="taboo-score-laura">0</strong><small>puntos</small></div></div>
+<div class="draw-coin-card"><div aria-hidden="true" class="draw-coin" id="taboo-coin"><span>J</span><span>L</span></div><div><p class="eyebrow">¿Quién da pistas primero?</p><h3 id="taboo-turn-title">Sortead quién empieza dando pistas</h3><p class="muted" id="taboo-turn-copy">Cada acierto suma un punto a quien está dando las pistas.</p></div><button class="btn btn-primary" id="taboo-start-btn" type="button">Lanzar moneda</button></div>
+<div class="taboo-rules"><strong>Reglas rápidas</strong><p>2 turnos por persona · 45 segundos. ✅ Acertada suma 1. ⏭️ Pasar no resta. 🚫 Si dices una palabra prohibida, anuláis la carta. Si empatáis, hay desempate de 30 segundos.</p><button class="link-btn hidden" id="taboo-reset-btn" type="button">Nueva partida</button></div>
+</section>
+<section aria-live="polite" class="taboo-stage hidden" id="taboo-turn-stage"><div class="taboo-ready-icon">🙈</div><p class="eyebrow" id="taboo-turn-eyebrow">Turno 1 de 4</p><h3><span id="taboo-clue-name">Javi</span> da las pistas</h3><p class="muted"><strong id="taboo-guess-name">Laura</strong>, no mires la pantalla hasta que empiece el turno.</p><button class="btn btn-primary" id="taboo-begin-turn-btn" type="button">Javi, empezar turno</button></section>
+<section aria-live="polite" class="taboo-play hidden" id="taboo-play-stage">
+<div class="taboo-timer-row"><div><span>Tiempo</span><strong id="taboo-timer">45</strong></div><div class="taboo-timer-track"><div class="taboo-timer-bar" id="taboo-timer-bar"></div></div><div class="taboo-turn-mini"><span>✅ <b id="taboo-turn-hits">0</b></span><span>⏭️ <b id="taboo-turn-passes">0</b></span></div></div>
+<article class="taboo-card"><span class="taboo-category" id="taboo-category">📺 Series</span><p class="eyebrow">TIENE QUE DECIR</p><h2 id="taboo-word">JOHN B</h2><p class="taboo-no">🚫 NO PUEDES DECIR</p><div class="taboo-banned" id="taboo-banned"><span>Outer Banks</span><span>Sarah</span><span>Pogues</span></div></article>
+<div class="taboo-actions"><button class="btn btn-secondary" id="taboo-pass-btn" type="button">⏭️ Pasar</button><button class="btn btn-secondary taboo-ban-btn" id="taboo-banned-btn" type="button">🚫 Prohibida</button><button class="btn btn-primary" id="taboo-correct-btn" type="button">✓ Acertada</button></div>
+<p class="draw-judge-note">Quien da las pistas controla los botones. Las respuestas se dicen en voz alta.</p>
+</section>
+<section aria-live="polite" class="taboo-stage hidden" id="taboo-summary"><div class="taboo-ready-icon">⏱️</div><p class="eyebrow">Fin del turno</p><h3 id="taboo-summary-title">Javi consigue 3 puntos</h3><p class="muted" id="taboo-summary-copy"></p><button class="btn btn-primary" id="taboo-next-turn-btn" type="button">Siguiente turno</button></section>
+<section aria-live="polite" class="draw-final hidden" id="taboo-final"><div class="draw-final-crown">🏆</div><p class="eyebrow">Fin de la partida</p><h2 id="taboo-final-title">Javi gana No lo digas</h2><p class="muted" id="taboo-final-copy"></p><button class="btn btn-primary" id="taboo-rematch-btn" type="button">Revancha</button></section>
+</section>
+</section>
+<section class="page letter-page" id="page-letter">
+<button class="back-link" data-go="memories" type="button">← Volver a recuerdos</button>
+<article class="letter-card">
+<div class="letter-stamp">💌</div>
+<p class="eyebrow" id="letter-eyebrow">Recuerdo</p>
+<h2 id="letter-title">Para Laura</h2>
+<div class="letter-content" id="letter-content"><p>Cargando carta...</p></div>
+</article>
+</section>
+<nav class="bottom-nav">
+<button class="nav-btn active" data-page="home" type="button">🏠<span>Inicio</span></button>
+<button class="nav-btn" data-page="services" type="button">🛵<span>Servicios</span></button>
+<button class="nav-btn" data-page="calendar" type="button">📅<span>Calendario</span></button>
+<button class="nav-btn" data-page="laura" type="button">💌<span>Laura</span></button>
+<button class="nav-btn" data-page="memories" type="button">🗃️<span>Recuerdos</span></button>
+<button class="nav-btn" data-page="minigames" type="button">🎮<span>Minijuegos</span></button>
+</nav>
+</section>
+</main>
+<!-- Modal servicio -->
+<section class="modal hidden" id="service-modal">
+<div class="modal-backdrop" data-service-close=""></div>
+<div class="modal-panel">
+<button aria-label="Cerrar" class="modal-close" data-service-close="" type="button">×</button>
+<div class="modal-icon" id="modal-icon">🍣</div>
+<p class="eyebrow" id="modal-category">Categoría</p>
+<h2 id="modal-title">Servicio</h2>
+<p class="muted" id="modal-description"></p>
+<ul class="clean-list" id="modal-list"></ul>
+<form class="form" id="proposal-form">
+<input id="service-id" type="hidden"/>
+<div class="form-row">
+<label>Fecha<input id="proposal-date" required="" type="date"/></label>
+<label>Hora<input id="proposal-time" required="" type="time"/></label>
+</div>
+<label>Duración aproximada<select id="proposal-duration" required=""></select></label>
+<label>Nivel de ganas
+          <select id="proposal-priority" required="">
+<option value="Normal">Normal</option>
+<option value="Me apetece bastante">Me apetece bastante</option>
+<option value="Hoy estaría muy bien">Hoy estaría muy bien</option>
+<option value="Plan necesario">Plan necesario</option>
+</select>
+</label>
+<label>Nota <span class="field-hint" id="proposal-note-hint">Opcional</span>
+<textarea id="proposal-note" maxlength="2000" placeholder="Cuéntale a Javi cualquier detalle..." rows="4"></textarea>
+</label>
+<button class="btn btn-primary" id="proposal-submit" type="submit">Enviar propuesta</button>
+<p class="note" id="proposal-status"></p>
+</form>
+<div class="proposal-success hidden" id="proposal-success">
+<div class="proposal-success-icon">🎟️</div><p class="eyebrow">Propuesta enviada</p><h3>Tu pedido se ha guardado</h3>
+<p class="muted">Ya aparece en el calendario compartido de JaviEats.</p>
+<div class="proposal-ticket-preview" id="proposal-ticket-preview"></div>
+<div class="proposal-ticket-actions">
+<button class="btn btn-primary" id="download-proposal-ticket" type="button">Descargar ticket</button>
+<button class="btn btn-secondary" data-service-close="" type="button">Cerrar</button>
+</div>
+</div>
+</div>
+</section>
+<!-- Modal plan libre -->
+<section class="modal hidden" id="custom-plan-modal">
+<div class="modal-backdrop" data-custom-plan-close=""></div>
+<div class="modal-panel custom-plan-panel">
+<button aria-label="Cerrar" class="modal-close" data-custom-plan-close="" type="button">×</button>
+<div class="modal-icon">📌</div>
+<p class="eyebrow">Calendario compartido</p>
+<h2>Añadir plan</h2>
+<p class="muted">No es una invitación ni una propuesta de servicio: es un evento compartido para los dos.</p>
+<form class="form" id="custom-plan-form">
+<label>Título<input id="custom-plan-title" maxlength="120" placeholder="Ej: Cena en Madrid" required="" type="text"/></label>
+<label>Fecha<input id="custom-plan-date" required="" type="date"/></label>
+<label class="all-day-option"><input id="custom-plan-all-day" type="checkbox"/><span>Todo el día</span></label>
+<label id="custom-plan-time-label">Hora<input id="custom-plan-time" type="time"/></label>
+<label>Descripción <span class="field-hint">Opcional</span>
+<textarea id="custom-plan-description" maxlength="2000" placeholder="Añade cualquier detalle..." rows="5"></textarea>
+</label>
+<button class="btn btn-primary" id="custom-plan-submit" type="submit">Guardar plan</button>
+<p class="note" id="custom-plan-status"></p>
+</form>
+</div>
+</section>
+<!-- Historial compartido de ¿Y si...? -->
+<section aria-labelledby="y-si-history-title" aria-modal="true" class="modal hidden" id="y-si-history-modal" role="dialog">
+<div class="modal-backdrop" data-y-si-history-close=""></div>
+<div class="modal-panel y-si-history-panel">
+<button aria-label="Cerrar" class="modal-close" data-y-si-history-close="" type="button">×</button>
+<div class="modal-icon">💞</div>
+<p class="eyebrow">Los dos</p>
+<h2 id="y-si-history-title">Nuestro historial de “¿Y si…?”</h2>
+<p class="muted" id="y-si-history-summary">Aquí aparecerán las preguntas que ya habéis respondido los dos.</p>
+<div aria-label="Filtrar historial" class="y-si-history-filters" role="group">
+<button class="y-si-filter is-active" data-y-si-filter="all" type="button">Todas</button>
+<button class="y-si-filter" data-y-si-filter="match" type="button">Coincidencias</button>
+<button class="y-si-filter" data-y-si-filter="different" type="button">Diferentes</button>
+</div>
+<div class="y-si-history-list" id="y-si-history-list"></div>
+</div>
+</section>
+<!-- Modal de bienvenida del puzle -->
+<section aria-labelledby="puzzle-modal-title" aria-modal="true" class="modal hidden" id="puzzle-modal" role="dialog">
+<div class="modal-backdrop" data-puzzle-close=""></div>
+<div class="modal-panel puzzle-panel">
+<button aria-label="Cerrar" class="modal-close" data-puzzle-close="" type="button">×</button>
+<div class="puzzle-modal-icon">🧩</div>
+<p class="eyebrow">Tu progreso</p>
+<h2 id="puzzle-modal-title">Puzle del masaje</h2>
+<p class="puzzle-modal-text" id="puzzle-modal-text">Cada partida ganada descubre una pieza. Completa las seis para conseguir el masaje.</p>
+<div aria-label="0 de 6 piezas conseguidas" class="puzzle-grid puzzle-grid-large" id="puzzle-modal-grid" role="img"></div>
+<div class="puzzle-progress-summary">
+<strong id="puzzle-modal-count">0 de 6 piezas</strong>
+<span id="puzzle-modal-reward">Premio: masaje de 30 minutos</span>
+</div>
+<div class="puzzle-modal-actions">
+<button class="btn btn-primary" id="puzzle-modal-primary" type="button">Jugar reto de hoy</button>
+<button class="btn btn-secondary" data-puzzle-close="" type="button">Seguir en JaviEats</button>
+</div>
+</div>
+</section>
+<!-- Modal juego -->
+<section class="modal hidden" id="game-modal">
+<div class="modal-backdrop" data-game-close=""></div>
+<div class="modal-panel game-panel">
+<button aria-label="Cerrar" class="modal-close" data-game-close="" type="button">×</button>
+<div class="modal-icon">🎮</div>
+<p class="eyebrow">Reto diario</p><h2>Piedra, papel o tijera</h2>
+<p class="muted">Se juegan cinco rondas. Los empates consumen ronda. Si acabáis empatados en victorias, habrá muerte súbita. Ganar la partida completa descubre una pieza del puzle.</p>
+<div class="round-information"><strong id="game-round-label">Ronda 1 de 5</strong><span id="game-draws">Empates: 0</span></div>
+<div class="scoreboard">
+<div class="score-box"><span>Victorias de Laura</span><strong id="player-score">0</strong></div>
+<div class="score-divider">—</div>
+<div class="score-box"><span>Victorias máquina</span><strong id="machine-score">0</strong></div>
+</div>
+<div class="choice-arena">
+<div class="choice-fighter"><span class="fighter-name">Laura</span><div class="choice-visual" id="player-choice-visual">❔</div><strong id="player-choice-label">Sin elegir</strong></div>
+<div class="versus">VS</div>
+<div class="choice-fighter"><span class="fighter-name">Máquina</span><div class="choice-visual" id="machine-choice-visual">❔</div><strong id="machine-choice-label">Esperando</strong></div>
+</div>
+<p class="round-result" id="game-round-result">Elige tu jugada para empezar.</p>
+<div class="game-choices" id="game-choices">
+<button class="choice-btn" data-choice="piedra" type="button"><span>✊</span>Piedra</button>
+<button class="choice-btn" data-choice="papel" type="button"><span>✋</span>Papel</button>
+<button class="choice-btn" data-choice="tijera" type="button"><span>✌️</span>Tijera</button>
+</div>
+<div class="game-final hidden" id="game-final">
+<div class="game-final-icon" id="game-final-icon">🏆</div><h3 id="game-final-title">Resultado</h3><p class="muted" id="game-final-text"></p>
+<div class="piece-reveal hidden" id="piece-reveal">
+<p class="eyebrow">Puzle del masaje</p>
+<h3 id="piece-reveal-title">¡Nueva pieza conseguida!</h3>
+<p id="piece-reveal-text">Tu progreso se ha guardado en Supabase.</p>
+<div aria-label="0 de 6 piezas conseguidas" class="puzzle-grid puzzle-grid-game" id="game-puzzle-grid" role="img"></div>
+<strong class="game-puzzle-count" id="game-puzzle-count">0 de 6 piezas</strong>
+</div>
+<div class="prize-reveal hidden" id="prize-reveal">
+<p class="eyebrow">Puzle completado</p><h3 id="prize-title">Masaje de 30 minutos</h3><p id="prize-description"></p>
+<div class="prize-actions">
+<button class="btn btn-primary" id="download-voucher-btn" type="button">Descargar vale</button>
+<button class="btn btn-secondary" id="redeem-voucher-btn" type="button">Proponer canje</button>
+</div>
+</div>
+</div>
+<p class="daily-note" id="game-daily-note">La partida y el puzle se sincronizan con la cuenta de Laura.</p>
+</div>
+</section>
+<!-- Modal recuerdos -->
+<section class="modal hidden" id="memory-modal">
+<div class="modal-backdrop" data-memory-close=""></div>
+<div class="modal-panel memory-panel">
+<button aria-label="Cerrar" class="modal-close" data-memory-close="" type="button">×</button>
+<p class="eyebrow" id="memory-modal-date">Fecha</p><h2 id="memory-modal-title">Recuerdo</h2><p class="muted" id="memory-modal-description"></p>
+<div class="gallery-viewer">
+<button aria-label="Foto anterior" class="gallery-arrow" id="gallery-prev" type="button">‹</button>
+<img alt="Recuerdo" id="gallery-image" src=""/>
+<button aria-label="Foto siguiente" class="gallery-arrow" id="gallery-next" type="button">›</button>
+</div>
+<p class="gallery-counter" id="gallery-counter"></p>
+</div>
+</section>
+<!-- Modal mensaje Laura -->
+<section class="modal hidden" id="laura-message-modal">
+<div class="modal-backdrop" data-laura-message-close=""></div>
+<div class="modal-panel laura-message-panel">
+<button aria-label="Cerrar" class="modal-close" data-laura-message-close="" type="button">×</button>
+<div class="modal-icon" id="laura-message-modal-icon">💌</div>
+<p class="eyebrow" id="laura-message-modal-type">Mensaje</p><h2 id="laura-message-modal-title">Para Javi</h2><p class="muted" id="laura-message-modal-date"></p>
+<div class="laura-message-modal-content" id="laura-message-modal-content"></div>
+<div class="laura-message-modal-actions" id="laura-message-modal-actions"></div>
+</div>
+</section>
+<div class="toast hidden" id="toast"></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-        <div id="profile-selector" class="auth-profile-step">
-          <p class="eyebrow">Un sitio para los dos</p>
-          <h1>¿Quién está entrando?</h1>
-          <p class="muted auth-lead">Elige tu perfil. El correo ya lo sabe JaviEats; tú solo tendrás que poner tu contraseña.</p>
+<script src="minigames-data.js?v=2.7"></script><script src="script.js?v=2.7"></script><script src="minigames.js?v=2.7"></script>
 
-          <div class="profile-selector" role="group" aria-label="Selecciona tu perfil">
-            <button class="profile-card profile-card-javi" type="button" data-auth-profile="javi">
-              <span class="profile-avatar">J</span>
-              <span class="profile-copy">
-                <strong>Javi</strong>
-                <small>Entrar como Javi</small>
-              </span>
-              <span class="profile-arrow" aria-hidden="true">→</span>
-            </button>
-
-            <button class="profile-card profile-card-laura" type="button" data-auth-profile="laura">
-              <span class="profile-avatar">L</span>
-              <span class="profile-copy">
-                <strong>Laura</strong>
-                <small>Entrar como Laura</small>
-              </span>
-              <span class="profile-arrow" aria-hidden="true">→</span>
-            </button>
-          </div>
-
-          <p id="auth-global-status" class="note auth-global-status" aria-live="polite"></p>
-          <p class="auth-help">Si ya existe una sesión válida en este dispositivo, la próxima vez entrarás directamente.</p>
-        </div>
-
-        <div id="password-panel" class="auth-password-step hidden">
-          <button id="auth-back-btn" class="auth-back-btn" type="button">← No soy <span id="auth-back-name">este perfil</span></button>
-
-          <div class="selected-profile-card">
-            <span id="auth-selected-avatar" class="selected-profile-avatar">J</span>
-            <div>
-              <p class="eyebrow">Bienvenido de nuevo</p>
-              <h1 id="auth-selected-name">Hola, Javi</h1>
-              <p id="auth-selected-hint" class="muted">Solo falta tu contraseña.</p>
-            </div>
-          </div>
-
-          <form id="login-form" class="form auth-password-form">
-            <input id="login-email" type="hidden" />
-            <label>Contraseña
-              <input id="login-password" type="password" autocomplete="current-password" placeholder="Tu contraseña" required />
-            </label>
-            <button id="login-submit" class="btn btn-primary" type="submit">Entrar en JaviEats</button>
-            <p id="login-status" class="note auth-login-status" aria-live="polite"></p>
-          </form>
-        </div>
-      </div>
-    </section>
-
-    <!-- 3) Bienvenida -->
-    <section id="welcome-screen" class="screen welcome-screen hidden" aria-live="polite">
-      <div class="welcome-card">
-        <div class="welcome-brand">JaviEats</div>
-        <div id="welcome-avatar" class="welcome-avatar">J</div>
-        <p class="eyebrow">Todo lo vuestro, listo</p>
-        <h1 id="welcome-title">Buenas, Javi</h1>
-        <p id="welcome-message" class="welcome-message">Preparando JaviEats…</p>
-        <div class="welcome-summary">
-          <span id="welcome-summary-primary" class="welcome-summary-chip">Sincronizando…</span>
-          <span id="welcome-summary-secondary" class="welcome-summary-chip">Un momento</span>
-        </div>
-      </div>
-    </section>
-
-    <!-- 4) App -->
-    <section id="app-screen" class="screen hidden">
-      <header class="app-header">
-        <div>
-          <p class="eyebrow">Delivery de planes</p>
-          <h1>JaviEats</h1>
-          <div class="session-information">
-            <span id="session-user-name" class="session-user-name">Usuario</span>
-            <span id="sync-status" class="sync-status">Conectando…</span>
-          </div>
-        </div>
-        <button id="logout-btn" class="icon-btn" type="button" title="Cerrar sesión" aria-label="Cerrar sesión">⏻</button>
-      </header>
-
-      <section id="page-home" class="page active">
-        <div class="hero">
-          <p id="home-greeting" class="eyebrow">Hola 👋</p>
-          <h2>Todo lo nuestro, en un solo sitio</h2>
-          <p>Planes, recuerdos, juegos y pequeñas cosas para compartir los dos.</p>
-          <div class="availability">JaviEats · para Javi y Laura</div>
-        </div>
-
-        <section id="y-si-card" class="y-si-card">
-          <div class="y-si-top">
-            <div class="y-si-heading">
-              <div class="y-si-icon">💭</div>
-              <div>
-                <p class="eyebrow">Para los dos</p>
-                <h2>¿Y si…?</h2>
-                <p class="muted">Responded sin ver al otro. El resultado se desbloquea cuando los dos hayáis elegido.</p>
-              </div>
-            </div>
-            <span id="y-si-status-badge" class="y-si-status-badge">Preparando…</span>
-          </div>
-
-          <div class="y-si-compatibility-card">
-            <div class="y-si-heart-wrap" aria-hidden="true">
-              <svg class="y-si-heart" viewBox="0 0 100 92" role="img">
-                <defs>
-                  <clipPath id="y-si-heart-clip">
-                    <path d="M50 88C44 81 9 59 9 31C9 15 27 7 40 17C44 20 48 25 50 30C52 25 56 20 60 17C73 7 91 15 91 31C91 59 56 81 50 88Z"></path>
-                  </clipPath>
-                </defs>
-                <path class="y-si-heart-base" d="M50 88C44 81 9 59 9 31C9 15 27 7 40 17C44 20 48 25 50 30C52 25 56 20 60 17C73 7 91 15 91 31C91 59 56 81 50 88Z"></path>
-                <g clip-path="url(#y-si-heart-clip)">
-                  <rect id="y-si-heart-fill" class="y-si-heart-fill" x="0" y="92" width="100" height="0"></rect>
-                </g>
-                <path class="y-si-heart-outline" d="M50 88C44 81 9 59 9 31C9 15 27 7 40 17C44 20 48 25 50 30C52 25 56 20 60 17C73 7 91 15 91 31C91 59 56 81 50 88Z"></path>
-              </svg>
-              <strong id="y-si-compatibility" class="y-si-heart-percent">0%</strong>
-            </div>
-            <div class="y-si-compatibility-copy">
-              <p class="eyebrow">Compatibilidad JaviEats</p>
-              <strong id="y-si-compatibility-title">Aún está por descubrir</strong>
-              <p id="y-si-compatibility-text" class="muted">Responded vuestra primera pregunta para empezar a llenar el corazón.</p>
-              <div class="y-si-mini-stats">
-                <span><b id="y-si-shared-count">0</b> compartidas</span>
-                <span><b id="y-si-match-count">0</b> coincidencias</span>
-                <span><b id="y-si-best-streak">0</b> mejor racha</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="y-si-daily-summary">
-            <div>
-              <p class="eyebrow">Ronda de hoy</p>
-              <strong id="y-si-today-title">0 de 5 completadas</strong>
-              <p id="y-si-today-text" class="muted">Podéis completar hasta cinco situaciones juntos hoy.</p>
-            </div>
-            <div id="y-si-daily-dots" class="y-si-daily-dots" aria-label="Progreso diario"></div>
-          </div>
-
-          <div id="y-si-result" class="y-si-result hidden" aria-live="polite">
-            <div id="y-si-result-loading" class="y-si-result-loading hidden">
-              <span class="y-si-spinner"></span>
-              <strong>Comparando respuestas…</strong>
-            </div>
-            <div id="y-si-result-content" class="y-si-result-content">
-              <p id="y-si-result-meta" class="y-si-result-meta">Último resultado</p>
-              <div id="y-si-result-icon" class="y-si-result-icon">💞</div>
-              <p class="eyebrow">Resultado</p>
-              <h3 id="y-si-result-title">¡Coincidencia!</h3>
-              <p id="y-si-result-copy" class="muted"></p>
-              <div class="y-si-answer-grid">
-                <div class="y-si-answer-card"><span>Javi</span><strong id="y-si-javi-answer">—</strong></div>
-                <div class="y-si-answer-card"><span>Laura</span><strong id="y-si-laura-answer">—</strong></div>
-              </div>
-              <p id="y-si-special" class="y-si-special hidden">👀 Esta coincidencia no era tan obvia.</p>
-            </div>
-          </div>
-
-          <div class="y-si-question-panel">
-            <p id="y-si-question-date" class="y-si-question-date">Pregunta actual</p>
-            <h3 id="y-si-question-text">Cargando pregunta…</h3>
-            <div id="y-si-options" class="y-si-options" role="radiogroup" aria-label="Opciones de respuesta"></div>
-            <div class="y-si-question-actions">
-              <button id="y-si-submit" class="btn btn-primary y-si-submit" type="button" disabled>Guardar mi respuesta</button>
-              <button id="y-si-skip" class="btn btn-secondary y-si-skip hidden" type="button">↻ Cambiar pregunta · 1 al día</button>
-            </div>
-            <p id="y-si-status-note" class="note y-si-status-note"></p>
-          </div>
-
-          <div class="y-si-actions">
-            <button id="y-si-history-btn" class="link-btn" type="button">Ver historial de respuestas</button>
-          </div>
-        </section>
-
-        <section id="daily-game-card" class="game-card">
-          <div class="game-card-top">
-            <div class="game-icon">✊</div>
-            <div>
-              <p class="eyebrow">Reto diario</p>
-              <h2>Piedra, papel o tijera</h2>
-              <p class="muted">Cinco rondas. Los empates también consumen ronda. Cada partida ganada añade una pieza al puzle del masaje.</p>
-            </div>
-          </div>
-          <div class="game-rules-mini">
-            <span>5 rondas</span><span>1 intento diario real</span><span>6 piezas = masaje</span>
-          </div>
-
-          <div class="puzzle-home-card">
-            <div class="puzzle-home-copy">
-              <p class="eyebrow">Puzle del masaje</p>
-              <strong id="home-puzzle-count">0 de 6 piezas</strong>
-              <p id="home-puzzle-text">Gana partidas para ir descubriendo el premio.</p>
-              <button id="open-puzzle-btn" class="puzzle-link-btn" type="button">Ver puzle completo</button>
-            </div>
-            <div id="home-puzzle-grid" class="puzzle-grid puzzle-grid-mini" role="img" aria-label="0 de 6 piezas conseguidas"></div>
-          </div>
-
-          <p id="game-home-status" class="game-home-status">Comprobando la partida de hoy…</p>
-          <button id="game-home-button" class="btn btn-primary" type="button">Jugar partida de hoy</button>
-        </section>
-
-        <div class="stats">
-          <div class="stat"><strong id="total-proposals">0</strong><span>planes guardados</span></div>
-          <div class="stat"><strong id="next-plan">—</strong><span>próximo plan</span></div>
-        </div>
-        <div class="section-title">
-          <h3>Más pedidos</h3>
-          <button class="link-btn" type="button" data-go="services">Ver todo</button>
-        </div>
-        <div id="featured-services" class="services"></div>
-        <div class="info-card">
-          <strong>Cómo funciona</strong>
-          <p>Las propuestas y los planes libres se guardan en el calendario compartido de JaviEats.</p>
-        </div>
-      </section>
-
-      <section id="page-services" class="page">
-        <div class="section-title"><div><p class="eyebrow">Catálogo</p><h2>Servicios disponibles</h2></div></div>
-        <div id="all-services" class="services"></div>
-      </section>
-
-      <section id="page-calendar" class="page">
-        <div class="section-title"><div><p class="eyebrow">Agenda compartida</p><h2>Calendario</h2></div></div>
-        <div class="calendar-sync-card">
-          <span class="calendar-sync-icon">☁️</span>
-          <div><strong>Calendario sincronizado</strong><p class="muted">Los planes aparecen en las cuentas de Javi y Laura.</p></div>
-        </div>
-        <div class="calendar-card">
-          <div class="calendar-head">
-            <button id="prev-month" class="icon-btn" type="button" aria-label="Mes anterior">‹</button>
-            <h3 id="calendar-title">Mes</h3>
-            <button id="next-month" class="icon-btn" type="button" aria-label="Mes siguiente">›</button>
-          </div>
-          <div class="weekdays"><span>L</span><span>M</span><span>X</span><span>J</span><span>V</span><span>S</span><span>D</span></div>
-          <div id="calendar-grid" class="calendar-grid"></div>
-        </div>
-        <div class="section-title"><h3 id="selected-title">Día seleccionado</h3></div>
-        <div id="day-bookings" class="list"></div>
-        <div class="calendar-add-plan">
-          <button id="add-custom-plan-btn" class="btn btn-primary" type="button">＋ Añadir plan a este día</button>
-          <p class="calendar-add-plan-help">Añade una cena, viaje, cita, recordatorio o cualquier plan compartido.</p>
-        </div>
-        <div class="section-title history-title">
-          <div><p class="eyebrow">Historial compartido</p><h3>Todos los planes</h3></div>
-          <button id="clear-history" class="link-btn danger" type="button">Limpiar</button>
-        </div>
-        <div id="booking-list" class="list"></div>
-      </section>
-
-      <section id="page-laura" class="page">
-        <div class="laura-hero">
-          <div class="laura-hero-icon">💌</div>
-          <p class="eyebrow">Un espacio para Laura</p>
-          <h2>Laura</h2>
-          <p>Mensajes, cartas, pensamientos, ideas y todo aquello que quieras contarle a Javi.</p>
-        </div>
-        <section id="laura-compose-card" class="laura-compose-card">
-          <div class="section-title"><div><p class="eyebrow">Escribir algo nuevo</p><h3>Para Javi</h3></div></div>
-          <form id="laura-message-form" class="form">
-            <label>¿Qué quieres escribir?
-              <select id="laura-message-type" required>
-                <option value="mensaje">Mensaje</option>
-                <option value="carta">Carta</option>
-                <option value="contarte">Algo que quiero contarte</option>
-                <option value="idea">Idea para nosotros</option>
-              </select>
-            </label>
-            <label>Título <span class="field-hint">Opcional</span>
-              <input id="laura-message-title" type="text" maxlength="120" placeholder="Ponle un título bonito..." />
-            </label>
-            <label>Escribe aquí
-              <textarea id="laura-message-content" rows="8" maxlength="12000" placeholder="Cuéntale a Javi lo que quieras..." required></textarea>
-            </label>
-            <button id="save-laura-message" class="btn btn-primary" type="submit">Guardar para Javi</button>
-            <p id="laura-message-status" class="note"></p>
-          </form>
-        </section>
-        <div class="section-title laura-history-title"><div><p class="eyebrow">El rincón de Laura</p><h2>Mensajes y cartas</h2></div></div>
-        <div id="laura-messages-list" class="laura-messages-list"></div>
-      </section>
-
-      <section id="page-memories" class="page">
-        <div class="memories-hero"><p class="eyebrow">Nuestro archivo</p><h2>Recuerdos</h2><p>Cartas, flores y momentos que merece la pena guardar.</p></div>
-        <div id="memories-list" class="memories-timeline"></div>
-        <div class="section-title vouchers-title"><div><p class="eyebrow">Premios ganados</p><h2>Mis vales</h2></div></div>
-        <div id="voucher-list" class="voucher-list"></div>
-      </section>
-
-      <section id="page-draw" class="page draw-page">
-        <div class="draw-hero">
-          <div>
-            <p class="eyebrow">Juego para cuando estáis juntos</p>
-            <h2>Dibuja</h2>
-            <p>Conquistad categorías a base de dibujos. Nueve territorios, una moneda para decidir quién empieza y una única regla: aquí no hace falta saber dibujar bien.</p>
-          </div>
-          <span class="draw-hero-badge">2 de 3 aciertos</span>
-        </div>
-
-        <section id="draw-lobby" class="draw-lobby">
-          <div class="draw-match-score">
-            <div class="draw-player-score draw-player-javi">
-              <span>Javi</span><strong id="draw-score-javi">0</strong><small>territorios</small>
-            </div>
-            <div class="draw-score-center"><span>VS</span><small>Primero a 5</small></div>
-            <div class="draw-player-score draw-player-laura">
-              <span>Laura</span><strong id="draw-score-laura">0</strong><small>territorios</small>
-            </div>
-          </div>
-
-          <div id="draw-coin-card" class="draw-coin-card">
-            <div id="draw-coin" class="draw-coin" aria-hidden="true"><span>J</span><span>L</span></div>
-            <div>
-              <p class="eyebrow">¿Quién empieza adivinando?</p>
-              <h3 id="draw-turn-title">Lanzad la moneda para empezar</h3>
-              <p id="draw-turn-copy" class="muted">La persona elegida escogerá la primera categoría.</p>
-            </div>
-            <button id="draw-start-btn" class="btn btn-primary" type="button">Lanzar moneda</button>
-          </div>
-
-          <div class="draw-board-head">
-            <div>
-              <p class="eyebrow">Tablero de categorías</p>
-              <h3>Conquista 5 de 9</h3>
-            </div>
-            <button id="draw-reset-btn" class="link-btn hidden" type="button">Nueva partida</button>
-          </div>
-          <div id="draw-board" class="draw-board" aria-label="Categorías de la partida"></div>
-
-          <div class="draw-rules-card">
-            <strong>Cómo se conquista una categoría</strong>
-            <p>Quien adivina elige una categoría. La otra persona dibuja 3 conceptos de esa sección. Si quien adivina acierta al menos 2, conquista el territorio; si no, lo conquista quien dibuja. El ganador del territorio elige la siguiente categoría.</p>
-          </div>
-        </section>
-
-        <section id="draw-round" class="draw-round hidden" aria-live="polite">
-          <div class="draw-round-head">
-            <button id="draw-back-board-btn" class="back-link" type="button">← Ver tablero</button>
-            <div class="draw-round-meta">
-              <span id="draw-section-chip" class="draw-section-chip">📺 Series</span>
-              <span id="draw-card-progress" class="draw-card-progress">Carta 1 de 3</span>
-            </div>
-            <div class="draw-round-roles">
-              <div><small>Adivina</small><strong id="draw-guesser-name">Javi</strong></div>
-              <div><small>Dibuja</small><strong id="draw-drawer-name">Laura</strong></div>
-              <div><small>Aciertos</small><strong id="draw-section-hits">0/2</strong></div>
-            </div>
-          </div>
-
-          <div id="draw-secret-stage" class="draw-secret-stage">
-            <div class="draw-secret-icon">🙈</div>
-            <p id="draw-secret-warning" class="eyebrow">Javi, no mires</p>
-            <h3 id="draw-secret-title">Laura, mira tu concepto</h3>
-            <p class="muted">Cuando la otra persona no esté mirando, revela la palabra y memorízala.</p>
-            <button id="draw-reveal-card-btn" class="btn btn-primary" type="button">Mostrar concepto</button>
-            <div id="draw-card-reveal" class="draw-card-reveal hidden">
-              <span>TIENES QUE DIBUJAR</span>
-              <strong id="draw-card-word">—</strong>
-              <button id="draw-begin-card-btn" class="btn btn-primary" type="button">Ya la tengo · Empezar</button>
-            </div>
-          </div>
-
-          <div id="draw-canvas-stage" class="draw-canvas-stage hidden">
-            <div class="draw-timer-row">
-              <div class="draw-timer-copy"><span>Tiempo</span><strong id="draw-timer">40</strong></div>
-              <div class="draw-timer-track"><div id="draw-timer-bar" class="draw-timer-bar"></div></div>
-              <span class="draw-target">Objetivo: 2 de 3</span>
-            </div>
-            <div class="draw-canvas-wrap">
-              <canvas id="draw-canvas" width="900" height="600" aria-label="Lienzo para dibujar"></canvas>
-            </div>
-            <div class="draw-tools" aria-label="Herramientas de dibujo">
-              <div class="draw-colors" role="group" aria-label="Color">
-                <button class="draw-color is-active" type="button" data-draw-color="#171414" aria-label="Negro"></button>
-                <button class="draw-color" type="button" data-draw-color="#e85d45" aria-label="Rojo"></button>
-                <button class="draw-color" type="button" data-draw-color="#2563eb" aria-label="Azul"></button>
-                <button class="draw-color" type="button" data-draw-color="#16a34a" aria-label="Verde"></button>
-              </div>
-              <div class="draw-brushes" role="group" aria-label="Grosor">
-                <button class="draw-tool is-active" type="button" data-draw-width="6">Fino</button>
-                <button class="draw-tool" type="button" data-draw-width="14">Grueso</button>
-                <button id="draw-eraser-btn" class="draw-tool" type="button">Goma</button>
-                <button id="draw-clear-btn" class="draw-tool" type="button">Borrar</button>
-              </div>
-            </div>
-            <div class="draw-judge-actions">
-              <button id="draw-miss-btn" class="btn btn-secondary" type="button">No acertado</button>
-              <button id="draw-hit-btn" class="btn btn-primary" type="button">✓ Acertado</button>
-            </div>
-            <p class="draw-judge-note">La respuesta se dice en voz alta. Quien dibuja marca si se ha acertado.</p>
-          </div>
-        </section>
-
-        <section id="draw-result" class="draw-result hidden" aria-live="polite">
-          <div id="draw-result-icon" class="draw-result-icon">🏆</div>
-          <p class="eyebrow">Territorio resuelto</p>
-          <h3 id="draw-result-title">Javi conquista Series</h3>
-          <p id="draw-result-copy" class="muted"></p>
-          <button id="draw-next-section-btn" class="btn btn-primary" type="button">Elegir siguiente categoría</button>
-        </section>
-
-        <section id="draw-final" class="draw-final hidden" aria-live="polite">
-          <div class="draw-final-crown">🏆</div>
-          <p class="eyebrow">Fin de la partida</p>
-          <h2 id="draw-final-title">Javi gana</h2>
-          <p id="draw-final-copy" class="muted">Ha conquistado 5 territorios.</p>
-          <div id="draw-final-board" class="draw-final-board"></div>
-          <button id="draw-rematch-btn" class="btn btn-primary" type="button">Revancha</button>
-        </section>
-      </section>
-
-      <section id="page-letter" class="page letter-page">
-        <button class="back-link" type="button" data-go="memories">← Volver a recuerdos</button>
-        <article class="letter-card">
-          <div class="letter-stamp">💌</div>
-          <p id="letter-eyebrow" class="eyebrow">Recuerdo</p>
-          <h2 id="letter-title">Para Laura</h2>
-          <div id="letter-content" class="letter-content"><p>Cargando carta...</p></div>
-        </article>
-      </section>
-
-      <nav class="bottom-nav">
-        <button class="nav-btn active" type="button" data-page="home">🏠<span>Inicio</span></button>
-        <button class="nav-btn" type="button" data-page="services">🛵<span>Servicios</span></button>
-        <button class="nav-btn" type="button" data-page="calendar">📅<span>Calendario</span></button>
-        <button class="nav-btn" type="button" data-page="laura">💌<span>Laura</span></button>
-        <button class="nav-btn" type="button" data-page="memories">🗃️<span>Recuerdos</span></button>
-        <button class="nav-btn" type="button" data-page="draw">🎨<span>Dibuja</span></button>
-      </nav>
-    </section>
-  </main>
-
-  <!-- Modal servicio -->
-  <section id="service-modal" class="modal hidden">
-    <div class="modal-backdrop" data-service-close></div>
-    <div class="modal-panel">
-      <button class="modal-close" type="button" data-service-close aria-label="Cerrar">×</button>
-      <div id="modal-icon" class="modal-icon">🍣</div>
-      <p id="modal-category" class="eyebrow">Categoría</p>
-      <h2 id="modal-title">Servicio</h2>
-      <p id="modal-description" class="muted"></p>
-      <ul id="modal-list" class="clean-list"></ul>
-      <form id="proposal-form" class="form">
-        <input id="service-id" type="hidden" />
-        <div class="form-row">
-          <label>Fecha<input id="proposal-date" type="date" required /></label>
-          <label>Hora<input id="proposal-time" type="time" required /></label>
-        </div>
-        <label>Duración aproximada<select id="proposal-duration" required></select></label>
-        <label>Nivel de ganas
-          <select id="proposal-priority" required>
-            <option value="Normal">Normal</option>
-            <option value="Me apetece bastante">Me apetece bastante</option>
-            <option value="Hoy estaría muy bien">Hoy estaría muy bien</option>
-            <option value="Plan necesario">Plan necesario</option>
-          </select>
-        </label>
-        <label>Nota <span id="proposal-note-hint" class="field-hint">Opcional</span>
-          <textarea id="proposal-note" rows="4" maxlength="2000" placeholder="Cuéntale a Javi cualquier detalle..."></textarea>
-        </label>
-        <button id="proposal-submit" class="btn btn-primary" type="submit">Enviar propuesta</button>
-        <p id="proposal-status" class="note"></p>
-      </form>
-      <div id="proposal-success" class="proposal-success hidden">
-        <div class="proposal-success-icon">🎟️</div><p class="eyebrow">Propuesta enviada</p><h3>Tu pedido se ha guardado</h3>
-        <p class="muted">Ya aparece en el calendario compartido de JaviEats.</p>
-        <div id="proposal-ticket-preview" class="proposal-ticket-preview"></div>
-        <div class="proposal-ticket-actions">
-          <button id="download-proposal-ticket" class="btn btn-primary" type="button">Descargar ticket</button>
-          <button class="btn btn-secondary" type="button" data-service-close>Cerrar</button>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Modal plan libre -->
-  <section id="custom-plan-modal" class="modal hidden">
-    <div class="modal-backdrop" data-custom-plan-close></div>
-    <div class="modal-panel custom-plan-panel">
-      <button class="modal-close" type="button" data-custom-plan-close aria-label="Cerrar">×</button>
-      <div class="modal-icon">📌</div>
-      <p class="eyebrow">Calendario compartido</p>
-      <h2>Añadir plan</h2>
-      <p class="muted">No es una invitación ni una propuesta de servicio: es un evento compartido para los dos.</p>
-      <form id="custom-plan-form" class="form">
-        <label>Título<input id="custom-plan-title" type="text" maxlength="120" placeholder="Ej: Cena en Madrid" required /></label>
-        <label>Fecha<input id="custom-plan-date" type="date" required /></label>
-        <label class="all-day-option"><input id="custom-plan-all-day" type="checkbox" /><span>Todo el día</span></label>
-        <label id="custom-plan-time-label">Hora<input id="custom-plan-time" type="time" /></label>
-        <label>Descripción <span class="field-hint">Opcional</span>
-          <textarea id="custom-plan-description" rows="5" maxlength="2000" placeholder="Añade cualquier detalle..."></textarea>
-        </label>
-        <button id="custom-plan-submit" class="btn btn-primary" type="submit">Guardar plan</button>
-        <p id="custom-plan-status" class="note"></p>
-      </form>
-    </div>
-  </section>
-
-  <!-- Historial compartido de ¿Y si...? -->
-  <section id="y-si-history-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="y-si-history-title">
-    <div class="modal-backdrop" data-y-si-history-close></div>
-    <div class="modal-panel y-si-history-panel">
-      <button class="modal-close" type="button" data-y-si-history-close aria-label="Cerrar">×</button>
-      <div class="modal-icon">💞</div>
-      <p class="eyebrow">Los dos</p>
-      <h2 id="y-si-history-title">Nuestro historial de “¿Y si…?”</h2>
-      <p id="y-si-history-summary" class="muted">Aquí aparecerán las preguntas que ya habéis respondido los dos.</p>
-      <div class="y-si-history-filters" role="group" aria-label="Filtrar historial">
-        <button class="y-si-filter is-active" type="button" data-y-si-filter="all">Todas</button>
-        <button class="y-si-filter" type="button" data-y-si-filter="match">Coincidencias</button>
-        <button class="y-si-filter" type="button" data-y-si-filter="different">Diferentes</button>
-      </div>
-      <div id="y-si-history-list" class="y-si-history-list"></div>
-    </div>
-  </section>
-
-  <!-- Modal de bienvenida del puzle -->
-  <section id="puzzle-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="puzzle-modal-title">
-    <div class="modal-backdrop" data-puzzle-close></div>
-    <div class="modal-panel puzzle-panel">
-      <button class="modal-close" type="button" data-puzzle-close aria-label="Cerrar">×</button>
-      <div class="puzzle-modal-icon">🧩</div>
-      <p class="eyebrow">Tu progreso</p>
-      <h2 id="puzzle-modal-title">Puzle del masaje</h2>
-      <p id="puzzle-modal-text" class="puzzle-modal-text">Cada partida ganada descubre una pieza. Completa las seis para conseguir el masaje.</p>
-      <div id="puzzle-modal-grid" class="puzzle-grid puzzle-grid-large" role="img" aria-label="0 de 6 piezas conseguidas"></div>
-      <div class="puzzle-progress-summary">
-        <strong id="puzzle-modal-count">0 de 6 piezas</strong>
-        <span id="puzzle-modal-reward">Premio: masaje de 30 minutos</span>
-      </div>
-      <div class="puzzle-modal-actions">
-        <button id="puzzle-modal-primary" class="btn btn-primary" type="button">Jugar reto de hoy</button>
-        <button class="btn btn-secondary" type="button" data-puzzle-close>Seguir en JaviEats</button>
-      </div>
-    </div>
-  </section>
-
-  <!-- Modal juego -->
-  <section id="game-modal" class="modal hidden">
-    <div class="modal-backdrop" data-game-close></div>
-    <div class="modal-panel game-panel">
-      <button class="modal-close" type="button" data-game-close aria-label="Cerrar">×</button>
-      <div class="modal-icon">🎮</div>
-      <p class="eyebrow">Reto diario</p><h2>Piedra, papel o tijera</h2>
-      <p class="muted">Se juegan cinco rondas. Los empates consumen ronda. Si acabáis empatados en victorias, habrá muerte súbita. Ganar la partida completa descubre una pieza del puzle.</p>
-      <div class="round-information"><strong id="game-round-label">Ronda 1 de 5</strong><span id="game-draws">Empates: 0</span></div>
-      <div class="scoreboard">
-        <div class="score-box"><span>Victorias de Laura</span><strong id="player-score">0</strong></div>
-        <div class="score-divider">—</div>
-        <div class="score-box"><span>Victorias máquina</span><strong id="machine-score">0</strong></div>
-      </div>
-      <div class="choice-arena">
-        <div class="choice-fighter"><span class="fighter-name">Laura</span><div id="player-choice-visual" class="choice-visual">❔</div><strong id="player-choice-label">Sin elegir</strong></div>
-        <div class="versus">VS</div>
-        <div class="choice-fighter"><span class="fighter-name">Máquina</span><div id="machine-choice-visual" class="choice-visual">❔</div><strong id="machine-choice-label">Esperando</strong></div>
-      </div>
-      <p id="game-round-result" class="round-result">Elige tu jugada para empezar.</p>
-      <div id="game-choices" class="game-choices">
-        <button class="choice-btn" type="button" data-choice="piedra"><span>✊</span>Piedra</button>
-        <button class="choice-btn" type="button" data-choice="papel"><span>✋</span>Papel</button>
-        <button class="choice-btn" type="button" data-choice="tijera"><span>✌️</span>Tijera</button>
-      </div>
-      <div id="game-final" class="game-final hidden">
-        <div id="game-final-icon" class="game-final-icon">🏆</div><h3 id="game-final-title">Resultado</h3><p id="game-final-text" class="muted"></p>
-        <div id="piece-reveal" class="piece-reveal hidden">
-          <p class="eyebrow">Puzle del masaje</p>
-          <h3 id="piece-reveal-title">¡Nueva pieza conseguida!</h3>
-          <p id="piece-reveal-text">Tu progreso se ha guardado en Supabase.</p>
-          <div id="game-puzzle-grid" class="puzzle-grid puzzle-grid-game" role="img" aria-label="0 de 6 piezas conseguidas"></div>
-          <strong id="game-puzzle-count" class="game-puzzle-count">0 de 6 piezas</strong>
-        </div>
-        <div id="prize-reveal" class="prize-reveal hidden">
-          <p class="eyebrow">Puzle completado</p><h3 id="prize-title">Masaje de 30 minutos</h3><p id="prize-description"></p>
-          <div class="prize-actions">
-            <button id="download-voucher-btn" class="btn btn-primary" type="button">Descargar vale</button>
-            <button id="redeem-voucher-btn" class="btn btn-secondary" type="button">Proponer canje</button>
-          </div>
-        </div>
-      </div>
-      <p id="game-daily-note" class="daily-note">La partida y el puzle se sincronizan con la cuenta de Laura.</p>
-    </div>
-  </section>
-
-  <!-- Modal recuerdos -->
-  <section id="memory-modal" class="modal hidden">
-    <div class="modal-backdrop" data-memory-close></div>
-    <div class="modal-panel memory-panel">
-      <button class="modal-close" type="button" data-memory-close aria-label="Cerrar">×</button>
-      <p id="memory-modal-date" class="eyebrow">Fecha</p><h2 id="memory-modal-title">Recuerdo</h2><p id="memory-modal-description" class="muted"></p>
-      <div class="gallery-viewer">
-        <button id="gallery-prev" class="gallery-arrow" type="button" aria-label="Foto anterior">‹</button>
-        <img id="gallery-image" src="" alt="Recuerdo" />
-        <button id="gallery-next" class="gallery-arrow" type="button" aria-label="Foto siguiente">›</button>
-      </div>
-      <p id="gallery-counter" class="gallery-counter"></p>
-    </div>
-  </section>
-
-  <!-- Modal mensaje Laura -->
-  <section id="laura-message-modal" class="modal hidden">
-    <div class="modal-backdrop" data-laura-message-close></div>
-    <div class="modal-panel laura-message-panel">
-      <button class="modal-close" type="button" data-laura-message-close aria-label="Cerrar">×</button>
-      <div id="laura-message-modal-icon" class="modal-icon">💌</div>
-      <p id="laura-message-modal-type" class="eyebrow">Mensaje</p><h2 id="laura-message-modal-title">Para Javi</h2><p id="laura-message-modal-date" class="muted"></p>
-      <div id="laura-message-modal-content" class="laura-message-modal-content"></div>
-      <div id="laura-message-modal-actions" class="laura-message-modal-actions"></div>
-    </div>
-  </section>
-
-  <div id="toast" class="toast hidden"></div>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="draw-data.js?v=2.6"></script>
-  <script src="script.js?v=2.6"></script>
-  <script src="draw-game.js?v=2.6"></script>
 </body>
 </html>
