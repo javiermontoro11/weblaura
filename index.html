@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#f4f0ea" />
   <title>JaviEats</title>
-  <link rel="stylesheet" href="style.css?v=2.5.2" />
+  <link rel="stylesheet" href="style.css?v=2.6" />
 </head>
 <body>
   <main class="app-shell">
@@ -22,6 +22,17 @@
     <section id="auth-screen" class="screen auth-screen hidden">
       <div class="entry-card auth-card">
         <div class="brand-pill">JaviEats</div>
+
+        <div id="turn-profile-mismatch" class="turn-profile-mismatch hidden" aria-live="polite">
+          <div class="turn-profile-mismatch-icon">👀</div>
+          <p class="eyebrow">Enlace de turno</p>
+          <h1 id="turn-profile-mismatch-title">Este turno es para Javi</h1>
+          <p id="turn-profile-mismatch-copy" class="muted">Ahora mismo este navegador tiene abierta otra cuenta.</p>
+          <div class="turn-profile-mismatch-actions">
+            <button id="turn-profile-switch-btn" class="btn btn-primary" type="button">Cambiar de cuenta</button>
+            <button id="turn-profile-continue-btn" class="btn btn-secondary" type="button">Seguir con la sesión actual</button>
+          </div>
+        </div>
 
         <div id="profile-selector" class="auth-profile-step">
           <p class="eyebrow">Un sitio para los dos</p>
@@ -312,6 +323,128 @@
         <div id="voucher-list" class="voucher-list"></div>
       </section>
 
+      <section id="page-draw" class="page draw-page">
+        <div class="draw-hero">
+          <div>
+            <p class="eyebrow">Juego para cuando estáis juntos</p>
+            <h2>Dibuja</h2>
+            <p>Conquistad categorías a base de dibujos. Nueve territorios, una moneda para decidir quién empieza y una única regla: aquí no hace falta saber dibujar bien.</p>
+          </div>
+          <span class="draw-hero-badge">2 de 3 aciertos</span>
+        </div>
+
+        <section id="draw-lobby" class="draw-lobby">
+          <div class="draw-match-score">
+            <div class="draw-player-score draw-player-javi">
+              <span>Javi</span><strong id="draw-score-javi">0</strong><small>territorios</small>
+            </div>
+            <div class="draw-score-center"><span>VS</span><small>Primero a 5</small></div>
+            <div class="draw-player-score draw-player-laura">
+              <span>Laura</span><strong id="draw-score-laura">0</strong><small>territorios</small>
+            </div>
+          </div>
+
+          <div id="draw-coin-card" class="draw-coin-card">
+            <div id="draw-coin" class="draw-coin" aria-hidden="true"><span>J</span><span>L</span></div>
+            <div>
+              <p class="eyebrow">¿Quién empieza adivinando?</p>
+              <h3 id="draw-turn-title">Lanzad la moneda para empezar</h3>
+              <p id="draw-turn-copy" class="muted">La persona elegida escogerá la primera categoría.</p>
+            </div>
+            <button id="draw-start-btn" class="btn btn-primary" type="button">Lanzar moneda</button>
+          </div>
+
+          <div class="draw-board-head">
+            <div>
+              <p class="eyebrow">Tablero de categorías</p>
+              <h3>Conquista 5 de 9</h3>
+            </div>
+            <button id="draw-reset-btn" class="link-btn hidden" type="button">Nueva partida</button>
+          </div>
+          <div id="draw-board" class="draw-board" aria-label="Categorías de la partida"></div>
+
+          <div class="draw-rules-card">
+            <strong>Cómo se conquista una categoría</strong>
+            <p>Quien adivina elige una categoría. La otra persona dibuja 3 conceptos de esa sección. Si quien adivina acierta al menos 2, conquista el territorio; si no, lo conquista quien dibuja. El ganador del territorio elige la siguiente categoría.</p>
+          </div>
+        </section>
+
+        <section id="draw-round" class="draw-round hidden" aria-live="polite">
+          <div class="draw-round-head">
+            <button id="draw-back-board-btn" class="back-link" type="button">← Ver tablero</button>
+            <div class="draw-round-meta">
+              <span id="draw-section-chip" class="draw-section-chip">📺 Series</span>
+              <span id="draw-card-progress" class="draw-card-progress">Carta 1 de 3</span>
+            </div>
+            <div class="draw-round-roles">
+              <div><small>Adivina</small><strong id="draw-guesser-name">Javi</strong></div>
+              <div><small>Dibuja</small><strong id="draw-drawer-name">Laura</strong></div>
+              <div><small>Aciertos</small><strong id="draw-section-hits">0/2</strong></div>
+            </div>
+          </div>
+
+          <div id="draw-secret-stage" class="draw-secret-stage">
+            <div class="draw-secret-icon">🙈</div>
+            <p id="draw-secret-warning" class="eyebrow">Javi, no mires</p>
+            <h3 id="draw-secret-title">Laura, mira tu concepto</h3>
+            <p class="muted">Cuando la otra persona no esté mirando, revela la palabra y memorízala.</p>
+            <button id="draw-reveal-card-btn" class="btn btn-primary" type="button">Mostrar concepto</button>
+            <div id="draw-card-reveal" class="draw-card-reveal hidden">
+              <span>TIENES QUE DIBUJAR</span>
+              <strong id="draw-card-word">—</strong>
+              <button id="draw-begin-card-btn" class="btn btn-primary" type="button">Ya la tengo · Empezar</button>
+            </div>
+          </div>
+
+          <div id="draw-canvas-stage" class="draw-canvas-stage hidden">
+            <div class="draw-timer-row">
+              <div class="draw-timer-copy"><span>Tiempo</span><strong id="draw-timer">40</strong></div>
+              <div class="draw-timer-track"><div id="draw-timer-bar" class="draw-timer-bar"></div></div>
+              <span class="draw-target">Objetivo: 2 de 3</span>
+            </div>
+            <div class="draw-canvas-wrap">
+              <canvas id="draw-canvas" width="900" height="600" aria-label="Lienzo para dibujar"></canvas>
+            </div>
+            <div class="draw-tools" aria-label="Herramientas de dibujo">
+              <div class="draw-colors" role="group" aria-label="Color">
+                <button class="draw-color is-active" type="button" data-draw-color="#171414" aria-label="Negro"></button>
+                <button class="draw-color" type="button" data-draw-color="#e85d45" aria-label="Rojo"></button>
+                <button class="draw-color" type="button" data-draw-color="#2563eb" aria-label="Azul"></button>
+                <button class="draw-color" type="button" data-draw-color="#16a34a" aria-label="Verde"></button>
+              </div>
+              <div class="draw-brushes" role="group" aria-label="Grosor">
+                <button class="draw-tool is-active" type="button" data-draw-width="6">Fino</button>
+                <button class="draw-tool" type="button" data-draw-width="14">Grueso</button>
+                <button id="draw-eraser-btn" class="draw-tool" type="button">Goma</button>
+                <button id="draw-clear-btn" class="draw-tool" type="button">Borrar</button>
+              </div>
+            </div>
+            <div class="draw-judge-actions">
+              <button id="draw-miss-btn" class="btn btn-secondary" type="button">No acertado</button>
+              <button id="draw-hit-btn" class="btn btn-primary" type="button">✓ Acertado</button>
+            </div>
+            <p class="draw-judge-note">La respuesta se dice en voz alta. Quien dibuja marca si se ha acertado.</p>
+          </div>
+        </section>
+
+        <section id="draw-result" class="draw-result hidden" aria-live="polite">
+          <div id="draw-result-icon" class="draw-result-icon">🏆</div>
+          <p class="eyebrow">Territorio resuelto</p>
+          <h3 id="draw-result-title">Javi conquista Series</h3>
+          <p id="draw-result-copy" class="muted"></p>
+          <button id="draw-next-section-btn" class="btn btn-primary" type="button">Elegir siguiente categoría</button>
+        </section>
+
+        <section id="draw-final" class="draw-final hidden" aria-live="polite">
+          <div class="draw-final-crown">🏆</div>
+          <p class="eyebrow">Fin de la partida</p>
+          <h2 id="draw-final-title">Javi gana</h2>
+          <p id="draw-final-copy" class="muted">Ha conquistado 5 territorios.</p>
+          <div id="draw-final-board" class="draw-final-board"></div>
+          <button id="draw-rematch-btn" class="btn btn-primary" type="button">Revancha</button>
+        </section>
+      </section>
+
       <section id="page-letter" class="page letter-page">
         <button class="back-link" type="button" data-go="memories">← Volver a recuerdos</button>
         <article class="letter-card">
@@ -328,6 +461,7 @@
         <button class="nav-btn" type="button" data-page="calendar">📅<span>Calendario</span></button>
         <button class="nav-btn" type="button" data-page="laura">💌<span>Laura</span></button>
         <button class="nav-btn" type="button" data-page="memories">🗃️<span>Recuerdos</span></button>
+        <button class="nav-btn" type="button" data-page="draw">🎨<span>Dibuja</span></button>
       </nav>
     </section>
   </main>
@@ -512,6 +646,8 @@
 
   <div id="toast" class="toast hidden"></div>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="script.js?v=2.5.2"></script>
+  <script src="draw-data.js?v=2.6"></script>
+  <script src="script.js?v=2.6"></script>
+  <script src="draw-game.js?v=2.6"></script>
 </body>
 </html>
