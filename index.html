@@ -1,3 +1,10 @@
+<script>
+  const MAINTENANCE_UNTIL = new Date("2026-08-29T08:30:00+02:00").getTime();
+
+  if (Date.now() < MAINTENANCE_UNTIL) {
+    window.location.replace("/mantenimiento.html");
+  }
+</script>
 <!DOCTYPE html>
 
 <html lang="es">
