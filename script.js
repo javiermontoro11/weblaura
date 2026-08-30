@@ -30,6 +30,14 @@ const Y_SI_REVEAL_MS = 900;
 const WELCOME_MIN_LOAD_MS = 650;
 const WELCOME_SUMMARY_MS = 850;
 
+const MEMORY_STORAGE_BUCKET = "recuerdos";
+const MEMORY_MAX_PHOTOS = 8;
+const MEMORY_MAX_SOURCE_BYTES = 25 * 1024 * 1024;
+const MEMORY_MAX_DIMENSION = 1600;
+const MEMORY_TARGET_BYTES = 700 * 1024;
+const MEMORY_SIGNED_URL_SECONDS = 60 * 60;
+const MEMORY_SIGNED_URL_REFRESH_MARGIN_MS = 5 * 60 * 1000;
+
 const CHOICES = {
   piedra: { label: "Piedra", emoji: "✊" },
   papel: { label: "Papel", emoji: "✋" },
@@ -384,6 +392,23 @@ const galleryPrev = $("gallery-prev");
 const galleryNext = $("gallery-next");
 const galleryCounter = $("gallery-counter");
 
+const addMemoryBtn = $("add-memory-btn");
+const memoryStorageNote = $("memory-storage-note");
+const memoryEditorModal = $("memory-editor-modal");
+const memoryEditorForm = $("memory-editor-form");
+const memoryEditorEyebrow = $("memory-editor-eyebrow");
+const memoryEditorTitle = $("memory-editor-title");
+const memoryEditorDate = $("memory-editor-date");
+const memoryEditorName = $("memory-editor-name");
+const memoryEditorDescription = $("memory-editor-description");
+const memoryPhotoInput = $("memory-photo-input");
+const memoryPhotoPicker = $("memory-photo-picker");
+const memoryPhotoGrid = $("memory-photo-grid");
+const memoryPhotoCounter = $("memory-photo-counter");
+const memoryUploadStatus = $("memory-upload-status");
+const memorySaveBtn = $("memory-save-btn");
+const memoryDeleteBtn = $("memory-delete-btn");
+
 const lauraMessageModal = $("laura-message-modal");
 const lauraMessageModalIcon = $("laura-message-modal-icon");
 const lauraMessageModalType = $("laura-message-modal-type");
@@ -402,6 +427,9 @@ let calendarDate = new Date();
 let selectedDate = toDateKeyMadrid(new Date());
 let currentGallery = [];
 let currentGalleryIndex = 0;
+let memoryEditorBusy = false;
+let memoryEditorState = createEmptyMemoryEditorState();
+const memorySignedUrlCache = new Map();
 let loadedLetterFile = "";
 let editingMessageId = null;
 let openedLauraMessageId = null;
@@ -432,7 +460,9 @@ const state = {
   ySiCurrent: null,
   ySiLastResult: null,
   ySiHistory: [],
-  ySiLoadError: false
+  ySiLoadError: false,
+  remoteMemories: [],
+  memoryLoadError: false
 };
 
 window.JaviEatsApp = {
@@ -522,6 +552,7 @@ function bindEvents() {
   document.querySelectorAll("[data-service-close]").forEach(el => el.addEventListener("click", closeServiceModal));
   document.querySelectorAll("[data-game-close]").forEach(el => el.addEventListener("click", closeGameModal));
   document.querySelectorAll("[data-memory-close]").forEach(el => el.addEventListener("click", closeMemoryModal));
+  document.querySelectorAll("[data-memory-editor-close]").forEach(el => el.addEventListener("click", closeMemoryEditor));
   document.querySelectorAll("[data-laura-message-close]").forEach(el => el.addEventListener("click", closeLauraMessageModal));
   document.querySelectorAll("[data-custom-plan-close]").forEach(el => el.addEventListener("click", closeCustomPlanModal));
   document.querySelectorAll("[data-puzzle-close]").forEach(el => el.addEventListener("click", closePuzzleModal));
@@ -573,10 +604,21 @@ function bindEvents() {
   lauraMessagesList.addEventListener("click", handleLauraMessageListClick);
   lauraMessageModalActions.addEventListener("click", handleLauraMessageModalAction);
 
+  addMemoryBtn?.addEventListener("click", () => openMemoryEditor());
+  memoryPhotoPicker?.addEventListener("click", () => memoryPhotoInput?.click());
+  memoryPhotoInput?.addEventListener("change", handleMemoryPhotoSelection);
+  memoryPhotoGrid?.addEventListener("click", handleMemoryPhotoGridClick);
+  memoryEditorForm?.addEventListener("submit", saveRemoteMemory);
+  memoryDeleteBtn?.addEventListener("click", deleteRemoteMemory);
+
   memoriesList.addEventListener("click", event => {
     const staticButton = event.target.closest("[data-memory-id]");
+    const remoteButton = event.target.closest("[data-remote-memory-id]");
+    const editRemoteButton = event.target.closest("[data-edit-remote-memory]");
     const lauraButton = event.target.closest("[data-laura-memory-id]");
+    if (editRemoteButton) { openMemoryEditor(editRemoteButton.dataset.editRemoteMemory); return; }
     if (staticButton) openMemory(staticButton.dataset.memoryId);
+    if (remoteButton) openRemoteMemory(remoteButton.dataset.remoteMemoryId);
     if (lauraButton) openLauraMessageModal(lauraButton.dataset.lauraMemoryId);
   });
   voucherList.addEventListener("click", handleVoucherAction);
@@ -877,6 +919,10 @@ function resetAppSession() {
   state.ySiLastResult = null;
   state.ySiHistory = [];
   state.ySiLoadError = false;
+  state.remoteMemories = [];
+  state.memoryLoadError = false;
+  memorySignedUrlCache.clear();
+  resetMemoryEditorState();
   ySiSelectedOption = null;
   ySiSelectedDayId = null;
   ySiHistoryFilter = "all";
@@ -949,7 +995,11 @@ async function loadAllData({ silent = false } = {}) {
       console.error("No se ha podido cargar el historial de ¿Y si...?:", error);
       return [];
     });
-    const [proposals, messages, marks, vouchers, gameData, puzzleProgress, ySiCurrent, ySiHistory] = await Promise.all([
+    const remoteMemoriesPromise = fetchRemoteMemories().catch(error => {
+      console.error("No se han podido cargar los recuerdos privados v2.8:", error);
+      return { memories: [], loadError: true };
+    });
+    const [proposals, messages, marks, vouchers, gameData, puzzleProgress, ySiCurrent, ySiHistory, remoteMemoriesResult] = await Promise.all([
       fetchProposals(),
       fetchMessages(),
       fetchMarks(),
@@ -957,7 +1007,8 @@ async function loadAllData({ silent = false } = {}) {
       fetchTodayGame(today),
       puzzlePromise,
       ySiCurrentPromise,
-      ySiHistoryPromise
+      ySiHistoryPromise,
+      remoteMemoriesPromise
     ]);
     state.proposals = proposals;
     state.messages = messages;
@@ -972,6 +1023,8 @@ async function loadAllData({ silent = false } = {}) {
     state.ySiHistory = Array.isArray(ySiHistory) ? ySiHistory : [];
     state.ySiLastResult = getTodayLatestYSiResult(state.ySiHistory);
     state.ySiLoadError = Boolean(ySiCurrent?.loadError);
+    state.remoteMemories = Array.isArray(remoteMemoriesResult?.memories) ? remoteMemoriesResult.memories : [];
+    state.memoryLoadError = Boolean(remoteMemoriesResult?.loadError);
     refreshUI();
     maybeRevealYSiResult();
     setSyncState("ok", `Sincronizado · ${currentTimeLabel()}`);
@@ -980,6 +1033,9 @@ async function loadAllData({ silent = false } = {}) {
     }
     if (state.ySiLoadError && !silent) {
       showToast("La sección ¿Y si...? necesita la migración de Supabase v2.5.1.");
+    }
+    if (state.memoryLoadError && !silent && currentRole === "javi") {
+      showToast("Falta aplicar una vez la instalación de Recuerdos v2.8 en Supabase.");
     }
   } catch (error) {
     console.error(error);
@@ -1018,6 +1074,58 @@ async function fetchVouchers() {
   if (error) throw error;
   return data || [];
 }
+
+async function fetchRemoteMemories() {
+  const { data, error } = await supabaseClient
+    .from("recuerdos_app")
+    .select("*")
+    .order("fecha", { ascending: true })
+    .order("created_at", { ascending: true });
+  if (error) throw error;
+
+  const rows = Array.isArray(data) ? data : [];
+  const allPaths = [...new Set(rows.flatMap(memory => Array.isArray(memory.image_paths) ? memory.image_paths : []).filter(Boolean))];
+  await ensureMemorySignedUrls(allPaths);
+
+  return {
+    memories: rows.map(memory => ({
+      ...memory,
+      signedUrls: (Array.isArray(memory.image_paths) ? memory.image_paths : []).map(path => memorySignedUrlCache.get(path)?.url || "")
+    })),
+    loadError: false
+  };
+}
+
+async function ensureMemorySignedUrls(paths) {
+  const now = Date.now();
+  const missing = paths.filter(path => {
+    const cached = memorySignedUrlCache.get(path);
+    return !cached || cached.expiresAt - now <= MEMORY_SIGNED_URL_REFRESH_MARGIN_MS;
+  });
+  if (!missing.length) return;
+
+  const { data, error } = await supabaseClient.storage
+    .from(MEMORY_STORAGE_BUCKET)
+    .createSignedUrls(missing, MEMORY_SIGNED_URL_SECONDS);
+  if (error) throw error;
+
+  (data || []).forEach((item, index) => {
+    const path = item?.path || missing[index];
+    if (!path || !item?.signedUrl) return;
+    memorySignedUrlCache.set(path, {
+      url: item.signedUrl,
+      expiresAt: now + (MEMORY_SIGNED_URL_SECONDS * 1000)
+    });
+  });
+}
+
+async function refreshRemoteMemories() {
+  const result = await fetchRemoteMemories();
+  state.remoteMemories = result.memories;
+  state.memoryLoadError = false;
+  renderMemories();
+}
+
 async function fetchPuzzleProgress() {
   const { data: puzzle, error } = await supabaseClient
     .from("puzzles_premio")
@@ -2317,16 +2425,44 @@ async function markVoucherAsUsed(id) {
 }
 
 function renderMemories() {
+  const canManage = currentRole === "javi";
+  addMemoryBtn?.classList.toggle("hidden", !canManage);
+  memoryStorageNote?.classList.toggle("hidden", !canManage);
+  if (memoryStorageNote && canManage) {
+    memoryStorageNote.textContent = state.memoryLoadError
+      ? "Falta ejecutar una vez supabase-v2.8.sql para activar los recuerdos privados."
+      : "Las fotos nuevas se optimizan en tu dispositivo y se guardan de forma privada en Supabase Storage.";
+  }
+
   const staticMemories = MEMORIES.map(memoryTemplate).join("");
+  const remoteMemories = state.remoteMemories.map(remoteMemoryTemplate).join("");
   const dynamic = state.messages.filter(message => getMessageMark(message.id)?.guardado_recuerdos).map(message => {
     const title = message.titulo || defaultMessageTitle(message.tipo);
     return `<article class="memory-card"><div class="timeline-dot"></div><div class="memory-date">${formatDateCompact(dateFromTimestamp(message.created_at))}</div><div class="memory-placeholder">${messageTypeIcon(message.tipo)}</div><div class="memory-body"><p class="eyebrow">Escrito por Laura</p><h3>${escapeHTML(title)}</h3><p>${escapeHTML(truncateText(message.contenido, 150))}</p><button class="btn btn-secondary memory-open-btn" type="button" data-laura-memory-id="${message.id}">Abrir recuerdo</button></div></article>`;
   }).join("");
-  memoriesList.innerHTML = staticMemories + dynamic;
+  memoriesList.innerHTML = staticMemories + remoteMemories + dynamic;
 }
+
 function memoryTemplate(memory) {
   return `<article class="memory-card"><div class="timeline-dot"></div><div class="memory-date">${memory.dateLabel}</div>${memory.cover ? `<img class="memory-cover" src="${memory.cover}" alt="${escapeHTML(memory.title)}" loading="lazy" />` : `<div class="memory-placeholder">${memory.emoji || "💌"}</div>`}<div class="memory-body"><h3>${escapeHTML(memory.title)}</h3><p>${escapeHTML(memory.description)}</p><button class="btn btn-secondary memory-open-btn" type="button" data-memory-id="${memory.id}">${memory.actionLabel}</button></div></article>`;
 }
+
+function remoteMemoryTemplate(memory) {
+  const urls = Array.isArray(memory.signedUrls) ? memory.signedUrls.filter(Boolean) : [];
+  const requestedIndex = Number.isInteger(memory.cover_index) ? memory.cover_index : Number(memory.cover_index || 0);
+  const cover = urls[requestedIndex] || urls[0] || "";
+  const photoCount = Array.isArray(memory.image_paths) ? memory.image_paths.length : urls.length;
+  const actionLabel = photoCount > 1 ? `Ver ${photoCount} fotos` : "Ver recuerdo";
+  const media = cover
+    ? `<img class="memory-cover" src="${cover}" alt="${escapeHTML(memory.titulo)}" loading="lazy" referrerpolicy="no-referrer" />`
+    : `<div class="memory-placeholder">📸</div>`;
+  const edit = currentRole === "javi"
+    ? `<button class="btn btn-secondary memory-edit-btn" type="button" data-edit-remote-memory="${memory.id}" aria-label="Editar ${escapeHTML(memory.titulo)}">✎</button>`
+    : "";
+
+  return `<article class="memory-card is-remote"><div class="timeline-dot"></div><div class="memory-date">${formatDateCompact(memory.fecha)}</div>${media}<div class="memory-body"><p class="eyebrow">Guardado en JaviEats</p><h3>${escapeHTML(memory.titulo)}</h3><p>${escapeHTML(memory.descripcion || "")}</p><div class="memory-card-actions"><button class="btn btn-secondary memory-open-btn" type="button" data-remote-memory-id="${memory.id}">${actionLabel}</button>${edit}</div></div></article>`;
+}
+
 function openMemory(id) {
   const memory = MEMORIES.find(item => item.id === id);
   if (!memory) return;
@@ -2340,6 +2476,378 @@ function openMemory(id) {
   memoryModal.classList.remove("hidden");
   document.body.style.overflow = "hidden";
 }
+
+async function openRemoteMemory(id) {
+  const memory = state.remoteMemories.find(item => item.id === id);
+  if (!memory) return;
+
+  const paths = Array.isArray(memory.image_paths) ? memory.image_paths.filter(Boolean) : [];
+  try {
+    await ensureMemorySignedUrls(paths);
+  } catch (error) {
+    console.error("No se han podido renovar las fotos del recuerdo:", error);
+    showToast("No se han podido cargar las fotos. Comprueba la conexión e inténtalo de nuevo.");
+    return;
+  }
+
+  currentGallery = paths.map(path => memorySignedUrlCache.get(path)?.url || "").filter(Boolean);
+  if (!currentGallery.length) {
+    showToast("No se ha podido cargar la foto de este recuerdo.");
+    return;
+  }
+  currentGalleryIndex = 0;
+  memoryModalDate.textContent = formatDateCompact(memory.fecha);
+  memoryModalTitle.textContent = memory.titulo;
+  memoryModalDescription.textContent = memory.descripcion || "";
+  renderGalleryImage();
+  memoryModal.classList.remove("hidden");
+  document.body.style.overflow = "hidden";
+}
+
+function createEmptyMemoryEditorState() {
+  return {
+    id: null,
+    existingPaths: [],
+    removedPaths: new Set(),
+    newFiles: []
+  };
+}
+
+function resetMemoryEditorState() {
+  for (const item of memoryEditorState?.newFiles || []) {
+    if (item.previewUrl) URL.revokeObjectURL(item.previewUrl);
+  }
+  memoryEditorState = createEmptyMemoryEditorState();
+  if (memoryPhotoInput) memoryPhotoInput.value = "";
+}
+
+function openMemoryEditor(id = null) {
+  if (currentRole !== "javi") {
+    showToast("Solo Javi puede añadir o editar recuerdos.");
+    return;
+  }
+  if (state.memoryLoadError) {
+    showToast("Primero aplica supabase-v2.8.sql en Supabase.");
+    return;
+  }
+
+  resetMemoryEditorState();
+  const memory = id ? state.remoteMemories.find(item => item.id === id) : null;
+  memoryEditorState.id = memory?.id || null;
+  memoryEditorState.existingPaths = Array.isArray(memory?.image_paths) ? [...memory.image_paths] : [];
+
+  memoryEditorEyebrow.textContent = memory ? "Editar recuerdo" : "Nuevo recuerdo";
+  memoryEditorTitle.textContent = memory ? "Actualizar este momento" : "Guardar un momento";
+  memoryEditorDate.value = memory?.fecha || toDateKeyMadrid(new Date());
+  memoryEditorName.value = memory?.titulo || "";
+  memoryEditorDescription.value = memory?.descripcion || "";
+  memoryDeleteBtn.classList.toggle("hidden", !memory);
+  setMemoryUploadStatus("");
+  renderMemoryPhotoGrid();
+
+  memoryEditorModal.classList.remove("hidden");
+  document.body.style.overflow = "hidden";
+  setTimeout(() => memoryEditorName.focus(), 80);
+}
+
+function closeMemoryEditor() {
+  if (memoryEditorBusy) return;
+  memoryEditorModal?.classList.add("hidden");
+  document.body.style.overflow = "";
+  resetMemoryEditorState();
+  setMemoryUploadStatus("");
+}
+
+function getRetainedMemoryPaths() {
+  return memoryEditorState.existingPaths.filter(path => !memoryEditorState.removedPaths.has(path));
+}
+
+function renderMemoryPhotoGrid() {
+  if (!memoryPhotoGrid) return;
+  const retained = getRetainedMemoryPaths();
+  const existingHtml = retained.map((path, index) => {
+    const url = memorySignedUrlCache.get(path)?.url || "";
+    return `<div class="memory-photo-item">${url ? `<img src="${url}" alt="Foto guardada ${index + 1}" />` : `<div class="memory-placeholder">📷</div>`}<span class="memory-photo-badge">Guardada</span><button class="memory-photo-remove" type="button" data-remove-existing-photo="${escapeHTML(path)}" aria-label="Quitar foto">×</button></div>`;
+  }).join("");
+  const newHtml = memoryEditorState.newFiles.map((item, index) => `<div class="memory-photo-item"><img src="${item.previewUrl}" alt="Nueva foto ${index + 1}"/><span class="memory-photo-badge">Nueva</span><button class="memory-photo-remove" type="button" data-remove-new-photo="${item.id}" aria-label="Quitar foto">×</button></div>`).join("");
+  const total = retained.length + memoryEditorState.newFiles.length;
+  memoryPhotoCounter.textContent = `${total} de ${MEMORY_MAX_PHOTOS}`;
+  memoryPhotoGrid.innerHTML = total
+    ? existingHtml + newHtml
+    : `<div class="memory-photo-empty">Añade entre 1 y ${MEMORY_MAX_PHOTOS} fotos.<br>JaviEats las optimizará antes de subirlas.</div>`;
+  memoryPhotoPicker.disabled = total >= MEMORY_MAX_PHOTOS || memoryEditorBusy;
+}
+
+function handleMemoryPhotoSelection(event) {
+  const files = Array.from(event.target.files || []);
+  if (!files.length) return;
+  const currentCount = getRetainedMemoryPaths().length + memoryEditorState.newFiles.length;
+  let slots = Math.max(0, MEMORY_MAX_PHOTOS - currentCount);
+  let rejected = 0;
+
+  for (const file of files) {
+    if (!slots) { rejected += 1; continue; }
+    if (!String(file.type || "").startsWith("image/") || file.size > MEMORY_MAX_SOURCE_BYTES) { rejected += 1; continue; }
+    memoryEditorState.newFiles.push({
+      id: crypto.randomUUID(),
+      file,
+      previewUrl: URL.createObjectURL(file)
+    });
+    slots -= 1;
+  }
+  memoryPhotoInput.value = "";
+  renderMemoryPhotoGrid();
+  if (rejected) setMemoryUploadStatus(`Se han omitido ${rejected} archivo(s) por límite, tamaño o formato.`, "error");
+  else setMemoryUploadStatus("Las fotos se comprimirán únicamente cuando pulses Guardar.");
+}
+
+function handleMemoryPhotoGridClick(event) {
+  const removeExisting = event.target.closest("[data-remove-existing-photo]");
+  const removeNew = event.target.closest("[data-remove-new-photo]");
+  if (removeExisting) {
+    memoryEditorState.removedPaths.add(removeExisting.dataset.removeExistingPhoto);
+    renderMemoryPhotoGrid();
+  }
+  if (removeNew) {
+    const index = memoryEditorState.newFiles.findIndex(item => item.id === removeNew.dataset.removeNewPhoto);
+    if (index >= 0) {
+      const [removed] = memoryEditorState.newFiles.splice(index, 1);
+      if (removed?.previewUrl) URL.revokeObjectURL(removed.previewUrl);
+      renderMemoryPhotoGrid();
+    }
+  }
+}
+
+function setMemoryUploadStatus(message, type = "") {
+  if (!memoryUploadStatus) return;
+  memoryUploadStatus.textContent = message || "";
+  memoryUploadStatus.classList.toggle("is-error", type === "error");
+  memoryUploadStatus.classList.toggle("is-ok", type === "ok");
+}
+
+function setMemoryEditorBusy(busy) {
+  memoryEditorBusy = busy;
+  memorySaveBtn.disabled = busy;
+  memoryDeleteBtn.disabled = busy;
+  memoryEditorDate.disabled = busy;
+  memoryEditorName.disabled = busy;
+  memoryEditorDescription.disabled = busy;
+  memoryPhotoInput.disabled = busy;
+  renderMemoryPhotoGrid();
+}
+
+async function saveRemoteMemory(event) {
+  event.preventDefault();
+  if (currentRole !== "javi" || memoryEditorBusy) return;
+
+  const fecha = memoryEditorDate.value;
+  const titulo = memoryEditorName.value.trim();
+  const descripcion = memoryEditorDescription.value.trim();
+  const retainedPaths = getRetainedMemoryPaths();
+  const totalPhotos = retainedPaths.length + memoryEditorState.newFiles.length;
+
+  if (!fecha || !titulo) {
+    setMemoryUploadStatus("Completa la fecha y el título.", "error");
+    return;
+  }
+  if (!totalPhotos) {
+    setMemoryUploadStatus("Añade al menos una foto al recuerdo.", "error");
+    return;
+  }
+
+  const isEditing = Boolean(memoryEditorState.id);
+  const memoryId = memoryEditorState.id || crypto.randomUUID();
+  const uploadedPaths = [];
+  let persisted = false;
+  setMemoryEditorBusy(true);
+  memorySaveBtn.textContent = isEditing ? "Guardando cambios…" : "Guardando recuerdo…";
+
+  try {
+    for (let i = 0; i < memoryEditorState.newFiles.length; i += 1) {
+      const item = memoryEditorState.newFiles[i];
+      setMemoryUploadStatus(`Optimizando foto ${i + 1} de ${memoryEditorState.newFiles.length}…`);
+      const optimized = await compressMemoryImage(item.file);
+      const extension = optimized.type === "image/jpeg" ? "jpg" : "webp";
+      const path = `${memoryId}/${Date.now()}-${String(i + 1).padStart(2, "0")}-${crypto.randomUUID().slice(0, 8)}.${extension}`;
+      setMemoryUploadStatus(`Subiendo foto ${i + 1} de ${memoryEditorState.newFiles.length}…`);
+      const { error: uploadError } = await supabaseClient.storage
+        .from(MEMORY_STORAGE_BUCKET)
+        .upload(path, optimized, {
+          cacheControl: "31536000",
+          contentType: optimized.type,
+          upsert: false
+        });
+      if (uploadError) throw uploadError;
+      uploadedPaths.push(path);
+    }
+
+    const finalPaths = [...retainedPaths, ...uploadedPaths];
+    const payload = {
+      fecha,
+      titulo,
+      descripcion,
+      tipo: "gallery",
+      contenido: "",
+      image_paths: finalPaths,
+      cover_index: 0
+    };
+
+    let dbError = null;
+    if (isEditing) {
+      const result = await supabaseClient.from("recuerdos_app").update(payload).eq("id", memoryId);
+      dbError = result.error;
+    } else {
+      const result = await supabaseClient.from("recuerdos_app").insert({ id: memoryId, ...payload });
+      dbError = result.error;
+    }
+    if (dbError) throw dbError;
+    persisted = true;
+
+    const pathsToRemove = [...memoryEditorState.removedPaths].filter(Boolean);
+    if (pathsToRemove.length) {
+      const { error: removeError } = await supabaseClient.storage.from(MEMORY_STORAGE_BUCKET).remove(pathsToRemove);
+      if (removeError) console.warn("El recuerdo se guardó, pero no se pudieron limpiar algunas fotos antiguas:", removeError);
+      pathsToRemove.forEach(path => memorySignedUrlCache.delete(path));
+    }
+
+    memoryEditorState.newFiles.forEach(item => item.previewUrl && URL.revokeObjectURL(item.previewUrl));
+    memoryEditorState = createEmptyMemoryEditorState();
+    memoryEditorModal.classList.add("hidden");
+    document.body.style.overflow = "";
+    setMemoryUploadStatus("");
+    try {
+      await refreshRemoteMemories();
+    } catch (refreshError) {
+      console.error("El recuerdo se guardó pero no se pudo refrescar la lista:", refreshError);
+      showToast("Recuerdo guardado. Recarga la página para verlo.");
+      return;
+    }
+    showToast(isEditing ? "Recuerdo actualizado ❤️" : "Recuerdo guardado ❤️");
+  } catch (error) {
+    console.error("Error guardando recuerdo v2.8:", error);
+    if (!persisted && uploadedPaths.length) {
+      try { await supabaseClient.storage.from(MEMORY_STORAGE_BUCKET).remove(uploadedPaths); } catch (cleanupError) { console.warn(cleanupError); }
+    }
+    setMemoryUploadStatus(memoryUploadErrorMessage(error), "error");
+  } finally {
+    setMemoryEditorBusy(false);
+    memorySaveBtn.textContent = "Guardar recuerdo";
+  }
+}
+
+async function deleteRemoteMemory() {
+  if (currentRole !== "javi" || memoryEditorBusy || !memoryEditorState.id) return;
+  const memory = state.remoteMemories.find(item => item.id === memoryEditorState.id);
+  if (!memory) return;
+  if (!confirm(`¿Eliminar "${memory.titulo}" y sus fotos? Esta acción no se puede deshacer.`)) return;
+
+  setMemoryEditorBusy(true);
+  setMemoryUploadStatus("Eliminando recuerdo…");
+  try {
+    const { error } = await supabaseClient.from("recuerdos_app").delete().eq("id", memory.id);
+    if (error) throw error;
+    const paths = Array.isArray(memory.image_paths) ? memory.image_paths.filter(Boolean) : [];
+    if (paths.length) {
+      const { error: removeError } = await supabaseClient.storage.from(MEMORY_STORAGE_BUCKET).remove(paths);
+      if (removeError) console.warn("Se eliminó el recuerdo, pero quedaron archivos huérfanos:", removeError);
+      paths.forEach(path => memorySignedUrlCache.delete(path));
+    }
+    memoryEditorModal.classList.add("hidden");
+    document.body.style.overflow = "";
+    resetMemoryEditorState();
+    try {
+      await refreshRemoteMemories();
+    } catch (refreshError) {
+      console.error("El recuerdo se eliminó pero no se pudo refrescar la lista:", refreshError);
+      showToast("Recuerdo eliminado. Recarga la página para actualizar la lista.");
+      return;
+    }
+    showToast("Recuerdo eliminado.");
+  } catch (error) {
+    console.error(error);
+    setMemoryUploadStatus(memoryUploadErrorMessage(error), "error");
+  } finally {
+    setMemoryEditorBusy(false);
+  }
+}
+
+function memoryUploadErrorMessage(error) {
+  const message = String(error?.message || error?.error || "").toLowerCase();
+  if (message.includes("row-level security") || message.includes("policy")) return "Supabase ha bloqueado la operación. Revisa que supabase-v2.8.sql esté aplicado.";
+  if (message.includes("payload") || message.includes("too large")) return "Una de las fotos sigue siendo demasiado grande después de optimizarla.";
+  if (message.includes("mime") || message.includes("format") || message.includes("decode")) return "No se ha podido procesar una imagen. Prueba con JPG, PNG o WebP.";
+  return "No se ha podido guardar el recuerdo. Revisa la conexión e inténtalo de nuevo.";
+}
+
+async function compressMemoryImage(file) {
+  const image = await loadMemoryImage(file);
+  let width = image.naturalWidth || image.width;
+  let height = image.naturalHeight || image.height;
+  if (!width || !height) throw new Error("decode image failed");
+
+  const initialScale = Math.min(1, MEMORY_MAX_DIMENSION / Math.max(width, height));
+  width = Math.max(1, Math.round(width * initialScale));
+  height = Math.max(1, Math.round(height * initialScale));
+
+  let canvas = drawMemoryImageToCanvas(image, width, height);
+  let quality = 0.84;
+  let outputType = "image/webp";
+  let blob = await canvasToMemoryBlob(canvas, outputType, quality);
+
+  // Algunos navegadores antiguos ignoran WebP y devuelven otro formato.
+  // En ese caso forzamos JPEG para que extensión y MIME sean coherentes.
+  if (!blob || blob.type !== "image/webp") {
+    outputType = "image/jpeg";
+    quality = 0.84;
+    blob = await canvasToMemoryBlob(canvas, outputType, quality);
+  }
+  if (!blob) throw new Error("image format unsupported");
+
+  while (blob.size > MEMORY_TARGET_BYTES && quality > 0.56) {
+    quality = Math.max(0.56, quality - 0.07);
+    blob = await canvasToMemoryBlob(canvas, outputType, quality);
+    if (!blob) throw new Error("image format unsupported");
+  }
+
+  let resizeAttempts = 0;
+  while (blob.size > MEMORY_TARGET_BYTES * 1.35 && resizeAttempts < 3) {
+    resizeAttempts += 1;
+    width = Math.max(1, Math.round(width * 0.82));
+    height = Math.max(1, Math.round(height * 0.82));
+    canvas = drawMemoryImageToCanvas(image, width, height);
+    blob = await canvasToMemoryBlob(canvas, outputType, Math.max(0.56, quality - 0.03));
+    if (!blob) throw new Error("image format unsupported");
+  }
+
+  return blob;
+}
+
+function loadMemoryImage(file) {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const image = new Image();
+    image.onload = () => { URL.revokeObjectURL(url); resolve(image); };
+    image.onerror = () => { URL.revokeObjectURL(url); reject(new Error("decode image failed")); };
+    image.src = url;
+  });
+}
+
+function drawMemoryImageToCanvas(image, width, height) {
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+  const context = canvas.getContext("2d", { alpha: false });
+  if (!context) throw new Error("canvas unavailable");
+  context.fillStyle = "#ffffff";
+  context.fillRect(0, 0, width, height);
+  context.drawImage(image, 0, 0, width, height);
+  return canvas;
+}
+
+function canvasToMemoryBlob(canvas, type, quality) {
+  return new Promise(resolve => canvas.toBlob(resolve, type, quality));
+}
+
 async function loadLetter(file) {
   if (loadedLetterFile === file && letterContent.dataset.loaded === "true") return;
   letterContent.dataset.loaded = "false";
