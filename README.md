@@ -1,6 +1,6 @@
 # JaviEats 💌
 
-**Versión actual: 2.7**
+**Versión actual: 2.7.1**
 
 JaviEats es una aplicación web privada creada para Laura y Javi.
 
@@ -8,7 +8,23 @@ Permite proponer planes, consultar un calendario compartido, guardar mensajes y 
 
 ---
 
-## 🚀 Última versión — v2.7
+## 🚀 Última versión — v2.7.1
+
+### Ajuste visual del puzle y favicon
+
+La versión 2.7.1 es una actualización visual y de mantenimiento sobre la v2.7. No cambia la lógica de los minijuegos, Supabase ni el backend.
+
+- Se añade un **favicon propio de JaviEats**, con un corazón atravesado por una flecha, para sustituir el icono genérico de la pestaña del navegador.
+- El favicon vive en `assets/favicon.svg` y se enlaza desde el `<head>` de `index.html`.
+- El puzle del masaje pasa a utilizar `assets/puzzle-masaje.png`.
+- Se incorpora una nueva imagen completa de masaje, diseñada para revelarse progresivamente en las seis piezas del puzle.
+- `style.css` actualiza la referencia del antiguo `puzzle-masaje.svg` al nuevo PNG.
+- Se actualiza la versión de caché del CSS y de los recursos visuales a `2.7.1`.
+- No hay cambios en `script.js`, `minigames.js`, `minigames-data.js`, SQL, Supabase, Brevo, Vault, Formspree ni Edge Functions.
+
+---
+
+## v2.7 — Minijuegos · nueva sección general
 
 ### Minijuegos · nueva sección general
 
@@ -661,7 +677,8 @@ JaviEats/
 │       └── turno-y-si/
 │           └── index.ts
 ├── assets/
-│   └── puzzle-masaje.svg
+│   ├── favicon.svg
+│   └── puzzle-masaje.png
 └── recuerdos/
     ├── carta-2026-04-24.txt
     ├── carta-2026-07-13.txt
@@ -676,6 +693,13 @@ Los archivos `draw-data.js` y `draw-game.js` pertenecían a la implementación d
 ---
 
 # Historial de versiones
+
+## v2.7.1 — Favicon y nuevo arte del puzle
+
+- Nuevo favicon de JaviEats con corazón y flecha.
+- Nueva imagen PNG para el puzle de seis piezas del masaje.
+- Actualizada la referencia visual del puzle en `style.css`.
+- Sin cambios de lógica, base de datos o backend.
 
 ## v2.7 — Minijuegos
 
