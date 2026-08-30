@@ -6,12 +6,12 @@
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <meta content="#f4f0ea" name="theme-color"/>
 <title>JaviEats</title>
-<link href="/assets/puzzle-masaje.svg?v=2714" rel="preload" as="image" type="image/svg+xml" fetchpriority="high"/>
+<link href="/assets/puzzle-masaje.svg?v=2.8" rel="preload" as="image" type="image/svg+xml" fetchpriority="high"/>
 <link href="/assets/favicon-javieats-v271.svg?v=2713" rel="icon" type="image/svg+xml"/>
 <link href="/favicon.ico?v=2713" rel="icon" sizes="any" type="image/x-icon"/>
 <link href="/favicon.ico?v=2713" rel="shortcut icon" type="image/x-icon"/>
 <link href="/assets/apple-touch-icon.png?v=2713" rel="apple-touch-icon" sizes="180x180"/>
-<link href="style.css?v=2714" rel="stylesheet"/>
+<link href="style.css?v=2.8" rel="stylesheet"/>
 </head>
 <body>
 <main class="app-shell">
@@ -204,7 +204,11 @@
 <div class="laura-messages-list" id="laura-messages-list"></div>
 </section>
 <section class="page" id="page-memories">
-<div class="memories-hero"><p class="eyebrow">Nuestro archivo</p><h2>Recuerdos</h2><p>Cartas, flores y momentos que merece la pena guardar.</p></div>
+<div class="memories-hero">
+  <div class="memories-hero-copy"><p class="eyebrow">Nuestro archivo</p><h2>Recuerdos</h2><p>Cartas, flores y momentos que merece la pena guardar.</p></div>
+  <button class="btn memories-add-btn hidden" id="add-memory-btn" type="button">＋ Añadir recuerdo</button>
+</div>
+<div class="memory-storage-note hidden" id="memory-storage-note">Las fotos nuevas se optimizan y se guardan de forma privada en JaviEats.</div>
 <div class="memories-timeline" id="memories-list"></div>
 <div class="section-title vouchers-title"><div><p class="eyebrow">Premios ganados</p><h2>Mis vales</h2></div></div>
 <div class="voucher-list" id="voucher-list"></div>
@@ -611,6 +615,42 @@
 <p class="gallery-counter" id="gallery-counter"></p>
 </div>
 </section>
+<!-- Modal crear / editar recuerdo v2.8 -->
+<section class="modal hidden" id="memory-editor-modal">
+  <div class="modal-backdrop" data-memory-editor-close=""></div>
+  <div class="modal-panel memory-editor-panel">
+    <button aria-label="Cerrar" class="modal-close" data-memory-editor-close="" type="button">×</button>
+    <div class="memory-editor-heading">
+      <div class="memory-editor-icon">📸</div>
+      <div>
+        <p class="eyebrow" id="memory-editor-eyebrow">Nuevo recuerdo</p>
+        <h2 id="memory-editor-title">Guardar un momento</h2>
+        <p class="muted">JaviEats optimiza las fotos antes de subirlas para ahorrar espacio.</p>
+      </div>
+    </div>
+    <form class="form memory-editor-form" id="memory-editor-form">
+      <div class="form-row">
+        <label>Fecha<input id="memory-editor-date" required type="date"/></label>
+        <label>Título<input id="memory-editor-name" maxlength="140" placeholder="Ej: Nuestra tarde en..." required type="text"/></label>
+      </div>
+      <label>Descripción<textarea id="memory-editor-description" maxlength="1500" placeholder="Una frase para recordar qué pasó..." rows="4"></textarea></label>
+      <div class="memory-photo-section">
+        <div class="memory-photo-section-head">
+          <div><strong>Fotos</strong><small id="memory-photo-counter">0 de 8</small></div>
+          <button class="btn btn-secondary memory-photo-picker" id="memory-photo-picker" type="button">＋ Añadir fotos</button>
+        </div>
+        <input accept="image/jpeg,image/png,image/webp,image/heic,image/heif" hidden id="memory-photo-input" multiple type="file"/>
+        <div class="memory-photo-grid" id="memory-photo-grid"></div>
+        <p class="memory-photo-help">Máximo 8 fotos. Se convierten automáticamente a WebP y se reducen antes de subirlas.</p>
+      </div>
+      <div aria-live="polite" class="memory-upload-status" id="memory-upload-status"></div>
+      <div class="memory-editor-actions">
+        <button class="btn btn-danger hidden" id="memory-delete-btn" type="button">Eliminar recuerdo</button>
+        <button class="btn btn-primary" id="memory-save-btn" type="submit">Guardar recuerdo</button>
+      </div>
+    </form>
+  </div>
+</section>
 <!-- Modal mensaje Laura -->
 <section class="modal hidden" id="laura-message-modal">
 <div class="modal-backdrop" data-laura-message-close=""></div>
@@ -625,7 +665,7 @@
 <div class="toast hidden" id="toast"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-<script src="minigames-data.js?v=2.7"></script><script src="script.js?v=2.7"></script><script src="minigames.js?v=2.7"></script>
+<script src="minigames-data.js?v=2.7"></script><script src="script.js?v=2.8"></script><script src="minigames.js?v=2.7"></script>
 
 </body>
 </html>
