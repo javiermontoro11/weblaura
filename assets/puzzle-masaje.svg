@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 600" role="img" aria-label="Vale JaviEats de masaje de 30 minutos">
+<defs>
+<linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff8f2"/><stop offset=".55" stop-color="#ffe2da"/><stop offset="1" stop-color="#f7b5a6"/></linearGradient>
+<linearGradient id="h" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ff7b67"/><stop offset="1" stop-color="#e85240"/></linearGradient>
+</defs>
+<rect width="900" height="600" rx="46" fill="url(#bg)"/>
+<circle cx="785" cy="92" r="115" fill="#fff" opacity=".22"/><circle cx="95" cy="525" r="145" fill="#fff" opacity=".18"/>
+<path d="M0 455c178-72 305 65 478 2 158-58 270-35 422-126v269H0z" fill="#fffaf5" opacity=".48"/>
+<g transform="translate(122 168)">
+<path d="M122 42C82-2 0 17 0 88c0 69 122 224 122 224S244 157 244 88C244 17 162-2 122 42z" fill="url(#h)"/>
+<path d="M59 88c24-29 50-19 63 0 14-22 44-31 67-5M61 141c37 31 90 31 126-1" fill="none" stroke="#fff" stroke-width="13" stroke-linecap="round" opacity=".72"/>
+</g>
+<g font-family="Arial,Helvetica,sans-serif" transform="translate(430 170)">
+<text x="0" y="0" font-size="27" font-weight="800" letter-spacing="5" fill="#a54437">JAVIEATS</text>
+<text x="0" y="88" font-size="78" font-weight="900" letter-spacing="-3" fill="#211d1a">MASAJE</text>
+<text x="2" y="146" font-size="43" font-weight="800" fill="#e85d45">30 MINUTOS</text>
+<text x="2" y="218" font-size="23" font-weight="700" fill="#76645d">Completa las 6 piezas</text>
+<text x="2" y="251" font-size="23" font-weight="700" fill="#76645d">y desbloquea tu vale.</text>
+</g>
+<g fill="#e85d45" transform="translate(436 458)"><path d="M15 8C9-1 0 2 0 12c0 10 15 20 15 20s15-10 15-20C30 2 21-1 15 8z"/><path d="M63 8c-6-9-15-6-15 4 0 10 15 20 15 20s15-10 15-20C78 2 69-1 63 8z" opacity=".55"/><path d="M111 8c-6-9-15-6-15 4 0 10 15 20 15 20s15-10 15-20c0-10-9-13-15-4z" opacity=".3"/></g>
+</svg>
