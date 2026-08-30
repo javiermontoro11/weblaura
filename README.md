@@ -1,6 +1,6 @@
 # JaviEats 💌
 
-**Versión actual: 2.7.1**
+**Versión actual: 2.8**
 
 JaviEats es una aplicación web privada creada para Laura y Javi.
 
@@ -8,19 +8,68 @@ Permite proponer planes, consultar un calendario compartido, guardar mensajes y 
 
 ---
 
-## 🚀 Última versión — v2.7.1
+## 🚀 Última versión — v2.8
 
-### Ajuste visual del puzle y favicon
+### Recuerdos privados desde la propia web
 
-La versión 2.7.1 es una actualización visual y de mantenimiento sobre la v2.7. No cambia la lógica de los minijuegos, Supabase ni el backend.
+La v2.8 convierte **Recuerdos** en una sección que ya se puede alimentar desde JaviEats, sin editar `script.js` ni subir manualmente cada nueva foto a GitHub.
 
-- Se añade un **favicon propio de JaviEats**, con un corazón atravesado por una flecha, para sustituir el icono genérico de la pestaña del navegador.
-- El favicon vive en `assets/favicon.svg` y se enlaza desde el `<head>` de `index.html`.
-- El puzle del masaje pasa a utilizar `assets/puzzle-masaje.png`.
-- Se incorpora una nueva imagen completa de masaje, diseñada para revelarse progresivamente en las seis piezas del puzle.
-- `style.css` actualiza la referencia del antiguo `puzzle-masaje.svg` al nuevo PNG.
-- Se actualiza la versión de caché del CSS y de los recursos visuales a `2.7.1`.
-- No hay cambios en `script.js`, `minigames.js`, `minigames-data.js`, SQL, Supabase, Brevo, Vault, Formspree ni Edge Functions.
+#### Qué cambia
+
+- El perfil de **Javi** incorpora el botón `＋ Añadir recuerdo` dentro de Recuerdos.
+- Laura mantiene la sección como espacio de consulta; no puede crear, editar ni eliminar recuerdos.
+- Un recuerdo nuevo permite guardar:
+  - fecha;
+  - título;
+  - descripción;
+  - entre 1 y 8 fotos.
+- Las fotos se optimizan **en el propio navegador antes de subirlas**:
+  - lado máximo aproximado de 1600 px;
+  - conversión preferente a WebP;
+  - ajuste progresivo de calidad para intentar quedar alrededor de 700 KB o menos por imagen;
+  - fallback a JPEG si el navegador no puede generar WebP.
+- Las fotos no se guardan en la base de datos: se almacenan físicamente en un bucket privado de **Supabase Storage** llamado `recuerdos`.
+- La tabla `public.recuerdos_app` guarda únicamente los datos del recuerdo y las rutas internas de sus archivos.
+- El bucket es **privado**. Javi y Laura ven las imágenes mediante URLs firmadas temporales; no se utilizan URLs públicas permanentes.
+- Las URLs firmadas se cachean en el navegador y solo se renuevan cuando se acercan a su caducidad.
+- Javi puede editar después el título, la fecha, la descripción y las fotos de un recuerdo.
+- Javi puede eliminar un recuerdo; JaviEats elimina también sus archivos de Storage.
+- La interfaz es responsive y funciona tanto desde móvil como desde escritorio.
+- El nuevo sistema tolera un despliegue en el que todavía no se haya ejecutado el SQL: el resto de JaviEats sigue funcionando y Javi recibe un aviso de instalación pendiente.
+
+#### Privacidad y permisos
+
+La instalación `supabase-v2.8.sql` crea:
+
+- tabla `public.recuerdos_app`;
+- RLS para que solo las dos cuentas de JaviEats puedan leer;
+- permisos de escritura exclusivamente para Javi;
+- bucket privado `recuerdos`;
+- políticas de Storage equivalentes;
+- límite de 5 MB por archivo almacenado;
+- formatos almacenables: WebP, JPEG y PNG.
+
+#### Lo que NO se migra todavía
+
+Los recuerdos históricos que ya viven en `recuerdos/` dentro de GitHub **siguen exactamente como estaban**. La v2.8 muestra al mismo tiempo:
+
+1. recuerdos antiguos estáticos desde GitHub;
+2. nuevos recuerdos privados desde Supabase;
+3. mensajes de Laura que Javi haya marcado como recuerdo.
+
+La migración de los recuerdos antiguos al mismo sistema de Supabase queda reservada para **v2.8.1**, una vez comprobado que creación, visualización, edición y borrado funcionan correctamente.
+
+---
+
+## v2.7.1 — Favicon y ajuste final del puzle
+
+- Se añade favicon propio de JaviEats con corazón y flecha.
+- Se incluyen variantes SVG, `favicon.ico` y Apple Touch Icon para mejorar compatibilidad entre navegadores.
+- El puzle del masaje vuelve a utilizar una imagen SVG ligera en `assets/puzzle-masaje.svg`.
+- La imagen completa se precarga desde `index.html` para evitar parpadeos.
+- El puzle se representa como una única imagen completa detrás de las seis casillas, que se van destapando al conseguir piezas.
+- El tablero mantiene proporción 3:2 y se adapta al ancho disponible.
+- Sin cambios de lógica de Supabase, Minijuegos, Brevo, Vault, Formspree o Edge Functions.
 
 ---
 
@@ -591,6 +640,7 @@ La aplicación utiliza las siguientes tablas:
 - `y_si_dias`
 - `y_si_respuestas`
 - `y_si_notificaciones`
+- `recuerdos_app`
 
 `preguntas_diarias` y `respuestas_diarias` se conservan como estructura legacy de versiones anteriores, pero el frontend actual ya no las utiliza. Si `recordatorios_email` llegó a crearse durante las pruebas de v2.5, puede conservarse: la v2.5.1 no lo consulta ni lo necesita.
 
@@ -625,6 +675,9 @@ Permisos principales:
 - Solo Javi puede administrar estados de propuestas.
 - Solo Javi puede marcar favoritos.
 - Solo Javi puede guardar escritos en Recuerdos.
+- Javi y Laura pueden leer los recuerdos privados de `recuerdos_app`.
+- Solo Javi puede crear, editar o eliminar recuerdos nuevos.
+- El bucket `recuerdos` es privado: las fotos se sirven mediante URLs firmadas temporales.
 - Solo Javi puede marcar vales como canjeados.
 - Los usuarios no autenticados no pueden acceder a las tablas.
 
@@ -644,6 +697,7 @@ Nunca se debe publicar:
 - JavaScript
 - Supabase
 - Supabase Auth
+- Supabase Storage
 - Supabase Edge Functions
 - Supabase Database Webhooks
 - PostgreSQL
@@ -665,6 +719,8 @@ JaviEats/
 ├── minigames-data.js
 ├── minigames.js
 ├── README.md
+├── supabase-v2.8.sql
+├── INSTALACION-v2.8.md
 ├── INSTALACION-v2.7.md
 ├── INSTALACION-v2.6.md
 ├── INSTALACION-v2.5.2.md
@@ -677,8 +733,10 @@ JaviEats/
 │       └── turno-y-si/
 │           └── index.ts
 ├── assets/
-│   ├── favicon.svg
-│   └── puzzle-masaje.png
+│   ├── favicon-javieats-v271.svg
+│   ├── apple-touch-icon.png
+│   └── puzzle-masaje.svg
+├── favicon.ico
 └── recuerdos/
     ├── carta-2026-04-24.txt
     ├── carta-2026-07-13.txt
@@ -694,11 +752,24 @@ Los archivos `draw-data.js` y `draw-game.js` pertenecían a la implementación d
 
 # Historial de versiones
 
-## v2.7.1 — Favicon y nuevo arte del puzle
+## v2.8 — Recuerdos privados
 
-- Nuevo favicon de JaviEats con corazón y flecha.
-- Nueva imagen PNG para el puzle de seis piezas del masaje.
-- Actualizada la referencia visual del puzle en `style.css`.
+- Nuevo formulario `Añadir recuerdo` disponible únicamente para Javi.
+- Nuevos recuerdos con fecha, título, descripción y hasta 8 fotos.
+- Compresión y redimensionado de imágenes en el navegador antes de subirlas.
+- Bucket privado `recuerdos` en Supabase Storage.
+- Tabla `recuerdos_app` con RLS.
+- URLs firmadas temporales para visualizar las fotos.
+- Edición y eliminación desde la propia web.
+- Los recuerdos antiguos de GitHub permanecen intactos y conviven con los nuevos.
+- Migración de los recuerdos antiguos aplazada expresamente a v2.8.1.
+
+## v2.7.1 — Favicon y ajuste final del puzle
+
+- Nuevo favicon de JaviEats con corazón y flecha, incluyendo SVG, ICO y Apple Touch Icon.
+- Imagen SVG ligera para el puzle de seis piezas del masaje.
+- Precarga del recurso visual para evitar retrasos al abrir el popup.
+- Puzle responsive mediante una imagen completa que se va destapando por casillas.
 - Sin cambios de lógica, base de datos o backend.
 
 ## v2.7 — Minijuegos
