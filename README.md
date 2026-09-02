@@ -1,6 +1,6 @@
 # JaviEats 💌
 
-**Versión actual: 2.8**
+**Versión actual: 2.9**
 
 JaviEats es una aplicación web privada creada para Laura y Javi.
 
@@ -8,7 +8,52 @@ Permite proponer planes, consultar un calendario compartido, guardar mensajes y 
 
 ---
 
-## 🚀 Última versión — v2.8
+## 🚀 Última versión — v2.9
+
+### 💌 Mensaje del día
+
+La v2.9 añade una forma sencilla de que Javi deje una nota privada para Laura dentro de la propia aplicación.
+
+- Javi puede crear **un Mensaje del día por fecha** desde Inicio.
+- Si Laura todavía no lo ha leído, Javi puede editarlo; después de la lectura queda congelado.
+- Al crear el mensaje por primera vez, Supabase solicita un correo a través de una nueva Edge Function `mensaje-dia` y Brevo.
+- **El correo nunca contiene el texto del mensaje**: solo avisa de que Laura tiene algo nuevo en JaviEats y enlaza a la web.
+- Si el navegador tiene abierta la cuenta equivocada, el parámetro `for=laura` reutiliza el sistema de cambio de perfil ya existente.
+- Al entrar Laura sin un enlace específico pendiente, un mensaje no leído tiene prioridad y aparece **en primer plano**.
+- Primero se muestra el sobre cerrado (`Javi te ha dejado algo`) y el contenido solo se revela al pulsar `Abrir mensaje`.
+- En ese momento se registra `leido_at` y Javi puede ver desde Inicio que Laura ya lo ha leído.
+- Si Laura cierra el popup sin abrirlo, no se marca como leído y seguirá pendiente.
+- Los mensajes leídos continúan visibles en Inicio y desde el historial de notificaciones.
+
+### 🔔 Centro de notificaciones
+
+La cabecera incorpora una campana real con contador de avisos no leídos. No sustituye los correos ni los popups importantes: funciona como historial interno de actividad.
+
+Genera avisos para eventos relevantes como:
+
+- Mensaje del día nuevo.
+- Resultado de `¿Y si…?` listo después de responder ambos.
+- Nueva pieza del puzle y puzle completado.
+- Nuevo plan compartido o cambio de estado de un plan.
+- Nuevo recuerdo privado creado desde JaviEats.
+
+Cada aviso se puede abrir para ir directamente a la zona correspondiente y queda marcado como leído. También existe `Marcar todo leído`. La tabla utiliza RLS para que cada cuenta solo pueda consultar sus propias notificaciones.
+
+### Infraestructura
+
+La instalación completa `supabase-v2.9.sql` incluye también la instalación de Recuerdos v2.8. Por tanto, si se viene de v2.7.x basta con ejecutar **un único SQL**.
+
+Para el email del Mensaje del día se crea una Edge Function separada (`mensaje-dia`) para no tocar ni arriesgar la función ya estable `turno-y-si`. Reutiliza los Secrets de Brevo, las direcciones de Javi/Laura, `JAVIEATS_URL`, `Y_SI_WEBHOOK_SECRET` y el Vault secret `y_si_webhook_secret`; no hay que crear nuevas claves.
+
+La llamada de Database a Edge Function solo transmite el **ID del mensaje**, no su contenido. La función consulta únicamente los campos técnicos necesarios y envía un email genérico. Además utiliza `email_estado` para reclamar la fila de forma atómica y evitar correos duplicados ante reintentos.
+
+### Incluye también todos los cambios de v2.8
+
+Como esta versión se entrega antes de haber consolidado v2.8 en producción, el paquete v2.9 incluye también los archivos definitivos de los dos minijuegos revisados y el sistema de Recuerdos privados de v2.8.
+
+---
+
+## v2.8 — Recuerdos privados y minijuegos revisados
 
 ### Recuerdos privados desde la propia web
 
@@ -58,6 +103,38 @@ Los recuerdos históricos que ya viven en `recuerdos/` dentro de GitHub **siguen
 3. mensajes de Laura que Javi haya marcado como recuerdo.
 
 La migración de los recuerdos antiguos al mismo sistema de Supabase queda reservada para **v2.8.1**, una vez comprobado que creación, visualización, edición y borrado funcionan correctamente.
+
+### Minijuegos revisados después de jugar juntos
+
+La misma v2.8 incorpora una revisión profunda de `Dibuja` y `No lo digas` basada en la primera prueba real de Javi y Laura. No añade tablas ni backend: solo cambia interfaz, reglas y baterías locales.
+
+#### 🎨 Dibuja
+
+- Se mantienen las **9 categorías** y la victoria al conquistar **3 territorios**.
+- Cada territorio sigue enfrentando un dibujo de Javi y uno de Laura, pero ambos reciben cartas de **la misma dificultad interna**.
+- El tiempo sube de 60 a **90 segundos por dibujo**.
+- A los **45 segundos** aparece automáticamente una pista preparada para esa carta.
+- Cada dibujo dispone de **1 cambio de palabra**, únicamente antes de empezar el cronómetro y por otra carta de dificultad equivalente.
+- El lienzo incorpora 8 colores, goma, dos grosores, **deshacer último trazo** y borrado completo con confirmación.
+- Si los dos aciertan, gana el menor tiempo medido con precisión inferior al segundo.
+- Si ninguno acierta, el territorio queda libre y **no puede elegirse inmediatamente otra vez**.
+- El jugador que pierde un territorio elige la siguiente categoría, reduciendo el efecto bola de nieve.
+- La batería conserva **225 cartas**, ahora todas con pista y dificultad interna. Las referencias poco representables se evitan en favor de conceptos visuales.
+
+#### 🚫 No lo digas
+
+- El tiempo sube de 45 a **90 segundos por turno**.
+- Cada persona dispone de **2 turnos para adivinar**.
+- La puntuación pertenece siempre a quien **ADIVINA**, no a quien da las pistas.
+- `Pasar` resta **5 segundos** y decir una palabra prohibida también anula la carta y resta **5 segundos**. Así no existe un pase gratis encubierto.
+- Cada carta contiene entre **2 y 4 palabras prohibidas** según su dificultad.
+- Las 225 cartas tienen una dificultad interna que no se muestra al jugador.
+- Los turnos enfrentados reciben secuencias equivalentes de categoría y dificultad para reducir la influencia del azar.
+- Las rachas de 3 o más aciertos se muestran visualmente, pero **no multiplican puntos**.
+- Si hay empate, se juega una tanda de **45 segundos por persona**. Si continúa, se encadenan tandas de **30 segundos por persona** hasta desempatar.
+- No se repiten cartas dentro de una misma partida salvo agotamiento extremo de la batería.
+
+La batería total sigue siendo de **450 retos**: 225 de Dibuja y 225 de No lo digas.
 
 ---
 
@@ -480,19 +557,28 @@ Los dos primeros continúan utilizando Supabase porque su estado debe mantenerse
 ## Dibuja
 
 - 9 categorías.
-- Dos dibujos por territorio, uno por persona.
-- 60 segundos por dibujo.
-- Si ambos consiguen un acierto, decide el tiempo.
+- Dos dibujos por territorio, uno por persona y con dificultad equivalente.
+- **90 segundos** por dibujo.
+- Pista automática a los **45 segundos**.
+- Un cambio de palabra antes de empezar cada dibujo.
+- 8 colores, goma, dos grosores, deshacer y borrado con confirmación.
+- Si ambos consiguen un acierto, decide el menor tiempo.
+- Si ambos fallan, el territorio queda libre y descansa una elección.
+- El perdedor de un territorio elige la siguiente categoría.
 - Primero en conquistar 3 territorios gana.
-- 225 conceptos dibujables.
+- 225 conceptos con pista y dificultad interna.
 
 ## No lo digas
 
-- 2 turnos por persona.
-- 45 segundos por turno.
-- 1 punto por cada objetivo acertado.
-- 3 palabras prohibidas por carta.
-- Desempate en tandas de 30 segundos.
+- 2 turnos para adivinar por persona.
+- **90 segundos** por turno.
+- 1 punto por cada objetivo acertado para quien **adivina**.
+- Pasar: **−5 segundos**.
+- Palabra prohibida: carta anulada y **−5 segundos**.
+- Entre 2 y 4 palabras prohibidas por carta.
+- Barajas equilibradas internamente por categoría y dificultad.
+- Rachas visuales sin bonus de puntuación.
+- Primer desempate: 45 segundos por persona; siguientes: 30 segundos.
 - 225 cartas completas.
 
 ## Desbloqueo de Laura
@@ -752,6 +838,20 @@ Los archivos `draw-data.js` y `draw-game.js` pertenecían a la implementación d
 
 # Historial de versiones
 
+## v2.9 — Mensaje del día y notificaciones
+
+- Nuevo `Mensaje del día` escrito por Javi desde Inicio.
+- Un mensaje principal por día, editable solo hasta que Laura lo lea.
+- Popup prioritario para Laura con sobre cerrado y revelado voluntario.
+- Estado de lectura visible para Javi.
+- Email genérico por Brevo sin incluir el contenido del mensaje.
+- Nueva Edge Function `mensaje-dia`, separada de `turno-y-si`.
+- Reutilización de los Secrets y del Vault ya existentes; no se crean nuevas claves.
+- Campana de notificaciones con contador de no leídas.
+- Avisos internos para Mensaje del día, resultado de ¿Y si…?, puzle, planes y recuerdos.
+- Navegación directa desde cada notificación y opción `Marcar todo leído`.
+- `supabase-v2.9.sql` incluye también la instalación de Recuerdos v2.8 para permitir actualizar directamente desde v2.7.x con un único SQL.
+
 ## v2.8 — Recuerdos privados
 
 - Nuevo formulario `Añadir recuerdo` disponible únicamente para Javi.
@@ -763,6 +863,11 @@ Los archivos `draw-data.js` y `draw-game.js` pertenecían a la implementación d
 - Edición y eliminación desde la propia web.
 - Los recuerdos antiguos de GitHub permanecen intactos y conviven con los nuevos.
 - Migración de los recuerdos antiguos aplazada expresamente a v2.8.1.
+- Revisión de `Dibuja` tras la primera prueba real: 90 s, pista a 45 s, cambio de palabra, más colores, deshacer y cartas emparejadas por dificultad.
+- El perdedor de cada territorio elige la siguiente categoría; si ambos fallan, esa categoría descansa una elección.
+- Revisión de `No lo digas`: 90 s por turno, puntos para quien adivina, pasar/prohibida = −5 s, 2–4 prohibidas por carta, rachas visuales y turnos equilibrados por dificultad.
+- Desempates de No lo digas: 45 s cada uno y, si sigue el empate, tandas de 30 s.
+- Las baterías siguen completas: 225 retos por juego, 450 en total.
 
 ## v2.7.1 — Favicon y ajuste final del puzle
 
