@@ -108,7 +108,13 @@
 <span class="sync-status" id="sync-status">Conectando…</span>
 </div>
 </div>
+<div class="header-actions">
+<button aria-label="Abrir notificaciones" class="icon-btn notification-bell" id="notifications-btn" title="Notificaciones" type="button">
+<span aria-hidden="true">🔔</span>
+<span class="notification-badge hidden" id="notifications-badge">0</span>
+</button>
 <button aria-label="Cerrar sesión" class="icon-btn" id="logout-btn" title="Cerrar sesión" type="button">⏻</button>
+</div>
 </header>
 <section class="page active" id="page-home">
 <div class="hero">
@@ -116,7 +122,9 @@
 <h2>Todo lo nuestro, en un solo sitio</h2>
 <p>Planes, recuerdos, juegos y pequeñas cosas para compartir los dos.</p>
 <div class="availability">JaviEats · para Javi y Laura</div>
-</div><button aria-label="Abrir Minijuegos" class="minigames-home-card" data-go="minigames" type="button">
+</div>
+<section class="daily-message-card hidden" id="daily-message-card" aria-live="polite"></section>
+<button aria-label="Abrir Minijuegos" class="minigames-home-card" data-go="minigames" type="button">
 <div class="minigames-home-icon">🎮</div>
 <div class="minigames-home-copy">
 <p class="eyebrow">Para jugar</p>
@@ -367,9 +375,9 @@
 <div>
 <p class="eyebrow">Duelo de dibujo</p>
 <h2>Dibuja</h2>
-<p>Elegís categoría, dibujáis una vez cada uno y gana el territorio quien consiga que el otro acierte más rápido.</p>
+<p>Elegís categoría, dibujáis una vez cada uno y gana el territorio quien consiga que el otro acierte más rápido. Ahora tenéis más tiempo, una pista automática y herramientas mejores.</p>
 </div>
-<span class="draw-hero-badge">Primero a 3</span>
+<span class="draw-hero-badge">90 s · pista a 45 s</span>
 </div>
 <section class="draw-lobby" id="draw-lobby">
 <div class="draw-match-score">
@@ -379,12 +387,12 @@
 </div>
 <div class="draw-coin-card">
 <div aria-hidden="true" class="draw-coin" id="draw-coin"><span>J</span><span>L</span></div>
-<div><p class="eyebrow">¿Quién elige primero?</p><h3 id="draw-turn-title">Lanzad la moneda para empezar</h3><p class="muted" id="draw-turn-copy">Decidirá quién elige la primera categoría y dibuja primero.</p></div>
+<div><p class="eyebrow">¿Quién elige primero?</p><h3 id="draw-turn-title">Lanzad la moneda para empezar</h3><p class="muted" id="draw-turn-copy">Decidirá quién elige la primera categoría y hace el primer dibujo.</p></div>
 <button class="btn btn-primary" id="draw-start-btn" type="button">Lanzar moneda</button>
 </div>
 <div class="draw-board-head"><div><p class="eyebrow">9 categorías disponibles</p><h3>Conquista 3 y ganas</h3></div><button class="link-btn hidden" id="draw-reset-btn" type="button">Nueva partida</button></div>
 <div aria-label="Categorías de Dibuja" class="draw-board" id="draw-board"></div>
-<div class="draw-rules-card"><strong>Así se decide un territorio</strong><p>Cada uno dibuja una palabra distinta de la misma categoría. Si solo uno consigue un acierto, gana esa persona. Si acertáis los dos, gana quien tardó menos. Tenéis 60 segundos por dibujo.</p></div>
+<div class="draw-rules-card"><strong>Así se decide un territorio</strong><p>Cada uno dibuja una palabra distinta pero de dificultad equivalente. Tenéis 90 segundos. A los 45 s aparece una pista. Si acertáis los dos, gana quien tardó menos; si nadie acierta, la categoría queda libre y no puede repetirse inmediatamente. El perdedor del territorio elige la siguiente.</p></div>
 </section>
 <section aria-live="polite" class="draw-round hidden" id="draw-round">
 <div class="draw-round-head">
@@ -401,14 +409,14 @@
 <h3 id="draw-secret-title">Javi, mira lo que tienes que dibujar</h3>
 <p class="muted">La palabra desaparece al empezar. No se pueden escribir letras ni números.</p>
 <button class="btn btn-primary" id="draw-reveal-card-btn" type="button">Mostrar concepto</button>
-<div class="draw-card-reveal hidden" id="draw-card-reveal"><span>TIENES QUE DIBUJAR</span><strong id="draw-card-word">—</strong><button class="btn btn-primary" id="draw-begin-card-btn" type="button">Ya la tengo · Empezar</button></div>
+<div class="draw-card-reveal hidden" id="draw-card-reveal"><span>TIENES QUE DIBUJAR</span><strong id="draw-card-word">—</strong><div class="draw-card-actions"><button class="btn btn-secondary" id="draw-change-word-btn" type="button">🔄 Cambiar palabra (1)</button><button class="btn btn-primary" id="draw-begin-card-btn" type="button">Ya la tengo · Empezar</button></div></div>
 </div>
 <div class="draw-canvas-stage hidden" id="draw-canvas-stage">
-<div class="draw-timer-row"><div class="draw-timer-copy"><span>Tiempo</span><strong id="draw-timer">60</strong></div><div class="draw-timer-track"><div class="draw-timer-bar" id="draw-timer-bar"></div></div><span class="draw-target">Máximo 60 s</span></div>
+<div class="draw-timer-row"><div class="draw-timer-copy"><span>Tiempo</span><strong id="draw-timer">90</strong></div><div class="draw-timer-track"><div class="draw-timer-bar" id="draw-timer-bar"></div></div><span class="draw-target">Máximo 90 s</span></div><div class="draw-hint-box" id="draw-hint-box"><span>💡 Pista</span><strong id="draw-hint-text">Pista en 45 s</strong></div>
 <div class="draw-canvas-wrap"><canvas aria-label="Lienzo para dibujar" height="600" id="draw-canvas" width="900"></canvas></div>
 <div aria-label="Herramientas de dibujo" class="draw-tools">
-<div aria-label="Color" class="draw-colors" role="group"><button aria-label="Negro" class="draw-color is-active" data-draw-color="#171414" type="button"></button><button aria-label="Rojo" class="draw-color" data-draw-color="#e85d45" type="button"></button><button aria-label="Azul" class="draw-color" data-draw-color="#2563eb" type="button"></button><button aria-label="Verde" class="draw-color" data-draw-color="#16a34a" type="button"></button></div>
-<div aria-label="Grosor" class="draw-brushes" role="group"><button class="draw-tool is-active" data-draw-width="6" type="button">Fino</button><button class="draw-tool" data-draw-width="14" type="button">Grueso</button><button class="draw-tool" id="draw-eraser-btn" type="button">Goma</button><button class="draw-tool" id="draw-clear-btn" type="button">Borrar</button></div>
+<div aria-label="Color" class="draw-colors" role="group"><button aria-label="Negro" class="draw-color is-active" data-draw-color="#171414" type="button"></button><button aria-label="Rojo" class="draw-color" data-draw-color="#e85d45" type="button"></button><button aria-label="Azul" class="draw-color" data-draw-color="#2563eb" type="button"></button><button aria-label="Verde" class="draw-color" data-draw-color="#16a34a" type="button"></button><button aria-label="Amarillo" class="draw-color" data-draw-color="#f4c430" type="button"></button><button aria-label="Rosa" class="draw-color" data-draw-color="#ec4899" type="button"></button><button aria-label="Marrón" class="draw-color" data-draw-color="#8b5a2b" type="button"></button><button aria-label="Morado" class="draw-color" data-draw-color="#7c3aed" type="button"></button></div>
+<div aria-label="Grosor y edición" class="draw-brushes" role="group"><button class="draw-tool is-active" data-draw-width="6" type="button">Fino</button><button class="draw-tool" data-draw-width="14" type="button">Grueso</button><button class="draw-tool" id="draw-eraser-btn" type="button">Goma</button><button class="draw-tool" id="draw-undo-btn" type="button">↩️ Deshacer</button><button class="draw-tool" id="draw-clear-btn" type="button">🗑️ Borrar</button></div>
 </div>
 <div class="draw-judge-actions"><button class="btn btn-secondary" id="draw-miss-btn" type="button">No acertado</button><button class="btn btn-primary" id="draw-hit-btn" type="button">✓ Acertado</button></div>
 <p class="draw-judge-note">Cuando la persona adivine, quien dibuja pulsa “Acertado” y guardamos el tiempo.</p>
@@ -419,20 +427,20 @@
 </section>
 <section class="minigame-panel hidden taboo-page" data-minigame-panel="taboo">
 <button class="back-link minigame-back" data-minigame-back="" type="button">← Volver a Minijuegos</button>
-<div class="taboo-hero"><div><p class="eyebrow">Pistas contra reloj</p><h2>No lo digas</h2><p>Haz que el otro diga la palabra principal sin utilizar ninguna de las tres palabras prohibidas.</p></div><span class="taboo-hero-badge">45 s · 2 turnos cada uno</span></div>
+<div class="taboo-hero"><div><p class="eyebrow">Pistas contra reloj</p><h2>No lo digas</h2><p>Haz que el otro diga la palabra principal sin usar las palabras prohibidas. Gana quien más palabras consiga adivinar.</p></div><span class="taboo-hero-badge">90 s · 2 turnos cada uno</span></div>
 <section id="taboo-lobby">
 <div class="draw-match-score taboo-score"><div class="draw-player-score draw-player-javi"><span>Javi</span><strong id="taboo-score-javi">0</strong><small>puntos</small></div><div class="draw-score-center"><span>VS</span><small>Más aciertos</small></div><div class="draw-player-score draw-player-laura"><span>Laura</span><strong id="taboo-score-laura">0</strong><small>puntos</small></div></div>
-<div class="draw-coin-card"><div aria-hidden="true" class="draw-coin" id="taboo-coin"><span>J</span><span>L</span></div><div><p class="eyebrow">¿Quién da pistas primero?</p><h3 id="taboo-turn-title">Sortead quién empieza dando pistas</h3><p class="muted" id="taboo-turn-copy">Cada acierto suma un punto a quien está dando las pistas.</p></div><button class="btn btn-primary" id="taboo-start-btn" type="button">Lanzar moneda</button></div>
-<div class="taboo-rules"><strong>Reglas rápidas</strong><p>2 turnos por persona · 45 segundos. ✅ Acertada suma 1. ⏭️ Pasar no resta. 🚫 Si dices una palabra prohibida, anuláis la carta. Si empatáis, hay desempate de 30 segundos.</p><button class="link-btn hidden" id="taboo-reset-btn" type="button">Nueva partida</button></div>
+<div class="draw-coin-card"><div aria-hidden="true" class="draw-coin" id="taboo-coin"><span>J</span><span>L</span></div><div><p class="eyebrow">¿Quién adivina primero?</p><h3 id="taboo-turn-title">Sortead quién empieza adivinando</h3><p class="muted" id="taboo-turn-copy">Cada acierto suma un punto a la persona que adivina.</p></div><button class="btn btn-primary" id="taboo-start-btn" type="button">Lanzar moneda</button></div>
+<div class="taboo-rules"><strong>Reglas rápidas</strong><p>2 turnos para adivinar por persona · 90 segundos. ✅ Acierto = +1 para quien adivina. ⏭️ Pasar = −5 s. 🚫 Decir una prohibida = carta anulada y −5 s. Hay 2–4 palabras prohibidas según la carta. No vale decir derivados evidentes ni deletrear. Si empatáis, 45 s cada uno; si sigue el empate, rondas de 30 s.</p><button class="link-btn hidden" id="taboo-reset-btn" type="button">Nueva partida</button></div>
 </section>
-<section aria-live="polite" class="taboo-stage hidden" id="taboo-turn-stage"><div class="taboo-ready-icon">🙈</div><p class="eyebrow" id="taboo-turn-eyebrow">Turno 1 de 4</p><h3><span id="taboo-clue-name">Javi</span> da las pistas</h3><p class="muted"><strong id="taboo-guess-name">Laura</strong>, no mires la pantalla hasta que empiece el turno.</p><button class="btn btn-primary" id="taboo-begin-turn-btn" type="button">Javi, empezar turno</button></section>
+<section aria-live="polite" class="taboo-stage hidden" id="taboo-turn-stage"><div class="taboo-ready-icon">🙈</div><p class="eyebrow" id="taboo-turn-eyebrow">Turno 1 de 4</p><h3><span id="taboo-clue-name">Javi</span> da las pistas</h3><p class="muted"><strong id="taboo-guess-name">Laura</strong>, no mires la pantalla durante el turno: solo escucha las pistas.</p><button class="btn btn-primary" id="taboo-begin-turn-btn" type="button">Javi, empezar turno</button></section>
 <section aria-live="polite" class="taboo-play hidden" id="taboo-play-stage">
-<div class="taboo-timer-row"><div><span>Tiempo</span><strong id="taboo-timer">45</strong></div><div class="taboo-timer-track"><div class="taboo-timer-bar" id="taboo-timer-bar"></div></div><div class="taboo-turn-mini"><span>✅ <b id="taboo-turn-hits">0</b></span><span>⏭️ <b id="taboo-turn-passes">0</b></span></div></div>
+<div class="taboo-timer-row"><div><span>Tiempo</span><strong id="taboo-timer">90</strong></div><div class="taboo-timer-track"><div class="taboo-timer-bar" id="taboo-timer-bar"></div></div><div class="taboo-turn-mini"><span>✅ <b id="taboo-turn-hits">0</b></span><span>⏭️ <b id="taboo-turn-passes">0</b></span><span>🚫 <b id="taboo-turn-banned">0</b></span></div></div><div class="taboo-streak hidden" id="taboo-streak">🔥 Racha x3</div>
 <article class="taboo-card"><span class="taboo-category" id="taboo-category">📺 Series</span><p class="eyebrow">TIENE QUE DECIR</p><h2 id="taboo-word">JOHN B</h2><p class="taboo-no">🚫 NO PUEDES DECIR</p><div class="taboo-banned" id="taboo-banned"><span>Outer Banks</span><span>Sarah</span><span>Pogues</span></div></article>
 <div class="taboo-actions"><button class="btn btn-secondary" id="taboo-pass-btn" type="button">⏭️ Pasar</button><button class="btn btn-secondary taboo-ban-btn" id="taboo-banned-btn" type="button">🚫 Prohibida</button><button class="btn btn-primary" id="taboo-correct-btn" type="button">✓ Acertada</button></div>
-<p class="draw-judge-note">Quien da las pistas controla los botones. Las respuestas se dicen en voz alta.</p>
+<p class="draw-judge-note">Quien da las pistas controla los botones, pero los puntos son para quien adivina. Las respuestas se dicen en voz alta.</p>
 </section>
-<section aria-live="polite" class="taboo-stage hidden" id="taboo-summary"><div class="taboo-ready-icon">⏱️</div><p class="eyebrow">Fin del turno</p><h3 id="taboo-summary-title">Javi consigue 3 puntos</h3><p class="muted" id="taboo-summary-copy"></p><button class="btn btn-primary" id="taboo-next-turn-btn" type="button">Siguiente turno</button></section>
+<section aria-live="polite" class="taboo-stage hidden" id="taboo-summary"><div class="taboo-ready-icon">⏱️</div><p class="eyebrow">Fin del turno</p><h3 id="taboo-summary-title">Javi adivina 3 palabras</h3><p class="muted" id="taboo-summary-copy"></p><button class="btn btn-primary" id="taboo-next-turn-btn" type="button">Siguiente turno</button></section>
 <section aria-live="polite" class="draw-final hidden" id="taboo-final"><div class="draw-final-crown">🏆</div><p class="eyebrow">Fin de la partida</p><h2 id="taboo-final-title">Javi gana No lo digas</h2><p class="muted" id="taboo-final-copy"></p><button class="btn btn-primary" id="taboo-rematch-btn" type="button">Revancha</button></section>
 </section>
 </section>
@@ -651,6 +659,73 @@
     </form>
   </div>
 </section>
+<!-- v2.9 · Mensaje del día -->
+<section class="modal hidden" id="daily-message-compose-modal">
+  <div class="modal-backdrop" data-daily-message-compose-close=""></div>
+  <div class="modal-panel daily-message-compose-panel">
+    <button aria-label="Cerrar" class="modal-close" data-daily-message-compose-close="" type="button">×</button>
+    <div class="daily-message-modal-heading">
+      <div class="daily-message-modal-icon">💌</div>
+      <div>
+        <p class="eyebrow">Mensaje del día</p>
+        <h2 id="daily-message-compose-title">Déjale algo a Laura</h2>
+        <p class="muted">El correo solo avisará de que hay algo nuevo. El mensaje se descubre dentro de JaviEats.</p>
+      </div>
+    </div>
+    <form class="form daily-message-form" id="daily-message-form">
+      <label>Tu mensaje
+        <textarea id="daily-message-input" maxlength="1200" placeholder="Escribe aquí lo que quieras que encuentre hoy..." required rows="7"></textarea>
+      </label>
+      <div class="daily-message-form-meta">
+        <span id="daily-message-char-count">0 / 1200</span>
+        <span>Un mensaje principal por día</span>
+      </div>
+      <p class="muted daily-message-form-note" id="daily-message-form-note">Al guardarlo por primera vez, Laura recibirá un aviso por email sin ver el contenido.</p>
+      <div aria-live="polite" class="daily-message-status" id="daily-message-status"></div>
+      <button class="btn btn-primary" id="daily-message-save-btn" type="submit">Guardar y avisar a Laura</button>
+    </form>
+  </div>
+</section>
+
+<!-- v2.9 · Descubrir Mensaje del día -->
+<section class="modal hidden daily-message-reveal-modal" id="daily-message-reveal-modal">
+  <div class="modal-backdrop" data-daily-message-reveal-close=""></div>
+  <div class="modal-panel daily-message-reveal-panel">
+    <button aria-label="Cerrar" class="modal-close" data-daily-message-reveal-close="" type="button">×</button>
+    <div class="daily-message-sealed" id="daily-message-sealed">
+      <div class="daily-message-envelope" aria-hidden="true">💌</div>
+      <p class="eyebrow">Solo para ti</p>
+      <h2>Javi te ha dejado algo</h2>
+      <p class="muted">Ábrelo cuando quieras descubrir el mensaje de hoy.</p>
+      <button class="btn btn-primary" id="daily-message-reveal-btn" type="button">Abrir mensaje</button>
+    </div>
+    <div class="daily-message-opened hidden" id="daily-message-opened">
+      <div class="daily-message-opened-icon" aria-hidden="true">❤️</div>
+      <p class="eyebrow" id="daily-message-opened-date">Mensaje del día</p>
+      <h2>Para Laura</h2>
+      <div class="daily-message-text" id="daily-message-opened-text"></div>
+      <p class="daily-message-opened-signature">Javi</p>
+      <button class="btn btn-primary" data-daily-message-reveal-close="" type="button">Seguir en JaviEats</button>
+    </div>
+  </div>
+</section>
+
+<!-- v2.9 · Centro de notificaciones -->
+<section class="modal hidden" id="notifications-modal">
+  <div class="modal-backdrop" data-notifications-close=""></div>
+  <div class="modal-panel notifications-panel">
+    <button aria-label="Cerrar" class="modal-close" data-notifications-close="" type="button">×</button>
+    <div class="notifications-heading">
+      <div>
+        <p class="eyebrow">JaviEats al día</p>
+        <h2>Notificaciones</h2>
+      </div>
+      <button class="link-btn hidden" id="notifications-read-all" type="button">Marcar todo leído</button>
+    </div>
+    <div class="notifications-list" id="notifications-list"></div>
+  </div>
+</section>
+
 <!-- Modal mensaje Laura -->
 <section class="modal hidden" id="laura-message-modal">
 <div class="modal-backdrop" data-laura-message-close=""></div>
@@ -665,7 +740,7 @@
 <div class="toast hidden" id="toast"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-<script src="minigames-data.js?v=2.7"></script><script src="script.js?v=2.8"></script><script src="minigames.js?v=2.7"></script>
+<script src="minigames-data.js?v=2.9"></script><script src="script.js?v=2.9"></script><script src="minigames.js?v=2.9"></script>
 
 </body>
 </html>
