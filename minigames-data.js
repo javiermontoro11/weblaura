@@ -1,39 +1,140 @@
-/* JaviEats v2.7 · Baterías completas de Minijuegos
-   225 conceptos dibujables + 225 cartas de No lo digas.
-   Este archivo contiene solo datos; toda la lógica vive en minigames.js. */
+/* JaviEats v2.8 · Baterías revisadas de Minijuegos
+   Dibuja: 225 conceptos visuales con pista y dificultad interna.
+   No lo digas: 225 cartas con 2-4 palabras prohibidas y dificultad interna.
+   La dificultad nunca se muestra: solo se usa para emparejar duelos/turnos de forma justa. */
 
 window.JAVIEATS_DRAW_SECTIONS = [
   {
     "id": "futbol",
     "emoji": "⚽",
     "title": "Fútbol",
-    "subtitle": "Territorio Javi · conceptos visuales",
+    "subtitle": "Territorio Javi · situaciones y objetos del campo",
     "cards": [
-      "Balón de fútbol",
-      "Portería",
-      "Penalti",
-      "Árbitro",
-      "Tarjeta roja",
-      "Tarjeta amarilla",
-      "Copa del Mundo",
-      "Trofeo de fútbol",
-      "Estadio",
-      "Banquillo",
-      "Portero",
-      "Chilena",
-      "Córner",
-      "Falta",
-      "Saque de banda",
-      "Botas de fútbol",
-      "Guantes de portero",
-      "Marcador",
-      "Entrenamiento de fútbol",
-      "Afición",
-      "Brazalete de capitán",
-      "Barrera en una falta",
-      "Celebración de gol",
-      "Fuera de juego",
-      "VAR"
+      {
+        "word": "Balón de fútbol",
+        "hint": "Es lo que todos persiguen durante el partido.",
+        "difficulty": 1
+      },
+      {
+        "word": "Portería",
+        "hint": "Está al fondo del campo y tiene una red.",
+        "difficulty": 1
+      },
+      {
+        "word": "Penalti",
+        "hint": "Se lanza desde once metros.",
+        "difficulty": 2
+      },
+      {
+        "word": "Árbitro",
+        "hint": "Lleva silbato y controla el partido.",
+        "difficulty": 1
+      },
+      {
+        "word": "Tarjeta roja",
+        "hint": "Hace que un jugador se vaya expulsado.",
+        "difficulty": 1
+      },
+      {
+        "word": "Tarjeta amarilla",
+        "hint": "Es una advertencia del árbitro.",
+        "difficulty": 1
+      },
+      {
+        "word": "Copa del Mundo",
+        "hint": "El trofeo más famoso de selecciones.",
+        "difficulty": 2
+      },
+      {
+        "word": "Trofeo de fútbol",
+        "hint": "Se levanta al ganar una competición.",
+        "difficulty": 1
+      },
+      {
+        "word": "Estadio",
+        "hint": "Lugar enorme con césped y gradas.",
+        "difficulty": 1
+      },
+      {
+        "word": "Banquillo",
+        "hint": "Ahí esperan suplentes y entrenador.",
+        "difficulty": 2
+      },
+      {
+        "word": "Portero",
+        "hint": "Es el único que puede usar las manos dentro del área.",
+        "difficulty": 1
+      },
+      {
+        "word": "Chilena",
+        "hint": "Remate acrobático de espaldas a portería.",
+        "difficulty": 3
+      },
+      {
+        "word": "Córner",
+        "hint": "Se saca desde una esquina del campo.",
+        "difficulty": 2
+      },
+      {
+        "word": "Falta",
+        "hint": "El árbitro la pita tras una infracción.",
+        "difficulty": 2
+      },
+      {
+        "word": "Saque de banda",
+        "hint": "Se hace con las dos manos desde la línea lateral.",
+        "difficulty": 2
+      },
+      {
+        "word": "Botas de fútbol",
+        "hint": "Calzado con tacos para jugar en césped.",
+        "difficulty": 1
+      },
+      {
+        "word": "Guantes de portero",
+        "hint": "Los usa quien defiende la portería.",
+        "difficulty": 1
+      },
+      {
+        "word": "Marcador",
+        "hint": "Muestra goles y tiempo del partido.",
+        "difficulty": 1
+      },
+      {
+        "word": "Entrenamiento de fútbol",
+        "hint": "Jugadores practicando antes del partido real.",
+        "difficulty": 2
+      },
+      {
+        "word": "Afición",
+        "hint": "La gente que anima desde la grada.",
+        "difficulty": 2
+      },
+      {
+        "word": "Brazalete de capitán",
+        "hint": "Lo lleva un jugador especial en el brazo.",
+        "difficulty": 2
+      },
+      {
+        "word": "Barrera en una falta",
+        "hint": "Varios jugadores juntos delante del balón.",
+        "difficulty": 3
+      },
+      {
+        "word": "Celebración de gol",
+        "hint": "Lo que hacen los jugadores justo después de marcar.",
+        "difficulty": 2
+      },
+      {
+        "word": "Fuera de juego",
+        "hint": "Regla relacionada con estar demasiado adelantado.",
+        "difficulty": 3
+      },
+      {
+        "word": "VAR",
+        "hint": "Pantalla que ayuda al árbitro a revisar jugadas.",
+        "difficulty": 3
+      }
     ]
   },
   {
@@ -42,262 +143,1062 @@ window.JAVIEATS_DRAW_SECTIONS = [
     "title": "Pop & Disney",
     "subtitle": "Territorio Laura · personajes muy reconocibles",
     "cards": [
-      "Rapunzel",
-      "Stitch",
-      "Mickey Mouse",
-      "Minnie Mouse",
-      "Olaf",
-      "Elsa",
-      "Simba",
-      "Genio de Aladdín",
-      "Ariel",
-      "Buzz Lightyear",
-      "Woody",
-      "Rayo McQueen",
-      "Nemo",
-      "Dory",
-      "Sulley",
-      "Mike Wazowski",
-      "Dumbo",
-      "Aladdín",
-      "Pinocho",
-      "Peter Pan",
-      "Campanilla",
-      "Vaiana",
-      "Blancanieves",
-      "Cenicienta",
-      "Mulan"
+      {
+        "word": "Rapunzel",
+        "hint": "Princesa de Disney con un pelo larguísimo.",
+        "difficulty": 1
+      },
+      {
+        "word": "Stitch",
+        "hint": "Alien azul pequeño y muy travieso.",
+        "difficulty": 1
+      },
+      {
+        "word": "Mickey Mouse",
+        "hint": "El ratón más famoso de Disney.",
+        "difficulty": 1
+      },
+      {
+        "word": "Minnie Mouse",
+        "hint": "Ratona de Disney con un gran lazo.",
+        "difficulty": 1
+      },
+      {
+        "word": "Olaf",
+        "hint": "Muñeco de nieve de una película de Disney.",
+        "difficulty": 1
+      },
+      {
+        "word": "Elsa",
+        "hint": "Princesa capaz de crear hielo.",
+        "difficulty": 1
+      },
+      {
+        "word": "Simba",
+        "hint": "León protagonista de un clásico de Disney.",
+        "difficulty": 1
+      },
+      {
+        "word": "Genio de Aladdín",
+        "hint": "Personaje azul que sale de una lámpara.",
+        "difficulty": 2
+      },
+      {
+        "word": "Ariel",
+        "hint": "Princesa pelirroja que vive bajo el mar.",
+        "difficulty": 1
+      },
+      {
+        "word": "Buzz Lightyear",
+        "hint": "Juguete astronauta de Pixar.",
+        "difficulty": 1
+      },
+      {
+        "word": "Woody",
+        "hint": "Vaquero de juguete de Pixar.",
+        "difficulty": 1
+      },
+      {
+        "word": "Rayo McQueen",
+        "hint": "Coche rojo de carreras de Pixar.",
+        "difficulty": 1
+      },
+      {
+        "word": "Nemo",
+        "hint": "Pez payaso pequeño que se pierde.",
+        "difficulty": 1
+      },
+      {
+        "word": "Dory",
+        "hint": "Pez azul con muy poca memoria.",
+        "difficulty": 2
+      },
+      {
+        "word": "Sulley",
+        "hint": "Monstruo grande azul y peludo.",
+        "difficulty": 2
+      },
+      {
+        "word": "Mike Wazowski",
+        "hint": "Monstruo verde con un solo ojo.",
+        "difficulty": 1
+      },
+      {
+        "word": "Dumbo",
+        "hint": "Elefante con orejas enormes.",
+        "difficulty": 1
+      },
+      {
+        "word": "Aladdín",
+        "hint": "Joven de Disney que viaja en alfombra.",
+        "difficulty": 2
+      },
+      {
+        "word": "Pinocho",
+        "hint": "Muñeco de madera cuya nariz crece.",
+        "difficulty": 1
+      },
+      {
+        "word": "Peter Pan",
+        "hint": "Niño que vuela y no quiere crecer.",
+        "difficulty": 2
+      },
+      {
+        "word": "Campanilla",
+        "hint": "Hada pequeña amiga de Peter Pan.",
+        "difficulty": 2
+      },
+      {
+        "word": "Vaiana",
+        "hint": "Heroína de Disney que navega por el océano.",
+        "difficulty": 2
+      },
+      {
+        "word": "Blancanieves",
+        "hint": "Princesa asociada a siete enanitos.",
+        "difficulty": 2
+      },
+      {
+        "word": "Cenicienta",
+        "hint": "Princesa que pierde un zapato especial.",
+        "difficulty": 2
+      },
+      {
+        "word": "Mulan",
+        "hint": "Heroína Disney que se hace pasar por soldado.",
+        "difficulty": 3
+      }
     ]
   },
   {
     "id": "series",
     "emoji": "📺",
     "title": "Series & TV",
-    "subtitle": "Títulos y personajes fáciles de representar",
+    "subtitle": "Series con una imagen o idea muy reconocible",
     "cards": [
-      "Los Simpson",
-      "Bob Esponja",
-      "La Casa de Papel",
-      "Prison Break",
-      "Stranger Things",
-      "Miércoles",
-      "Juego de Tronos",
-      "The Walking Dead",
-      "El juego del calamar",
-      "Pokémon",
-      "Doraemon",
-      "Peppa Pig",
-      "South Park",
-      "Tom y Jerry",
-      "Scooby-Doo",
-      "Padre de familia",
-      "Breaking Bad",
-      "Los Picapiedra",
-      "La Pantera Rosa",
-      "Dragon Ball",
-      "Las Supernenas",
-      "Los Teletubbies",
-      "La Patrulla Canina",
-      "Mr. Bean",
-      "La que se avecina"
+      {
+        "word": "Los Simpson",
+        "hint": "Familia amarilla que vive en Springfield.",
+        "difficulty": 1
+      },
+      {
+        "word": "Bob Esponja",
+        "hint": "Personaje amarillo que vive bajo el mar.",
+        "difficulty": 1
+      },
+      {
+        "word": "La Casa de Papel",
+        "hint": "Serie española de atracadores con máscaras.",
+        "difficulty": 2
+      },
+      {
+        "word": "Prison Break",
+        "hint": "Serie sobre una fuga de prisión.",
+        "difficulty": 2
+      },
+      {
+        "word": "Stranger Things",
+        "hint": "Serie con niños, bicicletas y un mundo del revés.",
+        "difficulty": 2
+      },
+      {
+        "word": "Miércoles",
+        "hint": "Chica de la familia Addams vestida casi siempre de negro.",
+        "difficulty": 1
+      },
+      {
+        "word": "Juego de Tronos",
+        "hint": "Serie de fantasía con tronos, dragones y reinos.",
+        "difficulty": 3
+      },
+      {
+        "word": "The Walking Dead",
+        "hint": "Serie llena de supervivientes y zombis.",
+        "difficulty": 2
+      },
+      {
+        "word": "El juego del calamar",
+        "hint": "Serie de pruebas mortales con chándales y máscaras.",
+        "difficulty": 2
+      },
+      {
+        "word": "Pokémon",
+        "hint": "Serie de criaturas que se capturan y combaten.",
+        "difficulty": 1
+      },
+      {
+        "word": "Doraemon",
+        "hint": "Gato robot azul con un bolsillo mágico.",
+        "difficulty": 1
+      },
+      {
+        "word": "Peppa Pig",
+        "hint": "Cerdita rosa de dibujos animados.",
+        "difficulty": 1
+      },
+      {
+        "word": "South Park",
+        "hint": "Cuatro niños de dibujos con gorros muy reconocibles.",
+        "difficulty": 2
+      },
+      {
+        "word": "Tom y Jerry",
+        "hint": "Gato y ratón que se persiguen constantemente.",
+        "difficulty": 1
+      },
+      {
+        "word": "Scooby-Doo",
+        "hint": "Perro que resuelve misterios con sus amigos.",
+        "difficulty": 1
+      },
+      {
+        "word": "Padre de familia",
+        "hint": "Familia animada con un bebé y un perro que hablan.",
+        "difficulty": 3
+      },
+      {
+        "word": "Breaking Bad",
+        "hint": "Profesor de química que acaba en el mundo de la droga.",
+        "difficulty": 3
+      },
+      {
+        "word": "Los Picapiedra",
+        "hint": "Familia prehistórica de dibujos animados.",
+        "difficulty": 2
+      },
+      {
+        "word": "La Pantera Rosa",
+        "hint": "Felino rosa de dibujos animados.",
+        "difficulty": 1
+      },
+      {
+        "word": "Dragon Ball",
+        "hint": "Serie de luchadores con bolas mágicas y pelo imposible.",
+        "difficulty": 1
+      },
+      {
+        "word": "Las Supernenas",
+        "hint": "Tres niñas superheroínas de dibujos.",
+        "difficulty": 2
+      },
+      {
+        "word": "Los Teletubbies",
+        "hint": "Cuatro personajes de colores con antenas.",
+        "difficulty": 1
+      },
+      {
+        "word": "La Patrulla Canina",
+        "hint": "Grupo de perros que hacen rescates.",
+        "difficulty": 1
+      },
+      {
+        "word": "Mr. Bean",
+        "hint": "Personaje británico torpe casi sin diálogo.",
+        "difficulty": 2
+      },
+      {
+        "word": "La que se avecina",
+        "hint": "Comedia española sobre una comunidad de vecinos.",
+        "difficulty": 3
+      }
     ]
   },
   {
     "id": "peliculas",
     "emoji": "🎬",
     "title": "Películas",
-    "subtitle": "Cine muy visual y reconocible",
+    "subtitle": "Cine con escenas y personajes muy visuales",
     "cards": [
-      "Titanic",
-      "Shrek",
-      "Jurassic Park",
-      "Tiburón",
-      "E.T.",
-      "Cazafantasmas",
-      "El Grinch",
-      "Star Wars",
-      "Piratas del Caribe",
-      "101 Dálmatas",
-      "Jumanji",
-      "Up",
-      "Ratatouille",
-      "Matrix",
-      "Rocky",
-      "Barbie",
-      "Los Minions",
-      "Coco",
-      "Ice Age",
-      "Kung Fu Panda",
-      "Madagascar",
-      "Buscando a Nemo",
-      "El Rey León",
-      "Toy Story",
-      "Regreso al futuro"
+      {
+        "word": "Titanic",
+        "hint": "Barco enorme que choca con un iceberg.",
+        "difficulty": 1
+      },
+      {
+        "word": "Shrek",
+        "hint": "Ogro verde que vive en un pantano.",
+        "difficulty": 1
+      },
+      {
+        "word": "Jurassic Park",
+        "hint": "Parque lleno de dinosaurios.",
+        "difficulty": 1
+      },
+      {
+        "word": "Tiburón",
+        "hint": "Película sobre un enorme animal marino peligroso.",
+        "difficulty": 1
+      },
+      {
+        "word": "E.T.",
+        "hint": "Alien pequeño que quiere volver a casa.",
+        "difficulty": 2
+      },
+      {
+        "word": "Cazafantasmas",
+        "hint": "Grupo que captura fantasmas con aparatos.",
+        "difficulty": 2
+      },
+      {
+        "word": "El Grinch",
+        "hint": "Personaje verde que odia la Navidad.",
+        "difficulty": 1
+      },
+      {
+        "word": "Star Wars",
+        "hint": "Saga espacial con sables de luz.",
+        "difficulty": 2
+      },
+      {
+        "word": "Piratas del Caribe",
+        "hint": "Piratas, barcos y un capitán muy excéntrico.",
+        "difficulty": 2
+      },
+      {
+        "word": "101 Dálmatas",
+        "hint": "Película con muchísimos perros blancos con manchas.",
+        "difficulty": 1
+      },
+      {
+        "word": "Jumanji",
+        "hint": "Juego que convierte la aventura en realidad.",
+        "difficulty": 3
+      },
+      {
+        "word": "Up",
+        "hint": "Casa que vuela gracias a muchísimos globos.",
+        "difficulty": 1
+      },
+      {
+        "word": "Ratatouille",
+        "hint": "Rata que cocina en un restaurante.",
+        "difficulty": 1
+      },
+      {
+        "word": "Matrix",
+        "hint": "Película con realidad simulada y dos pastillas famosas.",
+        "difficulty": 3
+      },
+      {
+        "word": "Rocky",
+        "hint": "Película sobre un boxeador entrenando para pelear.",
+        "difficulty": 2
+      },
+      {
+        "word": "Barbie",
+        "hint": "Película y personaje asociado al color rosa.",
+        "difficulty": 1
+      },
+      {
+        "word": "Los Minions",
+        "hint": "Pequeños personajes amarillos con gafas.",
+        "difficulty": 1
+      },
+      {
+        "word": "Coco",
+        "hint": "Película de Pixar sobre música y el mundo de los muertos.",
+        "difficulty": 2
+      },
+      {
+        "word": "Ice Age",
+        "hint": "Animales prehistóricos viajando sobre hielo.",
+        "difficulty": 2
+      },
+      {
+        "word": "Kung Fu Panda",
+        "hint": "Panda que aprende artes marciales.",
+        "difficulty": 1
+      },
+      {
+        "word": "Madagascar",
+        "hint": "Animales de zoo que acaban en una isla.",
+        "difficulty": 2
+      },
+      {
+        "word": "Buscando a Nemo",
+        "hint": "Padre pez buscando a su hijo perdido.",
+        "difficulty": 2
+      },
+      {
+        "word": "El Rey León",
+        "hint": "Leones en la sabana africana.",
+        "difficulty": 1
+      },
+      {
+        "word": "Toy Story",
+        "hint": "Juguetes que cobran vida cuando nadie mira.",
+        "difficulty": 1
+      },
+      {
+        "word": "Regreso al futuro",
+        "hint": "Viajes en el tiempo dentro de un coche.",
+        "difficulty": 3
+      }
     ]
   },
   {
     "id": "musica",
     "emoji": "🎵",
     "title": "Música",
-    "subtitle": "Cosas que se pueden dibujar de verdad",
+    "subtitle": "Instrumentos y escenas musicales fáciles de dibujar",
     "cards": [
-      "Micrófono",
-      "Guitarra",
-      "Piano",
-      "Batería",
-      "Auriculares",
-      "Altavoz",
-      "DJ",
-      "Concierto",
-      "Festival de música",
-      "Disco de vinilo",
-      "Karaoke",
-      "Trompeta",
-      "Saxofón",
-      "Violín",
-      "Maracas",
-      "Flauta",
-      "Nota musical",
-      "Álbum de música",
-      "Tocadiscos",
-      "Bailar",
-      "Cantante",
-      "Escenario",
-      "Partitura",
-      "Teclado musical",
-      "Grammy"
+      {
+        "word": "Micrófono",
+        "hint": "Se sostiene delante de la boca para cantar.",
+        "difficulty": 1
+      },
+      {
+        "word": "Guitarra",
+        "hint": "Instrumento de cuerda que se toca con las manos.",
+        "difficulty": 1
+      },
+      {
+        "word": "Piano",
+        "hint": "Instrumento grande lleno de teclas blancas y negras.",
+        "difficulty": 1
+      },
+      {
+        "word": "Batería",
+        "hint": "Conjunto de tambores y platos.",
+        "difficulty": 1
+      },
+      {
+        "word": "Auriculares",
+        "hint": "Se colocan sobre las orejas para escuchar música.",
+        "difficulty": 1
+      },
+      {
+        "word": "Altavoz",
+        "hint": "Aparato del que sale música a volumen alto.",
+        "difficulty": 1
+      },
+      {
+        "word": "DJ",
+        "hint": "Persona frente a una mesa mezclando música.",
+        "difficulty": 2
+      },
+      {
+        "word": "Concierto",
+        "hint": "Artista en un escenario delante de mucha gente.",
+        "difficulty": 2
+      },
+      {
+        "word": "Festival de música",
+        "hint": "Muchos conciertos y público en un recinto.",
+        "difficulty": 3
+      },
+      {
+        "word": "Disco de vinilo",
+        "hint": "Disco negro redondo que gira para reproducir música.",
+        "difficulty": 1
+      },
+      {
+        "word": "Karaoke",
+        "hint": "Persona cantando mientras sigue una canción.",
+        "difficulty": 2
+      },
+      {
+        "word": "Trompeta",
+        "hint": "Instrumento metálico que se sopla.",
+        "difficulty": 2
+      },
+      {
+        "word": "Saxofón",
+        "hint": "Instrumento dorado curvado que se sopla.",
+        "difficulty": 2
+      },
+      {
+        "word": "Violín",
+        "hint": "Instrumento pequeño de cuerda tocado con arco.",
+        "difficulty": 2
+      },
+      {
+        "word": "Maracas",
+        "hint": "Dos instrumentos pequeños que se agitan.",
+        "difficulty": 1
+      },
+      {
+        "word": "Flauta",
+        "hint": "Instrumento largo y fino que se sopla.",
+        "difficulty": 1
+      },
+      {
+        "word": "Nota musical",
+        "hint": "Símbolo típico que representa música.",
+        "difficulty": 1
+      },
+      {
+        "word": "Álbum de música",
+        "hint": "Colección de canciones con una portada.",
+        "difficulty": 3
+      },
+      {
+        "word": "Tocadiscos",
+        "hint": "Aparato con aguja donde gira un vinilo.",
+        "difficulty": 2
+      },
+      {
+        "word": "Bailar",
+        "hint": "Mover el cuerpo siguiendo el ritmo.",
+        "difficulty": 2
+      },
+      {
+        "word": "Cantante",
+        "hint": "Persona cantando frente a un público.",
+        "difficulty": 2
+      },
+      {
+        "word": "Escenario",
+        "hint": "Plataforma donde actúan músicos o artistas.",
+        "difficulty": 2
+      },
+      {
+        "word": "Partitura",
+        "hint": "Hoja llena de notas y líneas musicales.",
+        "difficulty": 3
+      },
+      {
+        "word": "Teclado musical",
+        "hint": "Instrumento electrónico con muchas teclas.",
+        "difficulty": 2
+      },
+      {
+        "word": "Grammy",
+        "hint": "Premio musical con forma de gramófono.",
+        "difficulty": 3
+      }
     ]
   },
   {
     "id": "sagas",
     "emoji": "🦸",
     "title": "Héroes & Sagas",
-    "subtitle": "Personajes con una silueta o símbolo claro",
+    "subtitle": "Personajes con siluetas, poderes o símbolos claros",
     "cards": [
-      "Spider-Man",
-      "Iron Man",
-      "Hulk",
-      "Thor",
-      "Capitán América",
-      "Thanos",
-      "Wolverine",
-      "Deadpool",
-      "Groot",
-      "Batman",
-      "Superman",
-      "Wonder Woman",
-      "Darth Vader",
-      "Yoda",
-      "Harry Potter",
-      "Voldemort",
-      "Jack Sparrow",
-      "Gollum",
-      "Sonic",
-      "Mario Bros",
-      "Lara Croft",
-      "Indiana Jones",
-      "Optimus Prime",
-      "Godzilla",
-      "King Kong"
+      {
+        "word": "Spider-Man",
+        "hint": "Superhéroe que lanza telarañas.",
+        "difficulty": 1
+      },
+      {
+        "word": "Iron Man",
+        "hint": "Superhéroe dentro de una armadura tecnológica.",
+        "difficulty": 1
+      },
+      {
+        "word": "Hulk",
+        "hint": "Superhéroe enorme, verde y muy fuerte.",
+        "difficulty": 1
+      },
+      {
+        "word": "Thor",
+        "hint": "Superhéroe asociado a un martillo y rayos.",
+        "difficulty": 1
+      },
+      {
+        "word": "Capitán América",
+        "hint": "Superhéroe que usa un escudo redondo.",
+        "difficulty": 1
+      },
+      {
+        "word": "Thanos",
+        "hint": "Villano morado con un guantelete especial.",
+        "difficulty": 2
+      },
+      {
+        "word": "Wolverine",
+        "hint": "Héroe con garras que salen de las manos.",
+        "difficulty": 1
+      },
+      {
+        "word": "Deadpool",
+        "hint": "Héroe vestido de rojo y negro con dos espadas.",
+        "difficulty": 1
+      },
+      {
+        "word": "Groot",
+        "hint": "Personaje con aspecto de árbol.",
+        "difficulty": 1
+      },
+      {
+        "word": "Batman",
+        "hint": "Héroe oscuro con símbolo de murciélago.",
+        "difficulty": 1
+      },
+      {
+        "word": "Superman",
+        "hint": "Héroe con capa y una gran letra en el pecho.",
+        "difficulty": 1
+      },
+      {
+        "word": "Wonder Woman",
+        "hint": "Heroína con lazo y brazaletes.",
+        "difficulty": 2
+      },
+      {
+        "word": "Darth Vader",
+        "hint": "Villano espacial con casco negro.",
+        "difficulty": 1
+      },
+      {
+        "word": "Yoda",
+        "hint": "Maestro Jedi pequeño, verde y con grandes orejas.",
+        "difficulty": 1
+      },
+      {
+        "word": "Harry Potter",
+        "hint": "Mago joven con gafas y una cicatriz.",
+        "difficulty": 1
+      },
+      {
+        "word": "Voldemort",
+        "hint": "Villano mago sin apenas nariz.",
+        "difficulty": 2
+      },
+      {
+        "word": "Jack Sparrow",
+        "hint": "Pirata con sombrero, trenzas y aspecto desaliñado.",
+        "difficulty": 2
+      },
+      {
+        "word": "Gollum",
+        "hint": "Personaje encorvado obsesionado con un anillo.",
+        "difficulty": 3
+      },
+      {
+        "word": "Sonic",
+        "hint": "Erizo azul que corre a gran velocidad.",
+        "difficulty": 1
+      },
+      {
+        "word": "Mario Bros",
+        "hint": "Fontanero con gorra y bigote.",
+        "difficulty": 1
+      },
+      {
+        "word": "Lara Croft",
+        "hint": "Aventurera de videojuegos que explora tumbas.",
+        "difficulty": 3
+      },
+      {
+        "word": "Indiana Jones",
+        "hint": "Aventurero con sombrero y látigo.",
+        "difficulty": 2
+      },
+      {
+        "word": "Optimus Prime",
+        "hint": "Robot gigante que puede convertirse en vehículo.",
+        "difficulty": 3
+      },
+      {
+        "word": "Godzilla",
+        "hint": "Monstruo gigante parecido a un dinosaurio.",
+        "difficulty": 1
+      },
+      {
+        "word": "King Kong",
+        "hint": "Gorila gigante.",
+        "difficulty": 1
+      }
     ]
   },
   {
     "id": "casa-comida",
     "emoji": "🍕",
     "title": "Comida & Casa",
-    "subtitle": "Objetos cotidianos y comida",
+    "subtitle": "Objetos cotidianos y comida muy visual",
     "cards": [
-      "Pizza",
-      "Hamburguesa",
-      "Kebab",
-      "Paella",
-      "Sushi",
-      "Croissant",
-      "Helado",
-      "Palomitas",
-      "Huevo frito",
-      "Espaguetis",
-      "Tortilla de patatas",
-      "Taza de café",
-      "Sofá",
-      "Cama",
-      "Ducha",
-      "Lavadora",
-      "Nevera",
-      "Aspiradora",
-      "Inodoro",
-      "Lámpara",
-      "Llave",
-      "Puerta",
-      "Tostadora",
-      "Microondas",
-      "Paraguas"
+      {
+        "word": "Pizza",
+        "hint": "Comida redonda cortada en porciones.",
+        "difficulty": 1
+      },
+      {
+        "word": "Hamburguesa",
+        "hint": "Pan redondo con carne y otros ingredientes dentro.",
+        "difficulty": 1
+      },
+      {
+        "word": "Kebab",
+        "hint": "Carne y verduras envueltas o dentro de pan.",
+        "difficulty": 2
+      },
+      {
+        "word": "Paella",
+        "hint": "Arroz servido en una gran sartén plana.",
+        "difficulty": 2
+      },
+      {
+        "word": "Sushi",
+        "hint": "Pequeños bocados japoneses con arroz.",
+        "difficulty": 2
+      },
+      {
+        "word": "Croissant",
+        "hint": "Bollería con forma de media luna.",
+        "difficulty": 1
+      },
+      {
+        "word": "Helado",
+        "hint": "Postre frío servido en cono o tarrina.",
+        "difficulty": 1
+      },
+      {
+        "word": "Palomitas",
+        "hint": "Comida típica del cine en un cubo.",
+        "difficulty": 1
+      },
+      {
+        "word": "Huevo frito",
+        "hint": "Huevo con clara blanca y yema amarilla en el centro.",
+        "difficulty": 1
+      },
+      {
+        "word": "Espaguetis",
+        "hint": "Pasta larga y fina en un plato.",
+        "difficulty": 1
+      },
+      {
+        "word": "Tortilla de patatas",
+        "hint": "Plato español redondo hecho con huevo y patata.",
+        "difficulty": 2
+      },
+      {
+        "word": "Taza de café",
+        "hint": "Recipiente con asa y bebida caliente.",
+        "difficulty": 1
+      },
+      {
+        "word": "Sofá",
+        "hint": "Mueble grande para sentarse varias personas.",
+        "difficulty": 1
+      },
+      {
+        "word": "Cama",
+        "hint": "Mueble donde dormimos.",
+        "difficulty": 1
+      },
+      {
+        "word": "Ducha",
+        "hint": "Lugar donde cae agua para lavarse.",
+        "difficulty": 1
+      },
+      {
+        "word": "Lavadora",
+        "hint": "Electrodoméstico redondo por delante que lava ropa.",
+        "difficulty": 1
+      },
+      {
+        "word": "Nevera",
+        "hint": "Electrodoméstico alto donde se guarda comida fría.",
+        "difficulty": 1
+      },
+      {
+        "word": "Aspiradora",
+        "hint": "Máquina para limpiar el suelo aspirando.",
+        "difficulty": 2
+      },
+      {
+        "word": "Inodoro",
+        "hint": "Elemento del baño donde te sientas.",
+        "difficulty": 1
+      },
+      {
+        "word": "Lámpara",
+        "hint": "Objeto que da luz dentro de casa.",
+        "difficulty": 1
+      },
+      {
+        "word": "Llave",
+        "hint": "Objeto pequeño que abre una cerradura.",
+        "difficulty": 1
+      },
+      {
+        "word": "Puerta",
+        "hint": "Se abre para entrar o salir de una habitación.",
+        "difficulty": 1
+      },
+      {
+        "word": "Tostadora",
+        "hint": "Electrodoméstico pequeño donde se mete pan.",
+        "difficulty": 2
+      },
+      {
+        "word": "Microondas",
+        "hint": "Electrodoméstico para calentar comida rápidamente.",
+        "difficulty": 2
+      },
+      {
+        "word": "Paraguas",
+        "hint": "Objeto que se abre sobre la cabeza cuando llueve.",
+        "difficulty": 1
+      }
     ]
   },
   {
     "id": "internet-juegos",
     "emoji": "🎮",
     "title": "Internet & Juegos",
-    "subtitle": "Pantallas, videojuegos y símbolos conocidos",
+    "subtitle": "Videojuegos, dispositivos y símbolos muy visuales",
     "cards": [
-      "Mando de PlayStation",
-      "Nintendo Switch",
-      "Super Mario",
-      "Luigi",
-      "Pikachu",
-      "Minecraft",
-      "Fortnite",
-      "GTA",
-      "Among Us",
-      "Pac-Man",
-      "Tetris",
-      "WhatsApp",
-      "Instagram",
-      "TikTok",
-      "YouTube",
-      "Selfie",
-      "Emoji",
-      "Wi-Fi",
-      "Código QR",
-      "Ordenador portátil",
-      "Teléfono móvil",
-      "Robot",
-      "Realidad virtual",
-      "Videollamada",
-      "Twitch"
+      {
+        "word": "Mando de PlayStation",
+        "hint": "Control con botones que se usa para jugar a una consola.",
+        "difficulty": 1
+      },
+      {
+        "word": "Nintendo Switch",
+        "hint": "Consola portátil con dos mandos a los lados.",
+        "difficulty": 2
+      },
+      {
+        "word": "Super Mario",
+        "hint": "Personaje de videojuegos con gorra y bigote.",
+        "difficulty": 1
+      },
+      {
+        "word": "Luigi",
+        "hint": "Hermano de Mario vestido normalmente de verde.",
+        "difficulty": 2
+      },
+      {
+        "word": "Pikachu",
+        "hint": "Criatura amarilla con orejas puntiagudas y cola de rayo.",
+        "difficulty": 1
+      },
+      {
+        "word": "Minecraft",
+        "hint": "Videojuego donde todo está hecho de bloques.",
+        "difficulty": 1
+      },
+      {
+        "word": "Fortnite",
+        "hint": "Juego de disparos con construcción y paracaídas.",
+        "difficulty": 3
+      },
+      {
+        "word": "GTA",
+        "hint": "Videojuego de mundo abierto con coches y ciudad.",
+        "difficulty": 3
+      },
+      {
+        "word": "Among Us",
+        "hint": "Pequeños astronautas de colores y un impostor.",
+        "difficulty": 1
+      },
+      {
+        "word": "Pac-Man",
+        "hint": "Personaje amarillo redondo que come puntos.",
+        "difficulty": 1
+      },
+      {
+        "word": "Tetris",
+        "hint": "Piezas geométricas que caen y encajan.",
+        "difficulty": 1
+      },
+      {
+        "word": "Selfie",
+        "hint": "Foto que una persona se hace a sí misma.",
+        "difficulty": 1
+      },
+      {
+        "word": "Emoji",
+        "hint": "Cara pequeña que expresa una emoción.",
+        "difficulty": 1
+      },
+      {
+        "word": "Wi-Fi",
+        "hint": "Símbolo de conexión inalámbrica con varias curvas.",
+        "difficulty": 1
+      },
+      {
+        "word": "Código QR",
+        "hint": "Cuadrado lleno de pequeños bloques negros y blancos.",
+        "difficulty": 2
+      },
+      {
+        "word": "Ordenador portátil",
+        "hint": "Ordenador que se abre como un libro.",
+        "difficulty": 1
+      },
+      {
+        "word": "Teléfono móvil",
+        "hint": "Pantalla rectangular que llevamos en el bolsillo.",
+        "difficulty": 1
+      },
+      {
+        "word": "Robot",
+        "hint": "Máquina con aspecto humano o mecánico.",
+        "difficulty": 1
+      },
+      {
+        "word": "Realidad virtual",
+        "hint": "Persona con unas grandes gafas tecnológicas.",
+        "difficulty": 2
+      },
+      {
+        "word": "Videollamada",
+        "hint": "Dos personas hablando a través de pantallas.",
+        "difficulty": 2
+      },
+      {
+        "word": "Consola de videojuegos",
+        "hint": "Aparato conectado a una pantalla para jugar.",
+        "difficulty": 2
+      },
+      {
+        "word": "Cámara web",
+        "hint": "Cámara pequeña colocada sobre un monitor.",
+        "difficulty": 2
+      },
+      {
+        "word": "Dron",
+        "hint": "Pequeño aparato volador con varias hélices.",
+        "difficulty": 2
+      },
+      {
+        "word": "Máquina arcade",
+        "hint": "Mueble de videojuegos con pantalla y palanca.",
+        "difficulty": 3
+      },
+      {
+        "word": "Silla gaming",
+        "hint": "Silla grande de ordenador con aspecto deportivo.",
+        "difficulty": 2
+      }
     ]
   },
   {
     "id": "mix",
     "emoji": "🎲",
     "title": "Mix",
-    "subtitle": "Cosas fáciles, pero puede salir de todo",
+    "subtitle": "Cosas de toda la vida, sin saber qué viene después",
     "cards": [
-      "Avión",
-      "Playa",
-      "Camping",
-      "Boda",
-      "Cumpleaños",
-      "Gimnasio",
-      "Discoteca",
-      "Taxi",
-      "Metro",
-      "Hospital",
-      "Policía",
-      "Bombero",
-      "Pirata",
-      "Astronauta",
-      "Dinosaurio",
-      "Fantasma",
-      "Alien",
-      "Volcán",
-      "Arcoíris",
-      "Muñeco de nieve",
-      "Bicicleta",
-      "Montaña rusa",
-      "Castillo",
-      "Isla desierta",
-      "Coche de carreras"
+      {
+        "word": "Avión",
+        "hint": "Vehículo que vuela por el cielo.",
+        "difficulty": 1
+      },
+      {
+        "word": "Playa",
+        "hint": "Arena junto al mar con gente tomando el sol.",
+        "difficulty": 1
+      },
+      {
+        "word": "Camping",
+        "hint": "Dormir al aire libre dentro de una tienda.",
+        "difficulty": 2
+      },
+      {
+        "word": "Boda",
+        "hint": "Celebración donde dos personas se casan.",
+        "difficulty": 2
+      },
+      {
+        "word": "Cumpleaños",
+        "hint": "Fiesta con tarta, velas y regalos.",
+        "difficulty": 1
+      },
+      {
+        "word": "Gimnasio",
+        "hint": "Lugar lleno de pesas y máquinas para entrenar.",
+        "difficulty": 2
+      },
+      {
+        "word": "Discoteca",
+        "hint": "Lugar nocturno con música y gente bailando.",
+        "difficulty": 2
+      },
+      {
+        "word": "Taxi",
+        "hint": "Coche que transporta pasajeros a cambio de dinero.",
+        "difficulty": 1
+      },
+      {
+        "word": "Metro",
+        "hint": "Tren que circula principalmente bajo una ciudad.",
+        "difficulty": 2
+      },
+      {
+        "word": "Hospital",
+        "hint": "Edificio con médicos, pacientes y ambulancias.",
+        "difficulty": 1
+      },
+      {
+        "word": "Policía",
+        "hint": "Persona con uniforme que hace cumplir la ley.",
+        "difficulty": 1
+      },
+      {
+        "word": "Bombero",
+        "hint": "Persona que apaga incendios.",
+        "difficulty": 1
+      },
+      {
+        "word": "Pirata",
+        "hint": "Persona con barco, parche y tesoro.",
+        "difficulty": 1
+      },
+      {
+        "word": "Astronauta",
+        "hint": "Persona con traje especial que viaja al espacio.",
+        "difficulty": 1
+      },
+      {
+        "word": "Dinosaurio",
+        "hint": "Animal prehistórico enorme.",
+        "difficulty": 1
+      },
+      {
+        "word": "Fantasma",
+        "hint": "Figura que representa un espíritu.",
+        "difficulty": 1
+      },
+      {
+        "word": "Alien",
+        "hint": "Ser de otro planeta.",
+        "difficulty": 1
+      },
+      {
+        "word": "Volcán",
+        "hint": "Montaña que expulsa lava.",
+        "difficulty": 1
+      },
+      {
+        "word": "Arcoíris",
+        "hint": "Arco de muchos colores que aparece en el cielo.",
+        "difficulty": 1
+      },
+      {
+        "word": "Muñeco de nieve",
+        "hint": "Figura hecha con bolas de nieve.",
+        "difficulty": 1
+      },
+      {
+        "word": "Bicicleta",
+        "hint": "Vehículo de dos ruedas con pedales.",
+        "difficulty": 1
+      },
+      {
+        "word": "Montaña rusa",
+        "hint": "Atracción que sube y baja por raíles.",
+        "difficulty": 2
+      },
+      {
+        "word": "Castillo",
+        "hint": "Edificio antiguo con torres y murallas.",
+        "difficulty": 1
+      },
+      {
+        "word": "Isla desierta",
+        "hint": "Tierra rodeada de agua sin edificios ni gente.",
+        "difficulty": 2
+      },
+      {
+        "word": "Coche de carreras",
+        "hint": "Vehículo rápido preparado para competir.",
+        "difficulty": 1
+      }
     ]
   }
 ];
@@ -313,32 +1214,40 @@ window.JAVIEATS_TABOO_SECTIONS = [
         "banned": [
           "Real Madrid",
           "Francia",
-          "delantero"
-        ]
+          "delantero",
+          "fútbol"
+        ],
+        "difficulty": 1
       },
       {
         "word": "Lamine Yamal",
         "banned": [
           "Barcelona",
           "España",
-          "joven"
-        ]
+          "joven",
+          "fútbol"
+        ],
+        "difficulty": 1
       },
       {
         "word": "Cristiano Ronaldo",
         "banned": [
           "Portugal",
           "Real Madrid",
-          "Messi"
-        ]
+          "Messi",
+          "fútbol"
+        ],
+        "difficulty": 1
       },
       {
         "word": "Lionel Messi",
         "banned": [
           "Argentina",
           "Barcelona",
-          "Cristiano"
-        ]
+          "Cristiano",
+          "fútbol"
+        ],
+        "difficulty": 1
       },
       {
         "word": "Vinícius Jr.",
@@ -346,15 +1255,18 @@ window.JAVIEATS_TABOO_SECTIONS = [
           "Real Madrid",
           "Brasil",
           "extremo"
-        ]
+        ],
+        "difficulty": 2
       },
       {
         "word": "Erling Haaland",
         "banned": [
           "Manchester City",
           "Noruega",
-          "delantero"
-        ]
+          "delantero",
+          "fútbol"
+        ],
+        "difficulty": 1
       },
       {
         "word": "Jude Bellingham",
@@ -362,15 +1274,16 @@ window.JAVIEATS_TABOO_SECTIONS = [
           "Real Madrid",
           "Inglaterra",
           "centrocampista"
-        ]
+        ],
+        "difficulty": 2
       },
       {
         "word": "Rodri",
         "banned": [
           "Manchester City",
-          "España",
-          "Balón de Oro"
-        ]
+          "España"
+        ],
+        "difficulty": 3
       },
       {
         "word": "Antoine Griezmann",
@@ -378,23 +1291,26 @@ window.JAVIEATS_TABOO_SECTIONS = [
           "Atlético de Madrid",
           "Francia",
           "delantero"
-        ]
+        ],
+        "difficulty": 2
       },
       {
         "word": "Pedri",
         "banned": [
           "Barcelona",
-          "Canarias",
-          "centrocampista"
-        ]
+          "Canarias"
+        ],
+        "difficulty": 3
       },
       {
         "word": "Neymar",
         "banned": [
           "Brasil",
           "PSG",
-          "Barcelona"
-        ]
+          "Barcelona",
+          "fútbol"
+        ],
+        "difficulty": 1
       },
       {
         "word": "Robert Lewandowski",
@@ -402,7 +1318,8 @@ window.JAVIEATS_TABOO_SECTIONS = [
           "Barcelona",
           "Polonia",
           "delantero"
-        ]
+        ],
+        "difficulty": 2
       },
       {
         "word": "Sergio Ramos",
@@ -410,15 +1327,16 @@ window.JAVIEATS_TABOO_SECTIONS = [
           "defensa",
           "Real Madrid",
           "Sevilla"
-        ]
+        ],
+        "difficulty": 2
       },
       {
         "word": "Luka Modrić",
         "banned": [
           "Croacia",
-          "Real Madrid",
-          "centrocampista"
-        ]
+          "Real Madrid"
+        ],
+        "difficulty": 3
       },
       {
         "word": "Andrés Iniesta",
@@ -426,7 +1344,8 @@ window.JAVIEATS_TABOO_SECTIONS = [
           "España",
           "Barcelona",
           "Mundial"
-        ]
+        ],
+        "difficulty": 2
       },
       {
         "word": "Pep Guardiola",
@@ -434,7 +1353,8 @@ window.JAVIEATS_TABOO_SECTIONS = [
           "entrenador",
           "Manchester City",
           "Barcelona"
-        ]
+        ],
+        "difficulty": 2
       },
       {
         "word": "José Mourinho",
@@ -442,7 +1362,8 @@ window.JAVIEATS_TABOO_SECTIONS = [
           "entrenador",
           "Real Madrid",
           "Portugal"
-        ]
+        ],
+        "difficulty": 2
       },
       {
         "word": "Diego Simeone",
@@ -450,31 +1371,36 @@ window.JAVIEATS_TABOO_SECTIONS = [
           "Atlético de Madrid",
           "entrenador",
           "Cholo"
-        ]
+        ],
+        "difficulty": 2
       },
       {
         "word": "Carlo Ancelotti",
         "banned": [
           "entrenador",
-          "Real Madrid",
-          "italiano"
-        ]
+          "Real Madrid"
+        ],
+        "difficulty": 3
       },
       {
         "word": "Real Madrid",
         "banned": [
           "Bernabéu",
           "blanco",
-          "Champions"
-        ]
+          "Champions",
+          "fútbol"
+        ],
+        "difficulty": 1
       },
       {
         "word": "FC Barcelona",
         "banned": [
           "Camp Nou",
           "azulgrana",
-          "Cataluña"
-        ]
+          "Cataluña",
+          "fútbol"
+        ],
+        "difficulty": 1
       },
       {
         "word": "Atlético de Madrid",
@@ -482,31 +1408,38 @@ window.JAVIEATS_TABOO_SECTIONS = [
           "Metropolitano",
           "Simeone",
           "rojiblanco"
-        ]
+        ],
+        "difficulty": 2
       },
       {
         "word": "Champions League",
         "banned": [
           "Europa",
           "orejona",
-          "clubes"
-        ]
+          "clubes",
+          "fútbol"
+        ],
+        "difficulty": 1
       },
       {
         "word": "Copa del Mundo",
         "banned": [
           "selecciones",
           "Mundial",
-          "FIFA"
-        ]
+          "FIFA",
+          "fútbol"
+        ],
+        "difficulty": 1
       },
       {
         "word": "VAR",
         "banned": [
           "árbitro",
           "vídeo",
-          "revisión"
-        ]
+          "revisión",
+          "fútbol"
+        ],
+        "difficulty": 1
       }
     ]
   },
@@ -520,8 +1453,10 @@ window.JAVIEATS_TABOO_SECTIONS = [
         "banned": [
           "Violetta",
           "Argentina",
-          "cantante"
-        ]
+          "cantante",
+          "música"
+        ],
+        "difficulty": 1
       },
       {
         "word": "Violetta",
@@ -529,71 +1464,85 @@ window.JAVIEATS_TABOO_SECTIONS = [
           "Disney",
           "TINI",
           "serie"
-        ]
+        ],
+        "difficulty": 1
       },
       {
         "word": "Emilia",
         "banned": [
           "Argentina",
-          "cantante",
-          "TINI"
-        ]
+          "TINI",
+          "cantante"
+        ],
+        "difficulty": 1
       },
       {
         "word": "Justin Bieber",
         "banned": [
           "Canadá",
           "Baby",
-          "Hailey"
-        ]
+          "Hailey",
+          "cantante"
+        ],
+        "difficulty": 1
       },
       {
         "word": "Rapunzel",
         "banned": [
           "Enredados",
           "pelo",
-          "princesa"
-        ]
+          "princesa",
+          "Disney"
+        ],
+        "difficulty": 1
       },
       {
         "word": "Flynn Rider",
         "banned": [
           "Enredados",
-          "Rapunzel",
-          "ladrón"
-        ]
+          "Rapunzel"
+        ],
+        "difficulty": 3
       },
       {
         "word": "Stitch",
         "banned": [
           "Lilo",
           "azul",
-          "alien"
-        ]
+          "alien",
+          "Disney"
+        ],
+        "difficulty": 1
       },
       {
         "word": "Elsa",
         "banned": [
           "Frozen",
           "hielo",
-          "Anna"
-        ]
+          "Anna",
+          "Disney"
+        ],
+        "difficulty": 1
       },
       {
         "word": "Olaf",
         "banned": [
           "Frozen",
           "muñeco de nieve",
-          "Elsa"
-        ]
+          "Elsa",
+          "Disney"
+        ],
+        "difficulty": 1
       },
       {
         "word": "Simba",
         "banned": [
           "El Rey León",
           "Mufasa",
-          "león"
-        ]
+          "león",
+          "Disney"
+        ],
+        "difficulty": 1
       },
       {
         "word": "Genio",
@@ -601,39 +1550,48 @@ window.JAVIEATS_TABOO_SECTIONS = [
           "Aladdín",
           "lámpara",
           "azul"
-        ]
+        ],
+        "difficulty": 2
       },
       {
         "word": "Ariel",
         "banned": [
           "La Sirenita",
           "mar",
-          "pelirroja"
-        ]
+          "pelirroja",
+          "Disney"
+        ],
+        "difficulty": 1
       },
       {
         "word": "Buzz Lightyear",
         "banned": [
           "Toy Story",
           "espacio",
-          "Woody"
-        ]
+          "Woody",
+          "Disney"
+        ],
+        "difficulty": 1
       },
       {
         "word": "Woody",
         "banned": [
           "Toy Story",
           "vaquero",
-          "Buzz"
-        ]
+          "Buzz",
+          "Disney"
+        ],
+        "difficulty": 1
       },
       {
         "word": "Rayo McQueen",
         "banned": [
           "Cars",
           "coche",
-          "carreras"
-        ]
+          "carreras",
+          "Disney"
+        ],
+        "difficulty": 1
       },
       {
         "word": "Hannah Montana",
@@ -641,7 +1599,8 @@ window.JAVIEATS_TABOO_SECTIONS = [
           "Miley Cyrus",
           "Disney",
           "doble vida"
-        ]
+        ],
+        "difficulty": 2
       },
       {
         "word": "High School Musical",
@@ -649,15 +1608,16 @@ window.JAVIEATS_TABOO_SECTIONS = [
           "Troy",
           "Gabriella",
           "Disney"
-        ]
+        ],
+        "difficulty": 2
       },
       {
         "word": "Camp Rock",
         "banned": [
           "Demi Lovato",
-          "Jonas Brothers",
-          "Disney"
-        ]
+          "Jonas Brothers"
+        ],
+        "difficulty": 3
       },
       {
         "word": "Miley Cyrus",
@@ -665,7 +1625,8 @@ window.JAVIEATS_TABOO_SECTIONS = [
           "Hannah Montana",
           "cantante",
           "Disney"
-        ]
+        ],
+        "difficulty": 2
       },
       {
         "word": "Selena Gomez",
@@ -673,23 +1634,24 @@ window.JAVIEATS_TABOO_SECTIONS = [
           "Disney",
           "cantante",
           "Wizards"
-        ]
+        ],
+        "difficulty": 2
       },
       {
         "word": "Demi Lovato",
         "banned": [
           "Camp Rock",
-          "Disney",
-          "cantante"
-        ]
+          "Disney"
+        ],
+        "difficulty": 3
       },
       {
         "word": "Jonas Brothers",
         "banned": [
           "hermanos",
-          "Disney",
-          "banda"
-        ]
+          "Disney"
+        ],
+        "difficulty": 3
       },
       {
         "word": "Mickey Mouse",
@@ -697,7 +1659,8 @@ window.JAVIEATS_TABOO_SECTIONS = [
           "Disney",
           "ratón",
           "Minnie"
-        ]
+        ],
+        "difficulty": 1
       },
       {
         "word": "Cenicienta",
@@ -705,15 +1668,16 @@ window.JAVIEATS_TABOO_SECTIONS = [
           "princesa",
           "zapatilla",
           "medianoche"
-        ]
+        ],
+        "difficulty": 2
       },
       {
         "word": "Vaiana",
         "banned": [
           "Disney",
-          "océano",
-          "Maui"
-        ]
+          "océano"
+        ],
+        "difficulty": 3
       }
     ]
   },
@@ -727,24 +1691,29 @@ window.JAVIEATS_TABOO_SECTIONS = [
         "banned": [
           "atraco",
           "Profesor",
-          "Netflix"
-        ]
+          "Netflix",
+          "serie"
+        ],
+        "difficulty": 1
       },
       {
         "word": "El Profesor",
         "banned": [
           "La Casa de Papel",
+          "atraco",
           "Sergio",
-          "atraco"
-        ]
+          "serie"
+        ],
+        "difficulty": 1
       },
       {
         "word": "Tokio",
         "banned": [
           "La Casa de Papel",
           "Úrsula Corberó",
-          "narradora"
-        ]
+          "serie"
+        ],
+        "difficulty": 2
       },
       {
         "word": "Berlín",
@@ -752,7 +1721,8 @@ window.JAVIEATS_TABOO_SECTIONS = [
           "La Casa de Papel",
           "Profesor",
           "Andrés"
-        ]
+        ],
+        "difficulty": 2
       },
       {
         "word": "Nairobi",
@@ -760,87 +1730,94 @@ window.JAVIEATS_TABOO_SECTIONS = [
           "La Casa de Papel",
           "Alba Flores",
           "dinero"
-        ]
+        ],
+        "difficulty": 2
       },
       {
         "word": "Río",
         "banned": [
           "La Casa de Papel",
-          "Tokio",
-          "hacker"
-        ]
+          "Tokio"
+        ],
+        "difficulty": 3
       },
       {
         "word": "Outer Banks",
         "banned": [
           "Pogues",
           "tesoro",
-          "John B"
-        ]
+          "John B",
+          "serie"
+        ],
+        "difficulty": 1
       },
       {
         "word": "John B",
         "banned": [
           "Outer Banks",
-          "Sarah",
-          "Pogues"
-        ]
+          "Sarah"
+        ],
+        "difficulty": 1
       },
       {
         "word": "Sarah Cameron",
         "banned": [
           "Outer Banks",
-          "John B",
-          "Cameron"
-        ]
+          "John B"
+        ],
+        "difficulty": 2
       },
       {
         "word": "JJ Maybank",
         "banned": [
           "Outer Banks",
-          "Pogues",
           "John B"
-        ]
+        ],
+        "difficulty": 2
       },
       {
         "word": "Rafe Cameron",
         "banned": [
           "Outer Banks",
-          "Sarah",
-          "Cameron"
-        ]
+          "Sarah"
+        ],
+        "difficulty": 2
       },
       {
         "word": "Kiara",
         "banned": [
           "Outer Banks",
-          "Pogues",
-          "Kie"
-        ]
+          "Pogues"
+        ],
+        "difficulty": 2
       },
       {
         "word": "Prison Break",
         "banned": [
           "cárcel",
           "fuga",
-          "Michael Scofield"
-        ]
+          "Michael Scofield",
+          "serie"
+        ],
+        "difficulty": 1
       },
       {
         "word": "Michael Scofield",
         "banned": [
           "Prison Break",
           "tatuaje",
-          "Lincoln"
-        ]
+          "Lincoln",
+          "serie"
+        ],
+        "difficulty": 1
       },
       {
         "word": "Lincoln Burrows",
         "banned": [
           "Prison Break",
-          "Michael",
-          "hermano"
-        ]
+          "Michael"
+        ],
+        "difficulty": 3
       },
       {
         "word": "Vis a Vis",
@@ -848,39 +1825,44 @@ window.JAVIEATS_TABOO_SECTIONS = [
           "cárcel",
           "Macarena",
           "Zulema"
-        ]
+        ],
+        "difficulty": 2
       },
       {
         "word": "Zulema",
         "banned": [
           "Vis a Vis",
-          "Najwa Nimri",
-          "presa"
-        ]
+          "Najwa Nimri"
+        ],
+        "difficulty": 3
       },
       {
         "word": "Gossip Girl",
         "banned": [
           "Blair",
           "Serena",
-          "Nueva York"
-        ]
+          "Nueva York",
+          "serie"
+        ],
+        "difficulty": 1
       },
       {
         "word": "Blair Waldorf",
         "banned": [
           "Gossip Girl",
-          "Serena",
-          "Upper East Side"
-        ]
+          "Serena"
+        ],
+        "difficulty": 3
       },
       {
         "word": "Breaking Bad",
         "banned": [
           "Walter White",
           "metanfetamina",
-          "química"
-        ]
+          "química",
+          "serie"
+        ],
+        "difficulty": 1
       },
       {
         "word": "Walter White",
@@ -888,39 +1870,46 @@ window.JAVIEATS_TABOO_SECTIONS = [
           "Breaking Bad",
           "Heisenberg",
           "profesor"
-        ]
+        ],
+        "difficulty": 2
       },
       {
         "word": "Stranger Things",
         "banned": [
           "Once",
           "Hawkins",
-          "Demogorgon"
-        ]
+          "Demogorgon",
+          "serie"
+        ],
+        "difficulty": 1
       },
       {
         "word": "Miércoles",
         "banned": [
           "Addams",
           "Netflix",
-          "Thing"
-        ]
+          "Thing",
+          "serie"
+        ],
+        "difficulty": 1
       },
       {
         "word": "Los Simpson",
         "banned": [
           "Homer",
           "Springfield",
-          "amarillos"
-        ]
+          "amarillos",
+          "serie"
+        ],
+        "difficulty": 1
       },
       {
         "word": "La que se avecina",
         "banned": [
           "Montepinár",
-          "vecinos",
-          "Antonio Recio"
-        ]
+          "vecinos"
+        ],
+        "difficulty": 3
       }
     ]
   },
@@ -934,64 +1923,78 @@ window.JAVIEATS_TABOO_SECTIONS = [
         "banned": [
           "barco",
           "iceberg",
-          "Jack"
-        ]
+          "Jack",
+          "película"
+        ],
+        "difficulty": 1
       },
       {
         "word": "Shrek",
         "banned": [
           "ogro",
           "Fiona",
-          "Burro"
-        ]
+          "Burro",
+          "película"
+        ],
+        "difficulty": 1
       },
       {
         "word": "Jurassic Park",
         "banned": [
           "dinosaurios",
           "isla",
-          "Spielberg"
-        ]
+          "Spielberg",
+          "película"
+        ],
+        "difficulty": 1
       },
       {
         "word": "Avatar",
         "banned": [
           "Pandora",
           "Na'vi",
-          "azul"
-        ]
+          "azul",
+          "película"
+        ],
+        "difficulty": 1
       },
       {
         "word": "Gladiator",
         "banned": [
           "Roma",
-          "Máximo",
-          "coliseo"
-        ]
+          "Máximo"
+        ],
+        "difficulty": 3
       },
       {
         "word": "Matrix",
         "banned": [
           "Neo",
           "pastilla",
-          "realidad"
-        ]
+          "realidad",
+          "película"
+        ],
+        "difficulty": 1
       },
       {
         "word": "Rocky",
         "banned": [
           "boxeo",
           "Stallone",
-          "Filadelfia"
-        ]
+          "Filadelfia",
+          "película"
+        ],
+        "difficulty": 1
       },
       {
         "word": "Solo en casa",
         "banned": [
           "Kevin",
           "Navidad",
-          "ladrones"
-        ]
+          "ladrones",
+          "película"
+        ],
+        "difficulty": 1
       },
       {
         "word": "El Señor de los Anillos",
@@ -999,39 +2002,46 @@ window.JAVIEATS_TABOO_SECTIONS = [
           "anillo",
           "Frodo",
           "Mordor"
-        ]
+        ],
+        "difficulty": 2
       },
       {
         "word": "Piratas del Caribe",
         "banned": [
           "Jack Sparrow",
           "piratas",
-          "barco"
-        ]
+          "barco",
+          "película"
+        ],
+        "difficulty": 1
       },
       {
         "word": "Joker",
         "banned": [
           "payaso",
           "Batman",
-          "Gotham"
-        ]
+          "Gotham",
+          "película"
+        ],
+        "difficulty": 1
       },
       {
         "word": "Barbie",
         "banned": [
           "rosa",
           "muñeca",
-          "Ken"
-        ]
+          "Ken",
+          "película"
+        ],
+        "difficulty": 1
       },
       {
         "word": "Oppenheimer",
         "banned": [
           "bomba",
-          "nuclear",
-          "Nolan"
-        ]
+          "nuclear"
+        ],
+        "difficulty": 3
       },
       {
         "word": "El lobo de Wall Street",
@@ -1039,7 +2049,8 @@ window.JAVIEATS_TABOO_SECTIONS = [
           "DiCaprio",
           "bolsa",
           "Jordan Belfort"
-        ]
+        ],
+        "difficulty": 2
       },
       {
         "word": "Crepúsculo",
@@ -1047,23 +2058,28 @@ window.JAVIEATS_TABOO_SECTIONS = [
           "vampiro",
           "Bella",
           "Edward"
-        ]
+        ],
+        "difficulty": 2
       },
       {
         "word": "Los juegos del hambre",
         "banned": [
           "Katniss",
           "distritos",
-          "arco"
-        ]
+          "arco",
+          "película"
+        ],
+        "difficulty": 1
       },
       {
         "word": "Top Gun",
         "banned": [
           "aviones",
           "Tom Cruise",
-          "piloto"
-        ]
+          "piloto",
+          "película"
+        ],
+        "difficulty": 1
       },
       {
         "word": "Misión Imposible",
@@ -1071,31 +2087,36 @@ window.JAVIEATS_TABOO_SECTIONS = [
           "Tom Cruise",
           "Ethan Hunt",
           "espía"
-        ]
+        ],
+        "difficulty": 2
       },
       {
         "word": "El Padrino",
         "banned": [
           "mafia",
-          "Corleone",
-          "familia"
-        ]
+          "Corleone"
+        ],
+        "difficulty": 3
       },
       {
         "word": "Tiburón",
         "banned": [
           "Spielberg",
           "mar",
-          "tiburón"
-        ]
+          "playa",
+          "película"
+        ],
+        "difficulty": 1
       },
       {
         "word": "Regreso al futuro",
         "banned": [
           "DeLorean",
           "Marty",
-          "tiempo"
-        ]
+          "tiempo",
+          "película"
+        ],
+        "difficulty": 1
       },
       {
         "word": "Forrest Gump",
@@ -1103,31 +2124,34 @@ window.JAVIEATS_TABOO_SECTIONS = [
           "Tom Hanks",
           "correr",
           "banco"
-        ]
+        ],
+        "difficulty": 2
       },
       {
         "word": "E.T.",
         "banned": [
           "alien",
           "bicicleta",
-          "teléfono"
-        ]
+          "teléfono",
+          "película"
+        ],
+        "difficulty": 1
       },
       {
         "word": "Karate Kid",
         "banned": [
           "karate",
-          "Miyagi",
-          "Daniel"
-        ]
+          "Miyagi"
+        ],
+        "difficulty": 3
       },
       {
         "word": "Resacón en Las Vegas",
         "banned": [
           "Las Vegas",
-          "despedida",
-          "tigre"
-        ]
+          "despedida"
+        ],
+        "difficulty": 3
       }
     ]
   },
@@ -1141,16 +2165,20 @@ window.JAVIEATS_TABOO_SECTIONS = [
         "banned": [
           "Canarias",
           "Bizarrap",
-          "Quédate"
-        ]
+          "Quédate",
+          "música"
+        ],
+        "difficulty": 1
       },
       {
         "word": "Bad Bunny",
         "banned": [
           "Puerto Rico",
           "conejo",
-          "reguetón"
-        ]
+          "reguetón",
+          "música"
+        ],
+        "difficulty": 1
       },
       {
         "word": "Eladio Carrión",
@@ -1158,47 +2186,54 @@ window.JAVIEATS_TABOO_SECTIONS = [
           "Puerto Rico",
           "trap",
           "rapero"
-        ]
+        ],
+        "difficulty": 2
       },
       {
         "word": "La Pantera",
         "banned": [
           "Canarias",
-          "rapero",
-          "Quevedo"
-        ]
+          "rapero"
+        ],
+        "difficulty": 3
       },
       {
         "word": "Lucho RK",
         "banned": [
           "Canarias",
-          "cantante",
-          "La Pantera"
-        ]
+          "cantante"
+        ],
+        "difficulty": 3
       },
       {
         "word": "Feid",
         "banned": [
           "Colombia",
           "verde",
-          "Ferxxo"
-        ]
+          "Ferxxo",
+          "música"
+        ],
+        "difficulty": 1
       },
       {
         "word": "Myke Towers",
         "banned": [
           "Puerto Rico",
           "rapero",
-          "La Playa"
-        ]
+          "La Playa",
+          "música"
+        ],
+        "difficulty": 1
       },
       {
         "word": "Rauw Alejandro",
         "banned": [
           "Puerto Rico",
           "Rosalía",
-          "Todo de Ti"
-        ]
+          "Todo de Ti",
+          "música"
+        ],
+        "difficulty": 1
       },
       {
         "word": "Mora",
@@ -1206,39 +2241,48 @@ window.JAVIEATS_TABOO_SECTIONS = [
           "Puerto Rico",
           "reguetón",
           "Memorias"
-        ]
+        ],
+        "difficulty": 2
       },
       {
         "word": "Duki",
         "banned": [
           "Argentina",
           "trap",
-          "Bizarrap"
-        ]
+          "Bizarrap",
+          "música"
+        ],
+        "difficulty": 1
       },
       {
         "word": "Bizarrap",
         "banned": [
           "sesiones",
           "gorra",
-          "productor"
-        ]
+          "productor",
+          "música"
+        ],
+        "difficulty": 1
       },
       {
         "word": "Karol G",
         "banned": [
           "Colombia",
           "Bichota",
-          "cantante"
-        ]
+          "cantante",
+          "música"
+        ],
+        "difficulty": 1
       },
       {
         "word": "Anuel AA",
         "banned": [
           "Puerto Rico",
           "Real Hasta La Muerte",
-          "reguetón"
-        ]
+          "reguetón",
+          "música"
+        ],
+        "difficulty": 1
       },
       {
         "word": "Ozuna",
@@ -1246,7 +2290,8 @@ window.JAVIEATS_TABOO_SECTIONS = [
           "Puerto Rico",
           "reguetón",
           "Negrito de ojos claros"
-        ]
+        ],
+        "difficulty": 2
       },
       {
         "word": "J Balvin",
@@ -1254,7 +2299,8 @@ window.JAVIEATS_TABOO_SECTIONS = [
           "Colombia",
           "reguetón",
           "Mi Gente"
-        ]
+        ],
+        "difficulty": 2
       },
       {
         "word": "Maluma",
@@ -1262,7 +2308,8 @@ window.JAVIEATS_TABOO_SECTIONS = [
           "Colombia",
           "Hawái",
           "cantante"
-        ]
+        ],
+        "difficulty": 2
       },
       {
         "word": "Young Miko",
@@ -1270,39 +2317,42 @@ window.JAVIEATS_TABOO_SECTIONS = [
           "Puerto Rico",
           "rapera",
           "trap"
-        ]
+        ],
+        "difficulty": 2
       },
       {
         "word": "Omar Courtz",
         "banned": [
           "Puerto Rico",
-          "reguetón",
-          "cantante"
-        ]
+          "reguetón"
+        ],
+        "difficulty": 3
       },
       {
         "word": "Saiko",
         "banned": [
           "Granada",
-          "Polaris",
-          "cantante"
-        ]
+          "Polaris"
+        ],
+        "difficulty": 3
       },
       {
         "word": "JC Reyes",
         "banned": [
           "Sevilla",
-          "rapero",
-          "urbano"
-        ]
+          "rapero"
+        ],
+        "difficulty": 3
       },
       {
         "word": "Daddy Yankee",
         "banned": [
           "Gasolina",
           "Puerto Rico",
-          "reguetón"
-        ]
+          "reguetón",
+          "música"
+        ],
+        "difficulty": 1
       },
       {
         "word": "Don Omar",
@@ -1310,23 +2360,28 @@ window.JAVIEATS_TABOO_SECTIONS = [
           "Dale Don Dale",
           "Puerto Rico",
           "reguetón"
-        ]
+        ],
+        "difficulty": 2
       },
       {
         "word": "Rosalía",
         "banned": [
           "Motomami",
           "Barcelona",
-          "cantante"
-        ]
+          "cantante",
+          "música"
+        ],
+        "difficulty": 1
       },
       {
         "word": "Aitana",
         "banned": [
           "Operación Triunfo",
           "España",
-          "cantante"
-        ]
+          "cantante",
+          "música"
+        ],
+        "difficulty": 1
       },
       {
         "word": "Lola Índigo",
@@ -1334,7 +2389,8 @@ window.JAVIEATS_TABOO_SECTIONS = [
           "Granada",
           "bailarina",
           "cantante"
-        ]
+        ],
+        "difficulty": 2
       }
     ]
   },
@@ -1348,56 +2404,70 @@ window.JAVIEATS_TABOO_SECTIONS = [
         "banned": [
           "Marvel",
           "superhéroes",
-          "Thanos"
-        ]
+          "Thanos",
+          "saga"
+        ],
+        "difficulty": 1
       },
       {
         "word": "Iron Man",
         "banned": [
           "Tony Stark",
           "armadura",
-          "Marvel"
-        ]
+          "Marvel",
+          "saga"
+        ],
+        "difficulty": 1
       },
       {
         "word": "Spider-Man",
         "banned": [
           "Peter Parker",
           "araña",
-          "Marvel"
-        ]
+          "Marvel",
+          "saga"
+        ],
+        "difficulty": 1
       },
       {
         "word": "Hulk",
         "banned": [
           "verde",
           "Bruce Banner",
-          "Marvel"
-        ]
+          "Marvel",
+          "saga"
+        ],
+        "difficulty": 1
       },
       {
         "word": "Thor",
         "banned": [
           "martillo",
           "Asgard",
-          "Marvel"
-        ]
+          "Marvel",
+          "saga"
+        ],
+        "difficulty": 1
       },
       {
         "word": "Capitán América",
         "banned": [
           "escudo",
           "Steve Rogers",
-          "Marvel"
-        ]
+          "Marvel",
+          "saga"
+        ],
+        "difficulty": 1
       },
       {
         "word": "Thanos",
         "banned": [
           "guantelete",
           "gemas",
-          "Marvel"
-        ]
+          "Marvel",
+          "saga"
+        ],
+        "difficulty": 1
       },
       {
         "word": "Doctor Strange",
@@ -1405,7 +2475,8 @@ window.JAVIEATS_TABOO_SECTIONS = [
           "portal",
           "magia",
           "Marvel"
-        ]
+        ],
+        "difficulty": 2
       },
       {
         "word": "Loki",
@@ -1413,15 +2484,18 @@ window.JAVIEATS_TABOO_SECTIONS = [
           "Thor",
           "Asgard",
           "engaño"
-        ]
+        ],
+        "difficulty": 2
       },
       {
         "word": "Deadpool",
         "banned": [
           "rojo",
           "Marvel",
-          "Ryan Reynolds"
-        ]
+          "Ryan Reynolds",
+          "saga"
+        ],
+        "difficulty": 1
       },
       {
         "word": "Wolverine",
@@ -1429,79 +2503,94 @@ window.JAVIEATS_TABOO_SECTIONS = [
           "garras",
           "X-Men",
           "Logan"
-        ]
+        ],
+        "difficulty": 2
       },
       {
         "word": "Fast & Furious",
         "banned": [
           "coches",
           "Toretto",
-          "familia"
-        ]
+          "familia",
+          "saga"
+        ],
+        "difficulty": 1
       },
       {
         "word": "Dominic Toretto",
         "banned": [
           "Fast & Furious",
           "Vin Diesel",
-          "familia"
-        ]
+          "familia",
+          "saga"
+        ],
+        "difficulty": 1
       },
       {
         "word": "Brian O'Conner",
         "banned": [
           "Fast & Furious",
-          "Paul Walker",
-          "coche"
-        ]
+          "Paul Walker"
+        ],
+        "difficulty": 3
       },
       {
         "word": "Harry Potter",
         "banned": [
           "Hogwarts",
           "mago",
-          "Voldemort"
-        ]
+          "Voldemort",
+          "saga"
+        ],
+        "difficulty": 1
       },
       {
         "word": "Voldemort",
         "banned": [
           "Harry Potter",
           "nariz",
-          "villano"
-        ]
+          "villano",
+          "saga"
+        ],
+        "difficulty": 1
       },
       {
         "word": "Hermione Granger",
         "banned": [
           "Harry Potter",
-          "Hogwarts",
-          "Emma Watson"
-        ]
+          "Hogwarts"
+        ],
+        "difficulty": 3
       },
       {
         "word": "Star Wars",
         "banned": [
           "Jedi",
           "espacio",
-          "Darth Vader"
-        ]
+          "Darth Vader",
+          "saga"
+        ],
+        "difficulty": 1
       },
       {
         "word": "Darth Vader",
         "banned": [
           "Star Wars",
           "Luke",
-          "negro"
-        ]
+          "negro",
+          "saga"
+        ],
+        "difficulty": 1
       },
       {
         "word": "Yoda",
         "banned": [
           "Star Wars",
           "verde",
-          "Jedi"
-        ]
+          "Jedi",
+          "saga"
+        ],
+        "difficulty": 1
       },
       {
         "word": "Jack Sparrow",
@@ -1509,7 +2598,8 @@ window.JAVIEATS_TABOO_SECTIONS = [
           "Piratas del Caribe",
           "Johnny Depp",
           "pirata"
-        ]
+        ],
+        "difficulty": 2
       },
       {
         "word": "Transformers",
@@ -1517,31 +2607,32 @@ window.JAVIEATS_TABOO_SECTIONS = [
           "robots",
           "Optimus Prime",
           "coches"
-        ]
+        ],
+        "difficulty": 2
       },
       {
         "word": "Frodo",
         "banned": [
           "anillo",
-          "hobbit",
-          "Mordor"
-        ]
+          "hobbit"
+        ],
+        "difficulty": 3
       },
       {
         "word": "Gollum",
         "banned": [
           "anillo",
-          "precioso",
-          "Señor de los Anillos"
-        ]
+          "precioso"
+        ],
+        "difficulty": 3
       },
       {
         "word": "Katniss Everdeen",
         "banned": [
           "Juegos del Hambre",
-          "arco",
-          "Distrito 12"
-        ]
+          "arco"
+        ],
+        "difficulty": 3
       }
     ]
   },
@@ -1555,16 +2646,20 @@ window.JAVIEATS_TABOO_SECTIONS = [
         "banned": [
           "Estados Unidos",
           "presidente",
-          "republicano"
-        ]
+          "republicano",
+          "política"
+        ],
+        "difficulty": 1
       },
       {
         "word": "Pedro Sánchez",
         "banned": [
           "presidente",
           "España",
-          "PSOE"
-        ]
+          "PSOE",
+          "política"
+        ],
+        "difficulty": 1
       },
       {
         "word": "Javier Milei",
@@ -1572,23 +2667,26 @@ window.JAVIEATS_TABOO_SECTIONS = [
           "Argentina",
           "presidente",
           "motosierra"
-        ]
+        ],
+        "difficulty": 2
       },
       {
         "word": "Elon Musk",
         "banned": [
           "Tesla",
           "SpaceX",
-          "X"
-        ]
+          "X",
+          "famoso"
+        ],
+        "difficulty": 1
       },
       {
         "word": "Jeff Bezos",
         "banned": [
           "Amazon",
-          "multimillonario",
-          "Blue Origin"
-        ]
+          "multimillonario"
+        ],
+        "difficulty": 3
       },
       {
         "word": "Mark Zuckerberg",
@@ -1596,31 +2694,34 @@ window.JAVIEATS_TABOO_SECTIONS = [
           "Facebook",
           "Meta",
           "Instagram"
-        ]
+        ],
+        "difficulty": 2
       },
       {
         "word": "Felipe VI",
         "banned": [
           "rey",
-          "España",
-          "Letizia"
-        ]
+          "España"
+        ],
+        "difficulty": 3
       },
       {
         "word": "Letizia Ortiz",
         "banned": [
           "reina",
-          "España",
-          "Felipe VI"
-        ]
+          "España"
+        ],
+        "difficulty": 3
       },
       {
         "word": "Ibai Llanos",
         "banned": [
           "streamer",
           "Twitch",
-          "Velada"
-        ]
+          "Velada",
+          "famoso"
+        ],
+        "difficulty": 1
       },
       {
         "word": "David Broncano",
@@ -1628,31 +2729,38 @@ window.JAVIEATS_TABOO_SECTIONS = [
           "La Revuelta",
           "presentador",
           "televisión"
-        ]
+        ],
+        "difficulty": 2
       },
       {
         "word": "MrBeast",
         "banned": [
           "YouTube",
           "retos",
-          "dinero"
-        ]
+          "dinero",
+          "famoso"
+        ],
+        "difficulty": 1
       },
       {
         "word": "Shakira",
         "banned": [
           "Colombia",
           "Piqué",
-          "cantante"
-        ]
+          "cantante",
+          "famoso"
+        ],
+        "difficulty": 1
       },
       {
         "word": "Taylor Swift",
         "banned": [
           "Estados Unidos",
           "Eras Tour",
-          "cantante"
-        ]
+          "cantante",
+          "famoso"
+        ],
+        "difficulty": 1
       },
       {
         "word": "Beyoncé",
@@ -1660,7 +2768,8 @@ window.JAVIEATS_TABOO_SECTIONS = [
           "cantante",
           "Jay-Z",
           "Estados Unidos"
-        ]
+        ],
+        "difficulty": 2
       },
       {
         "word": "Rihanna",
@@ -1668,7 +2777,8 @@ window.JAVIEATS_TABOO_SECTIONS = [
           "Barbados",
           "cantante",
           "Fenty"
-        ]
+        ],
+        "difficulty": 2
       },
       {
         "word": "Dwayne Johnson",
@@ -1676,31 +2786,38 @@ window.JAVIEATS_TABOO_SECTIONS = [
           "La Roca",
           "actor",
           "lucha libre"
-        ]
+        ],
+        "difficulty": 2
       },
       {
         "word": "Leonardo DiCaprio",
         "banned": [
           "Titanic",
           "actor",
-          "Oscar"
-        ]
+          "Oscar",
+          "famoso"
+        ],
+        "difficulty": 1
       },
       {
         "word": "Will Smith",
         "banned": [
           "actor",
           "Oscar",
-          "El Príncipe de Bel-Air"
-        ]
+          "El Príncipe de Bel-Air",
+          "famoso"
+        ],
+        "difficulty": 1
       },
       {
         "word": "Tom Cruise",
         "banned": [
           "Misión Imposible",
           "actor",
-          "Top Gun"
-        ]
+          "Top Gun",
+          "famoso"
+        ],
+        "difficulty": 1
       },
       {
         "word": "Kim Kardashian",
@@ -1708,7 +2825,8 @@ window.JAVIEATS_TABOO_SECTIONS = [
           "reality",
           "Kanye West",
           "familia"
-        ]
+        ],
+        "difficulty": 2
       },
       {
         "word": "Zendaya",
@@ -1716,39 +2834,44 @@ window.JAVIEATS_TABOO_SECTIONS = [
           "actriz",
           "Euphoria",
           "Spider-Man"
-        ]
+        ],
+        "difficulty": 2
       },
       {
         "word": "Jenna Ortega",
         "banned": [
           "Miércoles",
-          "actriz",
-          "Wednesday"
-        ]
+          "actriz"
+        ],
+        "difficulty": 3
       },
       {
         "word": "Pedro Pascal",
         "banned": [
           "actor",
-          "The Last of Us",
-          "Chile"
-        ]
+          "The Last of Us"
+        ],
+        "difficulty": 3
       },
       {
         "word": "Georgina Rodríguez",
         "banned": [
           "Cristiano Ronaldo",
           "modelo",
-          "Netflix"
-        ]
+          "Netflix",
+          "famoso"
+        ],
+        "difficulty": 1
       },
       {
         "word": "Rafa Nadal",
         "banned": [
           "tenis",
           "Mallorca",
-          "Roland Garros"
-        ]
+          "Roland Garros",
+          "famoso"
+        ],
+        "difficulty": 1
       }
     ]
   },
@@ -1762,64 +2885,80 @@ window.JAVIEATS_TABOO_SECTIONS = [
         "banned": [
           "OpenAI",
           "inteligencia artificial",
-          "chatbot"
-        ]
+          "chatbot",
+          "internet"
+        ],
+        "difficulty": 1
       },
       {
         "word": "TikTok",
         "banned": [
           "vídeos",
           "vertical",
-          "ByteDance"
-        ]
+          "ByteDance",
+          "internet"
+        ],
+        "difficulty": 1
       },
       {
         "word": "Instagram",
         "banned": [
           "Meta",
           "stories",
-          "fotos"
-        ]
+          "fotos",
+          "internet"
+        ],
+        "difficulty": 1
       },
       {
         "word": "Twitch",
         "banned": [
           "streaming",
           "directos",
-          "Amazon"
-        ]
+          "Amazon",
+          "internet"
+        ],
+        "difficulty": 1
       },
       {
         "word": "YouTube",
         "banned": [
           "Google",
           "vídeos",
-          "canal"
-        ]
+          "canal",
+          "internet"
+        ],
+        "difficulty": 1
       },
       {
         "word": "Netflix",
         "banned": [
           "series",
           "streaming",
-          "películas"
-        ]
+          "películas",
+          "internet"
+        ],
+        "difficulty": 1
       },
       {
         "word": "Spotify",
         "banned": [
           "música",
           "streaming",
-          "playlist"
-        ]
+          "playlist",
+          "internet"
+        ],
+        "difficulty": 1
       },
       {
         "word": "WhatsApp",
         "banned": [
           "mensajes",
           "Meta",
-          "chat"
-        ]
+          "chat",
+          "internet"
+        ],
+        "difficulty": 1
       },
       {
         "word": "Meme",
@@ -1827,55 +2966,62 @@ window.JAVIEATS_TABOO_SECTIONS = [
           "internet",
           "viral",
           "imagen"
-        ]
+        ],
+        "difficulty": 1
       },
       {
         "word": "Influencer",
         "banned": [
           "redes sociales",
           "seguidores",
-          "contenido"
-        ]
+          "contenido",
+          "internet"
+        ],
+        "difficulty": 1
       },
       {
         "word": "Streamer",
         "banned": [
           "directo",
           "Twitch",
-          "cámara"
-        ]
+          "cámara",
+          "internet"
+        ],
+        "difficulty": 1
       },
       {
         "word": "Podcast",
         "banned": [
           "audio",
           "episodios",
-          "micrófono"
-        ]
+          "micrófono",
+          "internet"
+        ],
+        "difficulty": 1
       },
       {
         "word": "Deepfake",
         "banned": [
           "IA",
-          "vídeo",
-          "cara"
-        ]
+          "vídeo"
+        ],
+        "difficulty": 3
       },
       {
         "word": "ASMR",
         "banned": [
           "sonidos",
-          "susurros",
-          "relajación"
-        ]
+          "susurros"
+        ],
+        "difficulty": 3
       },
       {
         "word": "Unboxing",
         "banned": [
           "caja",
-          "vídeo",
-          "producto"
-        ]
+          "vídeo"
+        ],
+        "difficulty": 3
       },
       {
         "word": "Rubius",
@@ -1883,15 +3029,16 @@ window.JAVIEATS_TABOO_SECTIONS = [
           "YouTube",
           "streamer",
           "España"
-        ]
+        ],
+        "difficulty": 2
       },
       {
         "word": "Plex",
         "banned": [
           "streamer",
-          "YouTube",
-          "La Vuelta al Mundo"
-        ]
+          "YouTube"
+        ],
+        "difficulty": 3
       },
       {
         "word": "AuronPlay",
@@ -1899,7 +3046,8 @@ window.JAVIEATS_TABOO_SECTIONS = [
           "streamer",
           "Twitch",
           "YouTube"
-        ]
+        ],
+        "difficulty": 2
       },
       {
         "word": "TheGrefg",
@@ -1907,7 +3055,8 @@ window.JAVIEATS_TABOO_SECTIONS = [
           "streamer",
           "Murcia",
           "Fortnite"
-        ]
+        ],
+        "difficulty": 2
       },
       {
         "word": "IlloJuan",
@@ -1915,7 +3064,8 @@ window.JAVIEATS_TABOO_SECTIONS = [
           "streamer",
           "Málaga",
           "Twitch"
-        ]
+        ],
+        "difficulty": 2
       },
       {
         "word": "IShowSpeed",
@@ -1923,39 +3073,44 @@ window.JAVIEATS_TABOO_SECTIONS = [
           "streamer",
           "Cristiano Ronaldo",
           "Estados Unidos"
-        ]
+        ],
+        "difficulty": 2
       },
       {
         "word": "La Velada del Año",
         "banned": [
           "Ibai",
           "boxeo",
-          "streamers"
-        ]
+          "streamers",
+          "internet"
+        ],
+        "difficulty": 1
       },
       {
         "word": "Kings League",
         "banned": [
           "Piqué",
           "fútbol",
-          "presidentes"
-        ]
+          "presidentes",
+          "internet"
+        ],
+        "difficulty": 1
       },
       {
         "word": "Judeline",
         "banned": [
           "cantante",
-          "España",
-          "Rusowsky"
-        ]
+          "España"
+        ],
+        "difficulty": 3
       },
       {
         "word": "Rusowsky",
         "banned": [
           "artista",
-          "España",
-          "Judeline"
-        ]
+          "España"
+        ],
+        "difficulty": 3
       }
     ]
   },
@@ -1970,7 +3125,8 @@ window.JAVIEATS_TABOO_SECTIONS = [
           "supermercado",
           "Hacendado",
           "Juan Roig"
-        ]
+        ],
+        "difficulty": 1
       },
       {
         "word": "McDonald's",
@@ -1978,15 +3134,16 @@ window.JAVIEATS_TABOO_SECTIONS = [
           "hamburguesa",
           "Big Mac",
           "comida rápida"
-        ]
+        ],
+        "difficulty": 1
       },
       {
         "word": "Kebab",
         "banned": [
           "carne",
-          "durum",
-          "comida"
-        ]
+          "durum"
+        ],
+        "difficulty": 3
       },
       {
         "word": "Paella",
@@ -1994,7 +3151,8 @@ window.JAVIEATS_TABOO_SECTIONS = [
           "arroz",
           "Valencia",
           "comida"
-        ]
+        ],
+        "difficulty": 2
       },
       {
         "word": "Gimnasio",
@@ -2002,7 +3160,8 @@ window.JAVIEATS_TABOO_SECTIONS = [
           "pesas",
           "entrenar",
           "máquinas"
-        ]
+        ],
+        "difficulty": 1
       },
       {
         "word": "Discoteca",
@@ -2010,7 +3169,8 @@ window.JAVIEATS_TABOO_SECTIONS = [
           "baile",
           "noche",
           "DJ"
-        ]
+        ],
+        "difficulty": 1
       },
       {
         "word": "Aeropuerto",
@@ -2018,7 +3178,8 @@ window.JAVIEATS_TABOO_SECTIONS = [
           "avión",
           "maleta",
           "viaje"
-        ]
+        ],
+        "difficulty": 1
       },
       {
         "word": "Boda",
@@ -2026,23 +3187,24 @@ window.JAVIEATS_TABOO_SECTIONS = [
           "novios",
           "anillos",
           "casarse"
-        ]
+        ],
+        "difficulty": 1
       },
       {
         "word": "Resaca",
         "banned": [
           "alcohol",
-          "mañana",
-          "dolor de cabeza"
-        ]
+          "mañana"
+        ],
+        "difficulty": 3
       },
       {
         "word": "Guardia Civil",
         "banned": [
           "policía",
-          "España",
-          "verde"
-        ]
+          "España"
+        ],
+        "difficulty": 3
       },
       {
         "word": "Fórmula 1",
@@ -2050,7 +3212,8 @@ window.JAVIEATS_TABOO_SECTIONS = [
           "coches",
           "circuito",
           "piloto"
-        ]
+        ],
+        "difficulty": 1
       },
       {
         "word": "Tinder",
@@ -2058,7 +3221,8 @@ window.JAVIEATS_TABOO_SECTIONS = [
           "citas",
           "match",
           "aplicación"
-        ]
+        ],
+        "difficulty": 1
       },
       {
         "word": "Amazon",
@@ -2066,7 +3230,8 @@ window.JAVIEATS_TABOO_SECTIONS = [
           "compras",
           "Bezos",
           "paquetes"
-        ]
+        ],
+        "difficulty": 1
       },
       {
         "word": "IKEA",
@@ -2074,7 +3239,8 @@ window.JAVIEATS_TABOO_SECTIONS = [
           "muebles",
           "Suecia",
           "montar"
-        ]
+        ],
+        "difficulty": 1
       },
       {
         "word": "Wallapop",
@@ -2082,7 +3248,8 @@ window.JAVIEATS_TABOO_SECTIONS = [
           "segunda mano",
           "comprar",
           "vender"
-        ]
+        ],
+        "difficulty": 1
       },
       {
         "word": "Vinted",
@@ -2090,7 +3257,8 @@ window.JAVIEATS_TABOO_SECTIONS = [
           "ropa",
           "segunda mano",
           "vender"
-        ]
+        ],
+        "difficulty": 1
       },
       {
         "word": "PlayStation",
@@ -2098,7 +3266,8 @@ window.JAVIEATS_TABOO_SECTIONS = [
           "Sony",
           "consola",
           "mando"
-        ]
+        ],
+        "difficulty": 1
       },
       {
         "word": "Nintendo Switch",
@@ -2106,7 +3275,8 @@ window.JAVIEATS_TABOO_SECTIONS = [
           "Nintendo",
           "consola",
           "Joy-Con"
-        ]
+        ],
+        "difficulty": 1
       },
       {
         "word": "Pikachu",
@@ -2114,7 +3284,8 @@ window.JAVIEATS_TABOO_SECTIONS = [
           "Pokémon",
           "amarillo",
           "eléctrico"
-        ]
+        ],
+        "difficulty": 1
       },
       {
         "word": "GTA",
@@ -2122,7 +3293,8 @@ window.JAVIEATS_TABOO_SECTIONS = [
           "Rockstar",
           "videojuego",
           "coches"
-        ]
+        ],
+        "difficulty": 1
       },
       {
         "word": "Minecraft",
@@ -2130,7 +3302,8 @@ window.JAVIEATS_TABOO_SECTIONS = [
           "bloques",
           "Steve",
           "videojuego"
-        ]
+        ],
+        "difficulty": 1
       },
       {
         "word": "Fortnite",
@@ -2138,7 +3311,8 @@ window.JAVIEATS_TABOO_SECTIONS = [
           "Battle Royale",
           "Epic Games",
           "videojuego"
-        ]
+        ],
+        "difficulty": 1
       },
       {
         "word": "Monopoly",
@@ -2146,23 +3320,24 @@ window.JAVIEATS_TABOO_SECTIONS = [
           "tablero",
           "dinero",
           "casas"
-        ]
+        ],
+        "difficulty": 1
       },
       {
         "word": "Lotería",
         "banned": [
           "números",
-          "premio",
-          "sorteo"
-        ]
+          "premio"
+        ],
+        "difficulty": 3
       },
       {
         "word": "Festival",
         "banned": [
           "música",
-          "conciertos",
-          "escenario"
-        ]
+          "conciertos"
+        ],
+        "difficulty": 3
       }
     ]
   }
