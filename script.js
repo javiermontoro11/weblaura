@@ -246,9 +246,29 @@ const welcomeSummaryPrimary = $("welcome-summary-primary");
 const welcomeSummarySecondary = $("welcome-summary-secondary");
 const appScreen = $("app-screen");
 const logoutBtn = $("logout-btn");
+const notificationsBtn = $("notifications-btn");
+const notificationsBadge = $("notifications-badge");
+const notificationsModal = $("notifications-modal");
+const notificationsList = $("notifications-list");
+const notificationsReadAll = $("notifications-read-all");
 const sessionUserName = $("session-user-name");
 const syncStatus = $("sync-status");
 const homeGreeting = $("home-greeting");
+const dailyMessageCard = $("daily-message-card");
+const dailyMessageComposeModal = $("daily-message-compose-modal");
+const dailyMessageForm = $("daily-message-form");
+const dailyMessageComposeTitle = $("daily-message-compose-title");
+const dailyMessageInput = $("daily-message-input");
+const dailyMessageCharCount = $("daily-message-char-count");
+const dailyMessageFormNote = $("daily-message-form-note");
+const dailyMessageStatus = $("daily-message-status");
+const dailyMessageSaveBtn = $("daily-message-save-btn");
+const dailyMessageRevealModal = $("daily-message-reveal-modal");
+const dailyMessageSealed = $("daily-message-sealed");
+const dailyMessageOpened = $("daily-message-opened");
+const dailyMessageRevealBtn = $("daily-message-reveal-btn");
+const dailyMessageOpenedDate = $("daily-message-opened-date");
+const dailyMessageOpenedText = $("daily-message-opened-text");
 const featuredServices = $("featured-services");
 const allServices = $("all-services");
 const totalProposals = $("total-proposals");
@@ -441,6 +461,8 @@ let syncTimer = null;
 let clockTimer = null;
 let appReady = false;
 let puzzleWelcomeShown = false;
+let dailyMessageWelcomeShown = false;
+let activeDailyMessage = null;
 let recentPuzzlePieceNumber = null;
 let puzzlePieceAnimationTimer = null;
 let ySiSelectedOption = null;
@@ -462,7 +484,11 @@ const state = {
   ySiHistory: [],
   ySiLoadError: false,
   remoteMemories: [],
-  memoryLoadError: false
+  memoryLoadError: false,
+  notifications: [],
+  notificationLoadError: false,
+  dailyMessage: null,
+  dailyMessageLoadError: false
 };
 
 window.JaviEatsApp = {
@@ -542,6 +568,13 @@ function bindEvents() {
   turnProfileSwitchBtn?.addEventListener("click", handleTurnProfileSwitch);
   turnProfileContinueBtn?.addEventListener("click", handleTurnProfileContinue);
   logoutBtn.addEventListener("click", logout);
+  notificationsBtn?.addEventListener("click", openNotificationsModal);
+  notificationsReadAll?.addEventListener("click", markAllNotificationsRead);
+  notificationsList?.addEventListener("click", handleNotificationClick);
+  dailyMessageCard?.addEventListener("click", handleDailyMessageCardClick);
+  dailyMessageForm?.addEventListener("submit", saveDailyMessage);
+  dailyMessageInput?.addEventListener("input", updateDailyMessageCharCount);
+  dailyMessageRevealBtn?.addEventListener("click", revealDailyMessage);
 
   document.querySelectorAll(".nav-btn").forEach(button => {
     button.addEventListener("click", () => showPage(button.dataset.page));
@@ -557,6 +590,9 @@ function bindEvents() {
   document.querySelectorAll("[data-custom-plan-close]").forEach(el => el.addEventListener("click", closeCustomPlanModal));
   document.querySelectorAll("[data-puzzle-close]").forEach(el => el.addEventListener("click", closePuzzleModal));
   document.querySelectorAll("[data-y-si-history-close]").forEach(el => el.addEventListener("click", closeYSiHistoryModal));
+  document.querySelectorAll("[data-notifications-close]").forEach(el => el.addEventListener("click", closeNotificationsModal));
+  document.querySelectorAll("[data-daily-message-compose-close]").forEach(el => el.addEventListener("click", closeDailyMessageComposer));
+  document.querySelectorAll("[data-daily-message-reveal-close]").forEach(el => el.addEventListener("click", closeDailyMessageReveal));
 
   gameHomeButton.addEventListener("click", openGameModal);
   openPuzzleBtn.addEventListener("click", () => openPuzzleModal());
@@ -803,8 +839,16 @@ async function showApp() {
 
   welcomeScreen?.classList.add("hidden");
   appScreen.classList.remove("hidden");
-  maybeShowPuzzleWelcome();
-  maybeFocusYSiFromUrl();
+
+  const params = new URLSearchParams(window.location.search);
+  const requestedOpen = params.get("open");
+  if (requestedOpen === "message") {
+    await maybeFocusDailyMessageFromUrl();
+  } else if (requestedOpen === "ysi") {
+    maybeFocusYSiFromUrl();
+  } else if (!maybeShowDailyMessageWelcome()) {
+    maybeShowPuzzleWelcome();
+  }
 }
 
 function showWelcomeScreen() {
@@ -829,7 +873,9 @@ function updateWelcomeSummary() {
     ? (isLaura ? Boolean(current.javi_ha_respondido) : Boolean(current.laura_ha_respondido))
     : false;
 
-  if (current && !current.limite_alcanzado && !current.mi_respuesta && otherAnswered) {
+  if (isLaura && state.dailyMessage && !state.dailyMessage.leido_at) {
+    welcomeMessage.textContent = "Javi te ha dejado algo 💌";
+  } else if (current && !current.limite_alcanzado && !current.mi_respuesta && otherAnswered) {
     welcomeMessage.textContent = `${otherName} ya ha respondido. Ahora te toca a ti 👀`;
   } else if (current && !current.limite_alcanzado && current.mi_respuesta && !otherAnswered) {
     welcomeMessage.textContent = `Tu respuesta está guardada. Esperando a ${otherName}.`;
@@ -843,7 +889,9 @@ function updateWelcomeSummary() {
     ? `❤️ Compatibilidad ${stats.compatibility}%`
     : "❤️ Compatibilidad por descubrir";
 
-  if (isLaura) {
+  if (isLaura && state.dailyMessage && !state.dailyMessage.leido_at) {
+    welcomeSummarySecondary.textContent = "💌 Mensaje pendiente";
+  } else if (isLaura) {
     welcomeSummarySecondary.textContent = `🧩 Puzle ${getPuzzlePieceCount()}/${PUZZLE_TOTAL_PIECES}`;
   } else if (current && !current.limite_alcanzado) {
     const position = Number(current.posicion_dia) || Math.min(5, (Number(current.completadas_hoy) || 0) + 1);
@@ -921,6 +969,10 @@ function resetAppSession() {
   state.ySiLoadError = false;
   state.remoteMemories = [];
   state.memoryLoadError = false;
+  state.notifications = [];
+  state.notificationLoadError = false;
+  state.dailyMessage = null;
+  state.dailyMessageLoadError = false;
   memorySignedUrlCache.clear();
   resetMemoryEditorState();
   ySiSelectedOption = null;
@@ -930,6 +982,8 @@ function resetAppSession() {
   if (ySiRevealTimer) clearTimeout(ySiRevealTimer);
   ySiRevealTimer = null;
   puzzleWelcomeShown = false;
+  dailyMessageWelcomeShown = false;
+  activeDailyMessage = null;
   recentPuzzlePieceNumber = null;
   if (puzzlePieceAnimationTimer) clearTimeout(puzzlePieceAnimationTimer);
   puzzlePieceAnimationTimer = null;
@@ -999,7 +1053,15 @@ async function loadAllData({ silent = false } = {}) {
       console.error("No se han podido cargar los recuerdos privados v2.8:", error);
       return { memories: [], loadError: true };
     });
-    const [proposals, messages, marks, vouchers, gameData, puzzleProgress, ySiCurrent, ySiHistory, remoteMemoriesResult] = await Promise.all([
+    const notificationsPromise = fetchNotifications().catch(error => {
+      console.error("No se han podido cargar las notificaciones v2.9:", error);
+      return { notifications: [], loadError: true };
+    });
+    const dailyMessagePromise = fetchDailyMessage().catch(error => {
+      console.error("No se ha podido cargar el Mensaje del día v2.9:", error);
+      return { message: null, loadError: true };
+    });
+    const [proposals, messages, marks, vouchers, gameData, puzzleProgress, ySiCurrent, ySiHistory, remoteMemoriesResult, notificationsResult, dailyMessageResult] = await Promise.all([
       fetchProposals(),
       fetchMessages(),
       fetchMarks(),
@@ -1008,7 +1070,9 @@ async function loadAllData({ silent = false } = {}) {
       puzzlePromise,
       ySiCurrentPromise,
       ySiHistoryPromise,
-      remoteMemoriesPromise
+      remoteMemoriesPromise,
+      notificationsPromise,
+      dailyMessagePromise
     ]);
     state.proposals = proposals;
     state.messages = messages;
@@ -1025,6 +1089,10 @@ async function loadAllData({ silent = false } = {}) {
     state.ySiLoadError = Boolean(ySiCurrent?.loadError);
     state.remoteMemories = Array.isArray(remoteMemoriesResult?.memories) ? remoteMemoriesResult.memories : [];
     state.memoryLoadError = Boolean(remoteMemoriesResult?.loadError);
+    state.notifications = Array.isArray(notificationsResult?.notifications) ? notificationsResult.notifications : [];
+    state.notificationLoadError = Boolean(notificationsResult?.loadError);
+    state.dailyMessage = dailyMessageResult?.message || null;
+    state.dailyMessageLoadError = Boolean(dailyMessageResult?.loadError);
     refreshUI();
     maybeRevealYSiResult();
     setSyncState("ok", `Sincronizado · ${currentTimeLabel()}`);
@@ -1035,7 +1103,10 @@ async function loadAllData({ silent = false } = {}) {
       showToast("La sección ¿Y si...? necesita la migración de Supabase v2.5.1.");
     }
     if (state.memoryLoadError && !silent && currentRole === "javi") {
-      showToast("Falta aplicar una vez la instalación de Recuerdos v2.8 en Supabase.");
+      showToast("Falta aplicar una vez supabase-v2.9.sql en Supabase.");
+    }
+    if ((state.notificationLoadError || state.dailyMessageLoadError) && !silent && currentRole === "javi") {
+      showToast("Falta aplicar una vez la instalación de Mensajes y notificaciones v2.9 en Supabase.");
     }
   } catch (error) {
     console.error(error);
@@ -1073,6 +1144,52 @@ async function fetchVouchers() {
   const { data, error } = await supabaseClient.from("vales").select("*").order("created_at", { ascending: false });
   if (error) throw error;
   return data || [];
+}
+
+async function fetchNotifications() {
+  const { data, error } = await supabaseClient
+    .from("notificaciones")
+    .select("*")
+    .order("created_at", { ascending: false })
+    .limit(50);
+  if (error) throw error;
+  return { notifications: data || [], loadError: false };
+}
+
+async function fetchDailyMessage() {
+  const today = toDateKeyMadrid(new Date());
+  let query = supabaseClient
+    .from("mensajes_dia")
+    .select("*")
+    .order("fecha", { ascending: false })
+    .order("created_at", { ascending: false })
+    .limit(14);
+
+  if (currentRole === "javi") {
+    query = query.eq("autor_id", USER_IDS.JAVI).eq("fecha", today);
+  } else {
+    query = query.eq("destinatario_id", USER_IDS.LAURA);
+  }
+
+  const { data, error } = await query;
+  if (error) throw error;
+  const rows = Array.isArray(data) ? data : [];
+  if (currentRole === "javi") return { message: rows[0] || null, loadError: false };
+
+  const unread = rows.find(item => !item.leido_at);
+  const todayMessage = rows.find(item => item.fecha === today);
+  return { message: unread || todayMessage || null, loadError: false };
+}
+
+async function fetchDailyMessageById(id) {
+  if (!id) return null;
+  const { data, error } = await supabaseClient
+    .from("mensajes_dia")
+    .select("*")
+    .eq("id", id)
+    .maybeSingle();
+  if (error) throw error;
+  return data || null;
 }
 
 async function fetchRemoteMemories() {
@@ -1168,6 +1285,8 @@ function refreshUI() {
   renderMemories();
   renderVouchers();
   renderPuzzleProgress();
+  renderDailyMessage();
+  renderNotifications();
   updateDailyGameCard();
 }
 
@@ -2430,7 +2549,7 @@ function renderMemories() {
   memoryStorageNote?.classList.toggle("hidden", !canManage);
   if (memoryStorageNote && canManage) {
     memoryStorageNote.textContent = state.memoryLoadError
-      ? "Falta ejecutar una vez supabase-v2.8.sql para activar los recuerdos privados."
+      ? "Falta ejecutar una vez supabase-v2.9.sql para activar los recuerdos privados."
       : "Las fotos nuevas se optimizan en tu dispositivo y se guardan de forma privada en Supabase Storage.";
   }
 
@@ -2477,20 +2596,10 @@ function openMemory(id) {
   document.body.style.overflow = "hidden";
 }
 
-async function openRemoteMemory(id) {
+function openRemoteMemory(id) {
   const memory = state.remoteMemories.find(item => item.id === id);
   if (!memory) return;
-
-  const paths = Array.isArray(memory.image_paths) ? memory.image_paths.filter(Boolean) : [];
-  try {
-    await ensureMemorySignedUrls(paths);
-  } catch (error) {
-    console.error("No se han podido renovar las fotos del recuerdo:", error);
-    showToast("No se han podido cargar las fotos. Comprueba la conexión e inténtalo de nuevo.");
-    return;
-  }
-
-  currentGallery = paths.map(path => memorySignedUrlCache.get(path)?.url || "").filter(Boolean);
+  currentGallery = (memory.signedUrls || []).filter(Boolean);
   if (!currentGallery.length) {
     showToast("No se ha podido cargar la foto de este recuerdo.");
     return;
@@ -2527,7 +2636,7 @@ function openMemoryEditor(id = null) {
     return;
   }
   if (state.memoryLoadError) {
-    showToast("Primero aplica supabase-v2.8.sql en Supabase.");
+    showToast("Primero aplica supabase-v2.9.sql en Supabase.");
     return;
   }
 
@@ -2773,7 +2882,7 @@ async function deleteRemoteMemory() {
 
 function memoryUploadErrorMessage(error) {
   const message = String(error?.message || error?.error || "").toLowerCase();
-  if (message.includes("row-level security") || message.includes("policy")) return "Supabase ha bloqueado la operación. Revisa que supabase-v2.8.sql esté aplicado.";
+  if (message.includes("row-level security") || message.includes("policy")) return "Supabase ha bloqueado la operación. Revisa que supabase-v2.9.sql esté aplicado.";
   if (message.includes("payload") || message.includes("too large")) return "Una de las fotos sigue siendo demasiado grande después de optimizarla.";
   if (message.includes("mime") || message.includes("format") || message.includes("decode")) return "No se ha podido procesar una imagen. Prueba con JPG, PNG o WebP.";
   return "No se ha podido guardar el recuerdo. Revisa la conexión e inténtalo de nuevo.";
@@ -2791,32 +2900,19 @@ async function compressMemoryImage(file) {
 
   let canvas = drawMemoryImageToCanvas(image, width, height);
   let quality = 0.84;
-  let outputType = "image/webp";
-  let blob = await canvasToMemoryBlob(canvas, outputType, quality);
-
-  // Algunos navegadores antiguos ignoran WebP y devuelven otro formato.
-  // En ese caso forzamos JPEG para que extensión y MIME sean coherentes.
-  if (!blob || blob.type !== "image/webp") {
-    outputType = "image/jpeg";
-    quality = 0.84;
-    blob = await canvasToMemoryBlob(canvas, outputType, quality);
-  }
+  let blob = await canvasToMemoryBlob(canvas, "image/webp", quality);
+  if (!blob) blob = await canvasToMemoryBlob(canvas, "image/jpeg", 0.84);
   if (!blob) throw new Error("image format unsupported");
 
   while (blob.size > MEMORY_TARGET_BYTES && quality > 0.56) {
-    quality = Math.max(0.56, quality - 0.07);
-    blob = await canvasToMemoryBlob(canvas, outputType, quality);
-    if (!blob) throw new Error("image format unsupported");
+    quality -= 0.07;
+    blob = await canvasToMemoryBlob(canvas, blob.type === "image/jpeg" ? "image/jpeg" : "image/webp", quality);
   }
 
-  let resizeAttempts = 0;
-  while (blob.size > MEMORY_TARGET_BYTES * 1.35 && resizeAttempts < 3) {
-    resizeAttempts += 1;
-    width = Math.max(1, Math.round(width * 0.82));
-    height = Math.max(1, Math.round(height * 0.82));
-    canvas = drawMemoryImageToCanvas(image, width, height);
-    blob = await canvasToMemoryBlob(canvas, outputType, Math.max(0.56, quality - 0.03));
-    if (!blob) throw new Error("image format unsupported");
+  if (blob.size > MEMORY_TARGET_BYTES * 1.35) {
+    const scale = 0.82;
+    canvas = drawMemoryImageToCanvas(image, Math.max(1, Math.round(width * scale)), Math.max(1, Math.round(height * scale)));
+    blob = await canvasToMemoryBlob(canvas, blob.type === "image/jpeg" ? "image/jpeg" : "image/webp", Math.max(0.58, quality - 0.04));
   }
 
   return blob;
@@ -2912,6 +3008,388 @@ function downloadTicket(proposal) {
   if (proposal.note) { c.fillStyle = "#6f6a64"; c.font = "600 34px Arial"; c.textAlign = "center"; wrapCanvasText(c, `Nota: ${proposal.note}`, 600, 1220, 800, 48); }
   downloadCanvas(canvas, `ticket-javieats-${proposal.plan_date}.png`);
   showToast("Ticket descargado.");
+}
+
+
+/* =========================================================
+   v2.9 · Mensaje del día + centro de notificaciones
+   ========================================================= */
+function renderDailyMessage() {
+  if (!dailyMessageCard) return;
+  const message = state.dailyMessage;
+  const today = toDateKeyMadrid(new Date());
+
+  if (state.dailyMessageLoadError) {
+    if (currentRole !== "javi") {
+      dailyMessageCard.classList.add("hidden");
+      return;
+    }
+    dailyMessageCard.classList.remove("hidden");
+    dailyMessageCard.innerHTML = `
+      <div class="daily-message-card-head">
+        <div class="daily-message-card-title"><div class="daily-message-card-icon">💌</div><div><p class="eyebrow">Mensaje del día</p><h3>Falta activar la v2.9</h3><p>El resto de JaviEats sigue funcionando.</p></div></div>
+      </div>`;
+    return;
+  }
+
+  if (currentRole === "javi") {
+    dailyMessageCard.classList.remove("hidden");
+    if (!message) {
+      dailyMessageCard.innerHTML = `
+        <div class="daily-message-card-head">
+          <div class="daily-message-card-title"><div class="daily-message-card-icon">💌</div><div><p class="eyebrow">Mensaje del día</p><h3>Déjale algo a Laura</h3><p>Escribe una nota para que la encuentre al entrar en JaviEats.</p></div></div>
+        </div>
+        <div class="daily-message-card-actions"><button class="btn btn-primary" data-daily-message-action="compose" type="button">Escribir mensaje de hoy</button></div>`;
+      return;
+    }
+
+    const read = Boolean(message.leido_at);
+    const statusText = read ? `✅ Leído · ${formatDateTime(message.leido_at)}` : "💌 Pendiente de leer";
+    dailyMessageCard.innerHTML = `
+      <div class="daily-message-card-status-row">
+        <div class="daily-message-card-title"><div class="daily-message-card-icon">💌</div><div><p class="eyebrow">Mensaje del día</p><h3>${message.fecha === today ? "Mensaje de hoy" : escapeHTML(formatDateCompact(message.fecha))}</h3></div></div>
+        <span class="daily-message-state${read ? " is-read" : ""}">${statusText}</span>
+      </div>
+      <p class="daily-message-card-copy">${escapeHTML(message.mensaje)}</p>
+      ${read ? "" : '<div class="daily-message-card-actions"><button class="btn btn-secondary" data-daily-message-action="edit" type="button">Editar antes de que lo lea</button></div>'}`;
+    return;
+  }
+
+  if (!message) {
+    dailyMessageCard.classList.add("hidden");
+    dailyMessageCard.innerHTML = "";
+    return;
+  }
+
+  dailyMessageCard.classList.remove("hidden");
+  if (!message.leido_at) {
+    dailyMessageCard.innerHTML = `
+      <div class="daily-message-card-head">
+        <div class="daily-message-card-title"><div class="daily-message-card-icon">💌</div><div><p class="eyebrow">Solo para ti</p><h3>Javi te ha dejado algo</h3><p>${message.fecha === today ? "Tienes un mensaje de hoy esperando." : `Tienes pendiente un mensaje del ${escapeHTML(formatDateCompact(message.fecha))}.`}</p></div></div>
+      </div>
+      <div class="daily-message-card-actions"><button class="btn btn-primary" data-daily-message-action="open" type="button">Descubrir mensaje</button></div>`;
+    return;
+  }
+
+  dailyMessageCard.innerHTML = `
+    <div class="daily-message-card-status-row">
+      <div class="daily-message-card-title"><div class="daily-message-card-icon">❤️</div><div><p class="eyebrow">Mensaje del día</p><h3>${message.fecha === today ? "Lo que Javi te dejó hoy" : escapeHTML(formatDateCompact(message.fecha))}</h3></div></div>
+      <span class="daily-message-state is-read">Leído</span>
+    </div>
+    <p class="daily-message-card-copy">${escapeHTML(message.mensaje)}</p>`;
+}
+
+function handleDailyMessageCardClick(event) {
+  const button = event.target.closest("[data-daily-message-action]");
+  if (!button) return;
+  const action = button.dataset.dailyMessageAction;
+  if (action === "compose" || action === "edit") openDailyMessageComposer();
+  if (action === "open" && state.dailyMessage) openDailyMessageReveal(state.dailyMessage);
+}
+
+function openDailyMessageComposer() {
+  if (currentRole !== "javi" || !dailyMessageComposeModal) return;
+  if (state.dailyMessage?.leido_at) {
+    showToast("Laura ya ha leído el mensaje de hoy. Ya no se puede editar.");
+    return;
+  }
+  const editing = Boolean(state.dailyMessage);
+  dailyMessageComposeTitle.textContent = editing ? "Editar mensaje de hoy" : "Déjale algo a Laura";
+  dailyMessageInput.value = state.dailyMessage?.mensaje || "";
+  dailyMessageFormNote.textContent = editing
+    ? "Guardar cambios no enviará otro correo. Laura seguirá teniendo un único aviso."
+    : "Al guardarlo por primera vez, Laura recibirá un aviso por email sin ver el contenido.";
+  dailyMessageSaveBtn.textContent = editing ? "Guardar cambios" : "Guardar y avisar a Laura";
+  setDailyMessageStatus("");
+  updateDailyMessageCharCount();
+  dailyMessageComposeModal.classList.remove("hidden");
+  document.body.style.overflow = "hidden";
+  setTimeout(() => dailyMessageInput.focus(), 120);
+}
+
+function closeDailyMessageComposer() {
+  dailyMessageComposeModal?.classList.add("hidden");
+  if (dailyMessageRevealModal?.classList.contains("hidden") !== false && notificationsModal?.classList.contains("hidden") !== false) {
+    document.body.style.overflow = "";
+  }
+  setDailyMessageStatus("");
+}
+
+function updateDailyMessageCharCount() {
+  if (!dailyMessageCharCount || !dailyMessageInput) return;
+  dailyMessageCharCount.textContent = `${dailyMessageInput.value.length} / 1200`;
+}
+
+function setDailyMessageStatus(text, type = "") {
+  if (!dailyMessageStatus) return;
+  dailyMessageStatus.textContent = text;
+  dailyMessageStatus.classList.toggle("is-error", type === "error");
+  dailyMessageStatus.classList.toggle("is-ok", type === "ok");
+}
+
+async function saveDailyMessage(event) {
+  event.preventDefault();
+  if (currentRole !== "javi") return;
+  const message = String(dailyMessageInput?.value || "").trim();
+  if (!message) {
+    setDailyMessageStatus("Escribe algo antes de guardar.", "error");
+    return;
+  }
+  if (message.length > 1200) {
+    setDailyMessageStatus("El mensaje supera los 1200 caracteres.", "error");
+    return;
+  }
+
+  const wasEditing = Boolean(state.dailyMessage);
+  dailyMessageSaveBtn.disabled = true;
+  setDailyMessageStatus(wasEditing ? "Guardando cambios…" : "Guardando y preparando el aviso…");
+  try {
+    const { data, error } = await supabaseClient.rpc("guardar_mensaje_dia", { p_mensaje: message });
+    if (error) throw error;
+    const saved = Array.isArray(data) ? data[0] : data;
+    if (!saved?.id) throw new Error("Supabase no ha devuelto el mensaje guardado.");
+    state.dailyMessage = saved;
+    state.dailyMessageLoadError = false;
+    setDailyMessageStatus(wasEditing ? "Cambios guardados." : "Mensaje guardado. Aviso solicitado para Laura 💌", "ok");
+    renderDailyMessage();
+    setTimeout(() => closeDailyMessageComposer(), 650);
+  } catch (error) {
+    console.error(error);
+    const text = String(error?.message || "");
+    if (text.toLowerCase().includes("ya ha leído")) setDailyMessageStatus("Laura ya ha leído el mensaje de hoy y ya no se puede editar.", "error");
+    else if (text.toLowerCase().includes("v2.9") || text.toLowerCase().includes("function")) setDailyMessageStatus("Falta aplicar supabase-v2.9.sql.", "error");
+    else setDailyMessageStatus("No se ha podido guardar. Revisa la conexión y vuelve a intentarlo.", "error");
+  } finally {
+    dailyMessageSaveBtn.disabled = false;
+  }
+}
+
+function openDailyMessageReveal(message, { opened = false } = {}) {
+  if (!message || !dailyMessageRevealModal) return false;
+  activeDailyMessage = message;
+  dailyMessageWelcomeShown = true;
+  const isRead = opened || Boolean(message.leido_at);
+  dailyMessageSealed?.classList.toggle("hidden", isRead);
+  dailyMessageOpened?.classList.toggle("hidden", !isRead);
+  dailyMessageOpenedDate.textContent = `Mensaje del ${formatDateCompact(message.fecha)}`;
+  dailyMessageOpenedText.textContent = message.mensaje || "";
+  dailyMessageRevealBtn.disabled = false;
+  dailyMessageRevealBtn.textContent = "Abrir mensaje";
+  dailyMessageRevealModal.classList.remove("hidden");
+  document.body.style.overflow = "hidden";
+  return true;
+}
+
+async function revealDailyMessage() {
+  if (!activeDailyMessage || !dailyMessageRevealBtn) return;
+  dailyMessageSealed?.classList.add("hidden");
+  dailyMessageOpened?.classList.remove("hidden");
+  dailyMessageOpenedDate.textContent = `Mensaje del ${formatDateCompact(activeDailyMessage.fecha)}`;
+  dailyMessageOpenedText.textContent = activeDailyMessage.mensaje || "";
+
+  if (activeDailyMessage.leido_at || currentRole !== "laura") return;
+  dailyMessageRevealBtn.disabled = true;
+  try {
+    const { data, error } = await supabaseClient.rpc("marcar_mensaje_dia_leido", { p_id: activeDailyMessage.id });
+    if (error) throw error;
+    const updated = Array.isArray(data) ? data[0] : data;
+    if (updated?.id) {
+      activeDailyMessage = updated;
+      if (state.dailyMessage?.id === updated.id) state.dailyMessage = updated;
+    } else {
+      const now = new Date().toISOString();
+      activeDailyMessage.leido_at = now;
+      if (state.dailyMessage?.id === activeDailyMessage.id) state.dailyMessage.leido_at = now;
+    }
+    markMatchingNotificationReadLocally("mensaje_dia", activeDailyMessage.id);
+    renderDailyMessage();
+    renderNotifications();
+  } catch (error) {
+    console.error(error);
+    showToast("Has podido leerlo, pero no se ha podido guardar el estado de leído.");
+  }
+}
+
+function closeDailyMessageReveal() {
+  dailyMessageRevealModal?.classList.add("hidden");
+  activeDailyMessage = null;
+  if (dailyMessageComposeModal?.classList.contains("hidden") !== false && notificationsModal?.classList.contains("hidden") !== false) {
+    document.body.style.overflow = "";
+  }
+  setTimeout(() => maybeShowPuzzleWelcome(), 180);
+}
+
+function maybeShowDailyMessageWelcome() {
+  if (currentRole !== "laura" || dailyMessageWelcomeShown || state.dailyMessageLoadError) return false;
+  if (!state.dailyMessage || state.dailyMessage.leido_at) return false;
+  return openDailyMessageReveal(state.dailyMessage);
+}
+
+async function maybeFocusDailyMessageFromUrl() {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get("open") !== "message") return false;
+  const id = params.get("message");
+  let message = state.dailyMessage?.id === id ? state.dailyMessage : null;
+  try {
+    if (!message && id) message = await fetchDailyMessageById(id);
+    if (!message) {
+      showToast("Ese mensaje ya no está disponible.");
+      cleanDailyMessageUrl(params);
+      return false;
+    }
+    openDailyMessageReveal(message, { opened: Boolean(message.leido_at) });
+    cleanDailyMessageUrl(params);
+    return true;
+  } catch (error) {
+    console.error(error);
+    showToast("No se ha podido abrir el mensaje.");
+    cleanDailyMessageUrl(params);
+    return false;
+  }
+}
+
+function cleanDailyMessageUrl(params = new URLSearchParams(window.location.search)) {
+  params.delete("open");
+  params.delete("for");
+  params.delete("message");
+  const query = params.toString();
+  const cleanUrl = `${window.location.pathname}${query ? `?${query}` : ""}${window.location.hash}`;
+  window.history.replaceState({}, "", cleanUrl);
+}
+
+function renderNotifications() {
+  if (!notificationsBadge || !notificationsList) return;
+  const notifications = Array.isArray(state.notifications) ? state.notifications : [];
+  const unread = notifications.filter(item => !item.leido_at).length;
+  notificationsBadge.textContent = unread > 99 ? "99+" : String(unread);
+  notificationsBadge.classList.toggle("hidden", unread === 0 || state.notificationLoadError);
+  notificationsReadAll?.classList.toggle("hidden", unread === 0 || state.notificationLoadError);
+
+  if (state.notificationLoadError) {
+    notificationsList.innerHTML = '<div class="notification-empty">Las notificaciones todavía no están activadas. Aplica la instalación v2.9 en Supabase.</div>';
+    return;
+  }
+  if (!notifications.length) {
+    notificationsList.innerHTML = '<div class="notification-empty">Todavía no hay avisos. Cuando ocurra algo importante en JaviEats aparecerá aquí.</div>';
+    return;
+  }
+
+  notificationsList.innerHTML = notifications.map(notification => {
+    const unreadClass = notification.leido_at ? "" : " is-unread";
+    const detail = notification.detalle ? `<p>${escapeHTML(notification.detalle)}</p>` : "";
+    return `<button class="notification-item${unreadClass}" type="button" data-notification-id="${notification.id}">
+      <span class="notification-item-icon">${notificationIcon(notification.tipo)}</span>
+      <span class="notification-item-copy"><strong>${escapeHTML(notification.titulo)}</strong>${detail}</span>
+      <span class="notification-item-time">${notificationTimeLabel(notification.created_at)}${notification.leido_at ? "" : '<span class="notification-unread-dot" aria-label="Sin leer"></span>'}</span>
+    </button>`;
+  }).join("");
+}
+
+function notificationIcon(type) {
+  return ({
+    mensaje_dia: "💌",
+    ysi_resultado: "💭",
+    puzzle_pieza: "🧩",
+    puzzle_completado: "🎁",
+    plan_nuevo: "📅",
+    plan_estado: "📅",
+    recuerdo_nuevo: "📸"
+  })[type] || "🔔";
+}
+
+function notificationTimeLabel(timestamp) {
+  const date = new Date(timestamp);
+  const diff = Math.max(0, Date.now() - date.getTime());
+  if (diff < 60_000) return "Ahora";
+  if (diff < 3_600_000) return `Hace ${Math.max(1, Math.floor(diff / 60_000))} min`;
+  if (diff < 86_400_000) return `Hace ${Math.floor(diff / 3_600_000)} h`;
+  if (diff < 172_800_000) return "Ayer";
+  return shortDate(toDateKeyMadrid(date));
+}
+
+function openNotificationsModal() {
+  renderNotifications();
+  notificationsModal?.classList.remove("hidden");
+  document.body.style.overflow = "hidden";
+}
+
+function closeNotificationsModal() {
+  notificationsModal?.classList.add("hidden");
+  if (dailyMessageComposeModal?.classList.contains("hidden") !== false && dailyMessageRevealModal?.classList.contains("hidden") !== false) {
+    document.body.style.overflow = "";
+  }
+}
+
+async function markNotificationRead(id) {
+  const notification = state.notifications.find(item => item.id === id);
+  if (!notification || notification.leido_at) return;
+  const { error } = await supabaseClient.rpc("marcar_notificacion_leida", { p_id: id });
+  if (error) throw error;
+  notification.leido_at = new Date().toISOString();
+  renderNotifications();
+}
+
+function markMatchingNotificationReadLocally(type, entityId) {
+  const now = new Date().toISOString();
+  state.notifications.forEach(item => {
+    if (item.tipo === type && String(item.entidad_id || "") === String(entityId || "") && !item.leido_at) item.leido_at = now;
+  });
+}
+
+async function markAllNotificationsRead() {
+  if (state.notificationLoadError) return;
+  notificationsReadAll.disabled = true;
+  try {
+    const { error } = await supabaseClient.rpc("marcar_todas_notificaciones_leidas");
+    if (error) throw error;
+    const now = new Date().toISOString();
+    state.notifications.forEach(item => { if (!item.leido_at) item.leido_at = now; });
+    renderNotifications();
+  } catch (error) {
+    console.error(error);
+    showToast("No se han podido marcar las notificaciones.");
+  } finally {
+    notificationsReadAll.disabled = false;
+  }
+}
+
+async function handleNotificationClick(event) {
+  const button = event.target.closest("[data-notification-id]");
+  if (!button) return;
+  const notification = state.notifications.find(item => item.id === button.dataset.notificationId);
+  if (!notification) return;
+  try {
+    await markNotificationRead(notification.id);
+  } catch (error) {
+    console.error(error);
+  }
+  closeNotificationsModal();
+  await openNotificationDestination(notification);
+}
+
+async function openNotificationDestination(notification) {
+  const destination = notification.destino || "home";
+  if (destination === "mensaje") {
+    try {
+      const message = await fetchDailyMessageById(notification.entidad_id);
+      if (message) openDailyMessageReveal(message, { opened: Boolean(message.leido_at) });
+      else showToast("Ese mensaje ya no está disponible.");
+    } catch (error) {
+      console.error(error);
+      showToast("No se ha podido abrir el mensaje.");
+    }
+    return;
+  }
+  if (destination === "ysi" || destination === "rps") {
+    showPage("minigames");
+    window.JaviEatsMinigames?.open?.(destination, { force: true });
+    return;
+  }
+  if (["calendar", "memories", "minigames", "home"].includes(destination)) {
+    showPage(destination);
+    return;
+  }
+  showPage("home");
 }
 
 function setMinDate() {
