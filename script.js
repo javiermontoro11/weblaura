@@ -691,6 +691,7 @@ window.JaviEatsApp = {
 init();
 
 async function init() {
+  ensureNotificationDeleteStyles();
   bindEvents();
   renderServices();
   renderMemories();
@@ -759,7 +760,7 @@ function bindEvents() {
   turnProfileContinueBtn?.addEventListener("click", handleTurnProfileContinue);
   logoutBtn.addEventListener("click", logout);
   notificationsBtn?.addEventListener("click", openNotificationsModal);
-  notificationsReadAll?.addEventListener("click", markAllNotificationsRead);
+  notificationsReadAll?.addEventListener("click", handleNotificationsBulkAction);
   document.getElementById("push-toggle")?.addEventListener("click", handlePushToggle);
   notificationsList?.addEventListener("click", handleNotificationClick);
   dailyMessageCard?.addEventListener("click", handleDailyMessageCardClick);
@@ -1036,10 +1037,12 @@ async function showApp() {
   const params = new URLSearchParams(window.location.search);
   const requestedOpen = params.get("open");
   if (requestedOpen === "message") {
-    await maybeFocusDailyMessageFromUrl();
+    // Mensaje del dia retirado de JaviEats 3.0: ignorar enlaces legacy sin mostrar el popup.
+    cleanDailyMessageUrl(params);
+    maybeShowPuzzleWelcome();
   } else if (requestedOpen === "ysi") {
     maybeFocusYSiFromUrl();
-  } else if (!maybeShowDailyMessageWelcome()) {
+  } else {
     maybeShowPuzzleWelcome();
   }
 }
@@ -3404,9 +3407,9 @@ function closeDailyMessageReveal() {
 }
 
 function maybeShowDailyMessageWelcome() {
-  if (currentRole !== "laura" || dailyMessageWelcomeShown || state.dailyMessageLoadError) return false;
-  if (!state.dailyMessage || state.dailyMessage.leido_at) return false;
-  return openDailyMessageReveal(state.dailyMessage);
+  // Funcionalidad retirada de la interfaz 3.0. Se conserva el codigo legacy,
+  // pero nunca se abre automaticamente para Laura.
+  return false;
 }
 
 async function maybeFocusDailyMessageFromUrl() {
@@ -3441,18 +3444,99 @@ function cleanDailyMessageUrl(params = new URLSearchParams(window.location.searc
   window.history.replaceState({}, "", cleanUrl);
 }
 
+function ensureNotificationDeleteStyles() {
+  if (document.getElementById("javieats-notification-delete-styles")) return;
+  const style = document.createElement("style");
+  style.id = "javieats-notification-delete-styles";
+  style.textContent = `
+    .notification-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 40px;
+      gap: 7px;
+      align-items: stretch;
+    }
+    .notification-row .notification-item {
+      min-width: 0;
+    }
+    .notification-delete-btn {
+      display: grid;
+      place-items: center;
+      width: 40px;
+      min-width: 40px;
+      border: 0;
+      border-radius: 14px;
+      background: transparent;
+      color: #aaa39d;
+      font-size: 1.35rem;
+      font-weight: 600;
+      line-height: 1;
+      padding: 0;
+      transition: background .15s ease, color .15s ease, transform .15s ease;
+    }
+    .notification-delete-btn:active {
+      transform: scale(.92);
+      background: rgba(180, 35, 24, .08);
+      color: #b42318;
+    }
+    .javieats-v3 .notifications-heading .link-btn.is-danger {
+      color: #b42318;
+    }
+    @media (hover: hover) {
+      .notification-delete-btn:hover {
+        background: rgba(180, 35, 24, .07);
+        color: #b42318;
+      }
+    }
+    @media (max-width: 620px) {
+      .notification-row {
+        grid-template-columns: minmax(0, 1fr) 38px;
+        gap: 5px;
+      }
+      .notification-delete-btn {
+        width: 38px;
+        min-width: 38px;
+      }
+    }
+  `;
+  document.head.appendChild(style);
+}
+
+function refreshNotificationUI() {
+  renderNotifications();
+  window.dispatchEvent(new CustomEvent("javieats:data"));
+}
+
 function renderNotifications() {
   if (!notificationsBadge || !notificationsList) return;
-  const notifications = Array.isArray(state.notifications) ? state.notifications.filter(item => item.tipo !== "mensaje_dia") : [];
+
+  const notifications = Array.isArray(state.notifications)
+    ? state.notifications.filter(item => item.tipo !== "mensaje_dia")
+    : [];
   const unread = notifications.filter(item => !item.leido_at).length;
+
   notificationsBadge.textContent = unread > 99 ? "99+" : String(unread);
   notificationsBadge.classList.toggle("hidden", unread === 0 || state.notificationLoadError);
-  notificationsReadAll?.classList.toggle("hidden", unread === 0 || state.notificationLoadError);
+
+  if (notificationsReadAll) {
+    const hasNotifications = notifications.length > 0 && !state.notificationLoadError;
+    notificationsReadAll.classList.toggle("hidden", !hasNotifications);
+
+    if (hasNotifications) {
+      const clearMode = unread === 0;
+      notificationsReadAll.textContent = clearMode ? "Borrar todo" : "Marcar todo leído";
+      notificationsReadAll.dataset.notificationAction = clearMode ? "clear" : "read";
+      notificationsReadAll.classList.toggle("is-danger", clearMode);
+    } else {
+      notificationsReadAll.classList.remove("is-danger");
+      delete notificationsReadAll.dataset.notificationAction;
+    }
+  }
 
   if (state.notificationLoadError) {
-    notificationsList.innerHTML = '<div class="notification-empty">Las notificaciones todavía no están activadas. Aplica la migración de Supabase en Supabase.</div>';
+    notificationsList.innerHTML = '<div class="notification-empty">Las notificaciones todavía no están disponibles.</div>';
     return;
   }
+
   if (!notifications.length) {
     notificationsList.innerHTML = '<div class="notification-empty">Todo al día. Cuando el otro haga algo que te afecte, aparecerá aquí.</div>';
     return;
@@ -3461,11 +3545,14 @@ function renderNotifications() {
   notificationsList.innerHTML = notifications.map(notification => {
     const unreadClass = notification.leido_at ? "" : " is-unread";
     const detail = notification.detalle ? `<p>${escapeHTML(notification.detalle)}</p>` : "";
-    return `<button class="notification-item${unreadClass}" type="button" data-notification-id="${notification.id}">
-      <span class="notification-item-icon">${notificationIcon(notification.tipo)}</span>
-      <span class="notification-item-copy"><strong>${escapeHTML(notification.titulo)}</strong>${detail}</span>
-      <span class="notification-item-time">${notificationTimeLabel(notification.created_at)}${notification.leido_at ? "" : '<span class="notification-unread-dot" aria-label="Sin leer"></span>'}<span class="notification-open-mark" aria-hidden="true">›</span></span>
-    </button>`;
+    return `<div class="notification-row">
+      <button class="notification-item${unreadClass}" type="button" data-notification-id="${notification.id}">
+        <span class="notification-item-icon">${notificationIcon(notification.tipo)}</span>
+        <span class="notification-item-copy"><strong>${escapeHTML(notification.titulo)}</strong>${detail}</span>
+        <span class="notification-item-time">${notificationTimeLabel(notification.created_at)}${notification.leido_at ? "" : '<span class="notification-unread-dot" aria-label="Sin leer"></span>'}<span class="notification-open-mark" aria-hidden="true">›</span></span>
+      </button>
+      <button class="notification-delete-btn" type="button" data-notification-delete="${notification.id}" aria-label="Eliminar notificación" title="Eliminar">&times;</button>
+    </div>`;
   }).join("");
 }
 
@@ -3473,6 +3560,8 @@ function notificationIcon(type) {
   return ({
     mensaje_dia: "💌",
     ysi_resultado: "💭",
+    ysi_turno: "💭",
+    ysi_resultado_final: "❤️",
     puzzle_pieza: "🧩",
     puzzle_completado: "🎁",
     plan_nuevo: "📅",
@@ -3511,7 +3600,7 @@ async function markNotificationRead(id) {
   const { error } = await supabaseClient.rpc("marcar_notificacion_leida", { p_id: id });
   if (error) throw error;
   notification.leido_at = new Date().toISOString();
-  renderNotifications();
+  refreshNotificationUI();
 }
 
 function markMatchingNotificationReadLocally(type, entityId) {
@@ -3522,14 +3611,14 @@ function markMatchingNotificationReadLocally(type, entityId) {
 }
 
 async function markAllNotificationsRead() {
-  if (state.notificationLoadError) return;
+  if (state.notificationLoadError || !notificationsReadAll) return;
   notificationsReadAll.disabled = true;
   try {
     const { error } = await supabaseClient.rpc("marcar_todas_notificaciones_leidas");
     if (error) throw error;
     const now = new Date().toISOString();
     state.notifications.forEach(item => { if (!item.leido_at) item.leido_at = now; });
-    renderNotifications();
+    refreshNotificationUI();
   } catch (error) {
     console.error(error);
     showToast("No se han podido marcar las notificaciones.");
@@ -3538,16 +3627,84 @@ async function markAllNotificationsRead() {
   }
 }
 
+async function deleteNotification(id) {
+  if (!id || state.notificationLoadError) return;
+
+  try {
+    const { data, error } = await supabaseClient.rpc("eliminar_notificacion", { p_id: id });
+    if (error) throw error;
+    if (data !== true) throw new Error("Notification not owned by current user");
+
+    state.notifications = state.notifications.filter(item => item.id !== id);
+    refreshNotificationUI();
+    showToast("Notificación eliminada.");
+  } catch (error) {
+    console.error(error);
+    showToast("No se ha podido eliminar la notificación.");
+  }
+}
+
+async function clearAllNotifications() {
+  if (state.notificationLoadError || !notificationsReadAll) return;
+  const visibleNotifications = state.notifications.filter(item => item.tipo !== "mensaje_dia");
+  if (!visibleNotifications.length) return;
+
+  if (!window.confirm("¿Quieres borrar toda la actividad? Esta acción no se puede deshacer.")) return;
+
+  notificationsReadAll.disabled = true;
+  try {
+    const { error } = await supabaseClient.rpc("vaciar_notificaciones");
+    if (error) throw error;
+
+    state.notifications = [];
+    refreshNotificationUI();
+    showToast("Actividad borrada.");
+  } catch (error) {
+    console.error(error);
+    showToast("No se ha podido borrar la actividad.");
+  } finally {
+    notificationsReadAll.disabled = false;
+  }
+}
+
+async function handleNotificationsBulkAction() {
+  const notifications = state.notifications.filter(item => item.tipo !== "mensaje_dia");
+  const unread = notifications.filter(item => !item.leido_at).length;
+
+  if (unread > 0) {
+    await markAllNotificationsRead();
+    return;
+  }
+
+  if (notifications.length > 0) await clearAllNotifications();
+}
+
 async function handleNotificationClick(event) {
+  const deleteButton = event.target.closest("[data-notification-delete]");
+  if (deleteButton) {
+    event.preventDefault();
+    event.stopPropagation();
+    deleteButton.disabled = true;
+    try {
+      await deleteNotification(deleteButton.dataset.notificationDelete);
+    } finally {
+      if (deleteButton.isConnected) deleteButton.disabled = false;
+    }
+    return;
+  }
+
   const button = event.target.closest("[data-notification-id]");
   if (!button) return;
   const notification = state.notifications.find(item => item.id === button.dataset.notificationId);
   if (!notification) return;
+
   try {
     await markNotificationRead(notification.id);
   } catch (error) {
     console.error(error);
+    showToast("No se ha podido marcar la notificación.");
   }
+
   closeNotificationsModal();
   await openNotificationDestination(notification);
 }
