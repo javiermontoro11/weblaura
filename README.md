@@ -1,345 +1,228 @@
 # JaviEats 💌
 
-**Versión actual: 2.9**
+**Versión actual: 3.0 — EN DESARROLLO**
 
-JaviEats es una aplicación web privada creada para Laura y Javi.
+JaviEats es una aplicación web privada creada para Laura y Javi. La versión 3.0 mantiene la base funcional que ya estaba probada —Supabase, autenticación, planes, calendario, recuerdos, juegos, puzle y vales— pero rehace la experiencia visual con prioridad absoluta al móvil y a que se comporte como una aplicación.
 
-Permite proponer planes, consultar un calendario compartido, guardar mensajes y cartas, responder juntos a “¿Y si…?”, jugar al reto diario de piedra, papel o tijera, completar el puzle del masaje, conservar recuerdos y abrir una zona de minijuegos pensada tanto para jugar por separado como cuando Javi y Laura están juntos.
-
----
-
-## 🚀 Última versión — v2.9
-
-### 💌 Mensaje del día
-
-La v2.9 añade una forma sencilla de que Javi deje una nota privada para Laura dentro de la propia aplicación.
-
-- Javi puede crear **un Mensaje del día por fecha** desde Inicio.
-- Si Laura todavía no lo ha leído, Javi puede editarlo; después de la lectura queda congelado.
-- Al crear el mensaje por primera vez, Supabase solicita un correo a través de una nueva Edge Function `mensaje-dia` y Brevo.
-- **El correo nunca contiene el texto del mensaje**: solo avisa de que Laura tiene algo nuevo en JaviEats y enlaza a la web.
-- Si el navegador tiene abierta la cuenta equivocada, el parámetro `for=laura` reutiliza el sistema de cambio de perfil ya existente.
-- Al entrar Laura sin un enlace específico pendiente, un mensaje no leído tiene prioridad y aparece **en primer plano**.
-- Primero se muestra el sobre cerrado (`Javi te ha dejado algo`) y el contenido solo se revela al pulsar `Abrir mensaje`.
-- En ese momento se registra `leido_at` y Javi puede ver desde Inicio que Laura ya lo ha leído.
-- Si Laura cierra el popup sin abrirlo, no se marca como leído y seguirá pendiente.
-- Los mensajes leídos continúan visibles en Inicio y desde el historial de notificaciones.
-
-### 🔔 Centro de notificaciones
-
-La cabecera incorpora una campana real con contador de avisos no leídos. No sustituye los correos ni los popups importantes: funciona como historial interno de actividad.
-
-Genera avisos para eventos relevantes como:
-
-- Mensaje del día nuevo.
-- Resultado de `¿Y si…?` listo después de responder ambos.
-- Nueva pieza del puzle y puzle completado.
-- Nuevo plan compartido o cambio de estado de un plan.
-- Nuevo recuerdo privado creado desde JaviEats.
-
-Cada aviso se puede abrir para ir directamente a la zona correspondiente y queda marcado como leído. También existe `Marcar todo leído`. La tabla utiliza RLS para que cada cuenta solo pueda consultar sus propias notificaciones.
-
-### Infraestructura
-
-La instalación completa `supabase-v2.9.sql` incluye también la instalación de Recuerdos v2.8. Por tanto, si se viene de v2.7.x basta con ejecutar **un único SQL**.
-
-Para el email del Mensaje del día se crea una Edge Function separada (`mensaje-dia`) para no tocar ni arriesgar la función ya estable `turno-y-si`. Reutiliza los Secrets de Brevo, las direcciones de Javi/Laura, `JAVIEATS_URL`, `Y_SI_WEBHOOK_SECRET` y el Vault secret `y_si_webhook_secret`; no hay que crear nuevas claves.
-
-La llamada de Database a Edge Function solo transmite el **ID del mensaje**, no su contenido. La función consulta únicamente los campos técnicos necesarios y envía un email genérico. Además utiliza `email_estado` para reclamar la fila de forma atómica y evitar correos duplicados ante reintentos.
-
-### Incluye también todos los cambios de v2.8
-
-Como esta versión se entrega antes de haber consolidado v2.8 en producción, el paquete v2.9 incluye también los archivos definitivos de los dos minijuegos revisados y el sistema de Recuerdos privados de v2.8.
+> **Estado de esta rama:** todavía no sustituye a la web pública. La página pública puede continuar en mantenimiento hasta terminar pruebas de Javi, activar los permisos definitivos de Laura y verificar las notificaciones Push.
 
 ---
 
-## v2.8 — Recuerdos privados y minijuegos revisados
+## 🚀 Última versión — v3.0
 
-### Recuerdos privados desde la propia web
+### 🎨 Rediseño visual completo
 
-La v2.8 convierte **Recuerdos** en una sección que ya se puede alimentar desde JaviEats, sin editar `script.js` ni subir manualmente cada nueva foto a GitHub.
+La v3.0 no nace para añadir funciones por añadir. Su objetivo principal es que JaviEats deje de sentirse como una web formada por tarjetas y pase a sentirse como una aplicación privada, cuidada y coherente.
 
-#### Qué cambia
+Cambios principales:
 
-- El perfil de **Javi** incorpora el botón `＋ Añadir recuerdo` dentro de Recuerdos.
-- Laura mantiene la sección como espacio de consulta; no puede crear, editar ni eliminar recuerdos.
-- Un recuerdo nuevo permite guardar:
-  - fecha;
-  - título;
-  - descripción;
-  - entre 1 y 8 fotos.
-- Las fotos se optimizan **en el propio navegador antes de subirlas**:
-  - lado máximo aproximado de 1600 px;
-  - conversión preferente a WebP;
-  - ajuste progresivo de calidad para intentar quedar alrededor de 700 KB o menos por imagen;
-  - fallback a JPEG si el navegador no puede generar WebP.
-- Las fotos no se guardan en la base de datos: se almacenan físicamente en un bucket privado de **Supabase Storage** llamado `recuerdos`.
-- La tabla `public.recuerdos_app` guarda únicamente los datos del recuerdo y las rutas internas de sus archivos.
-- El bucket es **privado**. Javi y Laura ven las imágenes mediante URLs firmadas temporales; no se utilizan URLs públicas permanentes.
-- Las URLs firmadas se cachean en el navegador y solo se renuevan cuando se acercan a su caducidad.
-- Javi puede editar después el título, la fecha, la descripción y las fotos de un recuerdo.
-- Javi puede eliminar un recuerdo; JaviEats elimina también sus archivos de Storage.
-- La interfaz es responsive y funciona tanto desde móvil como desde escritorio.
-- El nuevo sistema tolera un despliegue en el que todavía no se haya ejecutado el SQL: el resto de JaviEats sigue funcionando y Javi recibe un aviso de instalación pendiente.
+- Diseño **mobile-first**: el móvil es la referencia principal y escritorio adapta la misma experiencia.
+- Navegación inferior fija con cinco secciones: **Inicio · Planes · Juegos · Recuerdos · Nosotros**.
+- `Juegos` permanece en el centro de la barra, con el mismo peso visual que el resto de pestañas.
+- Se elimina `Perfil` como pestaña principal; las acciones de cuenta quedan asociadas a la cabecera/avatar.
+- Se retiran de la experiencia visible de 3.0 `Mensaje del día` y el antiguo apartado de mensajes/cartas de Laura.
+- Se conservan por ahora sus tablas y parte del código legacy para no realizar borrados de backend durante el rediseño.
+- Se elimina cualquier referencia visible a **Nuestra Vida**. El proyecto no aparece como juego, próximamente, secreto ni pista dentro de JaviEats.
+- Menos tarjetas idénticas, jerarquía visual más clara, bloques protagonistas, fotografías, iconografía coherente y microinteracciones suaves.
+- Paleta cálida y neutra con coral como acento, manteniendo un tono personal sin convertir JaviEats en una interfaz excesivamente romántica.
 
-#### Privacidad y permisos
+### 🏠 Inicio
 
-La instalación `supabase-v2.8.sql` crea:
+Inicio deja de ser un resumen de todas las tablas y pasa a responder a una idea sencilla: **qué está pasando ahora mismo**.
 
-- tabla `public.recuerdos_app`;
-- RLS para que solo las dos cuentas de JaviEats puedan leer;
-- permisos de escritura exclusivamente para Javi;
-- bucket privado `recuerdos`;
-- políticas de Storage equivalentes;
-- límite de 5 MB por archivo almacenado;
-- formatos almacenables: WebP, JPEG y PNG.
+La pantalla prioriza:
 
-#### Lo que NO se migra todavía
+- acción pendiente importante, especialmente una propuesta de plan que requiera respuesta;
+- próximo plan confirmado;
+- acceso/progreso de `¿Y si…?` y puzle;
+- último recuerdo con peso visual y fotografía cuando exista;
+- ideas del catálogo para proponer un plan.
 
-Los recuerdos históricos que ya viven en `recuerdos/` dentro de GitHub **siguen exactamente como estaban**. La v2.8 muestra al mismo tiempo:
+No se utiliza una vista semanal `L M X J V S D`: JaviEats no presupone que haya planes todas las semanas y evita mostrar bloques vacíos que empobrezcan la pantalla.
 
-1. recuerdos antiguos estáticos desde GitHub;
-2. nuevos recuerdos privados desde Supabase;
-3. mensajes de Laura que Javi haya marcado como recuerdo.
+### 📅 Planes
 
-La migración de los recuerdos antiguos al mismo sistema de Supabase queda reservada para **v2.8.1**, una vez comprobado que creación, visualización, edición y borrado funcionan correctamente.
+Planes vuelve a ser una de las funciones centrales de JaviEats.
 
-### Minijuegos revisados después de jugar juntos
+La pantalla se organiza por prioridad:
 
-La misma v2.8 incorpora una revisión profunda de `Dibuja` y `No lo digas` basada en la primera prueba real de Javi y Laura. No añade tablas ni backend: solo cambia interfaz, reglas y baterías locales.
+1. **Planes pendientes de aceptar o rechazar**.
+2. **Próximo plan** confirmado/agendado.
+3. **Catálogo** de ideas y servicios.
+4. **Calendario mensual**, que continúa siendo la referencia para consultar fechas e historial.
 
-#### 🎨 Dibuja
+El catálogo mantiene el enfoque original de JaviEats —Mimos, Masaje, Sushi Date, Cine, Plan sorpresa, Paseo, etc.— pero deja de plantearse como un servicio exclusivo que Laura solicita a Javi. En 3.0 ambos pueden proponer planes al otro.
 
-- Se mantienen las **9 categorías** y la victoria al conquistar **3 territorios**.
-- Cada territorio sigue enfrentando un dibujo de Javi y uno de Laura, pero ambos reciben cartas de **la misma dificultad interna**.
-- El tiempo sube de 60 a **90 segundos por dibujo**.
-- A los **45 segundos** aparece automáticamente una pista preparada para esa carta.
-- Cada dibujo dispone de **1 cambio de palabra**, únicamente antes de empezar el cronómetro y por otra carta de dificultad equivalente.
-- El lienzo incorpora 8 colores, goma, dos grosores, **deshacer último trazo** y borrado completo con confirmación.
-- Si los dos aciertan, gana el menor tiempo medido con precisión inferior al segundo.
-- Si ninguno acierta, el territorio queda libre y **no puede elegirse inmediatamente otra vez**.
-- El jugador que pierde un territorio elige la siguiente categoría, reduciendo el efecto bola de nieve.
-- La batería conserva **225 cartas**, ahora todas con pista y dificultad interna. Las referencias poco representables se evitan en favor de conceptos visuales.
+Flujo previsto cuando se active la migración completa:
 
-#### 🚫 No lo digas
+```text
+Javi o Laura propone un plan
+↓
+Estado pendiente
+↓
+El otro recibe la propuesta
+↓
+Aceptar / Rechazar
+↓
+Si se acepta, pasa al calendario como plan confirmado
+```
 
-- El tiempo sube de 45 a **90 segundos por turno**.
-- Cada persona dispone de **2 turnos para adivinar**.
-- La puntuación pertenece siempre a quien **ADIVINA**, no a quien da las pistas.
-- `Pasar` resta **5 segundos** y decir una palabra prohibida también anula la carta y resta **5 segundos**. Así no existe un pase gratis encubierto.
-- Cada carta contiene entre **2 y 4 palabras prohibidas** según su dificultad.
-- Las 225 cartas tienen una dificultad interna que no se muestra al jugador.
-- Los turnos enfrentados reciben secuencias equivalentes de categoría y dificultad para reducir la influencia del azar.
-- Las rachas de 3 o más aciertos se muestran visualmente, pero **no multiplican puntos**.
-- Si hay empate, se juega una tanda de **45 segundos por persona**. Si continúa, se encadenan tandas de **30 segundos por persona** hasta desempatar.
-- No se repiten cartas dentro de una misma partida salvo agotamiento extremo de la batería.
+Ambos perfiles podrán crear, editar y borrar planes. También podrán gestionar el estado de las propuestas. Los cambios importantes de fecha/hora y las cancelaciones generan actividad para el otro usuario.
 
-La batería total sigue siendo de **450 retos**: 225 de Dibuja y 225 de No lo digas.
+### 🎮 Juegos
 
----
-
-## v2.7.1 — Favicon y ajuste final del puzle
-
-- Se añade favicon propio de JaviEats con corazón y flecha.
-- Se incluyen variantes SVG, `favicon.ico` y Apple Touch Icon para mejorar compatibilidad entre navegadores.
-- El puzle del masaje vuelve a utilizar una imagen SVG ligera en `assets/puzzle-masaje.svg`.
-- La imagen completa se precarga desde `index.html` para evitar parpadeos.
-- El puzle se representa como una única imagen completa detrás de las seis casillas, que se van destapando al conseguir piezas.
-- El tablero mantiene proporción 3:2 y se adapta al ancho disponible.
-- Sin cambios de lógica de Supabase, Minijuegos, Brevo, Vault, Formspree o Edge Functions.
-
----
-
-## v2.7 — Minijuegos · nueva sección general
-
-### Minijuegos · nueva sección general
-
-La versión 2.7 convierte la antigua pestaña **Dibuja** en una sección completa de **🎮 Minijuegos**. La idea es que JaviEats tenga un único lugar desde el que abrir todos los juegos actuales y los que se añadan en el futuro.
-
-### Novedades principales
-
-- La pestaña inferior `Dibuja` pasa a llamarse **🎮 Minijuegos**.
-- La página Inicio incorpora un **acceso rápido a Minijuegos**.
-- La portada de Minijuegos reúne cuatro experiencias:
-  - `💭 ¿Y si…?`
-  - `✊ Piedra, papel o tijera`
-  - `🎨 Dibuja`
-  - `🚫 No lo digas`
-- `¿Y si…?` conserva toda su lógica, historial, compatibilidad y límite de hasta cinco preguntas diarias.
-- `Piedra, papel o tijera` conserva el intento diario, las cinco rondas, la muerte súbita, el puzle de seis piezas y el vale de masaje.
-- `Dibuja` se rehace con una batería diseñada específicamente para cosas que **sí tienen sentido dibujar**.
-- `No lo digas` estrena una batería distinta para futbolistas, artistas, famosos, personajes, series, películas, tendencias y conceptos que funcionan mejor mediante pistas verbales.
-- La lógica de los dos juegos presenciales vive en `minigames.js`.
-- Las dos baterías completas viven en `minigames-data.js`.
-- Los antiguos `draw-data.js` y `draw-game.js` dejan de utilizarse y se eliminan del proyecto.
-- No hay migraciones SQL ni cambios en Supabase, Brevo, Vault, Formspree o Edge Functions para instalar la v2.7.
-
-### Acceso por perfil y estreno para Laura
-
-**Javi** puede abrir los cuatro minijuegos desde el momento en que se despliega la versión, para poder probarlos antes del estreno.
-
-**Laura**, hasta el **30 de agosto de 2026 a las 22:00 (Europe/Madrid)**, solo puede abrir:
+La pestaña Juegos reúne únicamente los juegos actualmente públicos de JaviEats:
 
 - `¿Y si…?`
 - `Piedra, papel o tijera`
+- `Dibuja`
+- `No lo digas`
 
-Mientras tanto, `Dibuja` y `No lo digas` aparecen visibles pero bloqueados con una cuenta atrás en tiempo real. El bloqueo no es solo visual: la navegación también impide abrir esos juegos antes de la fecha.
+`Nuestra Vida` **no forma parte del frontend público de esta versión** y no existe ninguna referencia visible para Laura.
 
-Al llegar la hora indicada, ambos se desbloquean automáticamente sin necesidad de publicar una nueva versión.
+Los juegos mantienen su backend y reglas ya probadas. El rediseño modifica principalmente presentación, navegación y coherencia visual.
 
-### 🎨 Dibuja · duelos rápidos por territorios
+### 📸 Recuerdos compartidos
 
-Dibuja deja de intentar utilizar nombres o referencias difíciles de representar y se centra en conceptos visuales.
+Recuerdos pasa a tener un papel mucho más importante y visual.
 
-Reglas actuales:
+La intención definitiva de 3.0 es que **Javi y Laura puedan crear, editar y borrar recuerdos**, incluyendo sus fotografías. El bucket `recuerdos` sigue siendo privado y las imágenes se siguen sirviendo mediante URLs firmadas temporales.
 
-- Hay **9 categorías** disponibles.
-- Una moneda decide quién elige la primera categoría y quién hace el primer dibujo del duelo.
-- Cada categoría se resuelve con **dos intentos**: uno dibuja Javi y otro dibuja Laura.
-- Cada intento utiliza una palabra distinta de la misma categoría.
-- Hay **60 segundos** como máximo por dibujo.
-- Si solo uno consigue que el otro acierte, esa persona conquista la categoría.
-- Si los dos lo consiguen, gana quien haya necesitado menos tiempo.
-- Si ninguno lo consigue o los dos tardan exactamente lo mismo, la categoría queda libre y puede volver a elegirse.
-- Después de cada territorio cambia quién elige la siguiente categoría.
-- Gana la partida quien conquista **3 territorios**.
-- El juego registra localmente conceptos recientes para reducir repeticiones entre partidas.
-- El lienzo funciona con ratón, móvil y stylus e incluye colores, goma y borrado completo.
+La sección prioriza la fotografía y la sensación de galería/archivo compartido frente a una lista administrativa.
 
-Categorías de Dibuja:
+La migración `supabase-v3.0.sql` contiene las políticas necesarias para dar a ambos perfiles permisos equivalentes sobre `recuerdos_app` y sus archivos de Storage.
 
-```text
-Fútbol
-Pop & Disney
-Series & TV
-Películas
-Música
-Héroes & Sagas
-Comida & Casa
-Internet & Juegos
-Mix
-```
+### ❤️ Nosotros
 
-La batería contiene **225 conceptos visuales**, 25 por categoría.
+`Nosotros` sustituye a la idea de utilizar una pestaña de Perfil que aportaba poco a la experiencia compartida.
 
-### 🚫 No lo digas · pistas contra reloj
+Agrupa información que sí tiene sentido consultar como espacio conjunto:
 
-No lo digas aprovecha justamente las referencias que no funcionan bien dibujando.
+- Compatibilidad acumulada de `¿Y si…?`.
+- Coincidencias y respuestas compartidas.
+- Progreso visual del puzle.
+- Recuerdos recientes.
+- Vales/premios desbloqueados.
 
-Ejemplo de carta:
-
-```text
-Objetivo: JOHN B
-Prohibidas: Outer Banks · Sarah · Pogues
-```
-
-La persona que da las pistas debe conseguir que la otra diga la palabra objetivo sin utilizar ninguna de las tres palabras prohibidas.
-
-Reglas actuales:
-
-- Sorteo inicial para decidir quién da pistas primero.
-- **2 turnos por persona**.
-- **45 segundos por turno**.
-- Cada acierto suma **1 punto** a quien está dando las pistas.
-- Cada carta contiene una palabra objetivo y **3 palabras prohibidas**.
-- Se puede pasar una carta y continuar con la siguiente.
-- Si se utiliza una palabra prohibida, esa carta queda anulada.
-- Al terminar los cuatro turnos gana quien tenga más puntos.
-- Si hay empate, se juegan tandas de desempate de **30 segundos** hasta romperlo.
-- Se guarda un historial local de cartas recientes para reducir repeticiones.
-
-Categorías de No lo digas:
-
-```text
-Fútbol
-Pop & Disney
-Series
-Películas
-Música
-Marvel & Sagas
-Famosos & públicos
-Internet & Tendencias
-Mix
-```
-
-La batería contiene **225 cartas**, 25 por categoría. Cada una incluye su objetivo y tres palabras prohibidas.
-
-### Batería total v2.7
-
-```text
-Dibuja       225 conceptos
-No lo digas  225 cartas
------------------------
-Total         450 retos
-```
-
-La separación entre ambas baterías es deliberada: una palabra puede ser muy buena para un juego verbal y pésima para dibujar. La v2.7 prioriza que cada concepto esté en el juego donde realmente funciona.
+La sección no pretende convertirse en un panel de estadísticas. Se priorizan progreso, recuerdos y elementos visuales que tengan valor aunque JaviEats no se abra todos los días.
 
 ---
 
-## v2.6 — Dibuja original y enlaces inteligentes de “¿Y si…?”
+## 🔔 Centro de Actividad
 
-La v2.6 introdujo la primera versión de Dibuja y dejó preparada la corrección de los enlaces de turno de “¿Y si…?”. La mecánica original de Dibuja queda sustituida por la v2.7, pero la corrección de los enlaces se conserva.
+La campana deja de ser un elemento decorativo y pasa a utilizar la tabla real `public.notificaciones`.
 
-### Corrección de “¿Y si…?” incluida desde v2.6
+El centro de Actividad:
 
-- Los correos de turno pueden enlazar a `?open=ysi&for=javi|laura&turn=<id>`.
-- Si el navegador tiene abierta la cuenta equivocada, JaviEats avisa antes de entrar.
-- Permite cambiar al perfil destinatario conservando el destino del enlace.
-- Si no existe sesión, el enlace puede seleccionar automáticamente el perfil correcto y pedir solo su contraseña.
-- Si el turno ya está resuelto, la aplicación lo indica y muestra el estado actual de “¿Y si…?”.
+- muestra el número de avisos no leídos;
+- se presenta como una hoja inferior en móvil;
+- permite abrir el destino correspondiente;
+- permite marcar un aviso o todos como leídos;
+- utiliza los eventos ya generados por Supabase en lugar de crear un segundo historial paralelo.
 
----
+Actividad interna puede incluir más información que Push. Por ejemplo, recuerdos nuevos o progreso del puzle pueden aparecer dentro de JaviEats aunque no hagan vibrar el móvil.
 
-## v2.5.2
+### Eventos de Planes preparados en 3.0
 
-### Entrada rápida y personalizada
+- Nueva propuesta para el otro usuario.
+- Aceptación/rechazo o cambio de estado.
+- Cambio de fecha, hora o condición de día completo.
+- Cancelación.
 
-La versión 2.5.2 elimina el antiguo gate de preguntas privadas y convierte el acceso en una experiencia mucho más rápida para Javi y Laura.
+### Recuerdos
 
-### Novedades principales
-
-- Eliminadas las preguntas privadas previas al login.
-- Si el dispositivo conserva una sesión válida de Supabase, **JaviEats entra automáticamente** sin pedir correo ni contraseña otra vez.
-- Nueva pantalla breve de bienvenida personalizada para Javi o Laura mientras se sincronizan los datos.
-- La bienvenida muestra un pequeño resumen del estado actual, como Compatibilidad JaviEats, turno de “¿Y si…?”, progreso del puzle o planes guardados.
-- Cuando no existe sesión, aparece un selector visual **Javi / Laura**.
-- El correo queda asociado internamente al perfil elegido y el usuario solo escribe su contraseña.
-- Botón para volver atrás si se ha elegido el perfil equivocado.
-- Los enlaces `?open=ysi` de los correos mantienen su comportamiento y, tras autenticar, llevan directamente a “¿Y si…?”.
-- Se mantiene `persistSession`, `autoRefreshToken`, control de acceso por UUID y todas las reglas de Supabase existentes.
-- No hay cambios de tablas, RLS, RPC, Edge Functions, Brevo ni Formspree en esta versión.
+Al crear un recuerdo, la base de datos puede generar una notificación interna para el otro usuario. Esto **no implica que se envíe Push**.
 
 ---
 
-## v2.5.1
+## 📱 PWA · iPhone / iPad
 
-### ¿Y si…? en modo asíncrono real
+La v3.0 queda preparada para instalarse desde Safari como una web app independiente.
 
-La versión 2.5.1 convierte “¿Y si…?” en una experiencia compartida con ritmo propio: Javi y Laura pueden completar hasta cinco preguntas cerradas al día, recibir otra en cuanto ambos responden y avisarse por correo cuando el turno queda pendiente.
+Incluye:
 
-### Novedades principales
+- `manifest.webmanifest`;
+- `display: standalone`;
+- `apple-mobile-web-app-capable=yes`;
+- `apple-mobile-web-app-title`;
+- `apple-touch-icon`;
+- iconos de 192 px y 512 px;
+- `viewport-fit=cover`;
+- tratamiento de zonas seguras del iPhone/iPad;
+- `service-worker.js`.
 
-- Batería ampliada de **80 a 300 preguntas cerradas**.
-- Máximo de **5 preguntas completadas por día**.
-- Al responder ambos, aparece inmediatamente una nueva pregunta mientras queden huecos del día.
-- Contador diario `0/5 → 5/5` y resumen de coincidencias del día.
-- Las preguntas pendientes **caducan al cambiar de día**: no se arrastran.
-- El contador diario se reinicia cada día en horario `Europe/Madrid`.
-- La Compatibilidad JaviEats histórica **no se reinicia**.
-- Las preguntas ya vistas, aunque caduquen o se salten, no se repiten dentro de la misma temporada.
-- Se intenta alternar categorías para evitar varias preguntas parecidas seguidas.
-- **1 cambio de pregunta al día**, disponible solo mientras nadie haya respondido.
-- El último resultado permanece visible mientras aparece la siguiente pregunta.
-- Historial con fecha y posición de la pregunta dentro del día.
-- Nueva cola `y_si_notificaciones` para avisos de turno.
-- Cuando una persona responde primero, se programa un correo al otro para **2 minutos después**.
-- Si la otra persona responde antes de esos 2 minutos, el correo se cancela.
-- El correo nunca revela la respuesta del primero; solo muestra la pregunta y avisa de que toca responder.
-- El enlace del correo abre JaviEats y lleva directamente a “¿Y si…?”.
-- El aviso se envía mediante **Supabase Database Webhook + Edge Function + Brevo**; no hace falta un Cron permanente.
-- El recordatorio fijo de las 18:00 para piedra, papel o tijera queda aplazado.
-- Formspree sigue intacto para los avisos de nuevos planes.
+### Instalación en iPhone/iPad
+
+Con JaviEats desplegado por HTTPS:
+
+1. Abrir JaviEats en **Safari**.
+2. Pulsar **Compartir**.
+3. Seleccionar **Añadir a pantalla de inicio**.
+4. Abrir JaviEats desde el nuevo icono.
+
+La aplicación se abre en modo independiente, sin la interfaz normal de una pestaña de Safari.
+
+---
+
+## 📲 Web Push — estado actual
+
+La infraestructura Push se está incorporando durante el desarrollo de 3.0.
+
+### Ya preparado
+
+- Tabla `public.push_subscriptions` para registrar una suscripción por instalación/dispositivo.
+- RLS: cada usuario autenticado solo puede gestionar sus propias suscripciones.
+- Registro de `service-worker.js`.
+- Detección de compatibilidad con Web Push.
+- En iPhone/iPad se exige abrir JaviEats desde el icono instalado antes de ofrecer la activación.
+- Botón `Activar notificaciones` / `Desactivar` dentro de Actividad.
+- Solicitud de permiso únicamente a partir de una acción del usuario.
+- Alta automática en `push_subscriptions` con `endpoint`, `p256dh` y `auth`.
+- Baja de la suscripción al desactivar notificaciones.
+- Apertura de JaviEats al tocar una futura notificación.
+- Clave **VAPID pública** integrada en el frontend.
+- `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY` y `VAPID_SUBJECT` guardados externamente como **Supabase Edge Function Secrets**. La clave privada no forma parte del repositorio ni del ZIP.
+
+### Pendiente antes de activar Push real
+
+- Crear/desplegar la Edge Function de envío (`send-push` o equivalente).
+- Hacer una prueba manual con JaviEats cerrado en un iPhone.
+- Conectar los eventos seleccionados al emisor Push.
+- Implementar la sustitución del email de turno de `¿Y si…?` por Push cuando el destinatario tenga una suscripción activa.
+- Verificar comportamiento y limpieza de suscripciones caducadas.
+- Valorar badge del icono una vez el flujo básico esté estable.
+
+### Push que se ha decidido enviar
+
+La regla de diseño es evitar convertir JaviEats en una app pesada. Push se reserva para eventos que requieren acción o son especialmente relevantes.
+
+#### Planes
+
+- Te han propuesto un plan.
+- Han aceptado o rechazado un plan que propusiste.
+- Cambio importante de fecha/hora de un plan confirmado.
+- Cancelación de un plan confirmado.
+
+#### ¿Y si…?
+
+- **Tu turno:** el otro ya ha respondido y ahora te toca contestar.
+- **Fin del día:** al completar la quinta pregunta, se envía al usuario que no acaba de realizar la última respuesta un resumen con el resultado del día, por ejemplo `4/5 coincidencias`.
+
+No se enviará Push por cada coincidencia, cada resultado individual, un nuevo recuerdo, una pieza del puzle, una edición de texto ni acciones administrativas.
+
+### Email de ¿Y si…?
+
+El correo actual se conserva durante la transición.
+
+Objetivo final:
+
+```text
+¿El destinatario tiene Push activo?
+├─ Sí  → Push de turno; no duplicar por email.
+└─ No  → mantener el email de turno actual.
+```
+
+El resumen final diario de `¿Y si…?` no necesita fallback por correo; si no existe Push, puede consultarse dentro de JaviEats.
 
 ---
 
@@ -352,9 +235,9 @@ Abrir JaviEats
 ↓
 Supabase recupera la sesión
 ↓
-Bienvenida personalizada
+Sincronización de datos
 ↓
-JaviEats
+JaviEats 3.0
 ```
 
 No es necesario volver a introducir credenciales mientras la sesión siga siendo válida.
@@ -368,411 +251,96 @@ Javi / Laura
 ↓
 Contraseña
 ↓
-Bienvenida personalizada
+Sincronización
 ↓
-JaviEats
+JaviEats 3.0
 ```
 
-El correo no se escribe manualmente: JaviEats utiliza el correo asociado al perfil seleccionado. La autenticación sigue realizándose con Supabase Auth y únicamente se admiten los UUID autorizados de Javi y Laura.
+El correo continúa asociado internamente al perfil seleccionado y solo se admiten los UUID autorizados de Javi y Laura.
 
 ---
 
-# Apartados de la aplicación
+# Apartados de JaviEats 3.0
 
-El menú principal incluye:
+El menú principal es:
 
 ```text
 Inicio
-Servicios
-Calendario
-Laura
+Planes
+Juegos
 Recuerdos
-Minijuegos
+Nosotros
 ```
 
-Los seis botones aparecen en una sola línea en el menú inferior. `Minijuegos` sustituye a la antigua entrada independiente de `Dibuja`.
-
----
-
-# Inicio
-
-La pantalla de inicio muestra:
-
-- Saludo personalizado según el usuario.
-- Estado de sincronización.
-- “¿Y si…?” compartido y Compatibilidad JaviEats.
-- Reto diario.
-- Progreso del puzle del masaje.
-- Número total de propuestas.
-- Próximo plan.
-- Servicios destacados.
-- Acceso rápido al catálogo.
-- Acceso rápido a Minijuegos.
-
----
-
-# Servicios
-
-Laura puede proponer diferentes servicios:
-
-- Mimos
-- Masaje
-- Sushi Date
-- Telenovio
-- Peli en el cine
-- Plan diferente
-- Plan sorpresa
-- Paseo con Randy y Nala
-
-Cada propuesta puede incluir:
-
-- Fecha
-- Hora
-- Duración
-- Nivel de ganas
-- Nota opcional
-
-El servicio `Plan diferente` requiere una explicación obligatoria.
-
-Javi puede consultar los servicios, pero las propuestas las crea Laura desde su cuenta.
-
----
-
-# Calendario compartido
-
-El calendario ya no depende del navegador ni del móvil.
-
-Los planes se guardan en Supabase y aparecen en las cuentas de Javi y Laura.
-
-Cada propuesta incluye:
-
-- Servicio
-- Categoría
-- Fecha
-- Hora
-- Duración
-- Nivel de ganas
-- Nota
-- Estado
-- Usuario que la creó
-- Fecha de creación
-
-## Estados disponibles
-
-- Pendiente
-- Confirmada
-- Realizada
-- Cancelada
-
-## Permisos de Laura
-
-Laura puede:
-
-- Crear propuestas.
-- Ver todas las propuestas.
-- Cancelar propuestas pendientes.
-- Eliminar propuestas pendientes.
-
-## Permisos de Javi
-
-Javi puede:
-
-- Ver todas las propuestas.
-- Confirmarlas.
-- Marcarlas como realizadas.
-- Cancelarlas.
-- Eliminarlas.
-- Limpiar el calendario completo.
-
----
-
-# Tickets de propuestas
-
-Después de crear una propuesta, Laura puede descargar un ticket en formato PNG.
-
-El ticket incluye:
-
-- Servicio
-- Fecha
-- Hora
-- Duración
-- Nivel de ganas
-- Estado
-- Nota
-
-La propuesta queda guardada en Supabase antes de generar el ticket.
-
----
-
-# Apartado Laura
-
-La sección Laura es un espacio privado donde Laura puede escribirle cosas a Javi.
-
-Tipos de escritos disponibles:
-
-- Mensaje
-- Carta
-- Algo que quiero contarte
-- Idea para nosotros
-
-Laura puede:
-
-- Crear escritos.
-- Editarlos.
-- Eliminarlos.
-- Consultarlos desde cualquier dispositivo.
-
-Javi puede:
-
-- Leerlos.
-- Marcarlos como favoritos.
-- Guardarlos en Recuerdos.
-
-Javi no puede:
-
-- Modificar el contenido.
-- Escribir una respuesta desde este apartado.
-- Crear mensajes en nombre de Laura.
-
-No existe estado de lectura ni sistema de chat.
-
----
-
-
-# Minijuegos
-
-La sección **Minijuegos** funciona como hub de las experiencias jugables de JaviEats.
-
-Desde una única pantalla permite abrir:
-
-- `¿Y si…?`
-- `Piedra, papel o tijera`
-- `Dibuja`
-- `No lo digas`
-
-Los dos primeros continúan utilizando Supabase porque su estado debe mantenerse entre dispositivos y entre las cuentas de Javi y Laura.
-
-`Dibuja` y `No lo digas` están pensados para jugar juntos en un mismo dispositivo. Su partida es local y no necesita tablas nuevas ni sincronización en tiempo real.
-
-## Dibuja
-
-- 9 categorías.
-- Dos dibujos por territorio, uno por persona y con dificultad equivalente.
-- **90 segundos** por dibujo.
-- Pista automática a los **45 segundos**.
-- Un cambio de palabra antes de empezar cada dibujo.
-- 8 colores, goma, dos grosores, deshacer y borrado con confirmación.
-- Si ambos consiguen un acierto, decide el menor tiempo.
-- Si ambos fallan, el territorio queda libre y descansa una elección.
-- El perdedor de un territorio elige la siguiente categoría.
-- Primero en conquistar 3 territorios gana.
-- 225 conceptos con pista y dificultad interna.
-
-## No lo digas
-
-- 2 turnos para adivinar por persona.
-- **90 segundos** por turno.
-- 1 punto por cada objetivo acertado para quien **adivina**.
-- Pasar: **−5 segundos**.
-- Palabra prohibida: carta anulada y **−5 segundos**.
-- Entre 2 y 4 palabras prohibidas por carta.
-- Barajas equilibradas internamente por categoría y dificultad.
-- Rachas visuales sin bonus de puntuación.
-- Primer desempate: 45 segundos por persona; siguientes: 30 segundos.
-- 225 cartas completas.
-
-## Desbloqueo de Laura
-
-Hasta el `30/08/2026 22:00 Europe/Madrid`, Laura ve `Dibuja` y `No lo digas` bloqueados con cuenta atrás. Javi puede utilizarlos antes para pruebas. El desbloqueo se produce automáticamente al llegar la fecha.
-
----
-
-# ¿Y si…?
-
-“¿Y si…?” es una experiencia compartida para Javi y Laura. Ambos reciben exactamente la misma situación y eligen una respuesta cerrada sin conocer la elección del otro.
-
-Características:
-
-- Batería de **300 preguntas cerradas**.
-- Entre 2 y 4 opciones por pregunta.
-- Hasta **5 preguntas completadas al día** entre los dos.
-- En cuanto ambos responden, el resultado se revela y queda disponible la siguiente pregunta del día.
-- Una única respuesta por usuario y pregunta; después de guardarla queda bloqueada.
-- La elección del otro permanece oculta hasta que ambos contestan.
-- Si una pregunta queda pendiente al cambiar de día, caduca y la jornada siguiente comienza en `0/5`.
-- La Compatibilidad JaviEats y el historial acumulado no se reinician al cambiar de día.
-- Las preguntas vistas, saltadas o caducadas no se repiten dentro de la misma temporada.
-- Se intenta alternar categorías para no encadenar preguntas demasiado parecidas.
-- Existe **un cambio compartido de pregunta al día**, disponible únicamente antes de que alguien responda.
-- Cuando el primero responde, se prepara un aviso por email para el otro a los dos minutos; si el segundo responde antes, el aviso se cancela.
-- El historial solo muestra preguntas completadas por los dos y permite distinguir coincidencias y respuestas diferentes.
-- Al terminar la batería activa comienza automáticamente una nueva temporada.
-
-## Compatibilidad JaviEats
-
-El corazón de compatibilidad es un indicador lúdico basado únicamente en las preguntas de “¿Y si…?”. No pretende medir una relación real.
-
-```text
-compatibilidad = coincidencias / preguntas completadas por ambos × 100
-```
-
-También se muestran el número de preguntas compartidas, las coincidencias acumuladas y la mejor racha consecutiva.
-
----
-
-# Reto diario
-
-La aplicación incluye una partida diaria de piedra, papel o tijera.
-
-## Reglas
-
-- Se juegan cinco rondas normales.
-- Los empates consumen ronda.
-- Gana quien consiga más victorias.
-- Si hay empate tras cinco rondas, comienza la muerte súbita.
-- En muerte súbita, los empates continúan la partida.
-- El primer resultado que no sea empate decide el ganador.
-
-## Control real del intento
-
-El reto se controla desde Supabase.
-
-Laura solo puede utilizar un intento diario aunque:
-
-- Cambie de móvil.
-- Cambie de navegador.
-- Use navegación privada.
-- Borre los datos del navegador.
-- Cambie la hora del dispositivo.
-
-La jugada de la máquina se genera dentro de Supabase.
-
-Javi puede ver la partida y el resultado, pero no puede jugar.
-
-## Premio acumulado
-
-- Cada partida completa ganada entrega una pieza del puzle.
-- El puzle contiene seis piezas.
-- Las piezas no se pierden al perder una partida.
-- Una misma partida no puede entregar más de una pieza.
-- Al conseguir la sexta pieza se crea el vale del masaje.
-- La siguiente victoria después de completar un puzle inicia un nuevo ciclo.
-
----
-
-# Puzle del masaje
-
-El progreso se guarda en Supabase y se muestra:
-
-- En un popup automático para Laura al entrar en JaviEats.
-- En la tarjeta del reto de la página Inicio.
-- Dentro del modal del juego al terminar una partida ganada.
-
-El puzle revela una ilustración completa de JaviEats al reunir las seis piezas.
-
----
-
-# Vales
-
-Laura recibe un vale de masaje de 30 minutos solamente cuando completa las seis piezas del puzle.
-
-Los vales se guardan en Supabase.
-
-Laura puede:
-
-- Consultarlos.
-- Descargarlos en PNG.
-- Proponer su canje.
-
-Javi puede:
-
-- Consultarlos.
-- Marcarlos como canjeados.
-
----
-
-# Recuerdos
-
-La sección Recuerdos contiene cartas, flores y momentos especiales.
-
-Archivos actuales:
-
-- `recuerdos/carta-2026-04-24.txt`
-- `recuerdos/ramo-2026-04-24.jpeg`
-- `recuerdos/ramo-2026-05-31.jpeg`
-- `recuerdos/carta-2026-07-13.txt`
-- `recuerdos/ramo-2026-07-24.jpeg`
-- `recuerdos/laura-ramo-2026-07-24.jpeg`
-
-Los escritos de Laura que Javi marque como recuerdo también aparecen en esta sección.
+Los cinco botones se mantienen en la barra inferior también en resoluciones amplias para conservar la identidad de aplicación móvil.
 
 ---
 
 # Base de datos
 
-La aplicación utiliza las siguientes tablas:
+JaviEats 3.0 **no reconstruye la base de datos**. Parte del backend funcional existente y añade únicamente los cambios que necesita la nueva experiencia.
 
-- `propuestas`
-- `mensajes_laura`
+Tablas principales existentes:
+
 - `marcas_mensajes_javi`
-- `preguntas_diarias`
-- `respuestas_diarias`
+- `mensajes_dia` *(legacy, no visible en 3.0)*
+- `mensajes_laura` *(legacy, no visible en 3.0)*
+- `notificaciones`
+- `piezas_puzzle`
+- `preguntas_diarias` *(legacy)*
+- `propuestas`
+- `puzzles_premio`
+- `recordatorios_email`
+- `recuerdos_app`
+- `respuestas_diarias` *(legacy)*
 - `retos_diarios`
 - `rondas_reto`
 - `vales`
-- `puzzles_premio`
-- `piezas_puzzle`
-- `y_si_preguntas`
 - `y_si_dias`
-- `y_si_respuestas`
 - `y_si_notificaciones`
-- `recuerdos_app`
+- `y_si_preguntas`
+- `y_si_respuestas`
 
-`preguntas_diarias` y `respuestas_diarias` se conservan como estructura legacy de versiones anteriores, pero el frontend actual ya no las utiliza. Si `recordatorios_email` llegó a crearse durante las pruebas de v2.5, puede conservarse: la v2.5.1 no lo consulta ni lo necesita.
+Nueva tabla de 3.0 Push:
 
-También utiliza estas funciones PostgreSQL:
+- `push_subscriptions`
 
-```text
-iniciar_reto_diario()
-jugar_ronda_reto(text)
-canjear_vale(uuid)
-obtener_y_si_actual()
-responder_y_si(integer)
-saltar_y_si_actual()
-obtener_y_si_historial()
-```
+`notificaciones` continúa siendo la fuente interna de actividad. No se crea una segunda tabla de historial para Push.
+
+---
+
+# Migración `supabase-v3.0.sql`
+
+El archivo se ha preparado como migración incremental sobre el backend existente. No sustituye a la base de datos completa y no borra datos.
+
+Incluye:
+
+1. políticas compartidas de `propuestas`;
+2. permisos compartidos de `recuerdos_app`;
+3. permisos equivalentes del bucket privado `recuerdos`;
+4. notificaciones más útiles de planes;
+5. notificación interna al otro usuario cuando se crea un recuerdo;
+6. creación/configuración idempotente de `push_subscriptions`.
+
+Durante las pruebas puede ejecutarse de forma progresiva. La tabla `push_subscriptions` ya puede existir antes de ejecutar el resto del SQL; el bloque utiliza `IF NOT EXISTS` y policies recreables.
 
 ---
 
 # Seguridad
 
-La aplicación utiliza Supabase Auth y políticas Row Level Security.
+JaviEats continúa utilizando Supabase Auth y Row Level Security.
 
-Permisos principales:
+Principios relevantes en 3.0:
 
-- Solo Laura puede crear propuestas.
-- Solo Laura puede escribir mensajes y cartas.
-- Javi y Laura pueden responder “¿Y si…?” desde sus propias cuentas.
-- La respuesta del otro no se expone hasta que ambos han contestado.
-- Solo Laura puede jugar al reto.
-- Solo la función segura del reto puede crear piezas y completar puzles.
-- Javi y Laura pueden consultar el calendario.
-- Javi y Laura pueden leer los escritos.
-- Solo Javi puede administrar estados de propuestas.
-- Solo Javi puede marcar favoritos.
-- Solo Javi puede guardar escritos en Recuerdos.
-- Javi y Laura pueden leer los recuerdos privados de `recuerdos_app`.
-- Solo Javi puede crear, editar o eliminar recuerdos nuevos.
-- El bucket `recuerdos` es privado: las fotos se sirven mediante URLs firmadas temporales.
-- Solo Javi puede marcar vales como canjeados.
-- Los usuarios no autenticados no pueden acceder a las tablas.
-
-Nunca se debe publicar:
-
-- Una clave `sb_secret`.
-- La clave `service_role`.
-- La contraseña de la base de datos.
-- Una cadena de conexión privada.
+- Solo las dos cuentas autorizadas deben utilizar la aplicación.
+- Cada suscripción Push queda asociada a `auth.uid()`.
+- Un usuario autenticado solo puede consultar/modificar sus propias filas de `push_subscriptions`.
+- La futura Edge Function de envío podrá consultar las suscripciones del destinatario desde backend con permisos de servicio.
+- La clave VAPID pública puede aparecer en frontend.
+- La **clave VAPID privada nunca debe aparecer en HTML, JS, GitHub ni en un ZIP desplegable**.
+- El bucket `recuerdos` continúa privado.
+- Las respuestas de `¿Y si…?` siguen protegidas por las RPC existentes y no se exponen antes de que ambos hayan respondido.
+- No se deben publicar claves `service_role`, contraseñas de base de datos ni cadenas de conexión privadas.
 
 ---
 
@@ -788,56 +356,79 @@ Nunca se debe publicar:
 - Supabase Database Webhooks
 - PostgreSQL
 - Row Level Security
-- Formspree
-- Brevo (correo transaccional)
+- Web App Manifest
+- Service Worker
+- Web Push / VAPID *(en integración)*
+- Brevo *(correo transaccional existente)*
+- Formspree *(legacy de propuestas antiguas; revisar antes de limpieza definitiva)*
 - GitHub
 - Vercel
 
 ---
 
-# Estructura del proyecto
+# Estructura del proyecto 3.0
 
 ```text
-JaviEats/
+JaviEats-3.0/
 ├── index.html
 ├── style.css
 ├── script.js
 ├── minigames-data.js
 ├── minigames.js
-├── README.md
-├── supabase-v2.8.sql
-├── INSTALACION-v2.8.md
-├── INSTALACION-v2.7.md
-├── INSTALACION-v2.6.md
-├── INSTALACION-v2.5.2.md
-├── supabase-v2.5.1.sql
-├── COMPROBACION-v2.5.1.sql
-├── INSTALACION-v2.5.1.md
-├── supabase/
-│   ├── config.toml.snippet
-│   └── functions/
-│       └── turno-y-si/
-│           └── index.ts
-├── assets/
-│   ├── favicon-javieats-v271.svg
-│   ├── apple-touch-icon.png
-│   └── puzzle-masaje.svg
+├── manifest.webmanifest
+├── service-worker.js
 ├── favicon.ico
+├── README.md
+├── supabase-v3.0.sql
+├── assets/
+│   ├── favicon.svg
+│   ├── apple-touch-icon.png
+│   ├── icon-192.png
+│   ├── icon-512.png
+│   └── puzzle-masaje.svg
 └── recuerdos/
-    ├── carta-2026-04-24.txt
-    ├── carta-2026-07-13.txt
-    ├── ramo-2026-04-24.jpeg
-    ├── ramo-2026-05-31.jpeg
-    ├── ramo-2026-07-24.jpeg
-    └── laura-ramo-2026-07-24.jpeg
+    └── README.md
 ```
 
-Los archivos `draw-data.js` y `draw-game.js` pertenecían a la implementación de la v2.6 y ya no forman parte de la versión actual.
+No se incluyen dentro del paquete limpio los antiguos `README-v2.9.md`, `INSTALACION-v2.9.md`, `COMPROBACION-v2.9.sql`, `supabase-v2.9.sql` ni copias de rollback. El historial se conserva aquí, dentro del README principal.
+
+---
+
+# Estado de despliegue
+
+- La web pública puede continuar mostrando la página simple de mantenimiento.
+- `index_backup` permanece como copia de seguridad de la web anterior.
+- Esta rama continúa llamándose **JaviEats 3.0 — en desarrollo**; no se numeran cada una de las pruebas como 3.0.1, 3.0.2, etc.
+- Antes de publicar definitivamente: probar Javi, activar permisos definitivos de Laura, verificar PWA en iPhone/iPad, terminar Push y realizar regresión general de juegos/planes/recuerdos.
 
 ---
 
 # Historial de versiones
 
+## v3.0 — Rediseño mobile-first, Planes compartidos, Recuerdos compartidos y PWA
+
+- Rediseño visual completo con prioridad a móvil y aspecto de aplicación.
+- Nueva navegación inferior: `Inicio · Planes · Juegos · Recuerdos · Nosotros`.
+- Juegos permanece como botón central sin sobredimensionarse.
+- Inicio se simplifica para priorizar actividad real, próximo plan, juegos y último recuerdo.
+- Planes recupera protagonismo con pendientes, próximo plan, catálogo y calendario.
+- Ambos perfiles quedan preparados para proponer, aceptar/rechazar, editar y borrar planes.
+- Recuerdos queda preparado para creación, edición y borrado por Javi y Laura.
+- `Mensaje del día` y el antiguo apartado de mensajes/cartas dejan de formar parte de la experiencia visible.
+- `Nuestra Vida` se mantiene completamente fuera de la interfaz pública.
+- `Nosotros` reúne compatibilidad, puzle, recuerdos y vales con una presentación más visual.
+- Centro de Actividad renovado y conectado a `public.notificaciones`.
+- PWA preparada para instalación desde Safari en iPhone/iPad.
+- Nuevo `manifest.webmanifest`, iconos específicos y `service-worker.js`.
+- Nueva tabla `push_subscriptions` para Web Push.
+- Frontend preparado para activar/desactivar Push y registrar el dispositivo automáticamente.
+- VAPID configurado: pública en frontend; privada únicamente en Supabase Secrets.
+- Push real todavía en integración: queda pendiente Edge Function de envío y conexión de eventos.
+- Push previstos únicamente para Planes importantes, turnos de `¿Y si…?` y resumen final del día de `¿Y si…?`.
+- Correo de turno de `¿Y si…?` se conservará como fallback cuando el destinatario no disponga de Push.
+- El paquete 3.0 se limpia de documentación y SQL duplicados de v2.9; el histórico permanece en este README.
+
+---
 ## v2.9 — Mensaje del día y notificaciones
 
 - Nuevo `Mensaje del día` escrito por Javi desde Inicio.
