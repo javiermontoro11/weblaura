@@ -1,143 +1,367 @@
 # JaviEats 💌
 
-**Versión actual: 3.0 — EN DESARROLLO**
+**Versión actual: 3.1 — EN DESARROLLO**
 
-JaviEats es una aplicación web privada creada para Laura y Javi. La versión 3.0 mantiene la base funcional que ya estaba probada —Supabase, autenticación, planes, calendario, recuerdos, juegos, puzle y vales— pero rehace la experiencia visual con prioridad absoluta al móvil y a que se comporte como una aplicación.
+JaviEats es una aplicación web privada creada para Laura y Javi. La versión 3.1 parte de la base visual y funcional de 3.0 y se centra en pulir la experiencia real de uso: navegación más clara, mejor sincronización, notificaciones Push más útiles, catálogo de planes ampliado, integración con el calendario del iPhone y preparación del acceso al futuro juego principal de JaviEats.
 
-> **Estado de esta rama:** todavía no sustituye a la web pública. La página pública puede continuar en mantenimiento hasta terminar pruebas de Javi, activar los permisos definitivos de Laura y verificar las notificaciones Push.
+> **Estado actual:** JaviEats 3.0 ya está desplegado y funcionando como aplicación web/PWA. La 3.1 tiene el alcance funcional cerrado y se está implementando sobre esa base sin rehacer lo que ya funciona.
 
 ---
 
-## 🚀 Última versión — v3.0
+## 🚀 Última versión — v3.1
 
-### 🎨 Rediseño visual completo
+### 🎯 Objetivo de la versión
 
-La v3.0 no nace para añadir funciones por añadir. Su objetivo principal es que JaviEats deje de sentirse como una web formada por tarjetas y pase a sentirse como una aplicación privada, cuidada y coherente.
+La 3.1 no es otro rediseño completo. Su objetivo es convertir la base de 3.0 en una versión más sólida, cómoda y coherente en el uso diario, especialmente desde iPhone/iPad instalados como PWA.
 
-Cambios principales:
+Principios de esta versión:
 
-- Diseño **mobile-first**: el móvil es la referencia principal y escritorio adapta la misma experiencia.
-- Navegación inferior fija con cinco secciones: **Inicio · Planes · Juegos · Recuerdos · Nosotros**.
-- `Juegos` permanece en el centro de la barra, con el mismo peso visual que el resto de pestañas.
-- Se elimina `Perfil` como pestaña principal; las acciones de cuenta quedan asociadas a la cabecera/avatar.
-- Se retiran de la experiencia visible de 3.0 `Mensaje del día` y el antiguo apartado de mensajes/cartas de Laura.
-- Se conservan por ahora sus tablas y parte del código legacy para no realizar borrados de backend durante el rediseño.
-- Se elimina cualquier referencia visible a **Nuestra Vida**. El proyecto no aparece como juego, próximamente, secreto ni pista dentro de JaviEats.
-- Menos tarjetas idénticas, jerarquía visual más clara, bloques protagonistas, fotografías, iconografía coherente y microinteracciones suaves.
-- Paleta cálida y neutra con coral como acento, manteniendo un tono personal sin convertir JaviEats en una interfaz excesivamente romántica.
+- mantener el diseño **mobile-first**;
+- no romper los flujos ya probados;
+- priorizar fiabilidad y claridad frente a añadir funciones sin necesidad;
+- mejorar navegación, sincronización y notificaciones;
+- preparar el hueco del juego principal sin mezclarlo con los minijuegos;
+- conservar Supabase, autenticación, planes, recuerdos y juegos actuales como base estable.
 
-### 🏠 Inicio
+### 🧭 Nueva navegación principal
 
-Inicio deja de ser un resumen de todas las tablas y pasa a responder a una idea sencilla: **qué está pasando ahora mismo**.
+La estructura de navegación cambia para dar más aire a la barra inferior y separar claramente el futuro juego principal de los minijuegos.
 
-La pantalla prioriza:
-
-- acción pendiente importante, especialmente una propuesta de plan que requiera respuesta;
-- próximo plan confirmado;
-- acceso/progreso de `¿Y si…?` y puzle;
-- último recuerdo con peso visual y fotografía cuando exista;
-- ideas del catálogo para proponer un plan.
-
-No se utiliza una vista semanal `L M X J V S D`: JaviEats no presupone que haya planes todas las semanas y evita mostrar bloques vacíos que empobrezcan la pantalla.
-
-### 📅 Planes
-
-Planes vuelve a ser una de las funciones centrales de JaviEats.
-
-La pantalla se organiza por prioridad:
-
-1. **Planes pendientes de aceptar o rechazar**.
-2. **Próximo plan** confirmado/agendado.
-3. **Catálogo** de ideas y servicios.
-4. **Calendario mensual**, que continúa siendo la referencia para consultar fechas e historial.
-
-El catálogo mantiene el enfoque original de JaviEats —Mimos, Masaje, Sushi Date, Cine, Plan sorpresa, Paseo, etc.— pero deja de plantearse como un servicio exclusivo que Laura solicita a Javi. En 3.0 ambos pueden proponer planes al otro.
-
-Flujo previsto cuando se active la migración completa:
+La barra inferior pasa a tener cinco accesos:
 
 ```text
-Javi o Laura propone un plan
-↓
-Estado pendiente
-↓
-El otro recibe la propuesta
-↓
-Aceptar / Rechazar
-↓
-Si se acepta, pasa al calendario como plan confirmado
+Inicio
+Planes
+Acceso especial
+Minijuegos
+Recuerdos
 ```
 
-Ambos perfiles podrán crear, editar y borrar planes. También podrán gestionar el estado de las propuestas. Los cambios importantes de fecha/hora y las cancelaciones generan actividad para el otro usuario.
+Cambios importantes:
 
-### 🎮 Juegos
+- `Nosotros` deja de ocupar una pestaña inferior.
+- `Nosotros` pasa a abrirse desde un **icono de perfil en la cabecera**.
+- El espacio de Perfil/Nosotros conserva compatibilidad, puzle, recuerdos y vales.
+- Dentro del mismo espacio se integran también acciones de cuenta y dispositivo como:
+  - activar/desactivar notificaciones Push;
+  - cerrar sesión.
+- `Juegos` pasa a llamarse **Minijuegos** para diferenciarlo del juego principal.
+- Se reserva un acceso central especial en la barra inferior para el futuro juego principal.
 
-La pestaña Juegos reúne únicamente los juegos actualmente públicos de JaviEats:
+### ✨ Acceso especial y lanzamiento programado
+
+Antes del lanzamiento, el acceso central no muestra el nombre del juego.
+
+Hasta el **12/09/2026 a las 14:00 (Europe/Madrid)**:
+
+- se muestra como un botón especial con identidad propia;
+- aparece `12·09` como pista visual;
+- utiliza una animación/pulso suave para generar curiosidad;
+- al tocarlo abre una pantalla de misterio;
+- incluye una cuenta atrás real hasta el desbloqueo;
+- no enlaza todavía con una build del juego.
+
+Al llegar la fecha/hora programada, el propio frontend puede cambiar automáticamente el estado del botón y revelar el juego.
+
+La integración técnica definitiva del juego se hará **cuando exista una versión estable lista para entrar en JaviEats**. De momento no se crean tablas específicas de Supabase para ese juego, ya que la idea inicial es jugarlo cuando Javi y Laura estén juntos en el mismo dispositivo. Si más adelante se necesita persistencia entre dispositivos o partidas remotas, se reevaluará entonces.
+
+---
+
+## 🏠 Inicio
+
+La filosofía de Inicio introducida en 3.0 se mantiene: mostrar qué está pasando ahora mismo y evitar convertir la pantalla en un panel lleno de datos.
+
+Se conservan como elementos prioritarios:
+
+- acción pendiente importante;
+- próximo plan confirmado;
+- progreso de `¿Y si…?`;
+- progreso del puzle;
+- último recuerdo;
+- ideas del catálogo.
+
+La posible integración visual del juego principal en Inicio se deja para cuando el juego esté realmente listo. No se añade todavía un bloque falso o una portada sin contenido funcional.
+
+---
+
+## 📅 Planes
+
+Planes sigue siendo una de las funciones principales de JaviEats.
+
+La pantalla mantiene este orden:
+
+1. planes pendientes de aceptar o rechazar;
+2. próximo plan confirmado;
+3. catálogo;
+4. calendario mensual.
+
+### Catálogo 3.1
+
+Se mantiene el catálogo actual y se amplía de 8 a 10 propuestas.
+
+Nuevos planes:
+
+- ☕ **Tomar algo** — café, merienda, refresco o tardeo.
+- 🍽️ **Ir a comer / cenar** — opción genérica para salir a comer fuera, independiente de Sushi Date.
+
+El catálogo seguirá siendo un **carrusel horizontal de tarjetas**.
+
+Mejoras previstas:
+
+- swipe natural en móvil;
+- arrastre horizontal con ratón en ordenador;
+- feedback visual al arrastrar;
+- pista visual para que quede claro que existen más tarjetas fuera de la pantalla;
+- mantener el diseño de tarjetas en lugar de cambiar a una rejilla de dos columnas.
+
+---
+
+## 📆 Añadir un plan al calendario del iPhone
+
+Los planes confirmados incorporarán una acción:
+
+**Añadir al calendario 📅**
+
+El flujo generará un archivo `.ics` compatible con el calendario del dispositivo.
+
+El evento incluirá cuando exista:
+
+- nombre del plan;
+- fecha;
+- hora;
+- duración;
+- modalidad `Todo el día`;
+- nota/comentario;
+- referencia a JaviEats.
+
+La primera implementación será una exportación puntual. Si el plan se modifica después dentro de JaviEats, el evento ya importado en Calendar no se actualizará automáticamente.
+
+---
+
+## 🔔 Centro de Actividad y Push
+
+La infraestructura de Web Push introducida en 3.0 ya ha sido probada con éxito en iPhone, incluyendo una notificación de prueba y una notificación real de Planes.
+
+La 3.1 no reconstruye esa infraestructura; mejora su contenido y navegación.
+
+### Planes
+
+Las notificaciones Push deben incluir información útil, no solo el nombre del plan.
+
+Ejemplo de nueva propuesta:
+
+```text
+Laura te propone un plan 📅
+🍣 Sushi Date · sábado 12 · 21:30
+“Me apetece ir al buffet…”
+```
+
+Se personalizarán también:
+
+- aceptación;
+- rechazo;
+- cancelación;
+- cambio importante de fecha/hora.
+
+Reglas:
+
+- incluir nombre del actor (`Javi` / `Laura`);
+- incluir icono y nombre del plan;
+- incluir fecha;
+- incluir hora si existe;
+- indicar `Todo el día` cuando corresponda;
+- incluir nota cuando exista, truncada si es necesario;
+- no enviar Push por cambios menores o administrativos.
+
+### ¿Y si…?
+
+Push se utilizará para:
+
+- avisar cuando el otro ya ha respondido y ahora te toca;
+- enviar el resumen al terminar la quinta pregunta del día únicamente a la persona que no acaba de enviar la quinta respuesta.
+
+No se enviará Push por cada pregunta/respuesta intermedia.
+
+Ejemplos:
+
+```text
+💭 Laura ya ha respondido
+Te toca en ¿Y si…? 👀
+```
+
+```text
+❤️ ¿Y si…? completado
+Hoy habéis coincidido 4 de 5
+```
+
+### Destinos de las notificaciones
+
+Las notificaciones deben abrir directamente la zona útil:
+
+- Push de Planes → **Planes**;
+- Push de `¿Y si…?` → **¿Y si…?**.
+
+El `service-worker.js` ya admite URLs de destino. La 3.1 debe aprovechar esa capacidad desde el emisor Push.
+
+### Email de ¿Y si…?
+
+El aviso de turno por correo se mantiene únicamente como fallback:
+
+```text
+¿El destinatario tiene Push activo?
+├─ Sí  → Push de turno; no enviar email duplicado.
+└─ No  → mantener el email de turno existente.
+```
+
+El resumen final diario no necesita fallback por email.
+
+---
+
+## 🔄 Sincronización robusta
+
+La sincronización es una prioridad alta de 3.1.
+
+Problema detectado en 3.0: una petición secundaria puede fallar de forma transitoria y hacer que una carga completa termine como error, dejando datos antiguos visibles hasta la siguiente sincronización.
+
+La 3.1 debe mejorar este comportamiento con:
+
+- reintento automático después de un fallo inicial;
+- backoff progresivo y limitado;
+- sincronización inmediata al recuperar conexión (`online`);
+- sincronización al volver a primer plano;
+- recuperación tras despertar la PWA en iPhone/iPad;
+- evitar que el fallo de una sección secundaria invalide todos los datos;
+- conservar el último estado válido mientras se reintenta;
+- impedir cargas simultáneas que puedan pisarse entre sí;
+- estado de sincronización más claro;
+- posibilidad de refresco manual desde el estado de sincronización.
+
+Estados previstos:
+
+```text
+Sincronizando…
+Sin conexión · reintentando…
+Sincronizado · HH:MM
+```
+
+Pruebas específicas:
+
+- apertura en frío de la PWA;
+- vuelta desde segundo plano;
+- modo avión → conexión recuperada;
+- red lenta/inestable;
+- reintentos sin vaciar datos válidos.
+
+---
+
+## 🎮 Minijuegos
+
+La sección pasa a llamarse **Minijuegos**.
+
+Mantiene los cuatro juegos actuales:
 
 - `¿Y si…?`
 - `Piedra, papel o tijera`
 - `Dibuja`
 - `No lo digas`
 
-`Nuestra Vida` **no forma parte del frontend público de esta versión** y no existe ninguna referencia visible para Laura.
-
-Los juegos mantienen su backend y reglas ya probadas. El rediseño modifica principalmente presentación, navegación y coherencia visual.
-
-### 📸 Recuerdos compartidos
-
-Recuerdos pasa a tener un papel mucho más importante y visual.
-
-La intención definitiva de 3.0 es que **Javi y Laura puedan crear, editar y borrar recuerdos**, incluyendo sus fotografías. El bucket `recuerdos` sigue siendo privado y las imágenes se siguen sirviendo mediante URLs firmadas temporales.
-
-La sección prioriza la fotografía y la sensación de galería/archivo compartido frente a una lista administrativa.
-
-La migración `supabase-v3.0.sql` contiene las políticas necesarias para dar a ambos perfiles permisos equivalentes sobre `recuerdos_app` y sus archivos de Storage.
-
-### ❤️ Nosotros
-
-`Nosotros` sustituye a la idea de utilizar una pestaña de Perfil que aportaba poco a la experiencia compartida.
-
-Agrupa información que sí tiene sentido consultar como espacio conjunto:
-
-- Compatibilidad acumulada de `¿Y si…?`.
-- Coincidencias y respuestas compartidas.
-- Progreso visual del puzle.
-- Recuerdos recientes.
-- Vales/premios desbloqueados.
-
-La sección no pretende convertirse en un panel de estadísticas. Se priorizan progreso, recuerdos y elementos visuales que tengan valor aunque JaviEats no se abra todos los días.
+No se mezclará el juego principal dentro de esta sección. La separación de navegación es intencionada: los minijuegos son partidas cortas y el futuro juego principal tiene entidad propia dentro de JaviEats.
 
 ---
 
-## 🔔 Centro de Actividad
+## 📸 Recuerdos
 
-La campana deja de ser un elemento decorativo y pasa a utilizar la tabla real `public.notificaciones`.
+La estructura visual de Recuerdos se mantiene.
 
-El centro de Actividad:
+Javi y Laura pueden seguir:
 
-- muestra el número de avisos no leídos;
-- se presenta como una hoja inferior en móvil;
-- permite abrir el destino correspondiente;
-- permite marcar un aviso o todos como leídos;
-- utiliza los eventos ya generados por Supabase en lugar de crear un segundo historial paralelo.
+- creando recuerdos;
+- editándolos;
+- eliminándolos;
+- añadiendo varias fotografías;
+- utilizando el bucket privado `recuerdos` con URLs firmadas temporales.
 
-Actividad interna puede incluir más información que Push. Por ejemplo, recuerdos nuevos o progreso del puzle pueden aparecer dentro de JaviEats aunque no hagan vibrar el móvil.
+La 3.1 no plantea reconstruir esta parte salvo correcciones encontradas durante QA.
 
-### Eventos de Planes preparados en 3.0
+---
 
-- Nueva propuesta para el otro usuario.
-- Aceptación/rechazo o cambio de estado.
-- Cambio de fecha, hora o condición de día completo.
-- Cancelación.
+## 👤 Perfil / Nosotros
 
-### Recuerdos
+`Nosotros` deja de ser un destino de la barra inferior y pasa a estar accesible desde el icono de perfil de la cabecera.
 
-Al crear un recuerdo, la base de datos puede generar una notificación interna para el otro usuario. Esto **no implica que se envíe Push**.
+El contenido compartido se mantiene:
+
+- compatibilidad acumulada de `¿Y si…?`;
+- coincidencias;
+- progreso del puzle;
+- recuerdos recientes;
+- vales/premios desbloqueados.
+
+Además, el espacio incorpora acciones de aplicación que antes estaban dispersas:
+
+- configuración de notificaciones del dispositivo;
+- cierre de sesión.
+
+La campana de Actividad continúa en la cabecera y no se sustituye por el icono de perfil.
+
+---
+
+## 🧹 Limpieza de código 3.1
+
+### Formspree
+
+Formspree deja de ser necesario para las propuestas de Planes porque JaviEats ya dispone de notificaciones internas y Web Push.
+
+La limpieza de 3.1 debe eliminar:
+
+- `formspreeEndpoint`;
+- `emailDestino` si no tiene otro uso;
+- `sendProposalByEmail()`;
+- la llamada a Formspree tras guardar una propuesta;
+- documentación legacy asociada al envío de propuestas por Formspree.
+
+Esto **no afecta** al sistema de correo de `¿Y si…?`, que sigue siendo un fallback independiente cuando el destinatario no tenga Push.
+
+### Mensaje del día legacy
+
+`Mensaje del día` ya está retirado de la interfaz visible de 3.0.
+
+En 3.1 se puede eliminar de forma cuidadosa código frontend muerto y peticiones innecesarias, sin borrar tablas del backend por el simple hecho de limpiar la interfaz.
+
+### Notificaciones
+
+El frontend ya permite:
+
+- eliminar una notificación individual;
+- marcar todas como leídas;
+- borrar toda la actividad cuando ya no quedan no leídas.
+
+En 3.1 se debe verificar el comportamiento real contra Supabase durante QA, no reimplementar algo que ya existe si funciona correctamente.
+
+---
+
+## 🎨 Identidad visual 3.1
+
+La 3.1 incorpora el nuevo logo elegido para JaviEats.
+
+Assets previstos:
+
+- icono maestro;
+- `icon-512.png`;
+- `icon-192.png`;
+- `apple-touch-icon.png`;
+- favicon;
+- variantes maskable para PWA.
+
+El `manifest.webmanifest` debe separar correctamente iconos `any` y `maskable`.
+
+Al cambiar el icono de la PWA, iPhone/iPad pueden mantener el anterior en caché. Puede ser necesario eliminar y volver a añadir JaviEats a la pantalla de inicio para ver el nuevo icono.
 
 ---
 
 ## 📱 PWA · iPhone / iPad
 
-La v3.0 queda preparada para instalarse desde Safari como una web app independiente.
+JaviEats continúa funcionando como PWA instalable desde Safari.
 
 Incluye:
 
@@ -148,81 +372,17 @@ Incluye:
 - `apple-touch-icon`;
 - iconos de 192 px y 512 px;
 - `viewport-fit=cover`;
-- tratamiento de zonas seguras del iPhone/iPad;
-- `service-worker.js`.
+- soporte de safe areas;
+- `service-worker.js`;
+- Web Push en instalaciones compatibles.
 
-### Instalación en iPhone/iPad
+El formato app debe seguir funcionando correctamente en:
 
-Con JaviEats desplegado por HTTPS:
+- iPhone;
+- iPad;
+- ordenador.
 
-1. Abrir JaviEats en **Safari**.
-2. Pulsar **Compartir**.
-3. Seleccionar **Añadir a pantalla de inicio**.
-4. Abrir JaviEats desde el nuevo icono.
-
-La aplicación se abre en modo independiente, sin la interfaz normal de una pestaña de Safari.
-
----
-
-## 📲 Web Push — estado actual
-
-La infraestructura Push se está incorporando durante el desarrollo de 3.0.
-
-### Ya preparado
-
-- Tabla `public.push_subscriptions` para registrar una suscripción por instalación/dispositivo.
-- RLS: cada usuario autenticado solo puede gestionar sus propias suscripciones.
-- Registro de `service-worker.js`.
-- Detección de compatibilidad con Web Push.
-- En iPhone/iPad se exige abrir JaviEats desde el icono instalado antes de ofrecer la activación.
-- Botón `Activar notificaciones` / `Desactivar` dentro de Actividad.
-- Solicitud de permiso únicamente a partir de una acción del usuario.
-- Alta automática en `push_subscriptions` con `endpoint`, `p256dh` y `auth`.
-- Baja de la suscripción al desactivar notificaciones.
-- Apertura de JaviEats al tocar una futura notificación.
-- Clave **VAPID pública** integrada en el frontend.
-- `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY` y `VAPID_SUBJECT` guardados externamente como **Supabase Edge Function Secrets**. La clave privada no forma parte del repositorio ni del ZIP.
-
-### Pendiente antes de activar Push real
-
-- Crear/desplegar la Edge Function de envío (`send-push` o equivalente).
-- Hacer una prueba manual con JaviEats cerrado en un iPhone.
-- Conectar los eventos seleccionados al emisor Push.
-- Implementar la sustitución del email de turno de `¿Y si…?` por Push cuando el destinatario tenga una suscripción activa.
-- Verificar comportamiento y limpieza de suscripciones caducadas.
-- Valorar badge del icono una vez el flujo básico esté estable.
-
-### Push que se ha decidido enviar
-
-La regla de diseño es evitar convertir JaviEats en una app pesada. Push se reserva para eventos que requieren acción o son especialmente relevantes.
-
-#### Planes
-
-- Te han propuesto un plan.
-- Han aceptado o rechazado un plan que propusiste.
-- Cambio importante de fecha/hora de un plan confirmado.
-- Cancelación de un plan confirmado.
-
-#### ¿Y si…?
-
-- **Tu turno:** el otro ya ha respondido y ahora te toca contestar.
-- **Fin del día:** al completar la quinta pregunta, se envía al usuario que no acaba de realizar la última respuesta un resumen con el resultado del día, por ejemplo `4/5 coincidencias`.
-
-No se enviará Push por cada coincidencia, cada resultado individual, un nuevo recuerdo, una pieza del puzle, una edición de texto ni acciones administrativas.
-
-### Email de ¿Y si…?
-
-El correo actual se conserva durante la transición.
-
-Objetivo final:
-
-```text
-¿El destinatario tiene Push activo?
-├─ Sí  → Push de turno; no duplicar por email.
-└─ No  → mantener el email de turno actual.
-```
-
-El resumen final diario de `¿Y si…?` no necesita fallback por correo; si no existe Push, puede consultarse dentro de JaviEats.
+La referencia de diseño continúa siendo el móvil; iPad y escritorio adaptan la misma arquitectura sin crear una interfaz completamente distinta.
 
 ---
 
@@ -237,7 +397,7 @@ Supabase recupera la sesión
 ↓
 Sincronización de datos
 ↓
-JaviEats 3.0
+JaviEats 3.1
 ```
 
 No es necesario volver a introducir credenciales mientras la sesión siga siendo válida.
@@ -253,38 +413,43 @@ Contraseña
 ↓
 Sincronización
 ↓
-JaviEats 3.0
+JaviEats 3.1
 ```
 
-El correo continúa asociado internamente al perfil seleccionado y solo se admiten los UUID autorizados de Javi y Laura.
+El correo continúa asociado internamente al perfil seleccionado y solo se admiten las cuentas autorizadas de Javi y Laura.
 
 ---
 
-# Apartados de JaviEats 3.0
+# Apartados de JaviEats 3.1
 
-El menú principal es:
+La arquitectura principal queda preparada así:
 
 ```text
-Inicio
-Planes
-Juegos
-Recuerdos
-Nosotros
+CABECERA
+├─ Actividad / notificaciones
+└─ Perfil / Nosotros
+
+BARRA INFERIOR
+├─ Inicio
+├─ Planes
+├─ Acceso especial / juego principal
+├─ Minijuegos
+└─ Recuerdos
 ```
 
-Los cinco botones se mantienen en la barra inferior también en resoluciones amplias para conservar la identidad de aplicación móvil.
+La barra inferior mantiene cinco botones también en resoluciones amplias para conservar una navegación coherente entre iPhone, iPad y ordenador.
 
 ---
 
 # Base de datos
 
-JaviEats 3.0 **no reconstruye la base de datos**. Parte del backend funcional existente y añade únicamente los cambios que necesita la nueva experiencia.
+JaviEats 3.1 **no reconstruye la base de datos**.
 
 Tablas principales existentes:
 
 - `marcas_mensajes_javi`
-- `mensajes_dia` *(legacy, no visible en 3.0)*
-- `mensajes_laura` *(legacy, no visible en 3.0)*
+- `mensajes_dia` *(legacy, no visible)*
+- `mensajes_laura` *(legacy, no visible)*
 - `notificaciones`
 - `piezas_puzzle`
 - `preguntas_diarias` *(legacy)*
@@ -300,29 +465,11 @@ Tablas principales existentes:
 - `y_si_notificaciones`
 - `y_si_preguntas`
 - `y_si_respuestas`
-
-Nueva tabla de 3.0 Push:
-
 - `push_subscriptions`
 
-`notificaciones` continúa siendo la fuente interna de actividad. No se crea una segunda tabla de historial para Push.
+`notificaciones` continúa siendo la fuente interna de Actividad y `push_subscriptions` almacena las instalaciones/dispositivos que han activado Push.
 
----
-
-# Migración `supabase-v3.0.sql`
-
-El archivo se ha preparado como migración incremental sobre el backend existente. No sustituye a la base de datos completa y no borra datos.
-
-Incluye:
-
-1. políticas compartidas de `propuestas`;
-2. permisos compartidos de `recuerdos_app`;
-3. permisos equivalentes del bucket privado `recuerdos`;
-4. notificaciones más útiles de planes;
-5. notificación interna al otro usuario cuando se crea un recuerdo;
-6. creación/configuración idempotente de `push_subscriptions`.
-
-Durante las pruebas puede ejecutarse de forma progresiva. La tabla `push_subscriptions` ya puede existir antes de ejecutar el resto del SQL; el bloque utiliza `IF NOT EXISTS` y policies recreables.
+No se crean por ahora tablas específicas para el futuro juego principal. Su integración de datos se decidirá cuando exista una versión final suficientemente estable y únicamente si la forma real de jugar lo necesita.
 
 ---
 
@@ -330,17 +477,15 @@ Durante las pruebas puede ejecutarse de forma progresiva. La tabla `push_subscri
 
 JaviEats continúa utilizando Supabase Auth y Row Level Security.
 
-Principios relevantes en 3.0:
+Principios relevantes:
 
-- Solo las dos cuentas autorizadas deben utilizar la aplicación.
-- Cada suscripción Push queda asociada a `auth.uid()`.
-- Un usuario autenticado solo puede consultar/modificar sus propias filas de `push_subscriptions`.
-- La futura Edge Function de envío podrá consultar las suscripciones del destinatario desde backend con permisos de servicio.
-- La clave VAPID pública puede aparecer en frontend.
-- La **clave VAPID privada nunca debe aparecer en HTML, JS, GitHub ni en un ZIP desplegable**.
-- El bucket `recuerdos` continúa privado.
-- Las respuestas de `¿Y si…?` siguen protegidas por las RPC existentes y no se exponen antes de que ambos hayan respondido.
-- No se deben publicar claves `service_role`, contraseñas de base de datos ni cadenas de conexión privadas.
+- solo las dos cuentas autorizadas deben utilizar la aplicación;
+- cada suscripción Push queda asociada a `auth.uid()`;
+- un usuario autenticado solo puede gestionar sus propias suscripciones Push;
+- la clave VAPID privada nunca debe aparecer en HTML, JS, GitHub ni archivos entregables;
+- el bucket `recuerdos` continúa privado;
+- las respuestas de `¿Y si…?` siguen protegidas mediante RPC;
+- no se publican claves `service_role`, contraseñas de base de datos ni cadenas de conexión privadas.
 
 ---
 
@@ -358,52 +503,133 @@ Principios relevantes en 3.0:
 - Row Level Security
 - Web App Manifest
 - Service Worker
-- Web Push / VAPID *(en integración)*
-- Brevo *(correo transaccional existente)*
-- Formspree *(legacy de propuestas antiguas; revisar antes de limpieza definitiva)*
+- Web Push / VAPID
+- Brevo *(correo transaccional de fallback para ¿Y si…?)*
 - GitHub
 - Vercel
 
+Formspree queda marcado para retirada definitiva en 3.1.
+
 ---
 
-# Estructura del proyecto 3.0
+# Estructura del proyecto 3.1
 
 ```text
-JaviEats-3.0/
+JaviEats/
 ├── index.html
 ├── style.css
 ├── script.js
+├── app-navigation.js
 ├── minigames-data.js
 ├── minigames.js
 ├── manifest.webmanifest
 ├── service-worker.js
 ├── favicon.ico
 ├── README.md
-├── supabase-v3.0.sql
 ├── assets/
-│   ├── favicon.svg
 │   ├── apple-touch-icon.png
 │   ├── icon-192.png
 │   ├── icon-512.png
 │   └── puzzle-masaje.svg
 └── recuerdos/
-    └── README.md
 ```
 
-No se incluyen dentro del paquete limpio los antiguos `README-v2.9.md`, `INSTALACION-v2.9.md`, `COMPROBACION-v2.9.sql`, `supabase-v2.9.sql` ni copias de rollback. El historial se conserva aquí, dentro del README principal.
+`app-navigation.js` concentra la reorganización de navegación y el acceso especial programado sin mezclar esa lógica con el núcleo histórico de `script.js`.
+
+---
+
+# QA previsto antes de cerrar 3.1
+
+La versión debe probar al menos:
+
+- propuesta Javi → Laura;
+- propuesta Laura → Javi;
+- aceptar;
+- rechazar;
+- cancelar;
+- cambio de fecha/hora;
+- contenido completo de Push;
+- destino correcto de Push de Planes;
+- turno de `¿Y si…?`;
+- resultado final 5/5 de `¿Y si…?`;
+- destino correcto de Push de `¿Y si…?`;
+- activación/desactivación Push desde Perfil;
+- eliminación de notificaciones;
+- catálogo horizontal móvil/escritorio;
+- exportación `.ics` desde iPhone;
+- nueva identidad PWA;
+- arranque en frío;
+- reanudación desde segundo plano;
+- pérdida y recuperación de conexión;
+- ausencia de regresiones en Minijuegos y Recuerdos.
+
+---
+
+# Convención de commits
+
+A partir de 3.1, los commits del proyecto deben utilizar una nomenclatura simple y consistente.
+
+Para modificar un archivo existente:
+
+```text
+ACTUALIZACION <archivo> VERSION <versión>
+```
+
+Ejemplo:
+
+```text
+ACTUALIZACION index.html VERSION 3.1
+```
+
+Para crear un archivo nuevo:
+
+```text
+CREACIÓN <archivo> VERSION <versión>
+```
+
+Ejemplo:
+
+```text
+CREACIÓN app-navigation.js VERSION 3.1
+```
+
+No se utilizarán mensajes genéricos de commit para los cambios normales de versión salvo que exista una razón concreta.
 
 ---
 
 # Estado de despliegue
 
-- La web pública puede continuar mostrando la página simple de mantenimiento.
-- `index_backup` permanece como copia de seguridad de la web anterior.
-- Esta rama continúa llamándose **JaviEats 3.0 — en desarrollo**; no se numeran cada una de las pruebas como 3.0.1, 3.0.2, etc.
-- Antes de publicar definitivamente: probar Javi, activar permisos definitivos de Laura, verificar PWA en iPhone/iPad, terminar Push y realizar regresión general de juegos/planes/recuerdos.
+- JaviEats 3.0 está desplegado y usable.
+- La 3.1 se desarrolla directamente sobre la base actual.
+- El alcance funcional de 3.1 está **cerrado**: cualquier idea nueva pasa a 3.2 salvo decisión explícita de reabrir la versión.
+- El acceso especial de navegación ya está preparado para generar hype antes del lanzamiento.
+- La conexión definitiva del futuro juego principal se realizará únicamente cuando la build esté lista.
+- No se realizan cambios adicionales en ese juego desde este frente hasta que Javi indique lo contrario.
 
 ---
 
 # Historial de versiones
+
+## v3.1 — Pulido de la PWA, navegación, Push, sincronización y preparación del juego principal
+
+- Nueva arquitectura de navegación con Perfil/Nosotros en la cabecera.
+- Barra inferior preparada como `Inicio · Planes · acceso especial · Minijuegos · Recuerdos`.
+- `Juegos` pasa a llamarse `Minijuegos`.
+- Nuevo acceso central especial con cuenta atrás y revelación programada para el 12/09/2026 a las 14:00.
+- Preparación del hueco del futuro juego principal sin integrarlo todavía ni crear backend específico.
+- Catálogo de Planes ampliado de 8 a 10 opciones con `Tomar algo` e `Ir a comer / cenar`.
+- Carrusel de catálogo preparado para swipe móvil y arrastre con ratón en escritorio.
+- Push de Planes previsto con actor, plan, fecha/hora y nota.
+- Push de `¿Y si…?` personalizado para turno y resultado final 5/5.
+- Destinos de Push preparados para abrir directamente Planes o `¿Y si…?`.
+- Email de turno de `¿Y si…?` conservado únicamente como fallback si el destinatario no tiene Push.
+- Formspree marcado para retirada definitiva de las propuestas de Planes.
+- Limpieza prevista del código frontend muerto de `Mensaje del día`.
+- Sincronización robusta como prioridad alta: reintentos, recuperación `online`, preservación de datos y control de concurrencia.
+- Exportación `.ics` para añadir planes confirmados al calendario del iPhone/iPad.
+- Integración del nuevo logo elegido en iconos PWA, Apple Touch Icon, favicon y variantes maskable.
+- Verificación del centro de Actividad y eliminación de notificaciones sin duplicar lógica existente.
+- Alcance de 3.1 cerrado; nuevas funciones posteriores pasan a 3.2.
 
 ## v3.0 — Rediseño mobile-first, Planes compartidos, Recuerdos compartidos y PWA
 
@@ -415,7 +641,7 @@ No se incluyen dentro del paquete limpio los antiguos `README-v2.9.md`, `INSTALA
 - Ambos perfiles quedan preparados para proponer, aceptar/rechazar, editar y borrar planes.
 - Recuerdos queda preparado para creación, edición y borrado por Javi y Laura.
 - `Mensaje del día` y el antiguo apartado de mensajes/cartas dejan de formar parte de la experiencia visible.
-- `Nuestra Vida` se mantiene completamente fuera de la interfaz pública.
+- El futuro juego principal se mantiene fuera de la interfaz pública de 3.0.
 - `Nosotros` reúne compatibilidad, puzle, recuerdos y vales con una presentación más visual.
 - Centro de Actividad renovado y conectado a `public.notificaciones`.
 - PWA preparada para instalación desde Safari en iPhone/iPad.
@@ -423,12 +649,12 @@ No se incluyen dentro del paquete limpio los antiguos `README-v2.9.md`, `INSTALA
 - Nueva tabla `push_subscriptions` para Web Push.
 - Frontend preparado para activar/desactivar Push y registrar el dispositivo automáticamente.
 - VAPID configurado: pública en frontend; privada únicamente en Supabase Secrets.
-- Push real todavía en integración: queda pendiente Edge Function de envío y conexión de eventos.
-- Push previstos únicamente para Planes importantes, turnos de `¿Y si…?` y resumen final del día de `¿Y si…?`.
-- Correo de turno de `¿Y si…?` se conservará como fallback cuando el destinatario no disponga de Push.
-- El paquete 3.0 se limpia de documentación y SQL duplicados de v2.9; el histórico permanece en este README.
+- Infraestructura Push posteriormente validada con notificaciones reales en iPhone.
+- Push reservado para Planes importantes, turnos de `¿Y si…?` y resumen final del día de `¿Y si…?`.
+- Correo de turno de `¿Y si…?` conservado como fallback cuando el destinatario no disponga de Push.
 
 ---
+
 ## v2.9 — Mensaje del día y notificaciones
 
 - Nuevo `Mensaje del día` escrito por Javi desde Inicio.
