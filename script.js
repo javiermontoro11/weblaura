@@ -430,21 +430,6 @@ const notificationsReadAll = $("notifications-read-all");
 const sessionUserName = $("session-user-name");
 const syncStatus = $("sync-status");
 const homeGreeting = $("home-greeting");
-const dailyMessageCard = $("daily-message-card");
-const dailyMessageComposeModal = $("daily-message-compose-modal");
-const dailyMessageForm = $("daily-message-form");
-const dailyMessageComposeTitle = $("daily-message-compose-title");
-const dailyMessageInput = $("daily-message-input");
-const dailyMessageCharCount = $("daily-message-char-count");
-const dailyMessageFormNote = $("daily-message-form-note");
-const dailyMessageStatus = $("daily-message-status");
-const dailyMessageSaveBtn = $("daily-message-save-btn");
-const dailyMessageRevealModal = $("daily-message-reveal-modal");
-const dailyMessageSealed = $("daily-message-sealed");
-const dailyMessageOpened = $("daily-message-opened");
-const dailyMessageRevealBtn = $("daily-message-reveal-btn");
-const dailyMessageOpenedDate = $("daily-message-opened-date");
-const dailyMessageOpenedText = $("daily-message-opened-text");
 const featuredServices = $("featured-services");
 const allServices = $("all-services");
 const totalProposals = $("total-proposals");
@@ -532,14 +517,6 @@ const customPlanDescription = $("custom-plan-description");
 const customPlanSubmit = $("custom-plan-submit");
 const customPlanStatus = $("custom-plan-status");
 
-const lauraComposeCard = $("laura-compose-card");
-const lauraMessageForm = $("laura-message-form");
-const lauraMessageType = $("laura-message-type");
-const lauraMessageTitle = $("laura-message-title");
-const lauraMessageContent = $("laura-message-content");
-const saveLauraMessage = $("save-laura-message");
-const lauraMessageStatus = $("laura-message-status");
-
 const ySiStatusBadge = $("y-si-status-badge");
 const ySiCompatibility = $("y-si-compatibility");
 const ySiCompatibilityTitle = $("y-si-compatibility-title");
@@ -572,8 +549,6 @@ const ySiHistoryModal = $("y-si-history-modal");
 const ySiHistorySummary = $("y-si-history-summary");
 const ySiHistoryList = $("y-si-history-list");
 
-const lauraMessagesList = $("laura-messages-list");
-
 const memoriesList = $("memories-list");
 const voucherList = $("voucher-list");
 const letterEyebrow = $("letter-eyebrow");
@@ -605,13 +580,6 @@ const memoryUploadStatus = $("memory-upload-status");
 const memorySaveBtn = $("memory-save-btn");
 const memoryDeleteBtn = $("memory-delete-btn");
 
-const lauraMessageModal = $("laura-message-modal");
-const lauraMessageModalIcon = $("laura-message-modal-icon");
-const lauraMessageModalType = $("laura-message-modal-type");
-const lauraMessageModalTitle = $("laura-message-modal-title");
-const lauraMessageModalDate = $("laura-message-modal-date");
-const lauraMessageModalContent = $("laura-message-modal-content");
-const lauraMessageModalActions = $("laura-message-modal-actions");
 const toast = $("toast");
 
 let supabaseClient = null;
@@ -627,8 +595,6 @@ let memoryEditorBusy = false;
 let memoryEditorState = createEmptyMemoryEditorState();
 const memorySignedUrlCache = new Map();
 let loadedLetterFile = "";
-let editingMessageId = null;
-let openedLauraMessageId = null;
 let lastProposalTicket = null;
 let dailyGame = null;
 let dailyRounds = [];
@@ -640,8 +606,6 @@ let syncRetryIndex = 0;
 let clockTimer = null;
 let appReady = false;
 let puzzleWelcomeShown = false;
-let dailyMessageWelcomeShown = false;
-let activeDailyMessage = null;
 let recentPuzzlePieceNumber = null;
 let puzzlePieceAnimationTimer = null;
 let ySiSelectedOption = null;
@@ -652,8 +616,6 @@ let ySiRevealInProgress = false;
 
 const state = {
   proposals: [],
-  messages: [],
-  marks: [],
   vouchers: [],
   puzzle: null,
   puzzlePieces: [],
@@ -665,9 +627,7 @@ const state = {
   remoteMemories: [],
   memoryLoadError: false,
   notifications: [],
-  notificationLoadError: false,
-  dailyMessage: null,
-  dailyMessageLoadError: false
+  notificationLoadError: false
 };
 
 window.JaviEatsApp = {
@@ -692,7 +652,6 @@ window.JaviEatsApp = {
 init();
 
 async function init() {
-  ensureNotificationDeleteStyles();
   bindEvents();
   renderServices();
   renderMemories();
@@ -764,10 +723,6 @@ function bindEvents() {
   notificationsReadAll?.addEventListener("click", handleNotificationsBulkAction);
   document.getElementById("push-toggle")?.addEventListener("click", handlePushToggle);
   notificationsList?.addEventListener("click", handleNotificationClick);
-  dailyMessageCard?.addEventListener("click", handleDailyMessageCardClick);
-  dailyMessageForm?.addEventListener("submit", saveDailyMessage);
-  dailyMessageInput?.addEventListener("input", updateDailyMessageCharCount);
-  dailyMessageRevealBtn?.addEventListener("click", revealDailyMessage);
 
   document.querySelectorAll(".nav-btn").forEach(button => {
     button.addEventListener("click", () => showPage(button.dataset.page));
@@ -779,13 +734,10 @@ function bindEvents() {
   document.querySelectorAll("[data-game-close]").forEach(el => el.addEventListener("click", closeGameModal));
   document.querySelectorAll("[data-memory-close]").forEach(el => el.addEventListener("click", closeMemoryModal));
   document.querySelectorAll("[data-memory-editor-close]").forEach(el => el.addEventListener("click", closeMemoryEditor));
-  document.querySelectorAll("[data-laura-message-close]").forEach(el => el.addEventListener("click", closeLauraMessageModal));
   document.querySelectorAll("[data-custom-plan-close]").forEach(el => el.addEventListener("click", closeCustomPlanModal));
   document.querySelectorAll("[data-puzzle-close]").forEach(el => el.addEventListener("click", closePuzzleModal));
   document.querySelectorAll("[data-y-si-history-close]").forEach(el => el.addEventListener("click", closeYSiHistoryModal));
   document.querySelectorAll("[data-notifications-close]").forEach(el => el.addEventListener("click", closeNotificationsModal));
-  document.querySelectorAll("[data-daily-message-compose-close]").forEach(el => el.addEventListener("click", closeDailyMessageComposer));
-  document.querySelectorAll("[data-daily-message-reveal-close]").forEach(el => el.addEventListener("click", closeDailyMessageReveal));
 
   gameHomeButton.addEventListener("click", openGameModal);
   openPuzzleBtn.addEventListener("click", () => openPuzzleModal());
@@ -829,9 +781,6 @@ function bindEvents() {
   clearHistory.addEventListener("click", clearSharedCalendar);
   [bookingList, dayBookings].forEach(container => container.addEventListener("click", handleBookingAction));
 
-  lauraMessageForm.addEventListener("submit", handleLauraMessage);
-  lauraMessagesList.addEventListener("click", handleLauraMessageListClick);
-  lauraMessageModalActions.addEventListener("click", handleLauraMessageModalAction);
 
   addMemoryBtn?.addEventListener("click", () => openMemoryEditor());
   memoryPhotoPicker?.addEventListener("click", () => memoryPhotoInput?.click());
@@ -844,11 +793,9 @@ function bindEvents() {
     const staticButton = event.target.closest("[data-memory-id]");
     const remoteButton = event.target.closest("[data-remote-memory-id]");
     const editRemoteButton = event.target.closest("[data-edit-remote-memory]");
-    const lauraButton = event.target.closest("[data-laura-memory-id]");
     if (editRemoteButton) { openMemoryEditor(editRemoteButton.dataset.editRemoteMemory); return; }
     if (staticButton) openMemory(staticButton.dataset.memoryId);
     if (remoteButton) openRemoteMemory(remoteButton.dataset.remoteMemoryId);
-    if (lauraButton) openLauraMessageModal(lauraButton.dataset.lauraMemoryId);
   });
   voucherList.addEventListener("click", handleVoucherAction);
   galleryPrev.addEventListener("click", () => changeGalleryImage(-1));
@@ -1073,8 +1020,8 @@ async function showApp() {
   const params = new URLSearchParams(window.location.search);
   const requestedOpen = params.get("open");
   if (requestedOpen === "message") {
-    // Mensaje del día retirado de JaviEats 3.0: ignorar enlaces legacy sin mostrar el popup.
-    cleanDailyMessageUrl(params);
+    // Compatibilidad con enlaces antiguos ya retirados de la interfaz.
+    cleanLegacyMessageUrl(params);
     maybeShowPuzzleWelcome();
   } else if (requestedOpen === "ysi") {
     maybeFocusYSiFromUrl();
@@ -1123,9 +1070,7 @@ function updateWelcomeSummary() {
     ? (isLaura ? Boolean(current.javi_ha_respondido) : Boolean(current.laura_ha_respondido))
     : false;
 
-  if (isLaura && state.dailyMessage && !state.dailyMessage.leido_at) {
-    welcomeMessage.textContent = "Javi te ha dejado algo 💌";
-  } else if (current && !current.limite_alcanzado && !current.mi_respuesta && otherAnswered) {
+  if (current && !current.limite_alcanzado && !current.mi_respuesta && otherAnswered) {
     welcomeMessage.textContent = `${otherName} ya ha respondido. Ahora te toca a ti 👀`;
   } else if (current && !current.limite_alcanzado && current.mi_respuesta && !otherAnswered) {
     welcomeMessage.textContent = `Tu respuesta está guardada. Esperando a ${otherName}.`;
@@ -1139,9 +1084,7 @@ function updateWelcomeSummary() {
     ? `❤️ Compatibilidad ${stats.compatibility}%`
     : "❤️ Compatibilidad por descubrir";
 
-  if (isLaura && state.dailyMessage && !state.dailyMessage.leido_at) {
-    welcomeSummarySecondary.textContent = "💌 Mensaje pendiente";
-  } else if (isLaura) {
+  if (isLaura) {
     welcomeSummarySecondary.textContent = `🧩 Puzle ${getPuzzlePieceCount()}/${PUZZLE_TOTAL_PIECES}`;
   } else if (current && !current.limite_alcanzado) {
     const position = Number(current.posicion_dia) || Math.min(5, (Number(current.completadas_hoy) || 0) + 1);
@@ -1185,7 +1128,6 @@ function applyRoleUI() {
   const isLaura = currentRole === "laura";
   sessionUserName.textContent = isLaura ? "Laura" : "Javi";
   homeGreeting.textContent = isLaura ? "Hola Laura 👋" : "Hola Javi 👋";
-  lauraComposeCard.classList.toggle("hidden", !isLaura);
   clearHistory.classList.toggle("hidden", currentRole !== "javi");
   renderServices();
   renderYSi();
@@ -1210,8 +1152,6 @@ function resetAppSession() {
   dailyRounds = [];
   appReady = false;
   state.proposals = [];
-  state.messages = [];
-  state.marks = [];
   state.vouchers = [];
   state.puzzle = null;
   state.puzzlePieces = [];
@@ -1224,8 +1164,6 @@ function resetAppSession() {
   state.memoryLoadError = false;
   state.notifications = [];
   state.notificationLoadError = false;
-  state.dailyMessage = null;
-  state.dailyMessageLoadError = false;
   memorySignedUrlCache.clear();
   resetMemoryEditorState();
   ySiSelectedOption = null;
@@ -1235,8 +1173,6 @@ function resetAppSession() {
   if (ySiRevealTimer) clearTimeout(ySiRevealTimer);
   ySiRevealTimer = null;
   puzzleWelcomeShown = false;
-  dailyMessageWelcomeShown = false;
-  activeDailyMessage = null;
   recentPuzzlePieceNumber = null;
   if (puzzlePieceAnimationTimer) clearTimeout(puzzlePieceAnimationTimer);
   puzzlePieceAnimationTimer = null;
@@ -1255,9 +1191,6 @@ function showPage(page) {
   if (page === "calendar") {
     renderCalendar();
     renderBookings();
-  }
-  if (page === "laura") {
-    renderLauraMessages();
   }
   if (page === "memories") {
     renderMemories();
@@ -1401,11 +1334,6 @@ async function loadAllData({ silent = false, reason = "normal" } = {}) {
       state.notificationLoadError = true;
     }
 
-    // Los módulos legacy de mensajes no forman parte de la experiencia 3.x.
-    // Conservamos su código por compatibilidad histórica, pero no bloquean la sincronización principal.
-    state.dailyMessage = null;
-    state.dailyMessageLoadError = false;
-
     refreshUI();
     maybeRevealYSiResult();
 
@@ -1444,16 +1372,6 @@ async function fetchProposals() {
   if (error) throw error;
   return data || [];
 }
-async function fetchMessages() {
-  const { data, error } = await supabaseClient.from("mensajes_laura").select("*").order("created_at", { ascending: false });
-  if (error) throw error;
-  return data || [];
-}
-async function fetchMarks() {
-  const { data, error } = await supabaseClient.from("marcas_mensajes_javi").select("*");
-  if (error) throw error;
-  return data || [];
-}
 async function fetchYSiCurrent() {
   const { data, error } = await supabaseClient.rpc("obtener_y_si_actual");
   if (error) throw error;
@@ -1480,41 +1398,6 @@ async function fetchNotifications() {
   return { notifications: data || [], loadError: false };
 }
 
-async function fetchDailyMessage() {
-  const today = toDateKeyMadrid(new Date());
-  let query = supabaseClient
-    .from("mensajes_dia")
-    .select("*")
-    .order("fecha", { ascending: false })
-    .order("created_at", { ascending: false })
-    .limit(14);
-
-  if (currentRole === "javi") {
-    query = query.eq("autor_id", USER_IDS.JAVI).eq("fecha", today);
-  } else {
-    query = query.eq("destinatario_id", USER_IDS.LAURA);
-  }
-
-  const { data, error } = await query;
-  if (error) throw error;
-  const rows = Array.isArray(data) ? data : [];
-  if (currentRole === "javi") return { message: rows[0] || null, loadError: false };
-
-  const unread = rows.find(item => !item.leido_at);
-  const todayMessage = rows.find(item => item.fecha === today);
-  return { message: unread || todayMessage || null, loadError: false };
-}
-
-async function fetchDailyMessageById(id) {
-  if (!id) return null;
-  const { data, error } = await supabaseClient
-    .from("mensajes_dia")
-    .select("*")
-    .eq("id", id)
-    .maybeSingle();
-  if (error) throw error;
-  return data || null;
-}
 
 async function fetchRemoteMemories() {
   const { data, error } = await supabaseClient
@@ -1604,12 +1487,10 @@ function refreshUI() {
   renderStats();
   renderBookings();
   renderCalendar();
-  renderLauraMessages();
   renderYSi();
   renderMemories();
   renderVouchers();
   renderPuzzleProgress();
-  renderDailyMessage();
   renderNotifications();
   updateDailyGameCard();
   window.dispatchEvent(new CustomEvent("javieats:data"));
@@ -1698,7 +1579,7 @@ async function handleProposal(event) {
     state.proposals.push(data);
     state.proposals.sort(sortProposalsByDate);
     lastProposalTicket = data;
-    renderStats(); renderBookings(); renderCalendar(); renderProposalSuccess(data);
+    refreshUI(); renderProposalSuccess(data);
     proposalForm.classList.add("hidden");
     proposalSuccess.classList.remove("hidden");
     showToast("Propuesta guardada en el calendario compartido.");
@@ -1779,7 +1660,7 @@ async function handleCustomPlan(event) {
     selectedDate = data.plan_date;
     const [year, month] = data.plan_date.split("-").map(Number);
     calendarDate = new Date(year, month - 1, 1);
-    renderStats(); renderBookings(); renderCalendar();
+    refreshUI();
     customPlanStatus.textContent = "Plan guardado.";
     showToast("Plan añadido al calendario.");
     setTimeout(closeCustomPlanModal, 550);
@@ -1910,142 +1791,6 @@ function renderDayDetail() {
   dayBookings.innerHTML = proposals.length ? proposals.map(bookingTemplate).join("") : `<div class="empty">No hay planes para este día.</div>`;
 }
 
-async function handleLauraMessage(event) {
-  event.preventDefault();
-  if (currentRole !== "laura") return;
-  const content = lauraMessageContent.value.trim();
-  if (!content) { lauraMessageStatus.textContent = "Escribe algo antes de guardarlo."; return; }
-  saveLauraMessage.disabled = true;
-  lauraMessageStatus.textContent = editingMessageId ? "Guardando cambios..." : "Guardando para Javi...";
-  const payload = { tipo: lauraMessageType.value, titulo: lauraMessageTitle.value.trim(), contenido: content };
-  try {
-    let data;
-    if (editingMessageId) {
-      const response = await supabaseClient.from("mensajes_laura").update(payload).eq("id", editingMessageId).select().single();
-      if (response.error) throw response.error;
-      data = response.data;
-      state.messages = state.messages.map(item => item.id === data.id ? data : item);
-      showToast("Texto actualizado.");
-    } else {
-      const response = await supabaseClient.from("mensajes_laura").insert({ ...payload, author_id: currentUser.id }).select().single();
-      if (response.error) throw response.error;
-      data = response.data;
-      state.messages.unshift(data);
-      showToast("Guardado para Javi.");
-    }
-    lauraMessageForm.reset();
-    editingMessageId = null;
-    saveLauraMessage.textContent = "Guardar para Javi";
-    lauraMessageStatus.textContent = "Guardado correctamente.";
-    renderLauraMessages(); renderMemories();
-  } catch (error) { console.error(error); lauraMessageStatus.textContent = "No se ha podido guardar. Revisa la conexión."; }
-  finally { saveLauraMessage.disabled = false; }
-}
-
-function renderLauraMessages() {
-  if (!state.messages.length) {
-    lauraMessagesList.innerHTML = `<div class="empty">Todavía no hay mensajes ni cartas guardados.</div>`;
-    return;
-  }
-  lauraMessagesList.innerHTML = state.messages.map(message => {
-    const mark = getMessageMark(message.id);
-    const title = message.titulo || defaultMessageTitle(message.tipo);
-    const badges = [];
-    if (mark?.favorito) badges.push('<span class="message-badge favorite">❤️ Favorito</span>');
-    if (mark?.guardado_recuerdos) badges.push('<span class="message-badge saved">🗃️ En recuerdos</span>');
-    return `<article class="laura-message-card">
-      <div class="laura-message-top"><div><span class="laura-message-type">${messageTypeLabel(message.tipo)}</span><h3>${escapeHTML(title)}</h3></div><span class="laura-message-date">${formatDateTime(message.created_at)}</span></div>
-      <p class="laura-message-preview">${escapeHTML(truncateText(message.contenido, 150))}</p>
-      ${badges.length ? `<div class="message-badges">${badges.join("")}</div>` : ""}
-      <div class="laura-message-buttons"><button class="btn btn-secondary btn-small" type="button" data-laura-message-open="${message.id}">Abrir</button>
-      ${currentRole === "laura" ? `<button class="btn btn-secondary btn-small" type="button" data-laura-message-edit="${message.id}">Editar</button><button class="btn btn-danger btn-small" type="button" data-laura-message-delete="${message.id}">Eliminar</button>` : ""}</div>
-    </article>`;
-  }).join("");
-}
-
-async function handleLauraMessageListClick(event) {
-  const openButton = event.target.closest("[data-laura-message-open]");
-  const editButton = event.target.closest("[data-laura-message-edit]");
-  const deleteButton = event.target.closest("[data-laura-message-delete]");
-  if (openButton) openLauraMessageModal(openButton.dataset.lauraMessageOpen);
-  if (editButton) startEditingMessage(editButton.dataset.lauraMessageEdit);
-  if (deleteButton) await deleteLauraMessage(deleteButton.dataset.lauraMessageDelete);
-}
-function startEditingMessage(id) {
-  const message = state.messages.find(item => item.id === id);
-  if (!message || currentRole !== "laura") return;
-  editingMessageId = id;
-  lauraMessageType.value = message.tipo;
-  lauraMessageTitle.value = message.titulo;
-  lauraMessageContent.value = message.contenido;
-  saveLauraMessage.textContent = "Guardar cambios";
-  lauraMessageStatus.textContent = "Estás editando este texto.";
-  lauraComposeCard.scrollIntoView({ behavior: "smooth", block: "start" });
-}
-async function deleteLauraMessage(id) {
-  if (currentRole !== "laura" || !confirm("¿Seguro que quieres eliminar este texto? No se podrá recuperar.")) return;
-  try {
-    const { error } = await supabaseClient.from("mensajes_laura").delete().eq("id", id);
-    if (error) throw error;
-    state.messages = state.messages.filter(item => item.id !== id);
-    state.marks = state.marks.filter(item => item.mensaje_id !== id);
-    if (editingMessageId === id) { lauraMessageForm.reset(); editingMessageId = null; saveLauraMessage.textContent = "Guardar para Javi"; }
-    closeLauraMessageModal(); renderLauraMessages(); renderMemories(); showToast("Texto eliminado.");
-  } catch (error) { console.error(error); showToast("No se ha podido eliminar el texto."); }
-}
-
-function openLauraMessageModal(id) {
-  const message = state.messages.find(item => item.id === id);
-  if (!message) return;
-  openedLauraMessageId = id;
-  lauraMessageModalIcon.textContent = messageTypeIcon(message.tipo);
-  lauraMessageModalType.textContent = messageTypeLabel(message.tipo);
-  lauraMessageModalTitle.textContent = message.titulo || defaultMessageTitle(message.tipo);
-  lauraMessageModalDate.textContent = formatDateTimeLong(message.created_at);
-  lauraMessageModalContent.textContent = message.contenido;
-  renderLauraMessageModalActions();
-  lauraMessageModal.classList.remove("hidden");
-  document.body.style.overflow = "hidden";
-}
-function closeLauraMessageModal() {
-  lauraMessageModal.classList.add("hidden");
-  document.body.style.overflow = "";
-  openedLauraMessageId = null;
-}
-function renderLauraMessageModalActions() {
-  const message = state.messages.find(item => item.id === openedLauraMessageId);
-  if (!message) { lauraMessageModalActions.innerHTML = ""; return; }
-  if (currentRole === "javi") {
-    const mark = getMessageMark(message.id);
-    lauraMessageModalActions.innerHTML = `<button class="btn btn-secondary" type="button" data-message-favorite="${message.id}">${mark?.favorito ? "Quitar favorito" : "❤️ Marcar favorito"}</button><button class="btn btn-secondary" type="button" data-message-memory="${message.id}">${mark?.guardado_recuerdos ? "Quitar de recuerdos" : "🗃️ Guardar en recuerdos"}</button>`;
-    return;
-  }
-  lauraMessageModalActions.innerHTML = `<button class="btn btn-secondary" type="button" data-message-edit-modal="${message.id}">Editar</button><button class="btn btn-danger" type="button" data-message-delete-modal="${message.id}">Eliminar</button>`;
-}
-async function handleLauraMessageModalAction(event) {
-  const favoriteButton = event.target.closest("[data-message-favorite]");
-  const memoryButton = event.target.closest("[data-message-memory]");
-  const editButton = event.target.closest("[data-message-edit-modal]");
-  const deleteButton = event.target.closest("[data-message-delete-modal]");
-  if (favoriteButton) await toggleMessageMark(favoriteButton.dataset.messageFavorite, "favorito");
-  if (memoryButton) await toggleMessageMark(memoryButton.dataset.messageMemory, "guardado_recuerdos");
-  if (editButton) { const id = editButton.dataset.messageEditModal; closeLauraMessageModal(); startEditingMessage(id); }
-  if (deleteButton) await deleteLauraMessage(deleteButton.dataset.messageDeleteModal);
-}
-async function toggleMessageMark(messageId, field) {
-  if (currentRole !== "javi") return;
-  const existing = getMessageMark(messageId);
-  const payload = { mensaje_id: messageId, marked_by: currentUser.id, favorito: existing?.favorito || false, guardado_recuerdos: existing?.guardado_recuerdos || false };
-  payload[field] = !payload[field];
-  try {
-    const { data, error } = await supabaseClient.from("marcas_mensajes_javi").upsert(payload, { onConflict: "mensaje_id" }).select().single();
-    if (error) throw error;
-    state.marks = [data, ...state.marks.filter(item => item.mensaje_id !== messageId)];
-    renderLauraMessages(); renderMemories(); renderLauraMessageModalActions();
-    showToast(field === "favorito" ? (data.favorito ? "Marcado como favorito." : "Favorito retirado.") : (data.guardado_recuerdos ? "Guardado en recuerdos." : "Quitado de recuerdos."));
-  } catch (error) { console.error(error); showToast("No se ha podido guardar la marca."); }
-}
-function getMessageMark(messageId) { return state.marks.find(item => item.mensaje_id === messageId) || null; }
 
 function ySiOptionLabel(current, optionNumber) {
   const options = Array.isArray(current?.opciones) ? current.opciones : [];
@@ -3300,306 +3045,15 @@ function downloadTicket(proposal) {
 
 
 /* =========================================================
-   Compatibilidad interna · Mensaje del día + centro de actividad
+   Centro de actividad y compatibilidad con enlaces legacy
    ========================================================= */
-function renderDailyMessage() {
-  if (!dailyMessageCard) return;
-  const message = state.dailyMessage;
-  const today = toDateKeyMadrid(new Date());
-
-  if (state.dailyMessageLoadError) {
-    if (currentRole !== "javi") {
-      dailyMessageCard.classList.add("hidden");
-      return;
-    }
-    dailyMessageCard.classList.remove("hidden");
-    dailyMessageCard.innerHTML = `
-      <div class="daily-message-card-head">
-        <div class="daily-message-card-title"><div class="daily-message-card-icon">💌</div><div><p class="eyebrow">Mensaje del día</p><h3>Falta activar la migración de Supabase</h3><p>El resto de JaviEats sigue funcionando.</p></div></div>
-      </div>`;
-    return;
-  }
-
-  if (currentRole === "javi") {
-    dailyMessageCard.classList.remove("hidden");
-    if (!message) {
-      dailyMessageCard.innerHTML = `
-        <div class="daily-message-card-head">
-          <div class="daily-message-card-title"><div class="daily-message-card-icon">💌</div><div><p class="eyebrow">Mensaje del día</p><h3>Déjale algo a Laura</h3><p>Escribe una nota para que la encuentre al entrar en JaviEats.</p></div></div>
-        </div>
-        <div class="daily-message-card-actions"><button class="btn btn-primary" data-daily-message-action="compose" type="button">Escribir mensaje de hoy</button></div>`;
-      return;
-    }
-
-    const read = Boolean(message.leido_at);
-    const statusText = read ? `✅ Leído · ${formatDateTime(message.leido_at)}` : "💌 Pendiente de leer";
-    dailyMessageCard.innerHTML = `
-      <div class="daily-message-card-status-row">
-        <div class="daily-message-card-title"><div class="daily-message-card-icon">💌</div><div><p class="eyebrow">Mensaje del día</p><h3>${message.fecha === today ? "Mensaje de hoy" : escapeHTML(formatDateCompact(message.fecha))}</h3></div></div>
-        <span class="daily-message-state${read ? " is-read" : ""}">${statusText}</span>
-      </div>
-      <p class="daily-message-card-copy">${escapeHTML(message.mensaje)}</p>
-      ${read ? "" : '<div class="daily-message-card-actions"><button class="btn btn-secondary" data-daily-message-action="edit" type="button">Editar antes de que lo lea</button></div>'}`;
-    return;
-  }
-
-  if (!message) {
-    dailyMessageCard.classList.add("hidden");
-    dailyMessageCard.innerHTML = "";
-    return;
-  }
-
-  dailyMessageCard.classList.remove("hidden");
-  if (!message.leido_at) {
-    dailyMessageCard.innerHTML = `
-      <div class="daily-message-card-head">
-        <div class="daily-message-card-title"><div class="daily-message-card-icon">💌</div><div><p class="eyebrow">Solo para ti</p><h3>Javi te ha dejado algo</h3><p>${message.fecha === today ? "Tienes un mensaje de hoy esperando." : `Tienes pendiente un mensaje del ${escapeHTML(formatDateCompact(message.fecha))}.`}</p></div></div>
-      </div>
-      <div class="daily-message-card-actions"><button class="btn btn-primary" data-daily-message-action="open" type="button">Descubrir mensaje</button></div>`;
-    return;
-  }
-
-  dailyMessageCard.innerHTML = `
-    <div class="daily-message-card-status-row">
-      <div class="daily-message-card-title"><div class="daily-message-card-icon">❤️</div><div><p class="eyebrow">Mensaje del día</p><h3>${message.fecha === today ? "Lo que Javi te dejó hoy" : escapeHTML(formatDateCompact(message.fecha))}</h3></div></div>
-      <span class="daily-message-state is-read">Leído</span>
-    </div>
-    <p class="daily-message-card-copy">${escapeHTML(message.mensaje)}</p>`;
-}
-
-function handleDailyMessageCardClick(event) {
-  const button = event.target.closest("[data-daily-message-action]");
-  if (!button) return;
-  const action = button.dataset.dailyMessageAction;
-  if (action === "compose" || action === "edit") openDailyMessageComposer();
-  if (action === "open" && state.dailyMessage) openDailyMessageReveal(state.dailyMessage);
-}
-
-function openDailyMessageComposer() {
-  if (currentRole !== "javi" || !dailyMessageComposeModal) return;
-  if (state.dailyMessage?.leido_at) {
-    showToast("Laura ya ha leído el mensaje de hoy. Ya no se puede editar.");
-    return;
-  }
-  const editing = Boolean(state.dailyMessage);
-  dailyMessageComposeTitle.textContent = editing ? "Editar mensaje de hoy" : "Déjale algo a Laura";
-  dailyMessageInput.value = state.dailyMessage?.mensaje || "";
-  dailyMessageFormNote.textContent = editing
-    ? "Guardar cambios no enviará otro correo. Laura seguirá teniendo un único aviso."
-    : "Al guardarlo por primera vez, Laura recibirá un aviso por email sin ver el contenido.";
-  dailyMessageSaveBtn.textContent = editing ? "Guardar cambios" : "Guardar y avisar a Laura";
-  setDailyMessageStatus("");
-  updateDailyMessageCharCount();
-  dailyMessageComposeModal.classList.remove("hidden");
-  document.body.style.overflow = "hidden";
-  setTimeout(() => dailyMessageInput.focus(), 120);
-}
-
-function closeDailyMessageComposer() {
-  dailyMessageComposeModal?.classList.add("hidden");
-  if (dailyMessageRevealModal?.classList.contains("hidden") !== false && notificationsModal?.classList.contains("hidden") !== false) {
-    document.body.style.overflow = "";
-  }
-  setDailyMessageStatus("");
-}
-
-function updateDailyMessageCharCount() {
-  if (!dailyMessageCharCount || !dailyMessageInput) return;
-  dailyMessageCharCount.textContent = `${dailyMessageInput.value.length} / 1200`;
-}
-
-function setDailyMessageStatus(text, type = "") {
-  if (!dailyMessageStatus) return;
-  dailyMessageStatus.textContent = text;
-  dailyMessageStatus.classList.toggle("is-error", type === "error");
-  dailyMessageStatus.classList.toggle("is-ok", type === "ok");
-}
-
-async function saveDailyMessage(event) {
-  event.preventDefault();
-  if (currentRole !== "javi") return;
-  const message = String(dailyMessageInput?.value || "").trim();
-  if (!message) {
-    setDailyMessageStatus("Escribe algo antes de guardar.", "error");
-    return;
-  }
-  if (message.length > 1200) {
-    setDailyMessageStatus("El mensaje supera los 1200 caracteres.", "error");
-    return;
-  }
-
-  const wasEditing = Boolean(state.dailyMessage);
-  dailyMessageSaveBtn.disabled = true;
-  setDailyMessageStatus(wasEditing ? "Guardando cambios…" : "Guardando y preparando el aviso…");
-  try {
-    const { data, error } = await supabaseClient.rpc("guardar_mensaje_dia", { p_mensaje: message });
-    if (error) throw error;
-    const saved = Array.isArray(data) ? data[0] : data;
-    if (!saved?.id) throw new Error("Supabase no ha devuelto el mensaje guardado.");
-    state.dailyMessage = saved;
-    state.dailyMessageLoadError = false;
-    setDailyMessageStatus(wasEditing ? "Cambios guardados." : "Mensaje guardado. Aviso solicitado para Laura 💌", "ok");
-    renderDailyMessage();
-    setTimeout(() => closeDailyMessageComposer(), 650);
-  } catch (error) {
-    console.error(error);
-    const text = String(error?.message || "");
-    if (text.toLowerCase().includes("ya ha leído")) setDailyMessageStatus("Laura ya ha leído el mensaje de hoy y ya no se puede editar.", "error");
-    else if (text.toLowerCase().includes("3.0") || text.toLowerCase().includes("function")) setDailyMessageStatus("Falta aplicar supabase-v3.0.sql.", "error");
-    else setDailyMessageStatus("No se ha podido guardar. Revisa la conexión y vuelve a intentarlo.", "error");
-  } finally {
-    dailyMessageSaveBtn.disabled = false;
-  }
-}
-
-function openDailyMessageReveal(message, { opened = false } = {}) {
-  if (!message || !dailyMessageRevealModal) return false;
-  activeDailyMessage = message;
-  dailyMessageWelcomeShown = true;
-  const isRead = opened || Boolean(message.leido_at);
-  dailyMessageSealed?.classList.toggle("hidden", isRead);
-  dailyMessageOpened?.classList.toggle("hidden", !isRead);
-  dailyMessageOpenedDate.textContent = `Mensaje del ${formatDateCompact(message.fecha)}`;
-  dailyMessageOpenedText.textContent = message.mensaje || "";
-  dailyMessageRevealBtn.disabled = false;
-  dailyMessageRevealBtn.textContent = "Abrir mensaje";
-  dailyMessageRevealModal.classList.remove("hidden");
-  document.body.style.overflow = "hidden";
-  return true;
-}
-
-async function revealDailyMessage() {
-  if (!activeDailyMessage || !dailyMessageRevealBtn) return;
-  dailyMessageSealed?.classList.add("hidden");
-  dailyMessageOpened?.classList.remove("hidden");
-  dailyMessageOpenedDate.textContent = `Mensaje del ${formatDateCompact(activeDailyMessage.fecha)}`;
-  dailyMessageOpenedText.textContent = activeDailyMessage.mensaje || "";
-
-  if (activeDailyMessage.leido_at || currentRole !== "laura") return;
-  dailyMessageRevealBtn.disabled = true;
-  try {
-    const { data, error } = await supabaseClient.rpc("marcar_mensaje_dia_leido", { p_id: activeDailyMessage.id });
-    if (error) throw error;
-    const updated = Array.isArray(data) ? data[0] : data;
-    if (updated?.id) {
-      activeDailyMessage = updated;
-      if (state.dailyMessage?.id === updated.id) state.dailyMessage = updated;
-    } else {
-      const now = new Date().toISOString();
-      activeDailyMessage.leido_at = now;
-      if (state.dailyMessage?.id === activeDailyMessage.id) state.dailyMessage.leido_at = now;
-    }
-    markMatchingNotificationReadLocally("mensaje_dia", activeDailyMessage.id);
-    renderDailyMessage();
-    renderNotifications();
-  } catch (error) {
-    console.error(error);
-    showToast("Has podido leerlo, pero no se ha podido guardar el estado de leído.");
-  }
-}
-
-function closeDailyMessageReveal() {
-  dailyMessageRevealModal?.classList.add("hidden");
-  activeDailyMessage = null;
-  if (dailyMessageComposeModal?.classList.contains("hidden") !== false && notificationsModal?.classList.contains("hidden") !== false) {
-    document.body.style.overflow = "";
-  }
-  setTimeout(() => maybeShowPuzzleWelcome(), 180);
-}
-
-function maybeShowDailyMessageWelcome() {
-  // Funcionalidad retirada de la interfaz 3.0. Se conserva el codigo legacy,
-  // pero nunca se abre automaticamente para Laura.
-  return false;
-}
-
-async function maybeFocusDailyMessageFromUrl() {
-  const params = new URLSearchParams(window.location.search);
-  if (params.get("open") !== "message") return false;
-  const id = params.get("message");
-  let message = state.dailyMessage?.id === id ? state.dailyMessage : null;
-  try {
-    if (!message && id) message = await fetchDailyMessageById(id);
-    if (!message) {
-      showToast("Ese mensaje ya no está disponible.");
-      cleanDailyMessageUrl(params);
-      return false;
-    }
-    openDailyMessageReveal(message, { opened: Boolean(message.leido_at) });
-    cleanDailyMessageUrl(params);
-    return true;
-  } catch (error) {
-    console.error(error);
-    showToast("No se ha podido abrir el mensaje.");
-    cleanDailyMessageUrl(params);
-    return false;
-  }
-}
-
-function cleanDailyMessageUrl(params = new URLSearchParams(window.location.search)) {
+function cleanLegacyMessageUrl(params = new URLSearchParams(window.location.search)) {
   params.delete("open");
   params.delete("for");
   params.delete("message");
   const query = params.toString();
   const cleanUrl = `${window.location.pathname}${query ? `?${query}` : ""}${window.location.hash}`;
   window.history.replaceState({}, "", cleanUrl);
-}
-
-function ensureNotificationDeleteStyles() {
-  if (document.getElementById("javieats-notification-delete-styles")) return;
-  const style = document.createElement("style");
-  style.id = "javieats-notification-delete-styles";
-  style.textContent = `
-    .notification-row {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) 40px;
-      gap: 7px;
-      align-items: stretch;
-    }
-    .notification-row .notification-item {
-      min-width: 0;
-    }
-    .notification-delete-btn {
-      display: grid;
-      place-items: center;
-      width: 40px;
-      min-width: 40px;
-      border: 0;
-      border-radius: 14px;
-      background: transparent;
-      color: #aaa39d;
-      font-size: 1.35rem;
-      font-weight: 600;
-      line-height: 1;
-      padding: 0;
-      transition: background .15s ease, color .15s ease, transform .15s ease;
-    }
-    .notification-delete-btn:active {
-      transform: scale(.92);
-      background: rgba(180, 35, 24, .08);
-      color: #b42318;
-    }
-    .javieats-v3 .notifications-heading .link-btn.is-danger {
-      color: #b42318;
-    }
-    @media (hover: hover) {
-      .notification-delete-btn:hover {
-        background: rgba(180, 35, 24, .07);
-        color: #b42318;
-      }
-    }
-    @media (max-width: 620px) {
-      .notification-row {
-        grid-template-columns: minmax(0, 1fr) 38px;
-        gap: 5px;
-      }
-      .notification-delete-btn {
-        width: 38px;
-        min-width: 38px;
-      }
-    }
-  `;
-  document.head.appendChild(style);
 }
 
 function refreshNotificationUI() {
@@ -3690,9 +3144,7 @@ function openNotificationsModal() {
 
 function closeNotificationsModal() {
   notificationsModal?.classList.add("hidden");
-  if (dailyMessageComposeModal?.classList.contains("hidden") !== false && dailyMessageRevealModal?.classList.contains("hidden") !== false) {
-    document.body.style.overflow = "";
-  }
+  document.body.style.overflow = "";
 }
 
 async function markNotificationRead(id) {
@@ -3704,12 +3156,6 @@ async function markNotificationRead(id) {
   refreshNotificationUI();
 }
 
-function markMatchingNotificationReadLocally(type, entityId) {
-  const now = new Date().toISOString();
-  state.notifications.forEach(item => {
-    if (item.tipo === type && String(item.entidad_id || "") === String(entityId || "") && !item.leido_at) item.leido_at = now;
-  });
-}
 
 async function markAllNotificationsRead() {
   if (state.notificationLoadError || !notificationsReadAll) return;
@@ -3813,8 +3259,8 @@ async function handleNotificationClick(event) {
 async function openNotificationDestination(notification) {
   const destination = notification.destino || "home";
   if (destination === "mensaje") {
+    // Compatibilidad con avisos antiguos: llevar a Inicio sin reactivar la función retirada.
     showPage("home");
-    showToast("El Mensaje del día ya no forma parte de esta prueba de JaviEats 3.0.");
     return;
   }
   if (destination === "ysi" || destination === "rps") {
@@ -3848,9 +3294,6 @@ function setMinDate() {
   if (!proposalDate.value) proposalDate.value = today;
 }
 function statusLabel(status) { return ({ pendiente: "Pendiente", confirmada: "Confirmada", realizada: "Realizada", cancelada: "Cancelada" })[status] || status; }
-function messageTypeLabel(type) { return ({ mensaje: "Mensaje", carta: "Carta", contarte: "Algo que quiero contarte", idea: "Idea para nosotros" })[type] || "Mensaje"; }
-function messageTypeIcon(type) { return ({ mensaje: "💬", carta: "💌", contarte: "🫶", idea: "💡" })[type] || "💌"; }
-function defaultMessageTitle(type) { return ({ mensaje: "Un mensaje para Javi", carta: "Una carta para Javi", contarte: "Algo que Laura quiere contarte", idea: "Una idea para los dos" })[type] || "Para Javi"; }
 function voucherCode(voucher) { return `JE-${dateFromTimestamp(voucher.created_at).replaceAll("-", "")}-${voucher.id.slice(0, 6).toUpperCase()}`; }
 function sortProposalsByDate(a, b) { return `${a.plan_date}T${normalizeTimeForDate(a.plan_time)}`.localeCompare(`${b.plan_date}T${normalizeTimeForDate(b.plan_time)}`); }
 function proposalToDate(p) { return new Date(`${p.plan_date}T${normalizeTimeForDate(p.plan_time)}`); }
@@ -3866,14 +3309,12 @@ function formatDateCompact(dateKey) { const [y, m, d] = dateKey.split("-").map(N
 function shortDate(dateKey) { const [y, m, d] = dateKey.split("-").map(Number); return new Intl.DateTimeFormat("es-ES", { day: "2-digit", month: "short" }).format(new Date(y, m - 1, d)); }
 function formatTime(time) { return String(time || "").slice(0, 5); }
 function formatDateTime(timestamp) { return new Intl.DateTimeFormat("es-ES", { timeZone: "Europe/Madrid", day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" }).format(new Date(timestamp)); }
-function formatDateTimeLong(timestamp) { return new Intl.DateTimeFormat("es-ES", { timeZone: "Europe/Madrid", weekday: "long", day: "2-digit", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" }).format(new Date(timestamp)); }
 function currentTimeLabel() { return new Intl.DateTimeFormat("es-ES", { timeZone: "Europe/Madrid", hour: "2-digit", minute: "2-digit" }).format(new Date()); }
 function timeUntilTomorrow() {
   const now = new Date(); const tomorrow = new Date(now); tomorrow.setHours(24, 0, 0, 0);
   const diff = Math.max(0, tomorrow - now); const h = Math.floor(diff / 3600000); const m = Math.floor((diff % 3600000) / 60000); const s = Math.floor((diff % 60000) / 1000);
   return `${String(h).padStart(2, "0")} h · ${String(m).padStart(2, "0")} min · ${String(s).padStart(2, "0")} s`;
 }
-function truncateText(text, maxLength) { const clean = String(text || "").trim(); return clean.length <= maxLength ? clean : `${clean.slice(0, maxLength).trim()}…`; }
 function escapeHTML(text) { return String(text ?? "").replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#039;"); }
 function friendlyAuthError(error) {
   const message = String(error?.message || "").toLowerCase();
@@ -4151,7 +3592,7 @@ function showToast(message) { toast.textContent = message; toast.classList.remov
 
       <div class="v3-legacy-nodes" aria-hidden="true">
         <span id="home-greeting"></span><span id="total-proposals"></span><span id="next-plan"></span>
-        <div id="featured-services"></div><section id="daily-message-card"></section>
+        <div id="featured-services"></div>
       </div>`;
   }
 
