@@ -34,12 +34,6 @@
     </svg>`;
   }
 
-  function bellIcon() {
-    return `<svg class="v3-icon" viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9ZM9.5 21h5" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
-    </svg>`;
-  }
-
   function installStyles() {
     if ($("javieats-navigation-extra-styles")) return;
     const style = document.createElement("style");
@@ -556,6 +550,15 @@
       : "La entrada al juego se conectará desde esta misma pestaña.";
   }
 
+  function loadVersion31Enhancements() {
+    if (document.querySelector('script[data-javieats-v31]')) return;
+    const script = document.createElement("script");
+    script.src = "./v3.1.js?v=3.1";
+    script.async = false;
+    script.dataset.javieatsV31 = "true";
+    document.body.appendChild(script);
+  }
+
   function mount() {
     if (mounted) return;
     const nav = document.querySelector(".v3-bottom-nav");
@@ -573,6 +576,7 @@
     setupNav();
     setupMysteryModal();
     updateRevealState();
+    loadVersion31Enhancements();
 
     timer = window.setInterval(updateRevealState, 1000);
     document.addEventListener("visibilitychange", () => {
