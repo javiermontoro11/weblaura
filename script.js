@@ -1,8 +1,6 @@
 const CONFIG = {
   supabaseUrl: "https://rqycylggsqgmqugxygwr.supabase.co",
   supabasePublishableKey: "sb_publishable_RNkvgx5IAbWnKG13hGiMUw_XFpym_S2",
-  formspreeEndpoint: "https://formspree.io/f/xjgddbjw",
-  emailDestino: "javiermontorogranados@gmail.com",
   vapidPublicKey: "BN_vNhQDzo_W9c70WpG1SYGVwBRAkWzamhGBcB_1Z_fiSCLiw7nHS1DRcAromxeX2Tcon_AhJO3Pf1T0b_NkGqc"
 };
 
@@ -636,6 +634,9 @@ let dailyGame = null;
 let dailyRounds = [];
 let roundLocked = false;
 let syncTimer = null;
+let syncInFlight = null;
+let syncRetryTimer = null;
+let syncRetryIndex = 0;
 let clockTimer = null;
 let appReady = false;
 let puzzleWelcomeShown = false;
@@ -668,6 +669,10 @@ const state = {
   dailyMessage: null,
   dailyMessageLoadError: false
 };
+
+// JaviEats 3.1 ya integra en el núcleo las mejoras críticas que antes vivían en v3.1.js.
+// Esta bandera evita que la capa antigua vuelva a parchear el runtime durante la transición.
+window.__JAVIEATS_V31_LOADED__ = true;
 
 window.JaviEatsApp = {
   getRole: () => currentRole,
@@ -853,8 +858,43 @@ function bindEvents() {
   galleryPrev.addEventListener("click", () => changeGalleryImage(-1));
   galleryNext.addEventListener("click", () => changeGalleryImage(1));
 
+  if (syncStatus) {
+    syncStatus.setAttribute("role", "button");
+    syncStatus.setAttribute("tabindex", "0");
+    syncStatus.setAttribute("title", "Actualizar ahora");
+    syncStatus.setAttribute("aria-label", "Estado de sincronización. Pulsa para actualizar ahora.");
+    const refreshNow = () => loadAllData({ silent: false, reason: "manual" });
+    syncStatus.addEventListener("click", refreshNow);
+    syncStatus.addEventListener("keydown", event => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        refreshNow();
+      }
+    });
+  }
+
+  window.addEventListener("online", () => {
+    syncRetryIndex = 0;
+    cancelSyncRetry();
+    if (appReady && currentUser) {
+      window.setTimeout(() => loadAllData({ silent: false, reason: "online" }), 250);
+    }
+  });
+
+  window.addEventListener("offline", () => {
+    if (appReady && currentUser) setSyncState("error", "Sin conexión · reintentando…");
+  });
+
   document.addEventListener("visibilitychange", () => {
-    if (!document.hidden && appReady && currentUser) loadAllData({ silent: true });
+    if (!document.hidden && appReady && currentUser) {
+      window.setTimeout(() => loadAllData({ silent: true, reason: "resume" }), 450);
+    }
+  });
+
+  window.addEventListener("pageshow", event => {
+    if (event.persisted && appReady && currentUser) {
+      window.setTimeout(() => loadAllData({ silent: true, reason: "pageshow" }), 250);
+    }
   });
 }
 
@@ -1037,14 +1077,32 @@ async function showApp() {
   const params = new URLSearchParams(window.location.search);
   const requestedOpen = params.get("open");
   if (requestedOpen === "message") {
-    // Mensaje del dia retirado de JaviEats 3.0: ignorar enlaces legacy sin mostrar el popup.
+    // Mensaje del día retirado de JaviEats 3.0: ignorar enlaces legacy sin mostrar el popup.
     cleanDailyMessageUrl(params);
     maybeShowPuzzleWelcome();
   } else if (requestedOpen === "ysi") {
     maybeFocusYSiFromUrl();
+  } else if (requestedOpen === "plans" || requestedOpen === "calendar") {
+    maybeFocusPlansFromUrl(params);
   } else {
     maybeShowPuzzleWelcome();
   }
+}
+
+function maybeFocusPlansFromUrl(params = new URLSearchParams(window.location.search)) {
+  const requested = params.get("open");
+  if (requested !== "plans" && requested !== "calendar") return;
+
+  showPage("calendar");
+  params.delete("open");
+  const query = params.toString();
+  const cleanUrl = `${window.location.pathname}${query ? `?${query}` : ""}${window.location.hash}`;
+  window.history.replaceState({}, "", cleanUrl);
+
+  window.setTimeout(() => {
+    const target = $("v3-plan-pending") || $("page-calendar");
+    target?.scrollIntoView?.({ behavior: "smooth", block: "start" });
+  }, 160);
 }
 
 function showWelcomeScreen() {
@@ -1147,6 +1205,9 @@ async function logout() {
 
 function resetAppSession() {
   stopSyncTimer();
+  cancelSyncRetry();
+  syncInFlight = null;
+  syncRetryIndex = 0;
   currentUser = null;
   currentRole = "unknown";
   dailyGame = null;
@@ -1230,87 +1291,156 @@ function startClock() {
   }, 1000);
 }
 
-async function loadAllData({ silent = false } = {}) {
+const SYNC_RETRY_DELAYS = [2000, 5000, 10000];
+
+function cancelSyncRetry() {
+  if (syncRetryTimer) window.clearTimeout(syncRetryTimer);
+  syncRetryTimer = null;
+}
+
+function scheduleSyncRetry(reason = "retry") {
+  cancelSyncRetry();
+  if (!appReady || !currentUser || syncRetryIndex >= SYNC_RETRY_DELAYS.length) return;
+
+  const delayMs = SYNC_RETRY_DELAYS[syncRetryIndex];
+  syncRetryIndex += 1;
+  syncRetryTimer = window.setTimeout(() => {
+    syncRetryTimer = null;
+    if (!appReady || !currentUser || document.hidden) return;
+    loadAllData({ silent: true, reason });
+  }, delayMs);
+}
+
+function settledSyncValue(results, jobs, key) {
+  const index = jobs.findIndex(job => job.key === key);
+  if (index < 0) return { ok: false, value: undefined };
+  const result = results[index];
+  return result?.status === "fulfilled"
+    ? { ok: true, value: result.value }
+    : { ok: false, value: undefined, error: result?.reason };
+}
+
+async function loadAllData({ silent = false, reason = "normal" } = {}) {
   if (!currentUser || !supabaseClient) return;
-  if (!silent) setSyncState("loading", "Sincronizando…");
-  try {
+  if (syncInFlight) return syncInFlight;
+
+  if (navigator.onLine === false) {
+    setSyncState("error", "Sin conexión · reintentando…");
+    return { ok: false, failures: ["offline"] };
+  }
+
+  syncInFlight = (async () => {
+    if (!silent || reason === "manual" || reason === "online") {
+      setSyncState("loading", "Sincronizando…");
+    }
+
     const today = toDateKeyMadrid(new Date());
-    const puzzlePromise = fetchPuzzleProgress().catch(error => {
-      console.error("No se ha podido cargar el puzle de la versión 2.4:", error);
-      return { puzzle: null, pieces: [], loadError: true };
+    const jobs = [
+      { key: "proposals", run: () => fetchProposals() },
+      { key: "vouchers", run: () => fetchVouchers() },
+      { key: "game", run: () => fetchTodayGame(today) },
+      { key: "puzzle", run: () => fetchPuzzleProgress() },
+      { key: "ysiCurrent", run: () => fetchYSiCurrent() },
+      { key: "ysiHistory", run: () => fetchYSiHistory() },
+      { key: "memories", run: () => fetchRemoteMemories() },
+      { key: "notifications", run: () => fetchNotifications() }
+    ];
+
+    const results = await Promise.allSettled(jobs.map(job => job.run()));
+    const failures = [];
+
+    results.forEach((result, index) => {
+      if (result.status === "rejected") {
+        failures.push(jobs[index].key);
+        console.error(`JaviEats 3.1: fallo parcial en ${jobs[index].key}`, result.reason);
+      }
     });
-    const ySiCurrentPromise = fetchYSiCurrent().catch(error => {
-      console.error("No se ha podido cargar ¿Y si...?:", error);
-      return { loadError: true };
-    });
-    const ySiHistoryPromise = fetchYSiHistory().catch(error => {
-      console.error("No se ha podido cargar el historial de ¿Y si...?:", error);
-      return [];
-    });
-    const remoteMemoriesPromise = fetchRemoteMemories().catch(error => {
-      console.error("No se han podido cargar los recuerdos privados v2.8:", error);
-      return { memories: [], loadError: true };
-    });
-    const notificationsPromise = fetchNotifications().catch(error => {
-      console.error("No se han podido cargar las notificaciones de JaviEats 3.0:", error);
-      return { notifications: [], loadError: true };
-    });
-    const dailyMessagePromise = fetchDailyMessage().catch(error => {
-      console.error("No se ha podido cargar el Mensaje del día heredado:", error);
-      return { message: null, loadError: true };
-    });
-    const [proposals, messages, marks, vouchers, gameData, puzzleProgress, ySiCurrent, ySiHistory, remoteMemoriesResult, notificationsResult, dailyMessageResult] = await Promise.all([
-      fetchProposals(),
-      fetchMessages(),
-      fetchMarks(),
-      fetchVouchers(),
-      fetchTodayGame(today),
-      puzzlePromise,
-      ySiCurrentPromise,
-      ySiHistoryPromise,
-      remoteMemoriesPromise,
-      notificationsPromise,
-      dailyMessagePromise
-    ]);
-    state.proposals = proposals;
-    state.messages = messages;
-    state.marks = marks;
-    state.vouchers = vouchers;
-    dailyGame = gameData.game;
-    dailyRounds = gameData.rounds;
-    state.puzzle = puzzleProgress.puzzle;
-    state.puzzlePieces = puzzleProgress.pieces;
-    state.puzzleLoadError = Boolean(puzzleProgress.loadError);
-    state.ySiCurrent = ySiCurrent?.loadError ? null : ySiCurrent;
-    state.ySiHistory = Array.isArray(ySiHistory) ? ySiHistory : [];
+
+    const proposals = settledSyncValue(results, jobs, "proposals");
+    if (proposals.ok && Array.isArray(proposals.value)) state.proposals = proposals.value;
+
+    const vouchers = settledSyncValue(results, jobs, "vouchers");
+    if (vouchers.ok && Array.isArray(vouchers.value)) state.vouchers = vouchers.value;
+
+    const game = settledSyncValue(results, jobs, "game");
+    if (game.ok && game.value) {
+      dailyGame = game.value.game || null;
+      dailyRounds = Array.isArray(game.value.rounds) ? game.value.rounds : [];
+    }
+
+    const puzzle = settledSyncValue(results, jobs, "puzzle");
+    if (puzzle.ok && puzzle.value) {
+      state.puzzle = puzzle.value.puzzle || null;
+      state.puzzlePieces = Array.isArray(puzzle.value.pieces) ? puzzle.value.pieces : [];
+      state.puzzleLoadError = false;
+    } else if (failures.includes("puzzle")) {
+      state.puzzleLoadError = true;
+    }
+
+    const ysiCurrent = settledSyncValue(results, jobs, "ysiCurrent");
+    if (ysiCurrent.ok) state.ySiCurrent = ysiCurrent.value || null;
+
+    const ysiHistory = settledSyncValue(results, jobs, "ysiHistory");
+    if (ysiHistory.ok && Array.isArray(ysiHistory.value)) state.ySiHistory = ysiHistory.value;
+    state.ySiLoadError = failures.includes("ysiCurrent") || failures.includes("ysiHistory");
     state.ySiLastResult = getTodayLatestYSiResult(state.ySiHistory);
-    state.ySiLoadError = Boolean(ySiCurrent?.loadError);
-    state.remoteMemories = Array.isArray(remoteMemoriesResult?.memories) ? remoteMemoriesResult.memories : [];
-    state.memoryLoadError = Boolean(remoteMemoriesResult?.loadError);
-    state.notifications = Array.isArray(notificationsResult?.notifications) ? notificationsResult.notifications : [];
-    state.notificationLoadError = Boolean(notificationsResult?.loadError);
-    state.dailyMessage = dailyMessageResult?.message || null;
-    state.dailyMessageLoadError = Boolean(dailyMessageResult?.loadError);
+
+    const memories = settledSyncValue(results, jobs, "memories");
+    if (memories.ok && memories.value) {
+      state.remoteMemories = Array.isArray(memories.value.memories)
+        ? memories.value.memories
+        : state.remoteMemories;
+      state.memoryLoadError = Boolean(memories.value.loadError);
+    } else if (failures.includes("memories")) {
+      state.memoryLoadError = true;
+    }
+
+    const notifications = settledSyncValue(results, jobs, "notifications");
+    if (notifications.ok && notifications.value) {
+      state.notifications = Array.isArray(notifications.value.notifications)
+        ? notifications.value.notifications
+        : state.notifications;
+      state.notificationLoadError = Boolean(notifications.value.loadError);
+    } else if (failures.includes("notifications")) {
+      state.notificationLoadError = true;
+    }
+
+    // Los módulos legacy de mensajes no forman parte de la experiencia 3.x.
+    // Conservamos su código por compatibilidad histórica, pero no bloquean la sincronización principal.
+    state.dailyMessage = null;
+    state.dailyMessageLoadError = false;
+
     refreshUI();
     maybeRevealYSiResult();
-    setSyncState("ok", `Sincronizado · ${currentTimeLabel()}`);
-    if (state.puzzleLoadError && !silent) {
-      showToast("JaviEats funciona, pero falta aplicar o revisar la migración del puzle v2.4.");
+
+    if (!failures.length) {
+      syncRetryIndex = 0;
+      cancelSyncRetry();
+      setSyncState("ok", `Sincronizado · ${currentTimeLabel()}`);
+    } else {
+      setSyncState("error", "Sincronización parcial · reintentando…");
+      scheduleSyncRetry("partial");
     }
-    if (state.ySiLoadError && !silent) {
-      showToast("La sección ¿Y si...? necesita la migración de Supabase v2.5.1.");
-    }
-    if (state.memoryLoadError && !silent && currentRole === "javi") {
-      showToast("Falta aplicar una vez supabase-v3.0.sql en Supabase.");
-    }
-    if ((state.notificationLoadError || state.dailyMessageLoadError) && !silent && currentRole === "javi") {
-      showToast("Falta aplicar una vez la instalación de Mensajes y notificaciones de JaviEats 3.0 en Supabase.");
-    }
-  } catch (error) {
-    console.error(error);
-    setSyncState("error", "Error de sincronización");
-    if (!silent) showToast("No se han podido cargar todos los datos.");
-  }
+
+    return { ok: !failures.length, failures };
+  })()
+    .catch(error => {
+      console.error("JaviEats 3.1: error de sincronización", error);
+      setSyncState(
+        "error",
+        navigator.onLine === false
+          ? "Sin conexión · reintentando…"
+          : "Error de sincronización · reintentando…"
+      );
+      scheduleSyncRetry("error");
+      if (!silent) showToast("No se han podido cargar todos los datos. JaviEats volverá a intentarlo.");
+      return { ok: false, failures: ["sync"] };
+    })
+    .finally(() => {
+      syncInFlight = null;
+    });
+
+  return syncInFlight;
 }
 
 async function fetchProposals() {
@@ -1573,9 +1703,6 @@ async function handleProposal(event) {
     state.proposals.sort(sortProposalsByDate);
     lastProposalTicket = data;
     renderStats(); renderBookings(); renderCalendar(); renderProposalSuccess(data);
-    if (currentRole === "laura") {
-      try { await sendProposalByEmail(data); } catch (emailError) { console.error(emailError); showToast("El plan está guardado, aunque el aviso por correo no ha salido."); }
-    }
     proposalForm.classList.add("hidden");
     proposalSuccess.classList.remove("hidden");
     showToast("Propuesta guardada en el calendario compartido.");
@@ -1591,28 +1718,6 @@ function renderProposalSuccess(proposal) {
   proposalTicketPreview.innerHTML = `<strong>${proposal.service_icon} ${escapeHTML(proposal.service_title)}</strong>
     <p>📅 ${formatDate(proposal.plan_date)}</p><p>🕒 ${formatTime(proposal.plan_time)} · ${escapeHTML(proposal.duration)}</p>
     <p>💭 ${escapeHTML(proposal.priority)}</p>${proposal.note ? `<p>📝 ${escapeHTML(proposal.note)}</p>` : ""}`;
-}
-
-async function sendProposalByEmail(proposal) {
-  const payload = {
-    _subject: `Nueva propuesta en JaviEats - ${proposal.service_title}`,
-    destino: CONFIG.emailDestino,
-    servicio: proposal.service_title,
-    categoria: proposal.category,
-    fecha: formatDate(proposal.plan_date),
-    hora: formatTime(proposal.plan_time),
-    duracion: proposal.duration,
-    nivel_de_ganas: proposal.priority,
-    nota: proposal.note || "Sin nota",
-    estado: proposal.status,
-    creada_en: new Date(proposal.created_at).toLocaleString("es-ES")
-  };
-  const response = await fetch(CONFIG.formspreeEndpoint, {
-    method: "POST",
-    headers: { Accept: "application/json", "Content-Type": "application/json" },
-    body: JSON.stringify(payload)
-  });
-  if (!response.ok) throw new Error("Formspree no ha aceptado el envío.");
 }
 
 function openCustomPlanModal() {
@@ -2131,7 +2236,7 @@ function renderYSi() {
 
   if (current.mi_respuesta) {
     ySiStatusBadge.textContent = `Esperando a ${otherName}`;
-    ySiStatusNote.textContent = `Tu respuesta está guardada. Si ${otherName} no responde en unos 2 minutos, recibirá un correo avisando de que es su turno.`;
+    ySiStatusNote.textContent = `Tu respuesta está guardada. JaviEats avisará a ${otherName} por Push si lo tiene activo; si no, usará el correo de turno.`;
   } else if (otherAnswered) {
     ySiStatusBadge.textContent = "Te toca";
     ySiStatusNote.textContent = `${otherName} ya ha respondido. Su elección permanece oculta hasta que tú contestes.`;
@@ -4435,6 +4540,61 @@ function showToast(message) { toast.textContent = message; toast.classList.remov
         <span class="v3-catalog-copy"><small>${esc(service.category)}</small><strong>${esc(service.title)}</strong><em>${esc(service.description)}</em></span>
         <span class="v3-catalog-go">Proponer ${icon("arrow")}</span>
       </button>`).join("");
+    enableCatalogMouseDrag(grid);
+  }
+
+  function enableCatalogMouseDrag(grid) {
+    if (!grid || grid.dataset.mouseDragBound === "true") return;
+    grid.dataset.mouseDragBound = "true";
+
+    const desktopPointer = window.matchMedia?.("(hover: hover) and (pointer: fine)")?.matches;
+    if (!desktopPointer) return;
+
+    const hint = grid.closest(".v3-catalog")?.querySelector(".v3-block-title > span");
+    if (hint) hint.textContent = "Arrastra para ver más";
+
+    grid.style.cursor = "grab";
+    grid.style.overscrollBehaviorInline = "contain";
+
+    let dragging = false;
+    let moved = false;
+    let startX = 0;
+    let startScroll = 0;
+
+    grid.addEventListener("pointerdown", event => {
+      if (event.pointerType !== "mouse" || event.button !== 0) return;
+      dragging = true;
+      moved = false;
+      startX = event.clientX;
+      startScroll = grid.scrollLeft;
+      grid.style.cursor = "grabbing";
+      grid.style.userSelect = "none";
+      grid.setPointerCapture?.(event.pointerId);
+    });
+
+    grid.addEventListener("pointermove", event => {
+      if (!dragging) return;
+      const delta = event.clientX - startX;
+      if (Math.abs(delta) > 5) moved = true;
+      grid.scrollLeft = startScroll - delta;
+    });
+
+    const stopDrag = event => {
+      if (!dragging) return;
+      dragging = false;
+      grid.style.cursor = "grab";
+      grid.style.userSelect = "";
+      try { grid.releasePointerCapture?.(event.pointerId); } catch (_) {}
+      window.setTimeout(() => { moved = false; }, 0);
+    };
+
+    grid.addEventListener("pointerup", stopDrag);
+    grid.addEventListener("pointercancel", stopDrag);
+    grid.addEventListener("click", event => {
+      if (!moved) return;
+      event.preventDefault();
+      event.stopImmediatePropagation();
+    }, true);
   }
 
   function renderMemoryOverview() {
