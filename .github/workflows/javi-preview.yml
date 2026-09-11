@@ -1,0 +1,37 @@
+name: javi-preview
+
+on:
+  push:
+    paths:
+      - '.github/workflows/javi-preview.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Activar preview de Nuestra Vida solo para Javi
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('script.js')
+          text = p.read_text(encoding='utf-8')
+          old = '    const revealed = now >= REVEAL_AT;'
+          new = '    const previewForJavi = role() === "javi" && now < REVEAL_AT;\n    const revealed = now >= REVEAL_AT || previewForJavi;'
+          if old not in text:
+              raise SystemExit('No se encontro la condicion de reveal esperada')
+          text = text.replace(old, new, 1)
+          p.write_text(text, encoding='utf-8')
+          PY
+          node --check script.js
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add script.js
+          git commit -m "PREVIEW Nuestra Vida solo Javi"
+          git push
