@@ -42,6 +42,23 @@
     document.head.appendChild(style);
   }
 
+  function disableLegacyFormspree() {
+    try {
+      if (typeof CONFIG !== "undefined" && CONFIG) {
+        delete CONFIG.formspreeEndpoint;
+        delete CONFIG.emailDestino;
+      }
+      if (typeof sendProposalByEmail === "function") {
+        sendProposalByEmail = async () => ({
+          disabled: true,
+          reason: "JaviEats usa Actividad y Push para las propuestas."
+        });
+      }
+    } catch (error) {
+      console.warn("JaviEats 3.1: no se pudo neutralizar Formspree.", error);
+    }
+  }
+
   function cancelRetry() {
     if (syncRetryTimer) window.clearTimeout(syncRetryTimer);
     syncRetryTimer = null;
@@ -339,6 +356,7 @@
 
   function mount() {
     installStyles();
+    disableLegacyFormspree();
     patchSynchronization();
     watchYSiCopy();
     handleDeepLink();
