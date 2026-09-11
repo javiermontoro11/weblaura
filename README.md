@@ -1,37 +1,42 @@
 # JaviEats 💌
 
-**Versión actual: 3.1 — CANDIDATA FINAL**
+**Versión actual: 3.1 — ESTABLE**
 
-JaviEats es una aplicación web privada creada para Laura y Javi. La 3.1 queda reducida a lo prioritario para consolidar la base de 3.0 antes de integrar el futuro juego principal en la **versión 3.2**.
+JaviEats es una aplicación web privada creada para Laura y Javi. La versión 3.1 queda cerrada como base estable y limpia antes de la integración del juego principal en **JaviEats 3.2**.
 
-> **Estado actual:** el desarrollo técnico de 3.1 está cerrado en GitHub. Queda únicamente la validación corta en dispositivo real —especialmente PWA/iPhone, Push y recuperación de conexión— antes de considerarla estable. Las mejoras que no bloquean 3.2 se han movido expresamente a **3.3**.
+> **Estado actual:** 3.1 validada en uso real. La navegación, Perfil/Nosotros, sincronización, Planes, Minijuegos, Recuerdos y el acceso especial funcionan tras la unificación final. Los antiguos archivos auxiliares `v3.1.js` y `app-navigation.js` han sido absorbidos por el core y eliminados del repositorio.
 
 ---
 
-## 🚀 JaviEats 3.1 — objetivo de cierre
+## 🚀 JaviEats 3.1 — cierre final
 
-La 3.1 no es un rediseño ni una versión de funciones nuevas. Su objetivo es dejar una base más fiable y una navegación preparada para que 3.2 pueda centrarse en la integración del juego principal.
+La 3.1 consolida la base de 3.0 y reduce deuda técnica antes de integrar el juego principal.
 
-### Incluido en 3.1
+### Incluido y validado
 
 - navegación inferior `Inicio · Planes · acceso especial · Minijuegos · Recuerdos`;
 - Perfil/Nosotros desde la cabecera;
-- configuración Push y cierre de sesión dentro del espacio de Perfil;
+- configuración Push y cierre de sesión dentro de Perfil;
 - acceso central especial con cuenta atrás y revelación programada;
 - Push enriquecido de Planes;
 - Push de turno y resultado final de `¿Y si…?`;
 - email de turno de `¿Y si…?` únicamente como fallback si no existe Push;
-- enlaces Push directos a Planes y `¿Y si…?`;
-- sincronización resistente con fallo parcial, reintentos y recuperación de conexión;
-- refresco al recuperar Internet y al volver a la PWA;
+- enlaces directos Push a Planes y `¿Y si…?`;
+- sincronización resistente mediante cargas independientes y `Promise.allSettled`;
+- reintentos automáticos a 2 s, 5 s y 10 s;
+- recuperación al volver a tener Internet y al regresar a la PWA;
 - bloqueo de sincronizaciones simultáneas;
 - refresco manual desde el estado de sincronización;
-- iconos principales PWA 3.1 y favicon sin la referencia SVG antigua;
-- Formspree neutralizado en runtime para que las propuestas no dupliquen avisos.
-
-### Decisión de alcance
-
-Todo lo que no era imprescindible para arrancar 3.2 se aplaza a **JaviEats 3.3**. Esto evita alargar el cierre de 3.1 y, sobre todo, evita refactors grandes justo antes de integrar el juego principal.
+- arrastre horizontal del catálogo con ratón en escritorio;
+- pista `Arrastra para ver más` en equipos con puntero fino;
+- iconos principales PWA 3.1 y referencias versionadas;
+- Formspree eliminado físicamente del frontend de propuestas;
+- sincronización y deep links integrados directamente en `script.js`;
+- navegación 3.1 integrada directamente en `script.js`;
+- estilos de navegación y del acceso especial integrados en `style.css`;
+- retirada definitiva de `v3.1.js`;
+- retirada definitiva de `app-navigation.js`;
+- `index.html` cargando únicamente los scripts principales con referencias `?v=3.1`.
 
 ---
 
@@ -52,19 +57,17 @@ Minijuegos
 Recuerdos
 ```
 
-`Nosotros` deja de ocupar una pestaña inferior y se abre desde el icono de perfil. `Juegos` pasa a llamarse **Minijuegos** para separar claramente los juegos cortos del futuro juego principal.
+`Nosotros` deja de ocupar una pestaña inferior y se abre desde el icono de Perfil. `Juegos` pasa a llamarse **Minijuegos** para diferenciar los juegos cortos del futuro juego principal.
 
-El acceso central se mantiene como espacio reservado para el juego principal. Hasta el **12/09/2026 a las 14:00 (Europe/Madrid)** muestra `12·09`, una cuenta atrás y una pantalla de misterio. La integración real del juego pertenece a 3.2.
+El acceso central queda reservado para el juego principal. Hasta el **12/09/2026 a las 14:00 (Europe/Madrid)** muestra `12·09`, una cuenta atrás y una pantalla de misterio. La integración jugable pertenece a 3.2.
 
 ---
 
 ## 🔔 Push y Actividad
 
-La infraestructura Web Push existente se conserva; 3.1 mejora contenido y destino.
-
 ### Planes
 
-Se contemplan Push para:
+Los avisos importantes contemplados son:
 
 - nueva propuesta;
 - aceptación;
@@ -72,36 +75,16 @@ Se contemplan Push para:
 - cancelación;
 - cambio importante de fecha u hora.
 
-Los textos incluyen actor, plan, fecha/hora y nota cuando existe.
-
-Ejemplo:
-
-```text
-Laura te propone un plan 📅
-🍣 Sushi Date · sábado 12 sep · 21:30
-“Me apetece ir al buffet…”
-```
-
-Los cambios menores y el estado `realizada` no deben generar Push.
+Los cambios menores y el estado `realizada` no generan Push.
 
 ### ¿Y si…?
 
 Se utiliza Push para:
 
 - avisar de que el otro ya respondió y ahora te toca;
-- resultado final después de completar la quinta pregunta del día.
+- avisar del resultado final después de completar la quinta pregunta del día.
 
-Las preguntas 1–4 pueden generar Actividad interna, pero no Push individual.
-
-```text
-Laura ya ha respondido 💭
-Te toca en ¿Y si…? 👀
-```
-
-```text
-¿Y si…? completado ❤️
-Hoy habéis coincidido 4 de 5
-```
+El correo de turno queda únicamente como respaldo cuando el destinatario no dispone de Push activo.
 
 ### Destinos
 
@@ -111,33 +94,23 @@ Push de ¿Y si…? → ?open=ysi → ¿Y si…?
 Push de prueba → Inicio
 ```
 
-### Email de turno
-
-```text
-¿El destinatario tiene Push activo?
-├─ Sí  → Push; no programar email duplicado.
-└─ No  → mantener el email de turno existente.
-```
-
-Este sistema es independiente de Formspree.
-
 ---
 
 ## 🔄 Sincronización robusta
 
-La fiabilidad de sincronización es la mejora técnica principal de 3.1.
+La sincronización 3.1 vive ya directamente dentro de `script.js`.
 
-La capa `v3.1.js` sustituye en runtime la sincronización general por una versión que:
+Características:
 
-- ejecuta las cargas relevantes de forma independiente mediante `Promise.allSettled`;
-- conserva el último dato válido cuando falla solo una sección;
-- evita que un fallo en Recuerdos o `¿Y si…?` tire abajo toda la actualización;
-- bloquea sincronizaciones simultáneas;
-- reintenta con esperas de 2 s, 5 s y 10 s;
-- reacciona al evento `online`;
-- actualiza al volver a primer plano;
-- recupera la PWA después de restaurarla desde memoria;
-- permite pulsar el estado de sincronización para refrescar manualmente.
+- cargas relevantes independientes;
+- `Promise.allSettled` para evitar que un fallo parcial rompa toda la actualización;
+- conservación del último dato válido cuando falla una sección;
+- bloqueo de sincronizaciones simultáneas;
+- reintentos a 2 s, 5 s y 10 s;
+- reacción al evento `online`;
+- actualización al volver a primer plano;
+- recuperación desde BFCache mediante `pageshow`;
+- refresco manual pulsando el estado de sincronización.
 
 Estados previstos:
 
@@ -148,7 +121,13 @@ Sincronización parcial · reintentando…
 Sincronizado · HH:MM
 ```
 
-La consolidación completa de esta capa dentro del `script.js` histórico se aplaza a 3.3 para no hacer un refactor de un archivo de más de 200 KB justo antes de 3.2.
+---
+
+## 🗓️ Planes
+
+El catálogo actual mantiene ocho servicios. En móvil se recorre con swipe y en escritorio puede desplazarse manteniendo pulsado el botón izquierdo del ratón y arrastrando lateralmente.
+
+Formspree ya no forma parte del flujo de propuestas. Los Planes se guardan en Supabase y utilizan el sistema actual de Actividad/Push.
 
 ---
 
@@ -161,15 +140,15 @@ Se mantienen los cuatro minijuegos actuales:
 - `Dibuja`;
 - `No lo digas`.
 
-El futuro juego principal no se mezcla dentro de `minigames.js` ni dentro del hub de Minijuegos.
+El juego principal de 3.2 no se mezclará dentro de `minigames.js` ni dentro del hub de Minijuegos.
 
 ---
 
 ## 📸 Recuerdos
 
-Recuerdos mantiene la implementación de 3.0:
+Recuerdos mantiene:
 
-- creación por Javi y Laura;
+- creación;
 - edición;
 - eliminación;
 - varias fotografías;
@@ -183,7 +162,7 @@ Los recuerdos históricos del repositorio permanecen intactos.
 
 ## 👤 Perfil / Nosotros
 
-Perfil/Nosotros conserva:
+Perfil/Nosotros reúne:
 
 - compatibilidad acumulada de `¿Y si…?`;
 - progreso del puzle;
@@ -198,7 +177,7 @@ La campana de Actividad continúa separada en la cabecera.
 
 ## 📱 PWA
 
-JaviEats continúa como PWA mobile-first y mantiene:
+JaviEats mantiene:
 
 - `manifest.webmanifest`;
 - `display: standalone`;
@@ -209,19 +188,17 @@ JaviEats continúa como PWA mobile-first y mantiene:
 - Web Push;
 - iconos de 192 px, 512 px y Apple Touch Icon.
 
-El manifest 3.1 declara los iconos actuales como `purpose: "any"`. Las variantes maskable independientes quedan aplazadas a 3.3.
+Las variantes maskable independientes quedan aplazadas a 3.3.
 
 ---
 
-## 🧩 Estructura de 3.1
+## 🧩 Estructura final de 3.1
 
 ```text
 JaviEats/
 ├── index.html
 ├── style.css
 ├── script.js
-├── app-navigation.js
-├── v3.1.js
 ├── minigames-data.js
 ├── minigames.js
 ├── manifest.webmanifest
@@ -236,51 +213,44 @@ JaviEats/
 └── recuerdos/
 ```
 
-`app-navigation.js` mantiene aislada la navegación nueva y el acceso especial. `v3.1.js` queda deliberadamente reducido a compatibilidad crítica de 3.1: sincronización, deep link de Planes, texto de turno de `¿Y si…?` y neutralización runtime de Formspree.
-
-No se añaden más archivos auxiliares para cerrar esta versión.
+La raíz ya no contiene capas temporales de 3.1. La lógica general y de navegación está consolidada en `script.js`, mientras que la presentación permanece en `style.css`.
 
 ---
 
 ## ⏭️ Aplazado expresamente a JaviEats 3.3
 
-Estas mejoras siguen aprobadas, pero no bloquean la integración de 3.2:
+Estas mejoras siguen aprobadas, pero no bloquean 3.2:
 
-- ampliar físicamente el catálogo de 8 a 10 planes;
+- ampliar el catálogo de 8 a 10 planes;
 - añadir `☕ Tomar algo`;
 - añadir `🍽️ Ir a comer / cenar`;
-- drag de escritorio y pistas adicionales del carrusel;
 - exportación `.ics` a Apple Calendar;
-- retirar físicamente Formspree del `script.js`;
-- eliminar físicamente el frontend muerto de Mensaje del día;
-- consolidar `v3.1.js` dentro del core y retirar la capa de compatibilidad;
-- refactorizar la navegación si merece la pena después de integrar 3.2;
+- limpieza profunda del frontend legacy de `Mensaje del día` y otros nodos antiguos ya no visibles;
+- revisión de código legacy que pueda eliminarse sin afectar funcionalidad;
 - iconos maskable independientes;
 - pulidos no críticos de PWA/iPad;
 - QA exhaustivo de pequeñas funciones administrativas.
 
-Formspree continúa desactivado funcionalmente en 3.1 aunque su código histórico permanezca dentro de `script.js` hasta 3.3.
+El arrastre de escritorio, la retirada de Formspree y la unificación de `v3.1.js` / `app-navigation.js` **ya no forman parte de este backlog: quedaron completados en 3.1**.
 
 ---
 
 ## 🧪 QA de cierre 3.1
 
-Antes de etiquetar la candidata como estable se valida únicamente lo que puede bloquear 3.2:
+La versión se ha validado después de la unificación final. Se han comprobado en uso real los elementos críticos de la experiencia y la aplicación continúa funcionando correctamente después de retirar las capas auxiliares.
 
-- Inicio carga correctamente;
-- Planes carga, propone y acepta/rechaza;
-- Push de Planes llega y abre Planes;
-- turno de `¿Y si…?` llega por Push cuando corresponde;
-- `?open=ysi` abre `¿Y si…?`;
-- resultado final 5/5 no se duplica;
-- Push toggle sigue funcionando desde Perfil;
-- Minijuegos siguen abriendo;
-- Recuerdos siguen cargando;
-- Perfil/Nosotros sigue accesible;
-- cerrar sesión funciona;
-- PWA recupera datos al volver del segundo plano;
-- modo avión → recuperar conexión vuelve a sincronizar;
-- una carga parcial fallida no vacía los datos buenos.
+Para futuras regresiones, los puntos críticos a comprobar son:
+
+- Inicio;
+- Planes y catálogo horizontal;
+- propuesta/gestión de Planes;
+- Minijuegos;
+- Recuerdos;
+- Perfil/Nosotros;
+- acceso especial central;
+- Push y destinos de notificación;
+- recuperación de conexión;
+- cierre de sesión.
 
 ---
 
@@ -310,7 +280,7 @@ Tablas principales existentes:
 - `y_si_respuestas`
 - `push_subscriptions`
 
-No se borran tablas legacy durante el cierre de 3.1 y no se crean todavía tablas específicas para el futuro juego principal.
+No se borran tablas legacy durante el cierre de 3.1 y no se crean todavía tablas específicas para el juego principal.
 
 ---
 
@@ -371,260 +341,170 @@ CREACIÓN <archivo> VERSION <versión>
 
 ## v3.2 — Juego principal de JaviEats
 
-La 3.2 tendrá como gran novedad la integración completa del juego principal dentro de JaviEats. La arquitectura concreta —archivos, navegación interna, persistencia y cualquier necesidad de Supabase— se decidirá cuando la build estable esté lista.
+La 3.2 tendrá como gran novedad la integración completa del juego principal dentro de JaviEats. Se mantendrá como módulo independiente del hub de Minijuegos para evitar acoplar su lógica al core principal.
 
-Hasta el momento de su revelación pública, la documentación evita mostrar su nombre en claro.
+Hasta el momento de la revelación programada, el frontend evita mostrar el nombre del juego en claro antes de tiempo.
 
-## v3.3 — Pulido aplazado de JaviEats
+## v3.3 — Pulido de JaviEats
 
-La 3.3 recuperará las mejoras no prioritarias retiradas del alcance final de 3.1: catálogo ampliado, Calendar `.ics`, limpieza física legacy, maskables y refactors que no debían retrasar 3.2.
+La 3.3 recuperará mejoras no prioritarias como el catálogo ampliado, Calendar `.ics`, limpieza profunda de código legacy, maskables y pequeños pulidos que no deben bloquear 3.2.
 
 ---
 
 # Historial de versiones
 
-## v3.1 — Navegación, Push y estabilidad antes del juego principal
+## v3.1 — Navegación, estabilidad y limpieza antes del juego principal
 
 - Nueva arquitectura `Inicio · Planes · acceso especial · Minijuegos · Recuerdos`.
 - Perfil/Nosotros pasa a la cabecera.
 - `Juegos` pasa a llamarse `Minijuegos`.
 - Acceso central especial con cuenta atrás y revelación programada.
-- Preparación del hueco del futuro juego principal; integración completa reservada a 3.2.
-- Push de Planes enriquecido con actor, plan, fecha/hora y nota.
+- Push de Planes enriquecido.
 - Push de `¿Y si…?` para turno y resultado final 5/5.
 - Email de turno de `¿Y si…?` únicamente como fallback si no hay Push.
 - Deep links de Push a Planes y `¿Y si…?`.
 - Sincronización robusta con fallo parcial, reintentos, recuperación `online` y control de concurrencia.
 - Refresco manual desde el estado de sincronización.
-- Identidad PWA actualizada en iconos principales y retirada de la referencia al favicon SVG 2.7.1.
-- Formspree neutralizado funcionalmente; limpieza física aplazada a 3.3.
-- Catálogo 10, `.ics`, drag avanzado, maskables y limpieza legacy profunda aplazados a 3.3.
+- Arrastre del catálogo con ratón en escritorio.
+- Formspree retirado físicamente del frontend de propuestas.
+- `v3.1.js` absorbido por `script.js` y eliminado.
+- `app-navigation.js` absorbido por `script.js` / `style.css` y eliminado.
+- Referencias principales versionadas a `?v=3.1`.
+- Identidad PWA actualizada en iconos principales.
+- Base final validada antes de 3.2.
 
 ## v3.0 — Rediseño mobile-first, Planes compartidos, Recuerdos compartidos y PWA
 
 - Rediseño visual completo con prioridad a móvil y aspecto de aplicación.
 - Nueva navegación inferior: `Inicio · Planes · Juegos · Recuerdos · Nosotros`.
-- Juegos permanece como botón central sin sobredimensionarse.
-- Inicio se simplifica para priorizar actividad real, próximo plan, juegos y último recuerdo.
-- Planes recupera protagonismo con pendientes, próximo plan, catálogo y calendario.
-- Ambos perfiles quedan preparados para proponer, aceptar/rechazar, editar y borrar planes.
-- Recuerdos queda preparado para creación, edición y borrado por Javi y Laura.
-- `Mensaje del día` y el antiguo apartado de mensajes/cartas dejan de formar parte de la experiencia visible.
-- El futuro juego principal se mantiene fuera de la interfaz pública de 3.0.
-- `Nosotros` reúne compatibilidad, puzle, recuerdos y vales con una presentación más visual.
-- Centro de Actividad renovado y conectado a `public.notificaciones`.
-- PWA preparada para instalación desde Safari en iPhone/iPad.
-- Nuevo `manifest.webmanifest`, iconos específicos y `service-worker.js`.
-- Nueva tabla `push_subscriptions` para Web Push.
-- Frontend preparado para activar/desactivar Push y registrar el dispositivo automáticamente.
-- VAPID configurado: pública en frontend; privada únicamente en Supabase Secrets.
-- Infraestructura Push posteriormente validada con notificaciones reales en iPhone.
-- Push reservado para Planes importantes, turnos de `¿Y si…?` y resumen final del día de `¿Y si…?`.
-- Correo de turno de `¿Y si…?` conservado como fallback cuando el destinatario no disponga de Push.
-
----
+- Inicio simplificado para priorizar actividad real, próximo plan, juegos y último recuerdo.
+- Planes con pendientes, próximo plan, catálogo y calendario.
+- Ambos perfiles preparados para proponer, aceptar/rechazar, editar y borrar planes.
+- Recuerdos compartidos con creación, edición y borrado.
+- `Mensaje del día` y el antiguo apartado de mensajes/cartas dejan la experiencia visible.
+- Centro de Actividad conectado a `public.notificaciones`.
+- PWA preparada para iPhone/iPad.
+- `manifest.webmanifest`, iconos y `service-worker.js`.
+- `push_subscriptions` y Web Push.
+- VAPID configurado con la clave privada únicamente en Supabase Secrets.
+- Correo de turno de `¿Y si…?` conservado como fallback cuando no hay Push.
 
 ## v2.9 — Mensaje del día y notificaciones
 
-- Nuevo `Mensaje del día` escrito por Javi desde Inicio.
-- Un mensaje principal por día, editable solo hasta que Laura lo lea.
-- Popup prioritario para Laura con sobre cerrado y revelado voluntario.
-- Estado de lectura visible para Javi.
-- Email genérico por Brevo sin incluir el contenido del mensaje.
-- Nueva Edge Function `mensaje-dia`, separada de `turno-y-si`.
-- Reutilización de los Secrets y del Vault ya existentes; no se crean nuevas claves.
-- Campana de notificaciones con contador de no leídas.
-- Avisos internos para Mensaje del día, resultado de ¿Y si…?, puzle, planes y recuerdos.
-- Navegación directa desde cada notificación y opción `Marcar todo leído`.
-- `supabase-v2.9.sql` incluye también la instalación de Recuerdos v2.8 para permitir actualizar directamente desde v2.7.x con un único SQL.
+- `Mensaje del día` escrito por Javi desde Inicio.
+- Popup prioritario para Laura y estado de lectura.
+- Edge Function `mensaje-dia`.
+- Campana de notificaciones y Centro de Actividad.
+- Avisos internos para mensajes, ¿Y si…?, puzle, planes y recuerdos.
 
 ## v2.8 — Recuerdos privados
 
-- Nuevo formulario `Añadir recuerdo` disponible únicamente para Javi.
-- Nuevos recuerdos con fecha, título, descripción y hasta 8 fotos.
-- Compresión y redimensionado de imágenes en el navegador antes de subirlas.
-- Bucket privado `recuerdos` en Supabase Storage.
-- Tabla `recuerdos_app` con RLS.
-- URLs firmadas temporales para visualizar las fotos.
-- Edición y eliminación desde la propia web.
-- Los recuerdos antiguos de GitHub permanecen intactos y conviven con los nuevos.
-- Migración de los recuerdos antiguos aplazada expresamente a v2.8.1.
-- Revisión de `Dibuja` tras la primera prueba real: 90 s, pista a 45 s, cambio de palabra, más colores, deshacer y cartas emparejadas por dificultad.
-- El perdedor de cada territorio elige la siguiente categoría; si ambos fallan, esa categoría descansa una elección.
-- Revisión de `No lo digas`: 90 s por turno, puntos para quien adivina, pasar/prohibida = −5 s, 2–4 prohibidas por carta, rachas visuales y turnos equilibrados por dificultad.
-- Desempates de No lo digas: 45 s cada uno y, si sigue el empate, tandas de 30 s.
-- Las baterías siguen completas: 225 retos por juego, 450 en total.
+- Formulario `Añadir recuerdo`.
+- Hasta 8 fotos por recuerdo.
+- Compresión y redimensionado en navegador.
+- Bucket privado `recuerdos` y tabla `recuerdos_app` con RLS.
+- URLs firmadas temporales.
+- Edición y eliminación.
+- Revisión de Dibuja y No lo digas tras pruebas reales.
 
 ## v2.7.1 — Favicon y ajuste final del puzle
 
-- Nuevo favicon de JaviEats con corazón y flecha, incluyendo SVG, ICO y Apple Touch Icon.
-- Imagen SVG ligera para el puzle de seis piezas del masaje.
-- Precarga del recurso visual para evitar retrasos al abrir el popup.
-- Puzle responsive mediante una imagen completa que se va destapando por casillas.
-- Sin cambios de lógica, base de datos o backend.
+- Favicon de JaviEats con corazón y flecha.
+- ICO y Apple Touch Icon.
+- Imagen SVG ligera para el puzle.
+- Precarga del recurso visual.
 
 ## v2.7 — Minijuegos
 
-- `Dibuja` pasa a integrarse dentro de una nueva pestaña general `Minijuegos`.
-- Acceso rápido a Minijuegos desde Inicio.
-- Hub con `¿Y si…?`, `Piedra, papel o tijera`, `Dibuja` y `No lo digas`.
-- Dibuja rehecho como duelo de dos intentos por categoría.
-- 60 segundos por dibujo.
-- Victoria al conquistar 3 territorios.
-- Batería de 225 conceptos realmente dibujables.
-- Nuevo juego `No lo digas` con 225 cartas y tres palabras prohibidas por carta.
-- Dos turnos de 45 segundos por persona en No lo digas.
-- Desempate en tandas de 30 segundos.
+- Hub general `Minijuegos`.
+- `¿Y si…?`, `Piedra, papel o tijera`, `Dibuja` y `No lo digas`.
 - Baterías y lógica separadas en `minigames-data.js` y `minigames.js`.
 - Eliminados `draw-data.js` y `draw-game.js`.
-- Laura mantiene bloqueados los dos juegos nuevos hasta el 30/08/2026 a las 22:00, con cuenta atrás y desbloqueo automático.
-- Javi puede probarlos antes del estreno.
-- Sin cambios de base de datos ni backend.
 
 ## v2.6 — Primera versión de Dibuja
 
 - Primera incorporación de Dibuja como juego presencial.
-- Tablero de nueve categorías y batería propia.
-- Introducción de la idea de conquistar territorios.
-- Corrección de enlaces de email de “¿Y si…?” con destinatario explícito.
-- Detección de sesión abierta con el perfil equivocado.
-- Conservación del destino al cambiar de usuario.
-- La mecánica original de Dibuja queda sustituida por la implementación simplificada de v2.7.
+- Tablero por categorías.
+- Corrección de enlaces de email de `¿Y si…?` y detección de perfil equivocado.
 
 ## v2.5.2 — Entrada rápida Javi / Laura
 
-- Fuera el gate antiguo de preguntas privadas.
-- Sesión persistente: si Supabase conserva la sesión, entrada automática.
-- Selector visual de perfil cuando no existe sesión.
+- Sesión persistente.
+- Selector visual de perfil.
 - Correo asociado internamente a Javi o Laura.
-- Solo se solicita contraseña tras elegir perfil.
-- Bienvenida personalizada mientras se sincroniza la aplicación.
-- Resumen de Compatibilidad, turno de “¿Y si…?”, puzle o planes durante la bienvenida.
-- Los enlaces `?open=ysi` siguen llevando a la pregunta pendiente después de entrar.
-- Sin cambios de base de datos ni infraestructura de correo.
+- Bienvenida personalizada durante la sincronización.
+- Conservación de `?open=ysi`.
 
 ## v2.5.1 — Cinco preguntas al día y turnos por correo
 
-- Batería total de 300 preguntas cerradas.
-- Hasta cinco preguntas completadas por día.
-- Nueva pregunta inmediata al completar una entre los dos.
-- Caducidad diaria de preguntas pendientes.
-- Reinicio diario del contador, sin reiniciar la compatibilidad histórica.
-- Un cambio de pregunta conjunto al día.
-- Alternancia de categorías.
-- Resumen diario y progreso 0/5.
-- Último resultado visible junto a la nueva pregunta.
-- Aviso de turno por email programado 2 minutos después de la primera respuesta.
-- Cancelación automática del email si la otra persona responde antes.
-- Supabase Database Webhook + Edge Function `turno-y-si` + Brevo.
-- Sin recordatorio fijo de las 18:00 en esta versión.
+- Batería de 300 preguntas.
+- Hasta cinco preguntas completadas al día.
+- Caducidad diaria de pendientes.
+- Compatibilidad histórica acumulada.
+- Email de turno programado y cancelación si el otro responde antes.
+- Database Webhook + `turno-y-si` + Brevo.
 
-## v2.5 — ¿Y si…? compartido y recordatorios
+## v2.5 — ¿Y si…? compartido
 
-- 80 preguntas cerradas para Javi y Laura.
+- Preguntas cerradas para Javi y Laura.
 - Respuestas privadas hasta que ambos participan.
-- Preguntas sin repetición dentro de la temporada.
-- Arrastre automático de preguntas pendientes.
-- Resultado con animación de comparación.
-- Corazón de Compatibilidad JaviEats.
-- Estadísticas de coincidencias y mejor racha.
-- Historial filtrable.
-- Nuevas tablas y RPC protegidas para que no se pueda espiar la respuesta del otro.
-- Preparación de recordatorio del reto mediante Edge Function.
-- Control de máximo un correo cada 3 días.
-- Ejecución compatible con Europe/Madrid y cambios CET/CEST.
-- Formspree permanece para las propuestas de planes.
+- Compatibilidad, estadísticas e historial.
+- RPC protegidas.
 
 ## v2.4 — Puzle del masaje
 
 - Una pieza por cada partida diaria ganada.
 - Puzle visual de seis piezas.
-- Progreso persistente y compartido mediante Supabase.
-- Popup automático para Laura al entrar.
-- Piezas aleatorias sin repeticiones.
-- Las derrotas no restan progreso.
-- Vale de masaje creado únicamente al completar el puzle.
-- Inicio automático de un nuevo puzle con la siguiente victoria.
-- Animación al descubrir una pieza.
-- Conservación de los vales anteriores.
-- Nuevas tablas y políticas RLS.
-- Actualización de la función `jugar_ronda_reto(text)`.
+- Progreso persistente en Supabase.
+- Vale creado al completar el puzle.
 
 ## v2.3 — Conexión compartida
 
 - Supabase Auth.
-- Preguntas privadas antes del login.
-- Login con correo después de las preguntas.
 - Calendario compartido.
 - Datos sincronizados entre dispositivos.
-- Apartado Laura.
-- Mensajes, cartas e ideas.
-- Favoritos.
-- Guardado en Recuerdos.
-- Pregunta diaria.
-- Respuesta diaria sincronizada.
-- Un intento diario real para Laura.
-- Lógica del reto en Supabase.
-- Vales sincronizados.
-- Tickets descargables.
+- Mensajes/cartas, pregunta diaria, reto y vales sincronizados.
 - Permisos diferenciados.
-- Menú de cinco botones en una sola línea.
 
 ## v2.2 — Mejoras de contenido
 
-- Revisión de todos los servicios.
+- Revisión de servicios.
 - Nota obligatoria para Plan diferente.
 - Historial debajo del calendario.
-- Mejoras visuales en el reto y en los vales.
 
 ## v2.1 — Reto diario
 
-- Minijuego de piedra, papel o tijera.
-- Cinco rondas.
-- Empates que consumen ronda.
-- Contador de victorias.
-- Muerte súbita.
-- Premio secreto.
+- Piedra, papel o tijera.
+- Cinco rondas, muerte súbita y premio secreto.
 - Vale por un masaje.
-- Descarga del vale en PNG.
 
 ## v2.0 — Recuerdos
 
-- Línea temporal de recuerdos.
-- Galería de fotografías.
+- Línea temporal.
+- Galería.
 - Lector de cartas.
-- Archivos de texto externos.
-- Fotografías guardadas en el repositorio.
-- Navegación entre recuerdos.
+- Fotografías y textos externos.
 
 ## v1.2 — Calendario local
 
 - Calendario mensual.
-- Selección de días.
-- Indicador de días con planes.
 - Historial local.
-- Próximo plan.
-- Total de propuestas.
-- Persistencia mediante `localStorage`.
+- Próximo plan y total de propuestas.
+- Persistencia con `localStorage`.
 
 ## v1.1 — Acceso privado
 
 - Preguntas personales antes de entrar.
-- Selección aleatoria de preguntas.
-- Validación de respuestas.
 - Dos preguntas por acceso.
 - Sesión temporal con `sessionStorage`.
-- Botón para cerrar el acceso.
 
 ## v1.0 — Primera versión
 
-- Página de inicio.
-- Catálogo de servicios.
+- Inicio y catálogo de servicios.
 - Modal para proponer planes.
-- Fecha, hora, duración, nivel de ganas y nota.
+- Fecha, hora, duración, ganas y nota.
 - Envío mediante Formspree.
-- Diseño móvil.
-- Menú inferior.
+- Diseño móvil y menú inferior.
 
 ---
 
