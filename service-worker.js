@@ -1,4 +1,5 @@
 const JAVIEATS_DEFAULT_URL = './';
+const JAVIEATS_PUSH_ICON = './assets/icon-192.png?v=3.1';
 
 self.addEventListener('install', () => {
   self.skipWaiting();
@@ -19,8 +20,8 @@ self.addEventListener('push', event => {
   const title = payload.title || 'JaviEats';
   const options = {
     body: payload.body || payload.detalle || 'Tienes una novedad en JaviEats.',
-    icon: payload.icon || './assets/icon-192.png',
-    badge: payload.badge || './assets/icon-192.png',
+    icon: payload.icon || JAVIEATS_PUSH_ICON,
+    badge: payload.badge || JAVIEATS_PUSH_ICON,
     tag: payload.tag || payload.notificationId || undefined,
     renotify: Boolean(payload.renotify),
     data: {
