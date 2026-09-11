@@ -3344,11 +3344,11 @@ function showToast(message) { toast.textContent = message; toast.classList.remov
 
 
 /* =========================================================
-   JaviEats 3.0 · interfaz y navegación
+   JaviEats 3.1 · interfaz unificada
    ========================================================= */
-/* JaviEats 3.0 · Rediseño visual potente mobile-first
-   Capa de presentación sobre la lógica funcional 3.0.
-   Navegación: Inicio · Planes · Juegos · Recuerdos · Nosotros.
+/* Capa de presentación mobile-first integrada en el core.
+   Navegación final: Inicio · Planes · acceso especial · Minijuegos · Recuerdos.
+   Perfil/Nosotros vive en la cabecera.
 */
 
 (() => {
@@ -3363,10 +3363,15 @@ function showToast(message) { toast.textContent = message; toast.classList.remov
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;");
 
+  const REVEAL_AT = Date.parse("2026-09-12T12:00:00Z"); // 14:00 Europe/Madrid
+  const SECRET_NAME_CODES = [78, 117, 101, 115, 116, 114, 97, 32, 86, 105, 100, 97];
+  const secretName = () => SECRET_NAME_CODES.map(code => String.fromCharCode(code)).join("");
+
   let mounted = false;
   let editPlanId = null;
+  let revealTimer = null;
 
-  function icon(name) {
+  function icon(name, className = "v3-icon") {
     const paths = {
       home: '<path d="M3.5 10.8 12 3.7l8.5 7.1V21h-5.8v-6.1H9.3V21H3.5V10.8Z"/>',
       calendar: '<path d="M7 2.5v3m10-3v3M4 8.5h16M5 4.5h14a2 2 0 0 1 2 2v13H3v-13a2 2 0 0 1 2-2Zm2 7h3v3H7v-3Zm5 0h3v3h-3v-3Z"/>',
@@ -3382,7 +3387,7 @@ function showToast(message) { toast.textContent = message; toast.classList.remov
       clock: '<path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Zm0-13v5l3.2 1.8" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>',
       arrow: '<path d="M5 12h14m-5-5 5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>'
     };
-    return `<svg class="v3-icon" viewBox="0 0 24 24" aria-hidden="true">${paths[name] || paths.chevron}</svg>`;
+    return `<svg class="${className}" viewBox="0 0 24 24" aria-hidden="true">${paths[name] || paths.chevron}</svg>`;
   }
 
   function state() { return APP()?.getState?.() || {}; }
@@ -3530,8 +3535,12 @@ function showToast(message) { toast.textContent = message; toast.classList.remov
     buildMemories();
     buildUs();
     buildNav();
+    buildMysteryModal();
     buildEditModal();
     bindGlobalEvents();
+    bindRevealEvents();
+    updateRevealState();
+    revealTimer = window.setInterval(updateRevealState, 1000);
     renderAll();
   }
 
@@ -3543,12 +3552,23 @@ function showToast(message) { toast.textContent = message; toast.classList.remov
     if (eyebrow) eyebrow.textContent = "JAVI + LAURA";
     const title = header.querySelector("h1");
     if (title) title.textContent = "JaviEats";
-    const bell = $("notifications-btn");
-    const logout = $("logout-btn");
-    if (bell) bell.innerHTML = `${icon("bell")}<span class="notification-badge hidden" id="notifications-badge">0</span>`;
-    if (logout) logout.innerHTML = icon("power");
-  }
 
+    const bell = $("notifications-btn");
+    if (bell) bell.innerHTML = `${icon("bell")}<span class="notification-badge hidden" id="notifications-badge">0</span>`;
+
+    const actions = header.querySelector(".header-actions");
+    if (actions && !$("v3-profile-header-btn")) {
+      const profile = document.createElement("button");
+      profile.id = "v3-profile-header-btn";
+      profile.className = "icon-btn v3-profile-header-btn";
+      profile.type = "button";
+      profile.title = "Perfil y Nosotros";
+      profile.setAttribute("aria-label", "Abrir Perfil y Nosotros");
+      profile.innerHTML = icon("us");
+      profile.addEventListener("click", () => APP()?.showPage?.("us"));
+      actions.appendChild(profile);
+    }
+  }
   function buildHome() {
     const home = $("page-home");
     if (!home) return;
@@ -3643,13 +3663,13 @@ function showToast(message) { toast.textContent = message; toast.classList.remov
     const hero = page.querySelector(".minigames-hero");
     if (hero) {
       hero.querySelector(".eyebrow") && (hero.querySelector(".eyebrow").textContent = "Para los dos");
-      hero.querySelector("h2") && (hero.querySelector("h2").textContent = "Juegos");
+      hero.querySelector("h2") && (hero.querySelector("h2").textContent = "Minijuegos");
       const copy = hero.querySelector("p:not(.eyebrow)");
       if (copy) copy.textContent = "Preguntas compartidas, retos rápidos y piques para cuando os apetezca jugar.";
       const badge = hero.querySelector(".minigames-hero-badge");
       if (badge) badge.textContent = "4 juegos";
     }
-    page.querySelectorAll(".minigame-back").forEach(btn => btn.textContent = "← Volver a Juegos");
+    page.querySelectorAll(".minigame-back").forEach(btn => btn.textContent = "← Volver a Minijuegos");
   }
 
   function buildMemories() {
@@ -3719,13 +3739,38 @@ function showToast(message) { toast.textContent = message; toast.classList.remov
       <section class="v3-section">
         <div class="v3-block-title"><div><p class="v3-eyebrow">Premios</p><h3>Vales desbloqueados</h3></div></div>
         <div id="v3-us-vouchers" class="v3-us-vouchers"></div>
+      </section>
+
+      <section class="v3-section v3-profile-account" id="v3-profile-account">
+        <div class="v3-block-title"><div><p class="v3-eyebrow">Perfil y ajustes</p><h3>Tu JaviEats</h3></div></div>
+        <div class="v3-profile-account-card">
+          <div class="v3-profile-device-slot" id="v3-profile-device-slot"></div>
+          <div class="v3-profile-account-divider"></div>
+          <div id="v3-profile-logout-slot"></div>
+        </div>
       </section>`;
 
     const app = $("app-screen");
     const nav = app?.querySelector(".bottom-nav");
     if (nav) nav.insertAdjacentElement("beforebegin", page);
-  }
 
+    const pushSettings = $("push-settings");
+    const pushSlot = $("v3-profile-device-slot");
+    if (pushSettings && pushSlot) pushSlot.appendChild(pushSettings);
+
+    const logout = $("logout-btn");
+    const logoutSlot = $("v3-profile-logout-slot");
+    if (logout && logoutSlot) {
+      logout.className = "v3-profile-logout";
+      logout.title = "Cerrar sesión";
+      logout.setAttribute("aria-label", "Cerrar sesión de JaviEats");
+      logout.innerHTML = `
+        <span class="v3-profile-action-icon">${icon("power")}</span>
+        <span class="v3-profile-action-copy"><strong>Cerrar sesión</strong><small>Salir de esta cuenta en el dispositivo</small></span>
+        <span class="v3-profile-action-go" aria-hidden="true">›</span>`;
+      logoutSlot.appendChild(logout);
+    }
+  }
   function buildNav() {
     const nav = document.querySelector(".bottom-nav");
     if (!nav) return;
@@ -3733,15 +3778,123 @@ function showToast(message) { toast.textContent = message; toast.classList.remov
     nav.innerHTML = `
       <button class="nav-btn active" data-page="home" type="button">${icon("home")}<span>Inicio</span></button>
       <button class="nav-btn" data-page="calendar" type="button">${icon("calendar")}<span>Planes</span></button>
-      <button class="nav-btn" data-page="minigames" type="button">${icon("game")}<span>Juegos</span></button>
-      <button class="nav-btn" data-page="memories" type="button">${icon("memory")}<span>Recuerdos</span></button>
-      <button class="nav-btn" data-page="us" type="button">${icon("us")}<span>Nosotros</span></button>`;
+      <button class="nav-btn v3-mystery-nav" id="v3-mystery-nav" type="button" aria-label="Descubrir próxima novedad">${icon("spark", "v3-mystery-spark")}<span id="v3-mystery-nav-label">12·09</span></button>
+      <button class="nav-btn" data-page="minigames" type="button">${icon("game")}<span>Minijuegos</span></button>
+      <button class="nav-btn" data-page="memories" type="button">${icon("memory")}<span>Recuerdos</span></button>`;
 
     nav.querySelectorAll("[data-page]").forEach(btn => {
       btn.addEventListener("click", () => APP()?.showPage?.(btn.dataset.page));
     });
+    $("v3-mystery-nav")?.addEventListener("click", handleMysteryClick);
   }
 
+  function buildMysteryModal() {
+    if ($("v3-mystery-modal")) return;
+    document.body.insertAdjacentHTML("beforeend", `
+      <section class="v3-mystery-modal hidden" id="v3-mystery-modal" role="dialog" aria-modal="true" aria-labelledby="v3-mystery-title">
+        <button class="v3-mystery-backdrop" type="button" data-mystery-close aria-label="Cerrar"></button>
+        <div class="v3-mystery-sheet">
+          <button class="v3-mystery-sheet-close" type="button" data-mystery-close aria-label="Cerrar">×</button>
+          <div class="v3-mystery-mark">${icon("spark", "v3-mystery-spark")}</div>
+          <p class="v3-mystery-kicker" id="v3-mystery-kicker">Algo se está preparando</p>
+          <h2 id="v3-mystery-title">Todavía no 👀</h2>
+          <p class="v3-mystery-sheet-copy" id="v3-mystery-copy">Ese nuevo hueco de JaviEats no está ahí por casualidad. El sábado descubrirás qué es.</p>
+          <div class="v3-mystery-countdown" id="v3-mystery-countdown" aria-label="Cuenta atrás">
+            <span><strong id="v3-mystery-days">00</strong><small>días</small></span>
+            <span><strong id="v3-mystery-hours">00</strong><small>horas</small></span>
+            <span><strong id="v3-mystery-minutes">00</strong><small>min</small></span>
+            <span><strong id="v3-mystery-seconds">00</strong><small>seg</small></span>
+          </div>
+          <p class="v3-mystery-release" id="v3-mystery-release">Se desbloquea el sábado a las 14:00.</p>
+        </div>
+      </section>`);
+
+    document.querySelectorAll("[data-mystery-close]").forEach(button => {
+      button.addEventListener("click", closeMysteryModal);
+    });
+  }
+
+  function handleMysteryClick() {
+    if (Date.now() >= REVEAL_AT && window.JAVIEATS_MAIN_GAME_URL) {
+      window.location.href = window.JAVIEATS_MAIN_GAME_URL;
+      return;
+    }
+    openMysteryModal();
+  }
+
+  function openMysteryModal() {
+    const modal = $("v3-mystery-modal");
+    if (!modal) return;
+    updateRevealState();
+    modal.classList.remove("hidden");
+    document.body.style.overflow = "hidden";
+  }
+
+  function closeMysteryModal() {
+    $("v3-mystery-modal")?.classList.add("hidden");
+    document.body.style.overflow = "";
+  }
+
+  function updateCountdown(diff) {
+    const total = Math.max(0, Math.floor(diff / 1000));
+    const days = Math.floor(total / 86400);
+    const hours = Math.floor((total % 86400) / 3600);
+    const minutes = Math.floor((total % 3600) / 60);
+    const seconds = total % 60;
+
+    if ($("v3-mystery-days")) $("v3-mystery-days").textContent = String(days).padStart(2, "0");
+    if ($("v3-mystery-hours")) $("v3-mystery-hours").textContent = String(hours).padStart(2, "0");
+    if ($("v3-mystery-minutes")) $("v3-mystery-minutes").textContent = String(minutes).padStart(2, "0");
+    if ($("v3-mystery-seconds")) $("v3-mystery-seconds").textContent = String(seconds).padStart(2, "0");
+  }
+
+  function updateRevealState() {
+    const now = Date.now();
+    const revealed = now >= REVEAL_AT;
+    const nav = $("v3-mystery-nav");
+    const label = $("v3-mystery-nav-label");
+    if (!nav || !label) return;
+
+    nav.classList.toggle("is-revealed", revealed);
+
+    if (!revealed) {
+      label.textContent = "12·09";
+      nav.setAttribute("aria-label", "Descubrir próxima novedad");
+      updateCountdown(REVEAL_AT - now);
+      if ($("v3-mystery-kicker")) $("v3-mystery-kicker").textContent = "Algo se está preparando";
+      if ($("v3-mystery-title")) $("v3-mystery-title").textContent = "Todavía no 👀";
+      if ($("v3-mystery-copy")) $("v3-mystery-copy").textContent = "Ese nuevo hueco de JaviEats no está ahí por casualidad. El sábado descubrirás qué es.";
+      $("v3-mystery-countdown")?.classList.remove("hidden");
+      if ($("v3-mystery-release")) $("v3-mystery-release").textContent = "Se desbloquea el sábado a las 14:00.";
+      return;
+    }
+
+    const name = secretName();
+    label.textContent = name;
+    nav.setAttribute("aria-label", `Abrir ${name}`);
+    if ($("v3-mystery-kicker")) $("v3-mystery-kicker").textContent = "Ya está aquí";
+    if ($("v3-mystery-title")) $("v3-mystery-title").textContent = name;
+    if ($("v3-mystery-copy")) $("v3-mystery-copy").textContent = window.JAVIEATS_MAIN_GAME_URL
+      ? "El nuevo juego principal de JaviEats ya está disponible."
+      : "El nuevo juego principal de JaviEats ya se ha desvelado.";
+    $("v3-mystery-countdown")?.classList.add("hidden");
+    if ($("v3-mystery-release")) $("v3-mystery-release").textContent = window.JAVIEATS_MAIN_GAME_URL
+      ? "Toca su pestaña para entrar."
+      : "La entrada al juego se conectará desde esta misma pestaña.";
+  }
+
+  function bindRevealEvents() {
+    document.addEventListener("visibilitychange", () => {
+      if (!document.hidden) updateRevealState();
+    });
+    window.addEventListener("pageshow", updateRevealState);
+    document.addEventListener("keydown", event => {
+      if (event.key === "Escape" && !$("v3-mystery-modal")?.classList.contains("hidden")) closeMysteryModal();
+    });
+    window.addEventListener("beforeunload", () => {
+      if (revealTimer) window.clearInterval(revealTimer);
+    });
+  }
   function buildEditModal() {
     if ($("v3-edit-plan-modal")) return;
     document.body.insertAdjacentHTML("beforeend", `
@@ -4148,258 +4301,4 @@ function showToast(message) { toast.textContent = message; toast.classList.remov
   } else {
     mount();
   }
-})();
-
-/* --------------------------------------------------------------------------
-   JaviEats 3.1 · navegación integrada
-   Perfil/Nosotros, barra inferior de cinco accesos y lanzamiento programado.
-   -------------------------------------------------------------------------- */
-(() => {
-  "use strict";
-
-  const REVEAL_AT = Date.parse("2026-09-12T12:00:00Z"); // 14:00 Europe/Madrid
-  const SECRET_NAME_CODES = [78, 117, 101, 115, 116, 114, 97, 32, 86, 105, 100, 97];
-  const secretName = () => SECRET_NAME_CODES.map(code => String.fromCharCode(code)).join("");
-  const navGet = id => document.getElementById(id);
-
-  let mounted = false;
-  let timer = null;
-
-  function profileIcon() {
-    return `<svg class="v3-icon" viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M12 12.1a4.35 4.35 0 1 0 0-8.7 4.35 4.35 0 0 0 0 8.7Zm-7.35 8.3c.55-4.05 3.35-6.35 7.35-6.35s6.8 2.3 7.35 6.35" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
-    </svg>`;
-  }
-
-  function sparkIcon() {
-    return `<svg class="v3-mystery-spark" viewBox="0 0 24 24" aria-hidden="true">
-      <path d="m12 2 1.55 5.35L19 9l-5.45 1.65L12 16l-1.55-5.35L5 9l5.45-1.65L12 2Zm6.2 12.2.65 2.05L21 17l-2.15.75-.65 2.05-.65-2.05L15.4 17l2.15-.75.65-2.05ZM5.2 14.2l.65 2.05L8 17l-2.15.75-.65 2.05-.65-2.05L2.4 17l2.15-.75.65-2.05Z"/>
-    </svg>`;
-  }
-
-  function powerIcon() {
-    return `<svg class="v3-icon" viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M12 2v9m6.4-5.4a9 9 0 1 1-12.8 0" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/>
-    </svg>`;
-  }
-
-  function setupHeaderProfile() {
-    const actions = document.querySelector(".v3-header .header-actions") || document.querySelector(".app-header .header-actions");
-    if (!actions || navGet("v3-profile-header-btn")) return;
-
-    const profile = document.createElement("button");
-    profile.id = "v3-profile-header-btn";
-    profile.className = "icon-btn v3-profile-header-btn";
-    profile.type = "button";
-    profile.title = "Perfil y Nosotros";
-    profile.setAttribute("aria-label", "Abrir Perfil y Nosotros");
-    profile.innerHTML = profileIcon();
-    profile.addEventListener("click", () => window.JaviEatsApp?.showPage?.("us"));
-    actions.appendChild(profile);
-  }
-
-  function setupProfilePage() {
-    const page = navGet("page-us");
-    if (!page || navGet("v3-profile-account")) return;
-
-    page.insertAdjacentHTML("beforeend", `
-      <section class="v3-section v3-profile-account" id="v3-profile-account">
-        <div class="v3-block-title">
-          <div><p class="v3-eyebrow">Perfil y ajustes</p><h3>Tu JaviEats</h3></div>
-        </div>
-        <div class="v3-profile-account-card">
-          <div class="v3-profile-device-slot" id="v3-profile-device-slot"></div>
-          <div class="v3-profile-account-divider"></div>
-          <div id="v3-profile-logout-slot"></div>
-        </div>
-      </section>`);
-
-    const pushSettings = navGet("push-settings");
-    const pushSlot = navGet("v3-profile-device-slot");
-    if (pushSettings && pushSlot) pushSlot.appendChild(pushSettings);
-
-    const logoutButton = navGet("logout-btn");
-    const logoutSlot = navGet("v3-profile-logout-slot");
-    if (logoutButton && logoutSlot) {
-      logoutButton.className = "v3-profile-logout";
-      logoutButton.title = "Cerrar sesión";
-      logoutButton.setAttribute("aria-label", "Cerrar sesión de JaviEats");
-      logoutButton.innerHTML = `
-        <span class="v3-profile-action-icon">${powerIcon()}</span>
-        <span class="v3-profile-action-copy"><strong>Cerrar sesión</strong><small>Salir de esta cuenta en el dispositivo</small></span>
-        <span class="v3-profile-action-go" aria-hidden="true">›</span>`;
-      logoutSlot.appendChild(logoutButton);
-    }
-  }
-
-  function setupGamesLabel() {
-    const page = navGet("page-minigames");
-    if (!page) return;
-    const hero = page.querySelector(".minigames-hero");
-    const heading = hero?.querySelector("h2");
-    if (heading) heading.textContent = "Minijuegos";
-    const copy = hero?.querySelector("p:not(.eyebrow)");
-    if (copy) copy.textContent = "Preguntas compartidas, retos rápidos y piques para cuando os apetezca jugar.";
-    page.querySelectorAll(".minigame-back").forEach(button => {
-      button.textContent = "← Volver a Minijuegos";
-    });
-  }
-
-  function setupNav() {
-    const nav = document.querySelector(".v3-bottom-nav") || document.querySelector(".bottom-nav");
-    if (!nav || navGet("v3-mystery-nav")) return;
-
-    const home = nav.querySelector('[data-page="home"]');
-    const plans = nav.querySelector('[data-page="calendar"]');
-    const games = nav.querySelector('[data-page="minigames"]');
-    const memories = nav.querySelector('[data-page="memories"]');
-    const us = nav.querySelector('[data-page="us"]');
-    if (!home || !plans || !games || !memories) return;
-
-    us?.remove();
-    const gamesLabel = games.querySelector("span");
-    if (gamesLabel) gamesLabel.textContent = "Minijuegos";
-
-    const mystery = document.createElement("button");
-    mystery.id = "v3-mystery-nav";
-    mystery.className = "nav-btn v3-mystery-nav";
-    mystery.type = "button";
-    mystery.setAttribute("aria-label", "Descubrir próxima novedad");
-    mystery.innerHTML = `${sparkIcon()}<span id="v3-mystery-nav-label">12·09</span>`;
-    mystery.addEventListener("click", handleMysteryClick);
-
-    nav.replaceChildren(home, plans, mystery, games, memories);
-  }
-
-  function setupMysteryModal() {
-    if (navGet("v3-mystery-modal")) return;
-    document.body.insertAdjacentHTML("beforeend", `
-      <section class="v3-mystery-modal hidden" id="v3-mystery-modal" role="dialog" aria-modal="true" aria-labelledby="v3-mystery-title">
-        <button class="v3-mystery-backdrop" type="button" data-mystery-close aria-label="Cerrar"></button>
-        <div class="v3-mystery-sheet">
-          <button class="v3-mystery-sheet-close" type="button" data-mystery-close aria-label="Cerrar">×</button>
-          <div class="v3-mystery-mark">${sparkIcon()}</div>
-          <p class="v3-mystery-kicker" id="v3-mystery-kicker">Algo se está preparando</p>
-          <h2 id="v3-mystery-title">Todavía no 👀</h2>
-          <p class="v3-mystery-sheet-copy" id="v3-mystery-copy">Ese nuevo hueco de JaviEats no está ahí por casualidad. El sábado descubrirás qué es.</p>
-          <div class="v3-mystery-countdown" id="v3-mystery-countdown" aria-label="Cuenta atrás">
-            <span><strong id="v3-mystery-days">00</strong><small>días</small></span>
-            <span><strong id="v3-mystery-hours">00</strong><small>horas</small></span>
-            <span><strong id="v3-mystery-minutes">00</strong><small>min</small></span>
-            <span><strong id="v3-mystery-seconds">00</strong><small>seg</small></span>
-          </div>
-          <p class="v3-mystery-release" id="v3-mystery-release">Se desbloquea el sábado a las 14:00.</p>
-        </div>
-      </section>`);
-
-    document.querySelectorAll("[data-mystery-close]").forEach(button => {
-      button.addEventListener("click", closeMysteryModal);
-    });
-  }
-
-  function handleMysteryClick() {
-    if (Date.now() >= REVEAL_AT && window.JAVIEATS_MAIN_GAME_URL) {
-      window.location.href = window.JAVIEATS_MAIN_GAME_URL;
-      return;
-    }
-    openMysteryModal();
-  }
-
-  function openMysteryModal() {
-    const modal = navGet("v3-mystery-modal");
-    if (!modal) return;
-    updateRevealState();
-    modal.classList.remove("hidden");
-    document.body.style.overflow = "hidden";
-  }
-
-  function closeMysteryModal() {
-    navGet("v3-mystery-modal")?.classList.add("hidden");
-    document.body.style.overflow = "";
-  }
-
-  function updateCountdown(diff) {
-    const total = Math.max(0, Math.floor(diff / 1000));
-    const days = Math.floor(total / 86400);
-    const hours = Math.floor((total % 86400) / 3600);
-    const minutes = Math.floor((total % 3600) / 60);
-    const seconds = total % 60;
-
-    if (navGet("v3-mystery-days")) navGet("v3-mystery-days").textContent = String(days).padStart(2, "0");
-    if (navGet("v3-mystery-hours")) navGet("v3-mystery-hours").textContent = String(hours).padStart(2, "0");
-    if (navGet("v3-mystery-minutes")) navGet("v3-mystery-minutes").textContent = String(minutes).padStart(2, "0");
-    if (navGet("v3-mystery-seconds")) navGet("v3-mystery-seconds").textContent = String(seconds).padStart(2, "0");
-  }
-
-  function updateRevealState() {
-    const now = Date.now();
-    const revealed = now >= REVEAL_AT;
-    const nav = navGet("v3-mystery-nav");
-    const label = navGet("v3-mystery-nav-label");
-    if (!nav || !label) return;
-
-    nav.classList.toggle("is-revealed", revealed);
-
-    if (!revealed) {
-      label.textContent = "12·09";
-      nav.setAttribute("aria-label", "Descubrir próxima novedad");
-      updateCountdown(REVEAL_AT - now);
-      if (navGet("v3-mystery-kicker")) navGet("v3-mystery-kicker").textContent = "Algo se está preparando";
-      if (navGet("v3-mystery-title")) navGet("v3-mystery-title").textContent = "Todavía no 👀";
-      if (navGet("v3-mystery-copy")) navGet("v3-mystery-copy").textContent = "Ese nuevo hueco de JaviEats no está ahí por casualidad. El sábado descubrirás qué es.";
-      navGet("v3-mystery-countdown")?.classList.remove("hidden");
-      if (navGet("v3-mystery-release")) navGet("v3-mystery-release").textContent = "Se desbloquea el sábado a las 14:00.";
-      return;
-    }
-
-    const name = secretName();
-    label.textContent = name;
-    nav.setAttribute("aria-label", `Abrir ${name}`);
-    if (navGet("v3-mystery-kicker")) navGet("v3-mystery-kicker").textContent = "Ya está aquí";
-    if (navGet("v3-mystery-title")) navGet("v3-mystery-title").textContent = name;
-    if (navGet("v3-mystery-copy")) navGet("v3-mystery-copy").textContent = window.JAVIEATS_MAIN_GAME_URL
-      ? "El nuevo juego principal de JaviEats ya está disponible."
-      : "El nuevo juego principal de JaviEats ya se ha desvelado.";
-    navGet("v3-mystery-countdown")?.classList.add("hidden");
-    if (navGet("v3-mystery-release")) navGet("v3-mystery-release").textContent = window.JAVIEATS_MAIN_GAME_URL
-      ? "Toca su pestaña para entrar."
-      : "La entrada al juego se conectará desde esta misma pestaña.";
-  }
-
-  function mountNavigation31() {
-    if (mounted) return;
-    const nav = document.querySelector(".v3-bottom-nav");
-    const us = navGet("page-us");
-    if (!nav || !us) {
-      window.setTimeout(mountNavigation31, 60);
-      return;
-    }
-
-    mounted = true;
-    setupHeaderProfile();
-    setupProfilePage();
-    setupGamesLabel();
-    setupNav();
-    setupMysteryModal();
-    updateRevealState();
-
-    timer = window.setInterval(updateRevealState, 1000);
-    document.addEventListener("visibilitychange", () => {
-      if (!document.hidden) updateRevealState();
-    });
-    window.addEventListener("pageshow", updateRevealState);
-    document.addEventListener("keydown", event => {
-      if (event.key === "Escape" && !navGet("v3-mystery-modal")?.classList.contains("hidden")) closeMysteryModal();
-    });
-  }
-
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", () => window.setTimeout(mountNavigation31, 0), { once: true });
-  } else {
-    window.setTimeout(mountNavigation31, 0);
-  }
-
-  window.addEventListener("beforeunload", () => {
-    if (timer) window.clearInterval(timer);
-  });
 })();
