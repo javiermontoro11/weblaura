@@ -129,7 +129,6 @@
 <p>Planes, recuerdos, juegos y pequeñas cosas para compartir los dos.</p>
 <div class="availability">JaviEats · para Javi y Laura</div>
 </div>
-<section class="daily-message-card hidden" id="daily-message-card" aria-live="polite"></section>
 <button aria-label="Abrir Minijuegos" class="minigames-home-card" data-go="minigames" type="button">
 <div class="minigames-home-icon">🎮</div>
 <div class="minigames-home-copy">
@@ -185,37 +184,6 @@
 <button class="link-btn danger" id="clear-history" type="button">Limpiar</button>
 </div>
 <div class="list" id="booking-list"></div>
-</section>
-<section class="page" id="page-laura">
-<div class="laura-hero">
-<div class="laura-hero-icon">💌</div>
-<p class="eyebrow">Un espacio para Laura</p>
-<h2>Laura</h2>
-<p>Mensajes, cartas, pensamientos, ideas y todo aquello que quieras contarle a Javi.</p>
-</div>
-<section class="laura-compose-card" id="laura-compose-card">
-<div class="section-title"><div><p class="eyebrow">Escribir algo nuevo</p><h3>Para Javi</h3></div></div>
-<form class="form" id="laura-message-form">
-<label>¿Qué quieres escribir?
-              <select id="laura-message-type" required="">
-<option value="mensaje">Mensaje</option>
-<option value="carta">Carta</option>
-<option value="contarte">Algo que quiero contarte</option>
-<option value="idea">Idea para nosotros</option>
-</select>
-</label>
-<label>Título <span class="field-hint">Opcional</span>
-<input id="laura-message-title" maxlength="120" placeholder="Ponle un título bonito..." type="text"/>
-</label>
-<label>Escribe aquí
-              <textarea id="laura-message-content" maxlength="12000" placeholder="Cuéntale a Javi lo que quieras..." required="" rows="8"></textarea>
-</label>
-<button class="btn btn-primary" id="save-laura-message" type="submit">Guardar para Javi</button>
-<p class="note" id="laura-message-status"></p>
-</form>
-</section>
-<div class="section-title laura-history-title"><div><p class="eyebrow">El rincón de Laura</p><h2>Mensajes y cartas</h2></div></div>
-<div class="laura-messages-list" id="laura-messages-list"></div>
 </section>
 <section class="page" id="page-memories">
 <div class="memories-hero">
@@ -459,14 +427,7 @@
 <div class="letter-content" id="letter-content"><p>Cargando carta...</p></div>
 </article>
 </section>
-<nav class="bottom-nav">
-<button class="nav-btn active" data-page="home" type="button">🏠<span>Inicio</span></button>
-<button class="nav-btn" data-page="services" type="button">🛵<span>Servicios</span></button>
-<button class="nav-btn" data-page="calendar" type="button">📅<span>Calendario</span></button>
-<button class="nav-btn" data-page="laura" type="button">💌<span>Laura</span></button>
-<button class="nav-btn" data-page="memories" type="button">🗃️<span>Recuerdos</span></button>
-<button class="nav-btn" data-page="minigames" type="button">🎮<span>Minijuegos</span></button>
-</nav>
+<nav aria-label="Navegación principal" class="bottom-nav"></nav>
 </section>
 </main>
 <!-- Modal servicio -->
@@ -665,57 +626,6 @@
     </form>
   </div>
 </section>
-<!-- Compatibilidad interna · Mensaje del día (oculto en 3.0) -->
-<section class="modal hidden" id="daily-message-compose-modal">
-  <div class="modal-backdrop" data-daily-message-compose-close=""></div>
-  <div class="modal-panel daily-message-compose-panel">
-    <button aria-label="Cerrar" class="modal-close" data-daily-message-compose-close="" type="button">×</button>
-    <div class="daily-message-modal-heading">
-      <div class="daily-message-modal-icon">💌</div>
-      <div>
-        <p class="eyebrow">Mensaje del día</p>
-        <h2 id="daily-message-compose-title">Déjale algo a Laura</h2>
-        <p class="muted">El correo solo avisará de que hay algo nuevo. El mensaje se descubre dentro de JaviEats.</p>
-      </div>
-    </div>
-    <form class="form daily-message-form" id="daily-message-form">
-      <label>Tu mensaje
-        <textarea id="daily-message-input" maxlength="1200" placeholder="Escribe aquí lo que quieras que encuentre hoy..." required rows="7"></textarea>
-      </label>
-      <div class="daily-message-form-meta">
-        <span id="daily-message-char-count">0 / 1200</span>
-        <span>Un mensaje principal por día</span>
-      </div>
-      <p class="muted daily-message-form-note" id="daily-message-form-note">Al guardarlo por primera vez, Laura recibirá un aviso por email sin ver el contenido.</p>
-      <div aria-live="polite" class="daily-message-status" id="daily-message-status"></div>
-      <button class="btn btn-primary" id="daily-message-save-btn" type="submit">Guardar y avisar a Laura</button>
-    </form>
-  </div>
-</section>
-
-<!-- Compatibilidad interna · Descubrir Mensaje del día (oculto en 3.0) -->
-<section class="modal hidden daily-message-reveal-modal" id="daily-message-reveal-modal">
-  <div class="modal-backdrop" data-daily-message-reveal-close=""></div>
-  <div class="modal-panel daily-message-reveal-panel">
-    <button aria-label="Cerrar" class="modal-close" data-daily-message-reveal-close="" type="button">×</button>
-    <div class="daily-message-sealed" id="daily-message-sealed">
-      <div class="daily-message-envelope" aria-hidden="true">💌</div>
-      <p class="eyebrow">Solo para ti</p>
-      <h2>Javi te ha dejado algo</h2>
-      <p class="muted">Ábrelo cuando quieras descubrir el mensaje de hoy.</p>
-      <button class="btn btn-primary" id="daily-message-reveal-btn" type="button">Abrir mensaje</button>
-    </div>
-    <div class="daily-message-opened hidden" id="daily-message-opened">
-      <div class="daily-message-opened-icon" aria-hidden="true">❤️</div>
-      <p class="eyebrow" id="daily-message-opened-date">Mensaje del día</p>
-      <h2>Para Laura</h2>
-      <div class="daily-message-text" id="daily-message-opened-text"></div>
-      <p class="daily-message-opened-signature">Javi</p>
-      <button class="btn btn-primary" data-daily-message-reveal-close="" type="button">Seguir en JaviEats</button>
-    </div>
-  </div>
-</section>
-
 <!-- Centro de actividad y notificaciones -->
 <section class="modal hidden" id="notifications-modal">
   <div class="modal-backdrop" data-notifications-close=""></div>
@@ -740,17 +650,6 @@
   </div>
 </section>
 
-<!-- Modal mensaje Laura -->
-<section class="modal hidden" id="laura-message-modal">
-<div class="modal-backdrop" data-laura-message-close=""></div>
-<div class="modal-panel laura-message-panel">
-<button aria-label="Cerrar" class="modal-close" data-laura-message-close="" type="button">×</button>
-<div class="modal-icon" id="laura-message-modal-icon">💌</div>
-<p class="eyebrow" id="laura-message-modal-type">Mensaje</p><h2 id="laura-message-modal-title">Para Javi</h2><p class="muted" id="laura-message-modal-date"></p>
-<div class="laura-message-modal-content" id="laura-message-modal-content"></div>
-<div class="laura-message-modal-actions" id="laura-message-modal-actions"></div>
-</div>
-</section>
 <div class="toast hidden" id="toast"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
