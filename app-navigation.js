@@ -550,15 +550,6 @@
       : "La entrada al juego se conectará desde esta misma pestaña.";
   }
 
-  function loadVersion31Enhancements() {
-    if (document.querySelector('script[data-javieats-v31]')) return;
-    const script = document.createElement("script");
-    script.src = "./v3.1.js?v=3.1";
-    script.async = false;
-    script.dataset.javieatsV31 = "true";
-    document.body.appendChild(script);
-  }
-
   function mount() {
     if (mounted) return;
     const nav = document.querySelector(".v3-bottom-nav");
@@ -576,7 +567,6 @@
     setupNav();
     setupMysteryModal();
     updateRevealState();
-    loadVersion31Enhancements();
 
     timer = window.setInterval(updateRevealState, 1000);
     document.addEventListener("visibilitychange", () => {
