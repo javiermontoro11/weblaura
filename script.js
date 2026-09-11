@@ -3898,7 +3898,8 @@ function showToast(message) { toast.textContent = message; toast.classList.remov
 
   function updateRevealState() {
     const now = Date.now();
-    const revealed = now >= REVEAL_AT;
+    const previewForJavi = role() === "javi" && now < REVEAL_AT;
+    const revealed = now >= REVEAL_AT || previewForJavi;
     const nav = $("v3-mystery-nav");
     const label = $("v3-mystery-nav-label");
     if (!nav || !label) return;
