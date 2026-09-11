@@ -4,7 +4,7 @@
 
 JaviEats es una aplicación web privada creada para Laura y Javi. La versión 3.1 parte de la base visual y funcional de 3.0 y se centra en pulir la experiencia real de uso: navegación más clara, mejor sincronización, notificaciones Push más útiles, catálogo de planes ampliado, integración con el calendario del iPhone y preparación del acceso al futuro juego principal de JaviEats.
 
-> **Estado actual:** JaviEats 3.0 ya está desplegado y funcionando como aplicación web/PWA. La 3.1 tiene el alcance funcional cerrado y se está implementando sobre esa base sin rehacer lo que ya funciona.
+> **Estado actual:** JaviEats 3.0 ya está desplegado y funcionando como aplicación web/PWA. La 3.1 tiene el alcance funcional cerrado y se está implementando sobre esa base sin rehacer lo que ya funciona. La integración completa del juego principal queda reservada para la **versión 3.2**, que será su gran novedad.
 
 ---
 
@@ -63,7 +63,7 @@ Hasta el **12/09/2026 a las 14:00 (Europe/Madrid)**:
 
 Al llegar la fecha/hora programada, el propio frontend puede cambiar automáticamente el estado del botón y revelar el juego.
 
-La integración técnica definitiva del juego se hará **cuando exista una versión estable lista para entrar en JaviEats**. De momento no se crean tablas específicas de Supabase para ese juego, ya que la idea inicial es jugarlo cuando Javi y Laura estén juntos en el mismo dispositivo. Si más adelante se necesita persistencia entre dispositivos o partidas remotas, se reevaluará entonces.
+La **integración completa del juego pertenece a JaviEats 3.2**. La 3.1 únicamente prepara su hueco, su jerarquía dentro de la navegación y el lanzamiento visual previo. De momento no se crean tablas específicas de Supabase para ese juego, ya que la idea inicial es jugarlo cuando Javi y Laura estén juntos en el mismo dispositivo. Si más adelante se necesita persistencia entre dispositivos o partidas remotas, se reevaluará entonces.
 
 ---
 
@@ -80,7 +80,7 @@ Se conservan como elementos prioritarios:
 - último recuerdo;
 - ideas del catálogo.
 
-La posible integración visual del juego principal en Inicio se deja para cuando el juego esté realmente listo. No se añade todavía un bloque falso o una portada sin contenido funcional.
+La integración visual completa del juego principal en Inicio se deja para 3.2. No se añade en 3.1 un bloque falso o una portada sin contenido funcional.
 
 ---
 
@@ -469,7 +469,7 @@ Tablas principales existentes:
 
 `notificaciones` continúa siendo la fuente interna de Actividad y `push_subscriptions` almacena las instalaciones/dispositivos que han activado Push.
 
-No se crean por ahora tablas específicas para el futuro juego principal. Su integración de datos se decidirá cuando exista una versión final suficientemente estable y únicamente si la forma real de jugar lo necesita.
+No se crean por ahora tablas específicas para el futuro juego principal. Su integración de datos se decidirá en 3.2 cuando exista una versión final suficientemente estable y únicamente si la forma real de jugar lo necesita.
 
 ---
 
@@ -603,8 +603,20 @@ No se utilizarán mensajes genéricos de commit para los cambios normales de ver
 - La 3.1 se desarrolla directamente sobre la base actual.
 - El alcance funcional de 3.1 está **cerrado**: cualquier idea nueva pasa a 3.2 salvo decisión explícita de reabrir la versión.
 - El acceso especial de navegación ya está preparado para generar hype antes del lanzamiento.
-- La conexión definitiva del futuro juego principal se realizará únicamente cuando la build esté lista.
+- La conexión definitiva del juego principal pertenece a **JaviEats 3.2** y se realizará únicamente cuando la build esté lista.
 - No se realizan cambios adicionales en ese juego desde este frente hasta que Javi indique lo contrario.
+
+---
+
+# Próxima gran versión
+
+## v3.2 — Juego principal de JaviEats
+
+La 3.2 tendrá como gran novedad la integración completa del juego principal dentro de JaviEats.
+
+La arquitectura prevista parte del hueco reservado en 3.1 y mantendrá el juego separado de `Minijuegos`. La integración concreta —archivos, navegación interna, persistencia y cualquier necesidad de Supabase— se decidirá cuando la build estable esté lista para entrar en la aplicación.
+
+Hasta el momento de su revelación pública, la documentación evita mostrar su nombre en claro.
 
 ---
 
@@ -616,7 +628,7 @@ No se utilizarán mensajes genéricos de commit para los cambios normales de ver
 - Barra inferior preparada como `Inicio · Planes · acceso especial · Minijuegos · Recuerdos`.
 - `Juegos` pasa a llamarse `Minijuegos`.
 - Nuevo acceso central especial con cuenta atrás y revelación programada para el 12/09/2026 a las 14:00.
-- Preparación del hueco del futuro juego principal sin integrarlo todavía ni crear backend específico.
+- Preparación del hueco del futuro juego principal sin integrarlo todavía ni crear backend específico; la integración completa pasa a 3.2.
 - Catálogo de Planes ampliado de 8 a 10 opciones con `Tomar algo` e `Ir a comer / cenar`.
 - Carrusel de catálogo preparado para swipe móvil y arrastre con ratón en escritorio.
 - Push de Planes previsto con actor, plan, fecha/hora y nota.
