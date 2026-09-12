@@ -1,4 +1,4 @@
-const CACHE='nuestra-vida-1.0-release';
+const CACHE='nuestra-vida-1.0.1-release';
 const CORE=[
   './','./index.html','./manifest.webmanifest',
   './icons/icon-180.png','./icons/icon-192.png','./icons/icon-512.png',
@@ -53,5 +53,21 @@ self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE).then(async c=
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k.startsWith('nuestra-vida-')&&k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim()))});
 self.addEventListener('fetch',e=>{
   if(e.request.method!=='GET')return;
+
+  // Las navegaciones siempre consultan primero la red. Esto evita que una
+  // pantalla temporal de lanzamiento quede fijada en Safari/PWA.
+  if(e.request.mode==='navigate'){
+    e.respondWith(
+      fetch(e.request).then(r=>{
+        const copy=r.clone();
+        caches.open(CACHE).then(c=>c.put(e.request,copy));
+        return r;
+      }).catch(async()=>{
+        return (await caches.match(e.request)) || (await caches.match('./index.html')) || new Response('Sin conexión',{status:503,statusText:'Offline'});
+      })
+    );
+    return;
+  }
+
   e.respondWith(caches.match(e.request).then(hit=>hit||fetch(e.request).then(r=>{const copy=r.clone();caches.open(CACHE).then(c=>c.put(e.request,copy));return r}).catch(()=>hit||new Response('Sin conexión',{status:503,statusText:'Offline'}))));
 });
