@@ -2,7 +2,9 @@
   "use strict";
 
   const RELEASE_AT = Date.parse("2026-09-12T12:00:00Z"); // 14:00 Europe/Madrid
-  const GAME_URL = "./nuestra-vida/";
+  // 1.0.1 fuerza una navegación nueva para no reutilizar el wrapper de estreno
+  // que pudo quedar cacheado en Safari/PWA antes de las 14:00.
+  const GAME_URL = "./nuestra-vida/?v=1.0.1";
   window.JAVIEATS_MAIN_GAME_URL = GAME_URL;
 
   function role() {
