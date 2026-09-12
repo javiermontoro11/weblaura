@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#f4f1ec">
+  <title>Nuestra Vida · Minijuegos · JaviEats</title>
+  <style>
+    *{box-sizing:border-box}
+    html,body{margin:0;min-height:100%;font-family:Inter,ui-rounded,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#f4f1ec;color:#2f3438}
+    .nv-lab-loader{min-height:100dvh;display:grid;place-items:center;padding:24px}
+    .nv-lab-loader-card{width:min(520px,100%);padding:28px;border-radius:28px;background:#fff;box-shadow:0 18px 48px rgba(38,48,54,.12);text-align:center}
+    .nv-lab-loader-icon{font-size:2.4rem;display:block;margin-bottom:10px}
+    .nv-lab-loader h1{margin:0 0 8px;font-size:1.45rem}
+    .nv-lab-loader p{margin:0;color:#74787a;line-height:1.5;font-size:.92rem}
+    .nv-lab-loader-error{display:none;margin-top:18px;padding:13px;border-radius:16px;background:#fff0ed;color:#8a3e34;font-size:.82rem;line-height:1.45;text-align:left}
+    .nv-lab-loader-error.is-visible{display:block}
+    .nv-lab-loader a{display:inline-flex;margin-top:16px;color:#5a6266;font-weight:850;text-decoration:none}
+  </style>
+</head>
+<body>
+  <main class="nv-lab-loader" id="nv-lab-loader">
+    <section class="nv-lab-loader-card">
+      <span class="nv-lab-loader-icon">🎮</span>
+      <h1>Minijuegos de Nuestra Vida</h1>
+      <p>Preparando el laboratorio con los minijuegos reales del tablero…</p>
+      <div class="nv-lab-loader-error" id="nv-lab-error"></div>
+      <a href="../">← Volver a JaviEats</a>
+    </section>
+  </main>
+  <script>
+    (() => {
+      "use strict";
+
+      const SOURCE_URL = "./index.html?nv-lab-source=1.0.1";
+      const LAB_FLAG = /const\s+MINILAB\s*=\s*false\s*;/;
+      const errorBox = document.getElementById("nv-lab-error");
+
+      function fail(message) {
+        if (!errorBox) return;
+        errorBox.textContent = message;
+        errorBox.classList.add("is-visible");
+      }
+
+      fetch(SOURCE_URL, { cache: "no-store" })
+        .then(response => {
+          if (!response.ok) throw new Error(`HTTP ${response.status}`);
+          return response.text();
+        })
+        .then(source => {
+          if (!LAB_FLAG.test(source)) {
+            throw new Error("La versión actual de Nuestra Vida no contiene el interruptor del laboratorio.");
+          }
+
+          let labSource = source.replace(LAB_FLAG, "const MINILAB=true;");
+          labSource = labSource.replace(/<title>[\s\S]*?<\/title>/i, "<title>Nuestra Vida · Minijuegos · JaviEats</title>");
+          labSource = labSource.replace(
+            /<\/head>/i,
+            `<style id="javieats-nv-lab-shell">\n#miniLabMenu:before{content:"← JaviEats";position:fixed;left:16px;top:16px;z-index:980;padding:9px 13px;border-radius:999px;background:#fffdf7;color:#354b55;box-shadow:0 8px 26px rgba(20,40,50,.18);font:850 .75rem/1 Inter,ui-rounded,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;cursor:pointer}\n@media(max-width:760px){#miniLabMenu:before{left:max(10px,env(safe-area-inset-left));top:max(10px,env(safe-area-inset-top));font-size:.68rem}}\n</style>\n</head>`
+          );
+          labSource = labSource.replace(
+            /<body([^>]*)>/i,
+            `<body$1><script>document.addEventListener('click',function(e){var m=document.getElementById('miniLabMenu');if(!m||m.classList.contains('is-hidden'))return;var r=m.getBoundingClientRect();if(e.clientX<=130&&e.clientY<=70){location.href='../';}},true);<\/script>`
+          );
+
+          document.open();
+          document.write(labSource);
+          document.close();
+        })
+        .catch(error => {
+          console.error("JaviEats · Nuestra Vida MiniLab:", error);
+          fail("No se ha podido abrir el laboratorio. Vuelve a JaviEats e inténtalo de nuevo. Detalle: " + error.message);
+        });
+    })();
+  </script>
+</body>
+</html>
