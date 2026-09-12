@@ -12,6 +12,6 @@
   }
 
   loadScript("minigames-core.js?v=3.1")
-    .then(() => loadScript("nuestra-vida-launcher.js?v=1.0"))
+    .then(() => loadScript("nuestra-vida-launcher.js?v=1.0.1"))
     .catch(error => console.error("JaviEats: no se ha podido cargar un modulo", error));
 })();
