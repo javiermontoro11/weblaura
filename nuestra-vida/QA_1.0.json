@@ -1,0 +1,71 @@
+{
+  "release": "Nuestra Vida 1.0",
+  "source_base": "0.18.57 AUDIO FINAL + RETIREMENT",
+  "result": "PASS - no release-blocking errors found",
+  "fixes_applied_for_1_0": [
+    "Removed public LAB and obsolete QA/development files from release package",
+    "Replaced visible Beta 0.18.57 labels with Nuestra Vida 1.0",
+    "Changed service-worker cache namespace to nuestra-vida-1.0-release",
+    "Removed LAB files from production service-worker precache",
+    "Added defensive offline 503 response when neither cache nor network is available",
+    "Consolidated release README and audio provenance notes"
+  ],
+  "static_qa": {
+    "title": "Nuestra Vida · JaviEats",
+    "visible_release_branding": {
+      "version_1_0": true,
+      "old_public_beta_01857": false
+    },
+    "local_asset_refs_checked": 97,
+    "missing_local_refs": [],
+    "css_parse_errors": 0,
+    "duplicate_keyframes": {},
+    "static_duplicate_ids": {},
+    "manifest.webmanifest": "ok",
+    "service_worker_cache_1_0": true,
+    "lab_not_in_release": true,
+    "no_test_artifacts": true,
+    "save_schema_compatibility": true
+  },
+  "media_qa": {
+    "audio_files": 50,
+    "audio_decode_errors": 0,
+    "image_files": 46,
+    "image_format_errors": 0,
+    "icons": {
+      "icon-180.png": [
+        180,
+        180
+      ],
+      "icon-192.png": [
+        192,
+        192
+      ],
+      "icon-512.png": [
+        512,
+        512
+      ]
+    }
+  },
+  "syntax_qa": {
+    "index_inline_javascript": "PASS",
+    "service_worker_javascript": "PASS",
+    "css_parser_errors": 0,
+    "manifest_json": "PASS"
+  },
+  "reference_qa": {
+    "local_asset_references_checked": 97,
+    "missing_local_references": [],
+    "duplicate_keyframes": {},
+    "duplicate_static_ids": {}
+  },
+  "compatibility": {
+    "legacy_save_schema": "0.18.29 retained intentionally so existing saves are not invalidated",
+    "release_version": "1.0"
+  },
+  "visual_runtime_baseline": {
+    "note": "The 1.0 gameplay/layout is the approved 0.18.57 base. The prior 0.18.57 QA already passed 1180x820 and 1024x768 for page errors, summary layout and horizontal overflow. 1.0 only changes release branding/packaging/service-worker release metadata, not gameplay layout.",
+    "prior_1180x820": "PASS",
+    "prior_1024x768": "PASS"
+  }
+}

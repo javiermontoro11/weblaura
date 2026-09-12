@@ -1,0 +1,27 @@
+{
+  "name": "Nuestra Vida",
+  "short_name": "Nuestra Vida",
+  "description": "Nuestra Vida 1.0 · juego de tablero de Javi y Laura dentro de JaviEats",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": [
+    "fullscreen",
+    "standalone"
+  ],
+  "orientation": "landscape",
+  "background_color": "#9fdcf0",
+  "theme_color": "#ffcf57",
+  "icons": [
+    {
+      "src": "./icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "./icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
