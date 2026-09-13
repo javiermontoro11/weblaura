@@ -32,7 +32,7 @@
     (() => {
       "use strict";
 
-      const SOURCE_URL = "./index.html?nv-lab-source=1.0.1";
+      const SOURCE_URL = "./nv-core-1-0-8c6f2a.html?nv-lab-source=1.0.2";
       const LAB_FLAG = /const\s+MINILAB\s*=\s*false\s*;/;
       const errorBox = document.getElementById("nv-lab-error");
 
@@ -60,7 +60,7 @@
           );
           labSource = labSource.replace(
             /<body([^>]*)>/i,
-            `<body$1><script>document.addEventListener('click',function(e){var m=document.getElementById('miniLabMenu');if(!m||m.classList.contains('is-hidden'))return;var r=m.getBoundingClientRect();if(e.clientX<=130&&e.clientY<=70){location.href='../';}},true);<\/script>`
+            `<body$1><script>document.addEventListener('click',function(e){var m=document.getElementById('miniLabMenu');if(!m||m.classList.contains('is-hidden'))return;if(e.clientX<=130&&e.clientY<=70){location.href='../';}},true);<\/script>`
           );
 
           document.open();
