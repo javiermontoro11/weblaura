@@ -2,9 +2,9 @@
 
 > **Ámbito:** únicamente Supabase/PostgreSQL, Storage, RLS, RPC, triggers y persistencia de JaviEats.
 >
-> Para el contexto funcional de la app usar `contextos/CONTEXTO_JAVIEATS_3.3.md`.
+> Para el contexto funcional de la app usar `contextos/CONTEXTO_JAVIEATS.md`.
 >
-> Para el juego Nuestra Vida usar `contextos/CONTEXTO_NUESTRA_VIDA_1.0.md`.
+> Para el juego Nuestra Vida usar `contextos/CONTEXTO_NUESTRA_VIDA.md`.
 >
 > **Estado de referencia:** 14 de septiembre de 2026 · JaviEats 3.3.
 
@@ -57,7 +57,7 @@ Después de un cambio:
 2. volver a consultar la estructura/función afectada;
 3. comprobar índices, constraints, RLS y triggers;
 4. actualizar este `.md`;
-5. actualizar también el contexto de JaviEats si cambia comportamiento de producto.
+5. actualizar también `contextos/CONTEXTO_JAVIEATS.md` si cambia comportamiento de producto.
 
 ---
 
@@ -219,7 +219,8 @@ Las tablas `y_si_*` tienen RLS activo y el flujo normal pasa por RPC.
 
 - **450 preguntas totales**;
 - **431 activas**;
-- **19 inactivas** por limpieza de duplicados semánticos.
+- **19 inactivas** por limpieza de duplicados semánticos;
+- **374 preguntas activas todavía disponibles** para aparecer.
 
 IDs inactivos:
 
@@ -242,11 +243,12 @@ Campos relevantes:
 - `caducada_at`;
 - `saltada_at`.
 
-Estado verificado:
+Estado verificado tras 3.3:
 
 - **60 registros históricos**;
 - **60 preguntas usadas distintas**;
-- **0 repeticiones históricas**.
+- **0 repeticiones históricas**;
+- **0 preguntas abiertas** en la comprobación final.
 
 Índices/reglas relevantes:
 
@@ -290,6 +292,17 @@ La fuente de verdad es todo `public.y_si_dias`.
 La columna `temporada` se conserva por compatibilidad histórica.
 
 El índice `y_si_dias_pregunta_id_unique_global` refuerza la regla a nivel PostgreSQL.
+
+La comprobación final confirmó además:
+
+- `preguntas_totales = 450`;
+- `preguntas_activas = 431`;
+- `preguntas_presentadas = 60`;
+- `preguntas_presentadas_unicas = 60`;
+- `duplicados_historicos = 0`;
+- `preguntas_abiertas = 0`;
+- `preguntas_disponibles = 374`;
+- `proteccion_unique_global = true`.
 
 Si se agotan las preguntas activas no usadas, hay que ampliar la batería. **No reciclar preguntas antiguas.**
 
@@ -371,6 +384,6 @@ Reglas conservadas:
 
 Estado de `¿Y si…?` a 14/09/2026:
 
-**450 totales · 431 activas · 19 inactivas semánticas · 60 preguntas históricas distintas · 0 repetidas · no reciclaje entre temporadas · UNIQUE global por `pregunta_id`.**
+**450 totales · 431 activas · 19 inactivas semánticas · 60 históricas distintas · 0 repetidas · 0 abiertas en la verificación final · 374 activas disponibles · no reciclaje entre temporadas · UNIQUE global por `pregunta_id`.**
 
 Este documento es exclusivamente el contexto de **base de datos**.
