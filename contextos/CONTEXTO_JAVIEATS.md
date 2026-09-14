@@ -1,40 +1,44 @@
-# CONTEXTO MAESTRO — JAVIEATS 3.3
+# CONTEXTO MAESTRO — JAVIEATS 3.3.1
 
 > **Ámbito:** contexto funcional y técnico general de JaviEats.
 >
 > Para Supabase/base de datos usar `contextos/CONTEXTO_BASE_DATOS.md`.
 >
-> Para el juego Nuestra Vida usar `contextos/CONTEXTO_NUESTRA_VIDA.md`.
+> Para Nuestra Vida usar `contextos/CONTEXTO_NUESTRA_VIDA.md`.
 >
 > **Repositorio:** `javiermontoro11/weblaura`
 >
 > **Rama:** `main`
 >
-> **Estado de referencia:** 14 de septiembre de 2026 · JaviEats 3.3.
+> **Estado de referencia:** 14 de septiembre de 2026 · JaviEats 3.3.1.
 
 ---
 
 # PROMPT PARA CONTINUAR EN UN CHAT NUEVO
 
-Quiero que continúes el desarrollo y mantenimiento de mi proyecto privado **JaviEats 3.3** sin empezar de cero.
+Quiero que continúes el desarrollo y mantenimiento de **JaviEats 3.3.1** sin empezar de cero.
 
 La prioridad es:
 
 **ESTABILIDAD > CAMBIOS GRANDES**
 
-Antes de modificar código, comprueba el estado real de `main`. No asumas que este documento sustituye al repositorio.
+Antes de modificar código:
 
-Si un cambio toca base de datos, RPC, RLS, triggers, Storage o persistencia, consulta y actualiza también `contextos/CONTEXTO_BASE_DATOS.md`.
+1. comprobar siempre `main`;
+2. inspeccionar exactamente los archivos actuales;
+3. hacer cambios quirúrgicos;
+4. no crear archivos auxiliares innecesarios;
+5. distinguir código escrito, código subido, despliegue de producción y pruebas reales.
 
-Nuestra Vida mantiene su propio contexto en `contextos/CONTEXTO_NUESTRA_VIDA.md`.
+Si un cambio toca Supabase o persistencia, leer y actualizar también `contextos/CONTEXTO_BASE_DATOS.md`.
 
 ---
 
-# 1. ARQUITECTURA GENERAL
+# ARQUITECTURA GENERAL
 
-JaviEats es una aplicación web privada para Javi y Laura, construida en HTML/CSS/JavaScript vanilla, sin build system.
+Proyecto vanilla HTML/CSS/JS, sin build system.
 
-Ficheros principales:
+Archivos principales:
 
 - `index.html`
 - `script.js`
@@ -46,186 +50,207 @@ Ficheros principales:
 - `service-worker.js`
 - `manifest.webmanifest`
 - `assets/`
-- `recuerdos/`
 - `nuestra-vida/`
+- `recuerdos/`
 - `contextos/`
 
-Supabase se usa para autenticación, planes, recuerdos, notificaciones, Push, reto diario, puzle/vales y `¿Y si…?`.
+`main` es la fuente de verdad.
 
 ---
 
-# 2. ESTADO DE LA 3.3
+# ESTADO FUNCIONAL DE 3.3
 
-La 3.3 ya incluye en código:
+JaviEats incluye:
 
-- nueva capa visual de Inicio;
-- tarjeta integrada de Nuestra Vida;
-- agenda/próximo plan en Inicio;
+- autenticación persistente con Supabase;
+- perfiles Javi y Laura;
+- planes/propuestas y calendario compartido;
+- Recuerdos;
+- notificaciones y Push;
+- PWA;
+- `¿Y si…?`;
+- Piedra, papel o tijera;
+- Dibuja;
+- No lo Digas;
+- puzle/vales;
+- integración de Nuestra Vida 1.0.
+
+En 3.3 se añadieron además:
+
 - catálogo ampliado a 10 servicios;
-- nuevos servicios:
-  - `☕ Tomar algo`
-  - `🍽️ Ir a comer / cenar`
-- exportación `.ics` / Apple Calendar para planes confirmados;
-- ampliación de Dibuja;
-- ampliación de No lo Digas;
-- corrección de la lógica de ganador de Dibuja;
-- caché/versionado de minijuegos en 3.3.
-
-Los ficheros que se cambiaron para esta parte fueron:
-
-- `index.html`
-- `minigames-core.js`
-- `minigames.js`
-
-No asumir que `script.js`, `style.css` o `minigames-data.js` han sido modificados para 3.3 salvo verificación posterior en `main`.
+- `☕ Tomar algo`;
+- `🍽️ Ir a comer / cenar`;
+- exportación `.ics` para planes confirmados;
+- mejoras de Inicio/Agenda;
+- más contenido para Dibuja y No lo Digas;
+- corrección de Dibuja para que el territorio pertenezca a quien adivina antes;
+- limpieza y endurecimiento de la lógica de no repetición de `¿Y si…?`.
 
 ---
 
-# 3. REGLAS DE DIBUJA
+# CAMBIOS DE 3.3.1
 
-Reglas vigentes de la 3.3:
+3.3.1 es un refinamiento de identidad, jerarquía y recompensa emocional.
 
-- 90 segundos por intento;
-- pista a los 45 segundos;
+## Identidad visual
+
+La app reutiliza el icono real de instalación/PWA como identidad del navegador en lugar de un icono genérico.
+
+Assets relevantes:
+
+- `assets/apple-touch-icon.png`
+- `assets/icon-192.png`
+- `assets/icon-512.png`
+
+`manifest.webmanifest` y `service-worker.js` se han versionado a `3.3.1` para refrescar iconografía.
+
+## Nuestra Vida
+
+Nuestra Vida pasa a tener más protagonismo en Inicio:
+
+- tarjeta grande;
+- estilo oscuro propio;
+- posición inmediatamente después de la prioridad principal;
+- copy: `Vuestra historia continúa aquí`;
+- CTA: `Seguir jugando`.
+
+No cambia el gameplay de Nuestra Vida ni su persistencia. Solo cambia la presentación en JaviEats.
+
+## Compatibilidad JaviEats
+
+La compatibilidad ya no representa todo el histórico completo. Se calcula con las **últimas 20 preguntas completadas por ambos**.
+
+Objetivo: que sea dinámica, comprensible y tenga impacto real sin castigar desacuerdos.
+
+Regla:
+
+- `< 75%` → 1 cambio de pregunta diario compartido;
+- `>= 75%` → 2 cambios diarios compartidos;
+- no son 2 por persona;
+- los cambios no penalizan compatibilidad;
+- una pregunta cambiada sigue contando como usada y no vuelve a salir.
+
+La última verificación de Supabase dio:
+
+- compatibilidad últimas 20: **80%**;
+- cambios diarios permitidos: **2**;
+- 20 respuestas en la muestra;
+- 1 cambio usado ese día;
+- backend actualizado: `true`;
+- no repetición global: `true`.
+
+## Pleno 5/5
+
+Cuando las cinco preguntas del día coinciden:
+
+- se reconoce explícitamente `5 de 5 · ¡PLENO! ❤️`;
+- aparece una celebración visual;
+- se muestra la compatibilidad actual;
+- si está activa la ventaja del 75%, se recuerda que hay 2 cambios diarios compartidos;
+- la celebración se marca por dispositivo/día para no repetirse constantemente.
+
+No hay recompensa en Nuestra Vida: esta idea se descartó expresamente.
+
+---
+
+# `¿Y SI…?` — REGLAS IMPORTANTES
+
+- máximo 5 preguntas completadas al día;
+- respuestas ocultas hasta que ambos contestan;
+- una pregunta presentada no vuelve a salir nunca;
+- saltar/cambiar una pregunta también la consume para siempre;
+- compatibilidad basada en las últimas 20 completadas;
+- 75% o más activa 2 cambios diarios compartidos;
+- por debajo de 75% se mantiene 1;
+- diferencias de opinión no restan puntos artificialmente: solo alteran de forma natural la ventana móvil.
+
+La BD es la autoridad para el número real de cambios disponibles.
+
+---
+
+# NUESTRA VIDA
+
+Nuestra Vida 1.0 sigue siendo el MASTER integrado.
+
+Puntos importantes:
+
+- acceso mediante `nuestra-vida/index.html`;
+- core del juego preservado detrás del wrapper;
+- no rediseñar gameplay sin petición expresa;
+- viewport prioritario: iPad 11 horizontal `1180 × 820`, luego iPad Mini `1024 × 768`, luego PC;
+- el schema interno histórico de guardado sigue siendo compatible con `0.18.29`;
+- contexto específico: `contextos/CONTEXTO_NUESTRA_VIDA.md`.
+
+La 3.3.1 solo aumenta su protagonismo visual dentro de JaviEats.
+
+---
+
+# PLANES / SERVICIOS
+
+Catálogo lógico actual: 10 servicios.
+
+Incluye los 8 clásicos más:
+
+- `Tomar algo`;
+- `Ir a comer / cenar`.
+
+Los planes confirmados pueden exportarse como `.ics` para Apple Calendar.
+
+No tocar la estructura de `propuestas` sin revisar el contexto de BD.
+
+---
+
+# MINIJUEGOS
+
+## Dibuja
+
+Reglas clave:
+
+- 90 segundos;
+- pista automática a 45 segundos;
 - primero en 3 territorios gana;
-- el territorio es para **quien adivina**, no para quien dibuja;
-- si solo uno acierta, gana ese adivinador;
-- si ambos aciertan, gana quien adivinó más rápido;
-- si ninguno acierta o hay empate exacto, no hay propietario;
-- el perdedor del territorio elige la siguiente categoría.
+- el territorio pertenece a **quien adivina**;
+- si ambos adivinan, gana el territorio quien adivina antes;
+- si ninguno acierta o hay empate exacto, no hay dueño;
+- quien pierde el territorio elige la siguiente categoría.
 
-La batería se amplió editorialmente sin crear nuevas tablas de Supabase.
+## No lo Digas
 
----
+Competitivo, con turnos de 90 segundos y penalización por palabra prohibida.
 
-# 4. NO LO DIGAS
+## Piedra, papel o tijera
 
-Mantiene la mecánica existente y se amplió la batería de cartas.
-
-Reglas base:
-
-- turnos de 90 segundos;
-- 45 segundos la primera vez que aparece una carta;
-- 30 segundos en repeticiones;
-- penalización de 5 segundos por palabra prohibida;
-- puntos para quien adivina.
+Mantiene su flujo diario y su puzle/vale.
 
 ---
 
-# 5. PLANES Y CALENDARIO
-
-JaviEats maneja propuestas/planes compartidos mediante Supabase.
-
-Servicios actuales esperados en producto: **10**.
-
-Los dos añadidos en 3.3 son:
-
-- `Tomar algo`
-- `Ir a comer / cenar`
-
-Los planes confirmados pueden exportarse a un `.ics` compatible con Apple Calendar.
-
-La exportación no sustituye el calendario interno de JaviEats.
-
----
-
-# 6. `¿Y SI…?` — ESTADO FUNCIONAL 3.3
-
-La regla de producto ya implementada es:
-
-> **Una pregunta presentada una vez no vuelve a salir nunca.**
-
-Estado verificado en Supabase al cerrar la 3.3:
-
-- 450 preguntas totales;
-- 431 activas;
-- 19 inactivas por redundancia semántica;
-- 60 preguntas históricas;
-- las 60 históricas son distintas;
-- 0 duplicados históricos;
-- 0 preguntas abiertas en la verificación final;
-- 374 preguntas activas todavía disponibles;
-- protección global `UNIQUE (pregunta_id)` en `y_si_dias`;
-- `obtener_y_si_actual()` usa historial global;
-- no recicla temporadas.
-
-El detalle exacto de índices, RPC y preguntas inactivas está en `contextos/CONTEXTO_BASE_DATOS.md`.
-
-No volver a ejecutar las migraciones SQL provisionales usadas durante el desarrollo de esta regla.
-
----
-
-# 7. NUESTRA VIDA
-
-Nuestra Vida sigue siendo un proyecto/juego separado dentro del mismo repositorio.
-
-La integración con JaviEats se mantiene mediante:
-
-- `nuestra-vida-launcher.js`
-- `/nuestra-vida/`
-
-La lógica específica del juego, su release y su persistencia se documentan en `contextos/CONTEXTO_NUESTRA_VIDA.md`.
-
-No rediseñar Nuestra Vida desde el contexto de JaviEats salvo que se pida expresamente.
-
----
-
-# 8. RECUERDOS
-
-JaviEats mantiene recuerdos privados mediante Supabase y Storage.
-
-Para 3.3 la intención es mejorar presentación sin introducir una función tipo “Tal día como hoy” mientras no tenga sentido por antigüedad del contenido.
-
-No cambiar Storage ni contratos de datos si el objetivo es solo visual.
-
----
-
-# 9. FORMA DE TRABAJAR
+# FORMA DE TRABAJAR
 
 Reglas permanentes:
 
-1. `main` es la fuente de verdad.
-2. Antes de escribir en GitHub, inspeccionar el estado actual.
-3. Cambios pequeños y quirúrgicos.
-4. No crear ficheros auxiliares innecesarios.
-5. Si se toca un archivo de código y se entrega al usuario, preferir el archivo completo.
-6. No afirmar que algo está probado si solo se revisó estáticamente.
-7. Distinguir siempre entre:
-   - código escrito;
-   - código subido a GitHub;
-   - despliegue de producción;
-   - prueba real en navegador;
-   - prueba real en iPad.
-8. Si hay cambios de BD, actualizar `contextos/CONTEXTO_BASE_DATOS.md` en el mismo trabajo.
-9. Si cambia funcionalidad general de JaviEats, actualizar este archivo.
-10. Responder en español, de forma directa y técnica.
+1. revisar `main` antes de cualquier write;
+2. no inventar que algo está desplegado o probado;
+3. no crear archivos auxiliares salvo necesidad real;
+4. si se toca un archivo de código y el usuario pide reemplazo, entregar el archivo completo;
+5. no romper comportamiento aprobado al arreglar otra cosa;
+6. Supabase y frontend deben quedar sincronizados;
+7. cualquier cambio de BD debe actualizar `CONTEXTO_BASE_DATOS.md`;
+8. responder en español, directo y natural.
 
 ---
 
-# 10. VERSIONADO Y ESTADO DE CIERRE
+# ESTADO DE VERIFICACIÓN
 
-Producto actual:
+A 14/09/2026:
 
-**JaviEats 3.3**
-
-Nuestra Vida mantiene versionado independiente.
-
-La parte de Supabase de `¿Y si…?` está cerrada y verificada para 3.3 con la regla de no repetición global.
-
-Todavía hay que distinguir eso de una prueba real completa de producción: que GitHub y Supabase estén correctos no implica por sí solo que Vercel/PWA/iPad hayan sido probados visualmente después de todos los cambios.
+- lógica de Supabase 3.3.1 para compatibilidad/cambios: **aplicada y verificada**;
+- no repetición global de `¿Y si…?`: **verificada**;
+- código 3.3.1 de refinamiento: **subido a GitHub**;
+- producción real: no afirmar hasta comprobar deployment;
+- prueba real en navegador/iPad: pendiente salvo comprobación posterior explícita.
 
 ---
 
-# 11. PRIMERA COMPROBACIÓN EN UN CHAT NUEVO
+# RESUMEN
 
-Antes de hacer cambios, confirmar:
-
-- que JaviEats está en 3.3;
-- que `main` es la fuente de verdad;
-- que los contextos están separados en tres archivos;
-- que la BD tiene contexto propio;
-- que `¿Y si…?` no repite preguntas ya presentadas;
-- que Nuestra Vida mantiene contexto independiente;
-- y que cualquier modificación nueva debe ser incremental.
-
-Después, inspeccionar GitHub real si la tarea depende del estado actual del código.
+**JaviEats 3.3.1 = JaviEats 3.3 + mejor identidad visual + Nuestra Vida con más protagonismo + compatibilidad móvil de 20 preguntas + ventaja compartida de 2 cambios al 75% + reconocimiento real del pleno 5/5.**
