@@ -1,5 +1,5 @@
 const JAVIEATS_DEFAULT_URL = './';
-const JAVIEATS_PUSH_ICON = './assets/icon-192.png?v=3.1';
+const JAVIEATS_PUSH_ICON = './assets/icon-192.png?v=3.3.1';
 
 self.addEventListener('install', () => {
   self.skipWaiting();
