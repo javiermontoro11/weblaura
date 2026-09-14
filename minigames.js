@@ -11,9 +11,6 @@
     });
   }
 
-  loadScript("home-3.3.js?v=3.3")
-    .catch(error => console.error("JaviEats: no se ha podido cargar Inicio 3.3", error));
-
   loadScript("minigames-core.js?v=3.1")
     .then(() => loadScript("nuestra-vida-launcher.js?v=1.0.2"))
     .catch(error => console.error("JaviEats: no se ha podido cargar un modulo", error));
