@@ -1,9 +1,8 @@
 (() => {
   "use strict";
 
-  const WINDOW = 20;
   const THRESHOLD = 75;
-  const RELEASE = "3.3.1";
+  const RELEASE = "3.3.2";
   const $ = id => document.getElementById(id);
   const app = () => window.JaviEatsApp || null;
   const state = () => app()?.getState?.() || {};
@@ -33,7 +32,7 @@
   }
 
   function stats(history = state().ySiHistory) {
-    const items = completed(history).slice(0, WINDOW);
+    const items = completed(history);
     const matches = items.filter(item => Boolean(item.coincide)).length;
     let streak = 0;
     let bestStreak = 0;
@@ -119,7 +118,7 @@
     const active = s.total > 0 && percent >= THRESHOLD;
     if ($("y-si-compatibility")) $("y-si-compatibility").textContent = `${percent}%`;
     if ($("y-si-compatibility-title")) $("y-si-compatibility-title").textContent = compatibilityTitle(percent, s.total);
-    if ($("y-si-compatibility-text")) $("y-si-compatibility-text").textContent = s.total ? `Se calcula con vuestras últimas ${s.total} respuestas compartidas.` : "Responded vuestra primera pregunta para empezar.";
+    if ($("y-si-compatibility-text")) $("y-si-compatibility-text").textContent = s.total ? `Se calcula con todo vuestro historial: ${s.total} respuestas compartidas.` : "Responded vuestra primera pregunta para empezar.";
     if ($("y-si-shared-count")) $("y-si-shared-count").textContent = String(s.total);
     if ($("y-si-match-count")) $("y-si-match-count").textContent = String(s.matches);
     if ($("y-si-best-streak")) $("y-si-best-streak").textContent = String(s.bestStreak);
@@ -135,18 +134,18 @@
       perk.classList.toggle("is-active", active);
       $("y-si-perk-eyebrow").textContent = active ? "VENTAJA ACTIVA" : "VENTAJA COMPARTIDA";
       $("y-si-perk-title").textContent = active ? "2 cambios de pregunta al día" : "2 cambios diarios al llegar al 75%";
-      $("y-si-perk-text").textContent = active ? "Los dos compartís dos cambios cada día mientras mantengáis el 75% o más." : `Ahora tenéis 1 cambio diario. Os faltan ${Math.max(0, THRESHOLD - percent)} puntos.`;
+      $("y-si-perk-text").textContent = active ? "Los dos compartís dos cambios cada día mientras la compatibilidad histórica sea del 75% o más." : `Ahora tenéis 1 cambio diario. Os faltan ${Math.max(0, THRESHOLD - percent)} puntos.`;
       $("y-si-perk-badge").textContent = active ? "ACTIVA" : "75%";
     }
 
     const skip = $("y-si-skip");
     if (skip) skip.textContent = active ? "↻ Cambiar pregunta · hasta 2 al día" : "↻ Cambiar pregunta · 1 al día";
-    if ($("v3-home-ysi-copy")) $("v3-home-ysi-copy").textContent = s.total ? `${percent}% · últimas ${s.total}` : "Compatibilidad por descubrir";
+    if ($("v3-home-ysi-copy")) $("v3-home-ysi-copy").textContent = s.total ? `${percent}% · histórico` : "Compatibilidad por descubrir";
     if ($("v3-us-compat")) $("v3-us-compat").textContent = s.total ? `${percent}%` : "—";
-    if ($("v3-us-compat-copy")) $("v3-us-compat-copy").textContent = s.total ? `${s.matches} coincidencias en las últimas ${s.total} preguntas` : "Responded ¿Y si…? para descubrir vuestra compatibilidad";
+    if ($("v3-us-compat-copy")) $("v3-us-compat-copy").textContent = s.total ? `${s.matches} coincidencias en ${s.total} preguntas compartidas` : "Responded ¿Y si…? para descubrir vuestra compatibilidad";
     $("v3-compat-ring")?.style.setProperty("--compat", `${percent}%`);
     const hubCopy = document.querySelector(".minigame-card-ysi .minigame-card-copy > span:last-child");
-    if (hubCopy) hubCopy.textContent = active ? `Compatibilidad ${percent}% · 2 cambios diarios activos.` : `Compatibilidad ${percent}% · al 75% desbloqueáis 2 cambios diarios.`;
+    if (hubCopy) hubCopy.textContent = active ? `Compatibilidad histórica ${percent}% · 2 cambios diarios activos.` : `Compatibilidad histórica ${percent}% · al 75% desbloqueáis 2 cambios diarios.`;
     return s;
   }
 
@@ -164,7 +163,7 @@
     modal.className = "y-si-pleno-overlay hidden";
     modal.setAttribute("role", "dialog");
     modal.setAttribute("aria-modal", "true");
-    modal.innerHTML = `<div class="y-si-pleno-backdrop" data-pleno-close></div><div class="y-si-pleno-card"><button class="y-si-pleno-close" type="button" data-pleno-close>×</button><span class="y-si-pleno-kicker">CONEXIÓN TOTAL</span><div class="y-si-pleno-icon">5/5</div><h2>¡Habéis hecho pleno! ❤️</h2><p>Las cinco respuestas de hoy han coincidido. Esto sí merecía una celebración.</p><div class="y-si-pleno-metric"><span>Compatibilidad actual</span><strong id="y-si-pleno-compat">—</strong></div><div class="y-si-pleno-unlock" id="y-si-pleno-unlock"></div><button class="btn btn-primary y-si-pleno-primary" type="button" data-pleno-open>Ver ¿Y si…?</button></div>`;
+    modal.innerHTML = `<div class="y-si-pleno-backdrop" data-pleno-close></div><div class="y-si-pleno-card"><button class="y-si-pleno-close" type="button" data-pleno-close>×</button><span class="y-si-pleno-kicker">CONEXIÓN TOTAL</span><div class="y-si-pleno-icon">5/5</div><h2>¡Habéis hecho pleno! ❤️</h2><p>Las cinco respuestas de hoy han coincidido. Esto sí merecía una celebración.</p><div class="y-si-pleno-metric"><span>Compatibilidad histórica</span><strong id="y-si-pleno-compat">—</strong></div><div class="y-si-pleno-unlock" id="y-si-pleno-unlock"></div><button class="btn btn-primary y-si-pleno-primary" type="button" data-pleno-open>Ver ¿Y si…?</button></div>`;
     document.body.appendChild(modal);
     modal.querySelectorAll("[data-pleno-close]").forEach(el => el.addEventListener("click", () => modal.classList.add("hidden")));
     modal.querySelector("[data-pleno-open]")?.addEventListener("click", () => {
@@ -189,8 +188,8 @@
     const active = s.total > 0 && s.compatibility >= THRESHOLD;
     $("y-si-pleno-compat").textContent = `${s.compatibility}%`;
     $("y-si-pleno-unlock").innerHTML = active
-      ? `<strong>↻ Ventaja activa</strong><span>Tenéis 2 cambios de pregunta al día mientras mantengáis el 75% o más.</span>`
-      : `<strong>Próximo objetivo: 75%</strong><span>Al llegar desbloquearéis 2 cambios diarios compartidos.</span>`;
+      ? `<strong>↻ Ventaja activa</strong><span>Tenéis 2 cambios de pregunta al día mientras la compatibilidad histórica se mantenga en el 75% o más.</span>`
+      : `<strong>Próximo objetivo: 75%</strong><span>Al llegar con vuestro historial completo desbloquearéis 2 cambios diarios compartidos.</span>`;
     localStorage.setItem(key, "1");
     modal.classList.remove("hidden");
   }
@@ -223,7 +222,7 @@
 
   addStyles();
   updateBranding();
-  loadScript("minigames-core.js?v=3.3")
+  loadScript("minigames-core.js?v=3.3.2")
     .then(() => loadScript("nuestra-vida-launcher.js?v=1.0.2"))
     .then(start)
     .catch(error => console.error("JaviEats: no se ha podido cargar un modulo", error));
