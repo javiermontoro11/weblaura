@@ -1,46 +1,45 @@
 # JaviEats 💌
 
-**Versión actual: 3.1 — ESTABLE**
+**Versión de producto: 3.2 — ESTABLE**  
+**Mantenimiento actual: 3.2.1**
 
-JaviEats es una aplicación web privada creada para Laura y Javi. La versión 3.1 queda cerrada como base estable y limpia antes de la integración del juego principal en **JaviEats 3.2**.
+JaviEats es una aplicación web privada creada para Laura y Javi. Reúne planes compartidos, recuerdos, minijuegos, actividad, notificaciones y un espacio común pensado para funcionar como una PWA en móvil, tablet y escritorio.
 
-> **Estado actual:** 3.1 validada en uso real. La navegación, Perfil/Nosotros, sincronización, Planes, Minijuegos, Recuerdos y el acceso especial funcionan tras la unificación final. Los antiguos archivos auxiliares `v3.1.js` y `app-navigation.js` han sido absorbidos por el core y eliminados del repositorio.
+JaviEats 3.2 parte de la base estable de 3.1 e integra **Nuestra Vida 1.0** como experiencia principal independiente, sin rehacer el core de JaviEats ni mezclar el juego completo con la lógica de los minijuegos existentes.
+
+> **Estado actual:** la base funcional de JaviEats 3.1 se mantiene, Nuestra Vida está integrada y accesible desde la navegación principal, y los hotfixes posteriores al estreno quedan dentro del mantenimiento 3.2.1. `main` es la fuente de verdad del proyecto.
 
 ---
 
-## 🚀 JaviEats 3.1 — cierre final
+## 🚀 JaviEats 3.2
 
-La 3.1 consolida la base de 3.0 y reduce deuda técnica antes de integrar el juego principal.
+La 3.2 mantiene la filosofía del proyecto:
 
-### Incluido y validado
+**ESTABILIDAD > CAMBIOS GRANDES**
 
-- navegación inferior `Inicio · Planes · acceso especial · Minijuegos · Recuerdos`;
+Cuando una función ya está validada, los cambios deben ser pequeños, incrementales y compatibles con lo que ya funciona.
+
+### Incluido en la rama 3.2
+
+- base funcional de JaviEats 3.1 conservada;
+- navegación final `Inicio · Planes · Nuestra Vida · Minijuegos · Recuerdos`;
 - Perfil/Nosotros desde la cabecera;
-- configuración Push y cierre de sesión dentro de Perfil;
-- acceso central especial con cuenta atrás y revelación programada;
-- Push enriquecido de Planes;
-- Push de turno y resultado final de `¿Y si…?`;
-- email de turno de `¿Y si…?` únicamente como fallback si no existe Push;
-- enlaces directos Push a Planes y `¿Y si…?`;
-- sincronización resistente mediante cargas independientes y `Promise.allSettled`;
-- reintentos automáticos a 2 s, 5 s y 10 s;
-- recuperación al volver a tener Internet y al regresar a la PWA;
-- bloqueo de sincronizaciones simultáneas;
-- refresco manual desde el estado de sincronización;
-- arrastre horizontal del catálogo con ratón en escritorio;
-- pista `Arrastra para ver más` en equipos con puntero fino;
-- iconos principales PWA 3.1 y referencias versionadas;
-- Formspree eliminado físicamente del frontend de propuestas;
-- sincronización y deep links integrados directamente en `script.js`;
-- navegación 3.1 integrada directamente en `script.js`;
-- estilos de navegación y del acceso especial integrados en `style.css`;
-- retirada definitiva de `v3.1.js`;
-- retirada definitiva de `app-navigation.js`;
-- `index.html` cargando únicamente los scripts principales con referencias `?v=3.1`.
+- integración de Nuestra Vida dentro del mismo repositorio;
+- launcher independiente entre JaviEats y Nuestra Vida;
+- estreno programado originalmente para el 12/09/2026 a las 14:00 en Madrid;
+- restauración del acceso jugable después del estreno mediante hotfix 3.2.1;
+- control de caché añadido al acceso a Nuestra Vida;
+- zona de pruebas de los minijuegos de Nuestra Vida accesible desde el hub de Minijuegos;
+- Push de Planes y `¿Y si…?`;
+- sincronización resistente con fallos parciales y reintentos;
+- Planes compartidos en Supabase;
+- Recuerdos privados con varias fotografías;
+- PWA instalable con Service Worker y Web Push;
+- autenticación persistente para Javi y Laura.
 
 ---
 
-## 🧭 Navegación 3.1
+## 🧭 Navegación actual
 
 ### Cabecera
 
@@ -52,14 +51,53 @@ La 3.1 consolida la base de 3.0 y reduce deuda técnica antes de integrar el jue
 ```text
 Inicio
 Planes
-Acceso especial
+Nuestra Vida
 Minijuegos
 Recuerdos
 ```
 
-`Nosotros` deja de ocupar una pestaña inferior y se abre desde el icono de Perfil. `Juegos` pasa a llamarse **Minijuegos** para diferenciar los juegos cortos del futuro juego principal.
+`Nosotros` permanece dentro de Perfil y no ocupa una pestaña inferior.
 
-El acceso central queda reservado para el juego principal. Hasta el **12/09/2026 a las 14:00 (Europe/Madrid)** muestra `12·09`, una cuenta atrás y una pantalla de misterio. La integración jugable pertenece a 3.2.
+La pestaña central se utilizó antes del estreno como acceso especial `12·09`. Tras el lanzamiento de la 3.2 representa directamente **Nuestra Vida**.
+
+---
+
+## ❤️ Integración de Nuestra Vida
+
+Nuestra Vida se mantiene como módulo independiente dentro del repositorio para evitar acoplar su gameplay al core principal de JaviEats.
+
+### Piezas principales
+
+- `nuestra-vida-launcher.js` conecta la navegación de JaviEats con el juego;
+- `window.JAVIEATS_MAIN_GAME_URL` contiene la URL utilizada para abrir Nuestra Vida;
+- el launcher sincroniza el perfil activo de JaviEats antes de entrar;
+- `/nuestra-vida/` contiene la release y sus recursos;
+- `nuestra-vida/nv-core-1-0-8c6f2a.html` se conserva como core/master de referencia de Nuestra Vida 1.0;
+- `nuestra-vida/minijuegos.html` permite abrir una zona de pruebas de los minijuegos del juego principal.
+
+Durante el estreno se utilizó una puerta de acceso específica para controlar la revelación por fecha y perfil. Después del lanzamiento se aplicaron hotfixes 3.2.1 para restaurar el acceso jugable y evitar que Safari/PWA reutilizara una versión antigua cacheada.
+
+Por ese motivo, la arquitectura provisional descrita durante el estreno no debe asumirse automáticamente como el estado actual: **antes de modificar Nuestra Vida hay que comprobar siempre `main`.**
+
+### Carga desde JaviEats
+
+`minigames.js` actúa actualmente como un cargador pequeño:
+
+1. carga `minigames-core.js`, donde vive la lógica histórica de los minijuegos de JaviEats;
+2. carga `nuestra-vida-launcher.js`, que conecta JaviEats con Nuestra Vida y su zona de pruebas.
+
+Esta separación es deliberada. No se debe volver a fusionar todo dentro de `minigames.js` sin una razón técnica real y QA posterior.
+
+### Versionado independiente
+
+JaviEats y Nuestra Vida mantienen versionados distintos:
+
+```text
+JaviEats 3.2 / mantenimiento 3.2.1
+Nuestra Vida 1.0 / patches propios cuando sean necesarios
+```
+
+Un bug de Nuestra Vida no obliga a cambiar el número principal de JaviEats, y un ajuste del shell de JaviEats no debe implicar rediseñar el juego.
 
 ---
 
@@ -98,7 +136,7 @@ Push de prueba → Inicio
 
 ## 🔄 Sincronización robusta
 
-La sincronización 3.1 vive ya directamente dentro de `script.js`.
+La sincronización principal vive directamente dentro de `script.js`.
 
 Características:
 
@@ -106,7 +144,7 @@ Características:
 - `Promise.allSettled` para evitar que un fallo parcial rompa toda la actualización;
 - conservación del último dato válido cuando falla una sección;
 - bloqueo de sincronizaciones simultáneas;
-- reintentos a 2 s, 5 s y 10 s;
+- reintentos automáticos a 2 s, 5 s y 10 s;
 - reacción al evento `online`;
 - actualización al volver a primer plano;
 - recuperación desde BFCache mediante `pageshow`;
@@ -125,22 +163,35 @@ Sincronizado · HH:MM
 
 ## 🗓️ Planes
 
-El catálogo actual mantiene ocho servicios. En móvil se recorre con swipe y en escritorio puede desplazarse manteniendo pulsado el botón izquierdo del ratón y arrastrando lateralmente.
+El catálogo principal mantiene ocho servicios.
 
-Formspree ya no forma parte del flujo de propuestas. Los Planes se guardan en Supabase y utilizan el sistema actual de Actividad/Push.
+En móvil se recorre con swipe y en escritorio puede desplazarse manteniendo pulsado el botón izquierdo del ratón y arrastrando lateralmente.
+
+Formspree ya no forma parte del flujo actual de propuestas. Los Planes se guardan en Supabase y utilizan el sistema de Actividad/Push.
+
+Ambos perfiles pueden trabajar con propuestas y planes compartidos desde el calendario de JaviEats.
 
 ---
 
 ## 🎮 Minijuegos
 
-Se mantienen los cuatro minijuegos actuales:
+JaviEats mantiene cuatro minijuegos propios:
 
 - `¿Y si…?`;
 - `Piedra, papel o tijera`;
 - `Dibuja`;
 - `No lo digas`.
 
-El juego principal de 3.2 no se mezclará dentro de `minigames.js` ni dentro del hub de Minijuegos.
+Además, en la rama 3.2 existe una entrada adicional de laboratorio para probar directamente los minijuegos de Nuestra Vida sin iniciar una partida completa del juego principal.
+
+### Separación actual
+
+- `minigames-data.js` contiene baterías y datos;
+- `minigames-core.js` contiene la lógica histórica de los minijuegos de JaviEats;
+- `minigames.js` carga el core y después el launcher de Nuestra Vida;
+- Nuestra Vida conserva su lógica propia dentro de `/nuestra-vida/`.
+
+El juego principal no debe mezclarse dentro del core de los minijuegos salvo que exista una necesidad técnica concreta.
 
 ---
 
@@ -188,38 +239,96 @@ JaviEats mantiene:
 - Web Push;
 - iconos de 192 px, 512 px y Apple Touch Icon.
 
-Las variantes maskable independientes quedan aplazadas a 3.3.
+El Service Worker principal gestiona la recepción de Push y la apertura de los destinos correspondientes dentro de JaviEats.
+
+Algunas referencias de assets continúan utilizando query strings `?v=3.1`. Esto no significa que la aplicación siga en 3.1: esas referencias se mantienen mientras no exista una razón técnica para invalidarlas.
+
+Las variantes maskable independientes continúan aplazadas para una fase posterior de pulido.
 
 ---
 
-## 🧩 Estructura final de 3.1
+## 🧩 Estructura actual
 
 ```text
 JaviEats/
+├── CONTEXTO_JAVIEATS_3.2.md
+├── README.md
 ├── index.html
 ├── style.css
 ├── script.js
 ├── minigames-data.js
+├── minigames-core.js
 ├── minigames.js
+├── nuestra-vida-launcher.js
 ├── manifest.webmanifest
 ├── service-worker.js
 ├── favicon.ico
-├── README.md
 ├── assets/
 │   ├── apple-touch-icon.png
 │   ├── icon-192.png
 │   ├── icon-512.png
 │   └── puzzle-masaje.svg
-└── recuerdos/
+├── recuerdos/
+└── nuestra-vida/
+    ├── CONTEXTO_NUESTRA_VIDA_1.0.md
+    ├── README_1.0.txt
+    ├── QA_1.0.json
+    ├── index.html
+    ├── nv-core-1-0-8c6f2a.html
+    ├── minijuegos.html
+    ├── access-gate.js
+    ├── manifest.webmanifest
+    ├── sw.js
+    ├── assets23/
+    ├── assets25/
+    ├── assets26/
+    ├── audio27/
+    └── icons/
 ```
 
-La raíz ya no contiene capas temporales de 3.1. La lógica general y de navegación está consolidada en `script.js`, mientras que la presentación permanece en `style.css`.
+La lógica general de JaviEats permanece principalmente en `script.js`, la presentación en `style.css` y los minijuegos históricos en `minigames-core.js` / `minigames-data.js`.
+
+Nuestra Vida conserva sus archivos y assets dentro de su propia carpeta.
 
 ---
 
-## ⏭️ Aplazado expresamente a JaviEats 3.3
+## 🧪 QA y mantenimiento 3.2
 
-Estas mejoras siguen aprobadas, pero no bloquean 3.2:
+La integración de Nuestra Vida no elimina la necesidad de comprobar las funciones ya estables de JaviEats.
+
+Puntos críticos ante cualquier cambio:
+
+- Inicio;
+- Planes y catálogo horizontal;
+- propuesta y gestión de Planes;
+- calendario compartido;
+- Minijuegos;
+- entrada de laboratorio de Nuestra Vida;
+- Recuerdos;
+- Perfil/Nosotros;
+- acceso a Nuestra Vida;
+- Push y destinos de notificación;
+- recuperación de conexión;
+- sesión persistente;
+- cierre de sesión.
+
+### Producción
+
+No se debe confundir:
+
+- código correcto en GitHub;
+- deployment correcto en Vercel;
+- caché correcta en la PWA;
+- prueba real en navegador;
+- prueba real en iPhone/iPad.
+
+Si aparece una diferencia entre `main` y producción, comprobar primero el deployment, la caché y los recursos cargados antes de modificar código estable.
+
+---
+
+## ⏭️ Backlog de pulido
+
+Estas mejoras continúan fuera del núcleo de 3.2:
 
 - ampliar el catálogo de 8 a 10 planes;
 - añadir `☕ Tomar algo`;
@@ -231,34 +340,15 @@ Estas mejoras siguen aprobadas, pero no bloquean 3.2:
 - pulidos no críticos de PWA/iPad;
 - QA exhaustivo de pequeñas funciones administrativas.
 
-El arrastre de escritorio, la retirada de Formspree y la unificación de `v3.1.js` / `app-navigation.js` **ya no forman parte de este backlog: quedaron completados en 3.1**.
-
----
-
-## 🧪 QA de cierre 3.1
-
-La versión se ha validado después de la unificación final. Se han comprobado en uso real los elementos críticos de la experiencia y la aplicación continúa funcionando correctamente después de retirar las capas auxiliares.
-
-Para futuras regresiones, los puntos críticos a comprobar son:
-
-- Inicio;
-- Planes y catálogo horizontal;
-- propuesta/gestión de Planes;
-- Minijuegos;
-- Recuerdos;
-- Perfil/Nosotros;
-- acceso especial central;
-- Push y destinos de notificación;
-- recuperación de conexión;
-- cierre de sesión.
+El arrastre de escritorio, la retirada de Formspree y la unificación de la navegación antigua ya quedaron completados antes de 3.2.
 
 ---
 
 # Base de datos
 
-JaviEats 3.1 **no reconstruye la base de datos**.
+JaviEats 3.2 **no reconstruye la base de datos principal** para integrar Nuestra Vida.
 
-Tablas principales existentes:
+Tablas principales existentes de JaviEats:
 
 - `marcas_mensajes_javi`
 - `mensajes_dia` *(legacy, no visible)*
@@ -280,7 +370,7 @@ Tablas principales existentes:
 - `y_si_respuestas`
 - `push_subscriptions`
 
-No se borran tablas legacy durante el cierre de 3.1 y no se crean todavía tablas específicas para el juego principal.
+Las tablas legacy no se eliminan simplemente por no aparecer en la experiencia actual.
 
 ---
 
@@ -297,6 +387,8 @@ Principios relevantes:
 - el bucket `recuerdos` continúa privado;
 - las respuestas de `¿Y si…?` siguen protegidas mediante RPC;
 - no se publican claves `service_role`, contraseñas de base de datos ni cadenas de conexión privadas.
+
+La clave pública de Supabase y la VAPID pública pueden vivir en el frontend; los secretos privados deben permanecer fuera del repositorio.
 
 ---
 
@@ -319,6 +411,8 @@ Principios relevantes:
 - GitHub
 - Vercel
 
+JaviEats no utiliza actualmente un framework frontend ni un proceso de build obligatorio: la aplicación principal funciona con HTML, CSS y JavaScript cargados directamente en navegador.
+
 ---
 
 # Convención de commits
@@ -337,21 +431,46 @@ CREACIÓN <archivo> VERSION <versión>
 
 ---
 
-# Próximas versiones
+# Versionado
 
-## v3.2 — Juego principal de JaviEats
+## JaviEats
 
-La 3.2 tendrá como gran novedad la integración completa del juego principal dentro de JaviEats. Se mantendrá como módulo independiente del hub de Minijuegos para evitar acoplar su lógica al core principal.
+La línea actual es:
 
-Hasta el momento de la revelación programada, el frontend evita mostrar el nombre del juego en claro antes de tiempo.
+```text
+3.2   → integración de Nuestra Vida
+3.2.1 → hotfixes y mantenimiento posterior al estreno
+```
 
-## v3.3 — Pulido de JaviEats
+Los siguientes cambios pequeños deben continuar de forma incremental antes de plantear una nueva versión mayor.
 
-La 3.3 recuperará mejoras no prioritarias como el catálogo ampliado, Calendar `.ics`, limpieza profunda de código legacy, maskables y pequeños pulidos que no deben bloquear 3.2.
+## Nuestra Vida
+
+Nuestra Vida conserva su propio versionado. Los bugs o ajustes internos del juego deben resolverse como patches del juego cuando corresponda, evitando usar una actualización general de JaviEats como excusa para rediseñar su gameplay.
 
 ---
 
 # Historial de versiones
+
+## v3.2.1 — Hotfixes posteriores al estreno
+
+- Restauración del acceso a Nuestra Vida después de la hora de lanzamiento.
+- Ajustes para evitar reutilizar el wrapper de estreno desde caché.
+- Renovación de referencias de caché del launcher.
+- Incorporación de una zona de pruebas de minijuegos de Nuestra Vida.
+- Carga de `minigames-core.js` y `nuestra-vida-launcher.js` mediante el loader actual `minigames.js`.
+
+## v3.2 — Integración de Nuestra Vida
+
+- Integración de Nuestra Vida 1.0 dentro del repositorio de JaviEats.
+- Nueva navegación final `Inicio · Planes · Nuestra Vida · Minijuegos · Recuerdos`.
+- Acceso desde la pestaña central de JaviEats.
+- Lanzador independiente mediante `nuestra-vida-launcher.js`.
+- Revelación programada originalmente para el 12/09/2026 a las 14:00 en Madrid.
+- Acceso previo de Javi para pruebas antes del estreno.
+- Protección de la experiencia de Laura antes de la revelación.
+- Identidad visual final de Nuestra Vida integrada en la navegación.
+- Gameplay principal mantenido separado del core histórico de JaviEats.
 
 ## v3.1 — Navegación, estabilidad y limpieza antes del juego principal
 
