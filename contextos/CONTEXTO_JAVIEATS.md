@@ -1,589 +1,231 @@
-# CONTEXTO MAESTRO — JAVIEATS 3.2 + NUESTRA VIDA 1.0
+# CONTEXTO MAESTRO — JAVIEATS 3.3
 
-> **Uso:** si se pierde el contexto de este chat, pega este documento completo en una conversación nueva antes de continuar el proyecto.
+> **Ámbito:** contexto funcional y técnico general de JaviEats.
 >
-> **Estado de referencia:** 12 de septiembre de 2026, integración de **Nuestra Vida 1.0** dentro de **JaviEats 3.2**.
+> Para Supabase/base de datos usar `contextos/CONTEXTO_BASE_DATOS.md`.
+>
+> Para el juego Nuestra Vida usar `contextos/CONTEXTO_NUESTRA_VIDA.md`.
+>
+> **Repositorio:** `javiermontoro11/weblaura`
+>
+> **Rama:** `main`
+>
+> **Estado de referencia:** 14 de septiembre de 2026 · JaviEats 3.3.
 
 ---
 
-# PROMPT PARA CONTINUAR EL PROYECTO EN UN CHAT NUEVO
+# PROMPT PARA CONTINUAR EN UN CHAT NUEVO
 
-Quiero que continúes conmigo el desarrollo y mantenimiento de mi proyecto privado **JaviEats**, actualmente en la versión lógica/producto **3.2**.
+Quiero que continúes el desarrollo y mantenimiento de mi proyecto privado **JaviEats 3.3** sin empezar de cero.
 
-La novedad principal de JaviEats 3.2 es la integración del juego completo **Nuestra Vida 1.0** dentro del mismo repositorio y flujo de acceso.
-
-No empieces el proyecto de cero. No rediseñes JaviEats ni Nuestra Vida sin que yo lo pida. Antes de modificar cualquier cosa, revisa siempre el estado real del repositorio GitHub y considera `main` como fuente de verdad.
-
-Repositorio:
-
-`javiermontoro11/weblaura`
-
-Rama principal:
-
-`main`
-
-La filosofía sigue siendo:
+La prioridad es:
 
 **ESTABILIDAD > CAMBIOS GRANDES**
 
-Cuando algo ya funciona, se toca únicamente de forma quirúrgica.
+Antes de modificar código, comprueba el estado real de `main`. No asumas que este documento sustituye al repositorio.
+
+Si un cambio toca base de datos, RPC, RLS, triggers, Storage o persistencia, consulta y actualiza también `contextos/CONTEXTO_BASE_DATOS.md`.
+
+Nuestra Vida mantiene su propio contexto en `contextos/CONTEXTO_NUESTRA_VIDA.md`.
 
 ---
 
-# 1. ESTADO GENERAL ACTUAL
+# 1. ARQUITECTURA GENERAL
 
-## JaviEats
+JaviEats es una aplicación web privada para Javi y Laura, construida en HTML/CSS/JavaScript vanilla, sin build system.
 
-Versión actual de producto:
-
-**JaviEats 3.2**
-
-La 3.2 parte de la 3.1 y añade como hito principal:
-
-- integración real de Nuestra Vida,
-- acceso desde JaviEats,
-- desbloqueo diferenciado por perfil,
-- protección del acceso directo antes del estreno,
-- identidad visual del juego dentro de la navegación.
-
-Los ficheros principales de JaviEats siguen siendo, entre otros:
+Ficheros principales:
 
 - `index.html`
 - `script.js`
 - `style.css`
 - `minigames-data.js`
-- `minigames.js`
 - `minigames-core.js`
+- `minigames.js`
 - `nuestra-vida-launcher.js`
 - `service-worker.js`
 - `manifest.webmanifest`
 - `assets/`
 - `recuerdos/`
 - `nuestra-vida/`
+- `contextos/`
 
-IMPORTANTE: algunos query strings de assets pueden seguir indicando `v=3.1`. No asumir automáticamente que hay que cambiar todos esos valores solo porque el producto se denomine 3.2. La 3.2 identifica el estado funcional de la aplicación después de integrar Nuestra Vida.
-
----
-
-# 2. NUESTRA VIDA — MASTER ACTUAL
-
-La versión del juego integrada es:
-
-**Nuestra Vida 1.0**
-
-La release original fue:
-
-`Nuestra_Vida_1.0_RELEASE.zip`
-
-Nuestra Vida 1.0 se considera **MASTER**.
-
-No rediseñar el juego ni modificar gameplay porque sí.
-
-Si en el futuro aparece un bug del juego, las siguientes versiones deberán ser incrementales, por ejemplo:
-
-- `Nuestra Vida 1.0.1`
-- `Nuestra Vida 1.0.2`
-
-El documento específico y detallado del juego está en:
-
-`/nuestra-vida/CONTEXTO_NUESTRA_VIDA_1.0.md`
-
-Ese documento contiene todo el historial de diseño, cámara, HUD, mapa, audio, economía, tutorial, jubilación, responsive, personajes, decisiones cerradas y filosofía de mantenimiento de Nuestra Vida.
-
-Antes de cambiar el juego, leer ese archivo.
+Supabase se usa para autenticación, planes, recuerdos, notificaciones, Push, reto diario, puzle/vales y `¿Y si…?`.
 
 ---
 
-# 3. ESTRUCTURA ACTUAL DE `/nuestra-vida/`
+# 2. ESTADO DE LA 3.3
 
-Actualmente Nuestra Vida está físicamente dentro del repositorio.
+La 3.3 ya incluye en código:
 
-La carpeta contiene la release y sus assets, incluyendo:
+- nueva capa visual de Inicio;
+- tarjeta integrada de Nuestra Vida;
+- agenda/próximo plan en Inicio;
+- catálogo ampliado a 10 servicios;
+- nuevos servicios:
+  - `☕ Tomar algo`
+  - `🍽️ Ir a comer / cenar`
+- exportación `.ics` / Apple Calendar para planes confirmados;
+- ampliación de Dibuja;
+- ampliación de No lo Digas;
+- corrección de la lógica de ganador de Dibuja;
+- caché/versionado de minijuegos en 3.3.
 
-- `nuestra-vida/index.html`
-- `nuestra-vida/nv-core-1-0-8c6f2a.html`
-- `nuestra-vida/CONTEXTO_NUESTRA_VIDA_1.0.md`
-- `nuestra-vida/README_1.0.txt`
-- `nuestra-vida/QA_1.0.json`
-- `nuestra-vida/manifest.webmanifest`
-- `nuestra-vida/sw.js`
-- `nuestra-vida/access-gate.js`
-- `nuestra-vida/assets23/`
-- `nuestra-vida/assets25/`
-- `nuestra-vida/assets26/`
-- `nuestra-vida/audio27/`
-- `nuestra-vida/icons/`
+Los ficheros que se cambiaron para esta parte fueron:
 
-Los assets de la release fueron subidos al repositorio por tandas desde GitHub web.
+- `index.html`
+- `minigames-core.js`
+- `minigames.js`
 
-No volver a pedir el ZIP si los archivos siguen correctamente en `main`.
-
----
-
-# 4. ARQUITECTURA DE LA INTEGRACIÓN DE NUESTRA VIDA
-
-## Muy importante
-
-El antiguo `nuestra-vida/index.html` de la release no es ahora el punto de entrada directo al gameplay.
-
-Para proteger el estreno se hizo una separación:
-
-### `nuestra-vida/index.html`
-
-Es el **wrapper / puerta de acceso**.
-
-Su función es:
-
-1. detectar qué perfil de JaviEats tiene sesión,
-2. decidir si ese perfil puede entrar,
-3. enseñar cuenta atrás cuando corresponda,
-4. cargar el juego real solo cuando el acceso está permitido.
-
-### `nuestra-vida/nv-core-1-0-8c6f2a.html`
-
-Contiene el **juego Nuestra Vida 1.0 real**.
-
-Se creó a partir del `index.html` original del juego para no contaminar el gameplay con la lógica de estreno.
-
-La filosofía es mantener este core lo más intacto posible.
-
-El wrapper carga el core mediante `fetch(..., { cache: "no-store" })` y después sustituye el documento con el HTML del juego.
-
-No reconstruir esta arquitectura sin necesidad.
+No asumir que `script.js`, `style.css` o `minigames-data.js` han sido modificados para 3.3 salvo verificación posterior en `main`.
 
 ---
 
-# 5. FECHA DE ESTRENO Y ACCESO POR PERFIL
+# 3. REGLAS DE DIBUJA
 
-La hora de estreno acordada es:
+Reglas vigentes de la 3.3:
 
-**12 de septiembre de 2026 a las 14:00, hora de Madrid.**
+- 90 segundos por intento;
+- pista a los 45 segundos;
+- primero en 3 territorios gana;
+- el territorio es para **quien adivina**, no para quien dibuja;
+- si solo uno acierta, gana ese adivinador;
+- si ambos aciertan, gana quien adivinó más rápido;
+- si ninguno acierta o hay empate exacto, no hay propietario;
+- el perdedor del territorio elige la siguiente categoría.
 
-En código se representa como:
-
-`2026-09-12T12:00:00Z`
-
-que corresponde a las 14:00 en Europe/Madrid ese día.
-
-## Antes de las 14:00
-
-### Perfil Javi
-
-Javi puede:
-
-- ver `Nuestra Vida` en la navegación,
-- ver el icono final del juego,
-- pulsar la pestaña,
-- acceder al juego completo.
-
-La preview privada de Javi existe para poder probar el estreno antes de Laura.
-
-### Perfil Laura
-
-Laura debe:
-
-- seguir viendo `12·09` en la navegación,
-- seguir viendo el teaser/cuenta atrás,
-- NO poder entrar al juego desde la pestaña,
-- NO poder saltarse el bloqueo escribiendo directamente `/nuestra-vida/`.
-
-Si Laura accede directamente a `/nuestra-vida/` antes de las 14:00, el wrapper muestra una pantalla de Nuestra Vida con cuenta atrás y enlace para volver a JaviEats.
-
-## A partir de las 14:00
-
-Para Laura debe ocurrir automáticamente:
-
-- termina la cuenta atrás,
-- el acceso queda permitido,
-- el nombre de navegación pasa a `Nuestra Vida`,
-- aparece el icono final corazón + flecha,
-- puede entrar al mismo juego que Javi,
-- el acceso directo a `/nuestra-vida/` deja de estar bloqueado.
-
-No debe hacer falta un commit ni un despliegue manual a las 14:00.
-
-La lógica se basa en la hora del cliente y se vuelve a comprobar periódicamente.
+La batería se amplió editorialmente sin crear nuevas tablas de Supabase.
 
 ---
 
-# 6. NAVEGACIÓN DE JAVIEATS Y REVEAL
+# 4. NO LO DIGAS
 
-En `script.js` ya existe la lógica original del reveal mediante:
+Mantiene la mecánica existente y se amplió la batería de cartas.
 
-- `REVEAL_AT`
-- `updateRevealState()`
-- comprobación de rol
-- temporizador periódico
+Reglas base:
 
-La regla actual es aproximadamente:
-
-- `revealed = ahora >= REVEAL_AT || perfil === "javi" antes del estreno`
-
-Por eso Javi ve la versión final antes que Laura.
-
-Para Laura antes del estreno:
-
-- label: `12·09`
-- teaser y contador activos.
-
-Tras el estreno:
-
-- label: `Nuestra Vida`
-- estado `is-revealed`
-- icono final del juego.
+- turnos de 90 segundos;
+- 45 segundos la primera vez que aparece una carta;
+- 30 segundos en repeticiones;
+- penalización de 5 segundos por palabra prohibida;
+- puntos para quien adivina.
 
 ---
 
-# 7. LOGO / ICONO APROBADO DE NUESTRA VIDA
+# 5. PLANES Y CALENDARIO
 
-La identidad visual aprobada es:
+JaviEats maneja propuestas/planes compartidos mediante Supabase.
 
-**corazón coral integrado con una flecha hacia arriba/derecha ↗**
+Servicios actuales esperados en producto: **10**.
 
-Características:
+Los dos añadidos en 3.3 son:
 
-- coral/salmón,
-- limpio,
-- plano,
-- sin gradiente,
-- sin halo gigante,
-- sin cuadrado naranja enorme,
-- mismo peso visual que el resto de pestañas de JaviEats.
+- `Tomar algo`
+- `Ir a comer / cenar`
 
-En la navbar se usa el icono `life` que ya existe en `script.js`.
+Los planes confirmados pueden exportarse a un `.ics` compatible con Apple Calendar.
 
-En estado revelado se ocultan los pseudo-elementos antiguos del teaser naranja y se utiliza el corazón + flecha coral.
-
-No volver a la estética del gran botón naranja de misterio una vez revelado.
+La exportación no sustituye el calendario interno de JaviEats.
 
 ---
 
-# 8. LANZADOR DE NUESTRA VIDA DESDE JAVIEATS
+# 6. `¿Y SI…?` — ESTADO FUNCIONAL 3.3
 
-Existe:
+La regla de producto ya implementada es:
 
-`/nuestra-vida-launcher.js`
+> **Una pregunta presentada una vez no vuelve a salir nunca.**
 
-Su función es conectar JaviEats con:
+Estado verificado en Supabase al cerrar la 3.3:
 
-`./nuestra-vida/`
+- 450 preguntas totales;
+- 431 activas;
+- 19 inactivas por redundancia semántica;
+- 60 preguntas históricas;
+- las 60 históricas son distintas;
+- 0 duplicados históricos;
+- 0 preguntas abiertas en la verificación final;
+- 374 preguntas activas todavía disponibles;
+- protección global `UNIQUE (pregunta_id)` en `y_si_dias`;
+- `obtener_y_si_actual()` usa historial global;
+- no recicla temporadas.
 
-Define la URL real mediante:
+El detalle exacto de índices, RPC y preguntas inactivas está en `contextos/CONTEXTO_BASE_DATOS.md`.
 
-`window.JAVIEATS_MAIN_GAME_URL`
-
-También sincroniza un marcador del rol actual para que la puerta de Nuestra Vida sepa si viene Javi o Laura.
-
-El lanzador permite entrada inmediata a Javi y respeta el estreno de Laura.
-
-Actualmente se carga desde la secuencia de minijuegos.
-
----
-
-# 9. CAMBIO TÉCNICO EN `minigames.js`
-
-Durante la integración se evitó editar de forma insegura un fichero grande desde el conector.
-
-La estructura actual es deliberada:
-
-### `minigames-core.js`
-
-Contiene el código anterior completo de Minijuegos.
-
-### `minigames.js`
-
-Ahora es un cargador pequeño que hace:
-
-1. cargar `minigames-core.js?v=3.1`,
-2. cuando termina, cargar `nuestra-vida-launcher.js?v=1.0`.
-
-No asumir que `minigames.js` está roto por ser corto.
-
-No volver a fusionar `minigames-core.js` dentro de `minigames.js` salvo que haya una razón real y se valide todo después.
-
-Los minijuegos existentes deben seguir funcionando igual.
+No volver a ejecutar las migraciones SQL provisionales usadas durante el desarrollo de esta regla.
 
 ---
 
-# 10. CONTROL DE ACCESO DE NUESTRA VIDA
+# 7. NUESTRA VIDA
 
-Existe también:
+Nuestra Vida sigue siendo un proyecto/juego separado dentro del mismo repositorio.
 
-`/nuestra-vida/access-gate.js`
+La integración con JaviEats se mantiene mediante:
 
-Pero la puerta de acceso que debe considerarse **autoritativa en el estado actual** está implementada directamente en:
+- `nuestra-vida-launcher.js`
+- `/nuestra-vida/`
 
-`/nuestra-vida/index.html`
+La lógica específica del juego, su release y su persistencia se documentan en `contextos/CONTEXTO_NUESTRA_VIDA.md`.
 
-El wrapper detecta la sesión de JaviEats/Supabase y el perfil correspondiente.
-
-Reglas:
-
-- Javi → permitido antes y después de las 14:00.
-- Laura → bloqueada antes de las 14:00; permitida después.
-- perfil desconocido/sin sesión → no cargar juego; pedir volver a JaviEats e iniciar sesión.
-
-No introducir IDs personales en documentación nueva si no son imprescindibles. El código ya contiene lo necesario para mapear las sesiones.
+No rediseñar Nuestra Vida desde el contexto de JaviEats salvo que se pida expresamente.
 
 ---
 
-# 11. COMMITS IMPORTANTES DE LA INTEGRACIÓN
+# 8. RECUERDOS
 
-Commits relevantes alrededor de JaviEats 3.2:
+JaviEats mantiene recuerdos privados mediante Supabase y Storage.
 
-### Subida de la release
+Para 3.3 la intención es mejorar presentación sin introducir una función tipo “Tal día como hoy” mientras no tenga sentido por antigüedad del contenido.
 
-Varios commits `Add files via upload` subieron los assets de Nuestra Vida a `/nuestra-vida/`.
-
-Uno de los últimos commits de assets fue:
-
-`63f5da7a9b2671fc28b8b4e04625c1b55bba7294`
-
-### Control de acceso
-
-`7988e2e311881ac4a6bdbcc536ea725b59bd1715`
-
-Mensaje:
-
-`Añadir control de acceso de Nuestra Vida`
-
-### Lanzador
-
-`fde6278415dbc6580b77c34ce993d0f34c524ccf`
-
-Mensaje:
-
-`Conectar lanzador de Nuestra Vida`
-
-### Integración en JaviEats
-
-`533938143a3c89c8fdfb473186c46f2dc3ad55f8`
-
-Mensaje:
-
-`Integrar acceso de Nuestra Vida en JaviEats`
-
-### Puerta definitiva para Laura hasta las 14:00
-
-`793cc2b2c4970af11c97eed169a2b79fdaf602e5`
-
-Mensaje:
-
-`Bloquear Nuestra Vida para Laura hasta las 14:00`
-
-Este commit convirtió `nuestra-vida/index.html` en el wrapper de acceso y preservó el juego en `nv-core-1-0-8c6f2a.html`.
+No cambiar Storage ni contratos de datos si el objetivo es solo visual.
 
 ---
 
-# 12. QUÉ ESTÁ CONFIRMADO Y QUÉ NO
+# 9. FORMA DE TRABAJAR
 
-## Confirmado en GitHub
+Reglas permanentes:
 
-Se comprobó que `main` contiene:
-
-- `nuestra-vida/index.html`,
-- el core del juego,
-- carpetas `assets23`, `assets25`, `assets26`,
-- `audio27`,
-- `icons`,
-- manifest,
-- service worker,
-- QA,
-- README,
-- contexto del juego,
-- lanzador de JaviEats,
-- control de acceso.
-
-También está confirmada por inspección de código la lógica de:
-
-- reveal de Javi/Laura,
-- cuenta atrás,
-- desbloqueo horario,
-- cambio de icono/nombre,
-- protección de `/nuestra-vida/`.
-
-## Importante sobre producción
-
-No confundir:
-
-- **GitHub correcto**, con
-- **Vercel desplegado y probado realmente en navegador**.
-
-En el momento de cerrar este contexto, GitHub `main` contiene la integración.
-
-Si algo no aparece en producción, antes de tocar código:
-
-1. comprobar el deployment de Vercel,
-2. comprobar que está sirviendo el último commit de `main`,
-3. probar recarga fuerte / caché PWA,
-4. comprobar consola y Network,
-5. solo después modificar código.
-
-Nunca afirmar que Vercel fue probado visualmente si no se ha abierto de verdad.
-
----
-
-# 13. HOME DE JAVIEATS
-
-No asumir que existe una tarjeta grande específica de Nuestra Vida en Inicio solo porque se habló de ella durante el diseño.
-
-En el estado actual confirmado, la integración principal está realizada mediante la **pestaña especial de la navegación** y el launcher.
-
-Si se desea añadir en el futuro una tarjeta de Inicio para Nuestra Vida, hacerlo como mejora posterior de JaviEats 3.2.x, sin romper la navegación existente.
-
-Diseño deseado si se añade:
-
-- tarjeta oscura elegante,
-- icono coral corazón + flecha,
-- título `Nuestra Vida`,
-- copy breve,
-- CTA `Jugar ahora →`,
-- respetar exactamente las mismas reglas de acceso por perfil y fecha.
-
-No añadir un CTA que permita saltarse la puerta de acceso.
-
----
-
-# 14. NUESTRA VIDA: NO ROMPER LA RELEASE 1.0
-
-Reglas fundamentales:
-
-- `nv-core-1-0-8c6f2a.html` representa el juego MASTER integrado.
-- No editar gameplay para implementar funciones de JaviEats si se puede resolver desde wrapper/launcher.
-- No cambiar el schema interno de guardado solo porque el producto sea 1.0.
-- El schema histórico de guardado de Nuestra Vida sigue teniendo compatibilidad con `0.18.29` según el contexto específico del juego.
-- No rehacer mapa, HUD, cámara, economía, audio o tutorial por iniciativa propia.
-- Si aparece un bug, sacar patch incremental.
-
-Viewport prioritario del juego:
-
-1. iPad 11 horizontal — `1180 × 820`
-2. iPad Mini — `1024 × 768`
-3. PC
-
----
-
-# 15. JAVIEATS — COSAS QUE SIGUEN SIENDO IMPORTANTES
-
-JaviEats mantiene:
-
-- Supabase,
-- autenticación persistente,
-- roles Javi/Laura,
-- propuestas/planes,
-- calendario compartido,
-- recuerdos,
-- notificaciones,
-- PWA,
-- Push,
-- minijuegos,
-- ¿Y si…?,
-- Piedra, papel o tijera,
-- Dibuja,
-- No lo digas,
-- puzle/vales.
-
-No romper estas funciones por tocar Nuestra Vida.
-
-La navegación final relevante es:
-
-`Inicio | Planes | Nuestra Vida | Minijuegos | Recuerdos`
-
-Antes del estreno, para Laura, el tercer elemento sigue representado como `12·09`.
-
----
-
-# 16. FORMA DE TRABAJAR CON EL USUARIO
-
-El usuario quiere resultados reales, no propuestas ficticias.
-
-Reglas:
-
-1. Si puedes modificar GitHub directamente, hazlo cuando se haya pedido expresamente.
-2. Antes de decir “ya está”, comprobar el repositorio.
-3. Distinguir siempre entre:
-   - código escrito,
-   - código subido a GitHub,
-   - despliegue de producción,
-   - prueba real en navegador,
+1. `main` es la fuente de verdad.
+2. Antes de escribir en GitHub, inspeccionar el estado actual.
+3. Cambios pequeños y quirúrgicos.
+4. No crear ficheros auxiliares innecesarios.
+5. Si se toca un archivo de código y se entrega al usuario, preferir el archivo completo.
+6. No afirmar que algo está probado si solo se revisó estáticamente.
+7. Distinguir siempre entre:
+   - código escrito;
+   - código subido a GitHub;
+   - despliegue de producción;
+   - prueba real en navegador;
    - prueba real en iPad.
-4. No afirmar que algo está probado si solo se ha revisado estáticamente.
-5. Cambios pequeños e incrementales.
-6. No romper algo aprobado al arreglar otra cosa.
-7. Responder en español.
-8. Tono natural y directo.
-9. No generar mockups/imágenes cuando el usuario pide cambios reales de la aplicación.
-10. Si el usuario dice que una versión le encanta o que algo queda cerrado, tratarlo como base estable.
+8. Si hay cambios de BD, actualizar `contextos/CONTEXTO_BASE_DATOS.md` en el mismo trabajo.
+9. Si cambia funcionalidad general de JaviEats, actualizar este archivo.
+10. Responder en español, de forma directa y técnica.
 
 ---
 
-# 17. VERSIONADO DESDE AHORA
+# 10. VERSIONADO Y ESTADO DE CIERRE
 
-La aplicación global queda identificada como:
+Producto actual:
 
-**JaviEats 3.2**
+**JaviEats 3.3**
 
-Nuestra Vida integrada mantiene su propio versionado:
+Nuestra Vida mantiene versionado independiente.
 
-**Nuestra Vida 1.0**
+La parte de Supabase de `¿Y si…?` está cerrada y verificada para 3.3 con la regla de no repetición global.
 
-Si el siguiente cambio es pequeño y afecta JaviEats:
-
-- `3.2.1`
-
-Si el siguiente cambio es un bug específico del juego:
-
-- `Nuestra Vida 1.0.1`
-
-No mezclar ambos versionados innecesariamente.
+Todavía hay que distinguir eso de una prueba real completa de producción: que GitHub y Supabase estén correctos no implica por sí solo que Vercel/PWA/iPad hayan sido probados visualmente después de todos los cambios.
 
 ---
 
-# 18. PRIMERA COMPROBACIÓN EN UN CHAT NUEVO
+# 11. PRIMERA COMPROBACIÓN EN UN CHAT NUEVO
 
-Si te doy este documento en otro chat, antes de hacer cambios debes confirmar brevemente que entiendes:
+Antes de hacer cambios, confirmar:
 
-- que JaviEats está en 3.2,
-- que Nuestra Vida 1.0 ya está integrada en GitHub,
-- que `main` es la fuente de verdad,
-- que Laura tiene estreno a las 14:00 del 12/09/2026,
-- que Javi dispone de acceso previo,
-- que `nuestra-vida/index.html` es la puerta de acceso,
-- que `nv-core-1-0-8c6f2a.html` es el juego real,
-- que el corazón + flecha coral es la identidad final,
-- que el juego MASTER no debe rediseñarse,
-- y que cualquier nueva modificación debe ser incremental.
+- que JaviEats está en 3.3;
+- que `main` es la fuente de verdad;
+- que los contextos están separados en tres archivos;
+- que la BD tiene contexto propio;
+- que `¿Y si…?` no repite preguntas ya presentadas;
+- que Nuestra Vida mantiene contexto independiente;
+- y que cualquier modificación nueva debe ser incremental.
 
-Después, si la tarea implica el estado actual del código, **comprueba GitHub antes de responder basándote solo en este documento**, porque el repositorio puede haber avanzado después de su creación.
-
----
-
-# 19. RESUMEN EJECUTIVO
-
-Estado actual:
-
-**JaviEats 3.2 = JaviEats 3.1 + integración de Nuestra Vida 1.0.**
-
-Nuestra Vida está dentro de `/nuestra-vida/` con todos sus assets.
-
-El acceso actual está diseñado así:
-
-**Javi → puede jugar antes del estreno.**
-
-**Laura → teaser `12·09` y cuenta atrás antes de las 14:00.**
-
-**Laura → acceso automático a partir de las 14:00 del 12/09/2026.**
-
-La URL directa del juego también está protegida antes del estreno.
-
-El juego real está preservado en un core separado detrás de la puerta de acceso.
-
-El siguiente trabajo debe centrarse en:
-
-- prueba real de producción,
-- feedback real de Javi/Laura,
-- bugs concretos,
-- patches pequeños,
-- mantenimiento.
-
-No hay que volver a empezar ni rehacer la integración.
+Después, inspeccionar GitHub real si la tarea depende del estado actual del código.
