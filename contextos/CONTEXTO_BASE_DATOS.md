@@ -1,67 +1,28 @@
 # CONTEXTO MAESTRO — BASE DE DATOS JAVIEATS
 
-> **Ámbito:** únicamente Supabase/PostgreSQL, Storage, RLS, RPC, triggers y persistencia de JaviEats.
+> **Ámbito:** exclusivamente Supabase/PostgreSQL, Storage, RLS, RPC, triggers y persistencia de JaviEats.
 >
-> Para el contexto funcional de la app usar `contextos/CONTEXTO_JAVIEATS.md`.
+> Para la app usar `contextos/CONTEXTO_JAVIEATS.md`.
 >
-> Para el juego Nuestra Vida usar `contextos/CONTEXTO_NUESTRA_VIDA.md`.
+> Para Nuestra Vida usar `contextos/CONTEXTO_NUESTRA_VIDA.md`.
 >
-> **Estado de referencia:** 14 de septiembre de 2026 · JaviEats 3.3.
+> **Estado de referencia:** 14 de septiembre de 2026 · JaviEats 3.3.1.
 
 ---
 
-# PROMPT PARA UN CHAT NUEVO
+# REGLA DE TRABAJO
 
-Quiero que continúes el mantenimiento de la base de datos Supabase/PostgreSQL de JaviEats sin reconstruir el esquema ni inventar tablas, columnas, RPC, policies o triggers.
-
-La prioridad es:
+Prioridad:
 
 **ESTABILIDAD > CAMBIOS GRANDES**
 
-Antes de cualquier modificación estructural, inspecciona el estado real de Supabase y conserva compatibilidad con el frontend actual.
+Antes de modificar BD, inspeccionar siempre el estado real. No inventar tablas, columnas, RPC, policies o triggers. No documentar secretos, tokens, `service_role`, valores de Vault ni credenciales. Para perfiles usar `JAVI_USER_ID` y `LAURA_USER_ID`.
 
-Nunca incluyas en documentación:
-
-- contraseñas;
-- claves `service_role`;
-- tokens;
-- secretos de webhook;
-- valores de Vault;
-- credenciales privadas.
-
-Los UUID reales de los dos perfiles autorizados deben representarse como `JAVI_USER_ID` y `LAURA_USER_ID`.
+Cada cambio relevante de BD obliga a actualizar este archivo y, si cambia comportamiento de producto, también `contextos/CONTEXTO_JAVIEATS.md`.
 
 ---
 
-# 1. REGLA OBLIGATORIA DE MANTENIMIENTO
-
-Cada cambio relevante de base de datos obliga a actualizar este archivo en el mismo trabajo.
-
-Incluye, como mínimo:
-
-- crear, borrar o renombrar tablas;
-- crear, borrar o renombrar columnas;
-- cambiar tipos, defaults o nullability;
-- modificar PK, FK, UNIQUE, CHECK o índices relevantes;
-- cambiar RLS o policies;
-- crear, borrar o modificar RPC/funciones;
-- crear, borrar o modificar triggers;
-- cambiar Storage/buckets;
-- cambiar Push/correo/Edge Functions dependientes de BD;
-- cargas de contenido que alteren materialmente un módulo;
-- cambios del contrato entre frontend y backend.
-
-Después de un cambio:
-
-1. verificar que el SQL se ejecutó realmente;
-2. volver a consultar la estructura/función afectada;
-3. comprobar índices, constraints, RLS y triggers;
-4. actualizar este `.md`;
-5. actualizar también `contextos/CONTEXTO_JAVIEATS.md` si cambia comportamiento de producto.
-
----
-
-# 2. TABLAS `public` AUDITADAS
+# TABLAS `public` AUDITADAS
 
 1. `marcas_mensajes_javi`
 2. `mensajes_dia`
@@ -83,79 +44,53 @@ Después de un cambio:
 18. `y_si_preguntas`
 19. `y_si_respuestas`
 
-No eliminar tablas por parecer legacy sin revisar frontend, RPC, triggers, Edge Functions y relaciones.
+No eliminar nada por parecer legacy sin revisar frontend, RPC, triggers y dependencias.
 
 ---
 
-# 3. PROPUESTAS / PLANES
+# PROPUESTAS / PLANES
 
 Tabla principal: `public.propuestas`.
 
-Campos funcionales principales:
-
-- `id uuid` PK;
-- `created_by uuid` → `auth.users(id)`;
-- `service_id`, `service_title`, `service_icon`, `category`;
-- `plan_date`, `plan_time`, `duration`, `priority`, `note`;
-- `status`;
-- `entry_type`;
-- `is_all_day`;
-- timestamps.
-
-Estados permitidos:
-
-- `pendiente`
-- `confirmada`
-- `realizada`
-- `cancelada`
+Estados: `pendiente`, `confirmada`, `realizada`, `cancelada`.
 
 `entry_type`: `service` o `custom`.
 
 Triggers relevantes:
 
-- `notificar_propuesta`;
-- `actualizar_updated_at`;
-- `validar_actualizacion_propuesta_v3`.
+- `notificar_propuesta`
+- `actualizar_updated_at`
+- `validar_actualizacion_propuesta_v3`
 
 ---
 
-# 4. RECUERDOS
+# RECUERDOS
 
-Tabla principal: `public.recuerdos_app`.
+Tabla: `public.recuerdos_app`.
 
-Campos principales:
+Tipos: `gallery` y `letter`.
 
-- `id`, `created_by`, `fecha`, `titulo`, `descripcion`;
-- `tipo` (`gallery` o `letter`);
-- `contenido`;
-- `image_paths text[]`;
-- `cover_index`;
-- `legacy_key`;
-- timestamps.
-
-Bucket Storage:
-
-`recuerdos`
+Bucket Storage: `recuerdos`.
 
 Estado auditado:
 
 - privado;
 - máximo 5 MB por archivo;
-- MIME: `image/webp`, `image/jpeg`, `image/png`.
+- MIME permitidos: WebP, JPEG y PNG.
 
-Triggers:
+Triggers relevantes:
 
-- `notificar_recuerdo_nuevo`;
-- `set_recuerdos_app_updated_at`;
-- `proteger_autor_recuerdo_v3`.
+- `notificar_recuerdo_nuevo`
+- `set_recuerdos_app_updated_at`
+- `proteger_autor_recuerdo_v3`
 
 ---
 
-# 5. NOTIFICACIONES Y PUSH
+# NOTIFICACIONES / PUSH
 
 `notificaciones` usa `dedupe_key` único y RLS orientado al destinatario.
 
-RPC relacionadas:
+RPC relevantes:
 
 - `crear_notificacion(...)`
 - `marcar_notificacion_leida(uuid)`
@@ -163,76 +98,42 @@ RPC relacionadas:
 - `eliminar_notificacion(uuid)`
 - `vaciar_notificaciones()`
 
-`push_subscriptions` guarda suscripciones Web Push por usuario.
+`push_subscriptions` almacena las suscripciones Web Push por usuario.
 
-Existe un trigger de Push sobre `notificaciones` que llama a `supabase_functions.http_request`.
-
-**No extraer ni documentar headers o credenciales de ese trigger.**
+No extraer ni documentar cabeceras o secretos de triggers HTTP.
 
 ---
 
-# 6. MENSAJES, RETO, PUZLE Y VALES
-
-Módulos/tablas:
-
-- `mensajes_laura`
-- `marcas_mensajes_javi`
-- `mensajes_dia`
-- `preguntas_diarias`
-- `respuestas_diarias`
-- `retos_diarios`
-- `rondas_reto`
-- `piezas_puzzle`
-- `puzzles_premio`
-- `vales`
-
-RPC relevantes:
-
-- `guardar_mensaje_dia(text)`
-- `marcar_mensaje_dia_leido(uuid)`
-- `iniciar_reto_diario()`
-- `jugar_ronda_reto(text)`
-- `jugar_ronda_reto_v23(text)`
-- `canjear_vale(uuid)`
-
-No confundir `preguntas_diarias/respuestas_diarias` con `y_si_*`.
-
----
-
-# 7. `¿Y SI…?` — MODELO Y ESTADO ACTUAL
-
-El módulo está controlado principalmente por RPC `SECURITY DEFINER`.
-
-Las tablas `y_si_*` tienen RLS activo y el flujo normal pasa por RPC.
+# `¿Y SI…?` — ESTADO DE DATOS
 
 ## `y_si_preguntas`
 
-- `id bigint GENERATED ALWAYS AS IDENTITY` PK;
+Campos clave:
+
+- `id bigint` identity PK;
 - `categoria text`;
 - `pregunta text UNIQUE`;
 - `opciones text[]` de 2 a 4 elementos;
 - `destacada boolean`;
-- `activa boolean`;
-- `created_at`.
+- `activa boolean`.
 
-### Estado verificado tras JaviEats 3.3
+Estado verificado:
 
 - **450 preguntas totales**;
 - **431 activas**;
-- **19 inactivas** por limpieza de duplicados semánticos;
-- **374 preguntas activas todavía disponibles** para aparecer.
+- **19 inactivas** por limpieza semántica.
 
 IDs inactivos:
 
 `27, 76, 305, 382, 386, 414, 416, 431, 434, 453, 456, 465, 466, 479, 484, 497, 503, 517, 520`.
 
-No se borraron filas: se marcaron `activa = false`.
+No se borraron; solo `activa = false`.
 
 ## `y_si_dias`
 
 Registra cada pregunta presentada.
 
-Campos relevantes:
+Campos clave:
 
 - `id uuid`;
 - `fecha_inicio date`;
@@ -243,18 +144,19 @@ Campos relevantes:
 - `caducada_at`;
 - `saltada_at`.
 
-Estado verificado tras 3.3:
+Estado comprobado durante 3.3:
 
-- **60 registros históricos**;
-- **60 preguntas usadas distintas**;
-- **0 repeticiones históricas**;
-- **0 preguntas abiertas** en la comprobación final.
+- 60 registros históricos;
+- 60 preguntas usadas distintas;
+- 0 repeticiones históricas;
+- 0 preguntas abiertas en aquella verificación;
+- 374 preguntas activas disponibles en aquella verificación.
 
-Índices/reglas relevantes:
+Existe:
 
-- FK a `y_si_preguntas`;
-- se conserva `UNIQUE (temporada, pregunta_id)` por compatibilidad;
-- existe `y_si_dias_pregunta_id_unique_global UNIQUE (pregunta_id)`.
+`y_si_dias_pregunta_id_unique_global UNIQUE (pregunta_id)`
+
+También se conserva `UNIQUE (temporada, pregunta_id)` por compatibilidad histórica.
 
 ## `y_si_respuestas`
 
@@ -262,53 +164,64 @@ Estado verificado tras 3.3:
 
 ## `y_si_notificaciones`
 
-Estados válidos:
-
-- `pendiente`
-- `procesando`
-- `programada`
-- `cancelada`
-- `error`
+Estados: `pendiente`, `procesando`, `programada`, `cancelada`, `error`.
 
 `UNIQUE (dia_id, destinatario_id)`.
 
 ---
 
-# 8. `¿Y SI…?` — NO REPETICIÓN IMPLEMENTADA EN 3.3
+# NO REPETICIÓN GLOBAL — IMPLEMENTADO
 
-Regla ya implementada y verificada:
+Regla:
 
-> **Una pregunta que haya sido presentada una vez no vuelve a salir nunca.**
+> **Una pregunta presentada una vez no vuelve a salir nunca.**
 
 La fuente de verdad es todo `public.y_si_dias`.
 
-`public.obtener_y_si_actual()` fue verificada con estas propiedades:
+`public.obtener_y_si_actual()` está verificada con estas propiedades:
 
-- usa exclusión global mediante `d.pregunta_id = q.id`;
-- no filtra el historial por `temporada`;
-- no contiene `v_temporada := v_temporada + 1`;
-- no recicla preguntas cuando se agota una temporada.
+- excluye preguntas por `d.pregunta_id = q.id` en todo el historial;
+- no filtra por temporada;
+- no incrementa temporada para reciclar batería;
+- el índice UNIQUE global refuerza la regla a nivel PostgreSQL.
 
-La columna `temporada` se conserva por compatibilidad histórica.
+La columna `temporada` se conserva solo por compatibilidad/histórico.
 
-El índice `y_si_dias_pregunta_id_unique_global` refuerza la regla a nivel PostgreSQL.
-
-La comprobación final confirmó además:
-
-- `preguntas_totales = 450`;
-- `preguntas_activas = 431`;
-- `preguntas_presentadas = 60`;
-- `preguntas_presentadas_unicas = 60`;
-- `duplicados_historicos = 0`;
-- `preguntas_abiertas = 0`;
-- `preguntas_disponibles = 374`;
-- `proteccion_unique_global = true`.
-
-Si se agotan las preguntas activas no usadas, hay que ampliar la batería. **No reciclar preguntas antiguas.**
+Si se agota la batería, ampliar preguntas; nunca reciclar antiguas.
 
 ---
 
-# 9. RPC PRINCIPALES DE `¿Y SI…?`
+# COMPATIBILIDAD Y CAMBIOS DE PREGUNTA — 3.3.1
+
+Cambio aplicado y verificado el 14/09/2026.
+
+La **Compatibilidad JaviEats** se calcula con las **últimas 20 preguntas completadas por ambos**.
+
+Regla de ventaja compartida:
+
+- compatibilidad `< 75%` → **1 cambio de pregunta al día**;
+- compatibilidad `>= 75%` → **2 cambios de pregunta al día**;
+- los cambios son **compartidos entre Javi y Laura**, no 2 por persona;
+- una pregunta cambiada sigue registrada en `y_si_dias` y no puede volver a aparecer.
+
+La lógica de backend fue modificada en `_y_si_payload(...)`/flujo de salto para comparar los cambios usados hoy con el límite permitido por compatibilidad.
+
+Verificación posterior a la migración:
+
+- `compatibilidad_ultimas_20 = 80`
+- `cambios_diarios_permitidos = 2`
+- `muestra_compatibilidad = 20`
+- `cambios_usados_hoy = 1`
+- `payload_actualizado = true`
+- `no_repeticion_global_ok = true`
+
+Por tanto, en ese estado concreto quedaba **1 cambio compartido adicional disponible ese día**.
+
+La compatibilidad puede subir o bajar según entren nuevas respuestas en la ventana móvil de 20. No se resta ningún recurso ni se penaliza a la pareja: simplemente activa o desactiva la ventaja de dos cambios.
+
+---
+
+# RPC PRINCIPALES DE `¿Y SI…?`
 
 - `_y_si_estado_limite(uuid)`
 - `_y_si_payload(uuid, uuid)`
@@ -319,21 +232,19 @@ Si se agotan las preguntas activas no usadas, hay que ampliar la batería. **No 
 - `notificar_y_si_resultado()`
 - `trigger_turno_y_si()`
 
-Reglas conservadas:
+Reglas funcionales:
 
 - máximo 5 preguntas completadas al día;
 - una sola pregunta abierta globalmente;
 - una respuesta por usuario y pregunta;
-- un salto diario solo antes de que alguien responda;
-- aviso al segundo jugador;
-- al responder ambos se cierra la pregunta y se devuelve resultado + siguiente;
+- el cambio solo es posible antes de respuestas;
+- cambios diarios compartidos: 1 o 2 según compatibilidad;
+- al responder ambos, se cierra la pregunta y se devuelve resultado + siguiente;
 - se desprioriza repetir inmediatamente categoría.
-
-`trigger_turno_y_si()` usa `y_si_webhook_secret` desde Supabase Vault para el fallback de email. Nunca documentar el valor.
 
 ---
 
-# 10. FUNCIONES `public` AUDITADAS
+# FUNCIONES `public` AUDITADAS
 
 - `_y_si_estado_limite`
 - `_y_si_payload`
@@ -369,7 +280,7 @@ Reglas conservadas:
 
 ---
 
-# 11. EXTENSIONES AUDITADAS
+# EXTENSIONES AUDITADAS
 
 - `pg_net` 0.20.4
 - `pg_stat_statements` 1.11
@@ -380,10 +291,17 @@ Reglas conservadas:
 
 ---
 
-# 12. RESUMEN EJECUTIVO
+# CHECKLIST DESPUÉS DE CAMBIOS DE BD
 
-Estado de `¿Y si…?` a 14/09/2026:
+1. Verificar ejecución real del SQL.
+2. Consultar de nuevo la función/estructura afectada.
+3. Comprobar índices/constraints/RLS/triggers relevantes.
+4. Actualizar este documento.
+5. Actualizar `CONTEXTO_JAVIEATS.md` si cambia UX/producto.
+6. No confundir revisión estática con prueba real en producción, navegador o iPad.
 
-**450 totales · 431 activas · 19 inactivas semánticas · 60 históricas distintas · 0 repetidas · 0 abiertas en la verificación final · 374 activas disponibles · no reciclaje entre temporadas · UNIQUE global por `pregunta_id`.**
+---
 
-Este documento es exclusivamente el contexto de **base de datos**.
+# RESUMEN ACTUAL
+
+`¿Y si…?` tiene no repetición global, batería de 450 preguntas con 431 activas y una compatibilidad móvil basada en las últimas 20 preguntas. Con 75% o más se permiten 2 cambios diarios compartidos; por debajo, 1. La última verificación dio 80% de compatibilidad y confirmó backend actualizado y protección global de no repetición activa.
