@@ -1,4 +1,4 @@
-/* JaviEats v2.8 · Minijuegos
+/* JaviEats 3.3 · Minijuegos
    Hub + Dibuja revisado + No lo digas competitivo.
    Los juegos presenciales viven en memoria/localStorage y no añaden tablas a Supabase. */
 (() => {
@@ -6,6 +6,137 @@
 
   const DRAW_SECTIONS = Array.isArray(window.JAVIEATS_DRAW_SECTIONS) ? window.JAVIEATS_DRAW_SECTIONS : [];
   const TABOO_SECTIONS = Array.isArray(window.JAVIEATS_TABOO_SECTIONS) ? window.JAVIEATS_TABOO_SECTIONS : [];
+  // JaviEats 3.3 · ampliación editorial sin duplicar palabras ya existentes.
+  function addUniqueCards(sections, sectionId, cards) {
+    const section = sections.find(item => item.id === sectionId);
+    if (!section || !Array.isArray(section.cards)) return;
+    const normalized = value => String(value || '').trim().toLocaleLowerCase('es-ES');
+    const existing = new Set(section.cards.map(card => normalized(card.word)));
+    cards.forEach(card => {
+      const key = normalized(card.word);
+      if (!key || existing.has(key)) return;
+      section.cards.push(card);
+      existing.add(key);
+    });
+  }
+
+  const DRAW_33_EXTRA = {
+    futbol: [
+      { word: 'Túnel de vestuarios', hint: 'Une una zona interior con el campo.', difficulty: 2 },
+      { word: 'Lanzamiento de falta', hint: 'Empieza con el balón quieto.', difficulty: 2 },
+      { word: 'Parada del portero', hint: 'Evita que una jugada termine como esperaba el rival.', difficulty: 2 },
+      { word: 'Vuelta olímpica', hint: 'Suele llegar después de ganar algo importante.', difficulty: 3 }
+    ],
+    'pop-disney': [
+      { word: 'Baymax', hint: 'Personaje de Disney con una silueta muy sencilla.', difficulty: 1 },
+      { word: 'Rayo McQueen', hint: 'Protagonista de una película de Pixar.', difficulty: 1 },
+      { word: 'Olaf', hint: 'Personaje de Disney asociado al invierno.', difficulty: 1 },
+      { word: 'Alegría de Inside Out', hint: 'Personaje de Pixar relacionado con una emoción.', difficulty: 2 }
+    ],
+    series: [
+      { word: 'Trono de hierro', hint: 'Objeto central de una serie de fantasía.', difficulty: 2 },
+      { word: 'Máscara de La Casa de Papel', hint: 'Objeto muy reconocible de una serie española.', difficulty: 2 },
+      { word: 'Portal de Stranger Things', hint: 'Conecta dos lugares que no deberían tocarse.', difficulty: 3 },
+      { word: 'Sofá de Friends', hint: 'Mueble asociado a una sitcom muy conocida.', difficulty: 2 }
+    ],
+    peliculas: [
+      { word: 'Tiburón saliendo del agua', hint: 'Escena de peligro en el mar.', difficulty: 2 },
+      { word: 'DeLorean', hint: 'Vehículo de una saga de viajes en el tiempo.', difficulty: 2 },
+      { word: 'Alfombra roja', hint: 'Aparece alrededor de grandes estrenos.', difficulty: 1 },
+      { word: 'Claqueta de cine', hint: 'Objeto que se usa durante un rodaje.', difficulty: 1 }
+    ],
+    musica: [
+      { word: 'Mesa de mezclas', hint: 'Tiene muchos controles y se usa con sonido.', difficulty: 2 },
+      { word: 'Auriculares de estudio', hint: 'Se usan para escuchar con mucha atención.', difficulty: 1 },
+      { word: 'Vinilo girando', hint: 'Formato de música que necesita un aparato.', difficulty: 1 },
+      { word: 'Público con linternas', hint: 'Se ve desde el escenario en ciertos momentos.', difficulty: 2 }
+    ],
+    sagas: [
+      { word: 'Sombrero seleccionador', hint: 'Objeto de una saga de magia.', difficulty: 1 },
+      { word: 'Halcón Milenario', hint: 'Vehículo espacial de una saga muy famosa.', difficulty: 2 },
+      { word: 'Anillo único', hint: 'Objeto pequeño con muchísimo peso en una saga.', difficulty: 2 },
+      { word: 'Guantelete del infinito', hint: 'Objeto de una saga de superhéroes.', difficulty: 2 }
+    ],
+    'casa-comida': [
+      { word: 'Tostadora', hint: 'Pequeño electrodoméstico de cocina.', difficulty: 1 },
+      { word: 'Escurridor de pasta', hint: 'Utensilio con muchos agujeros.', difficulty: 1 },
+      { word: 'Tabla de cortar', hint: 'Suele estar debajo de los ingredientes.', difficulty: 1 },
+      { word: 'Pizza saliendo del horno', hint: 'Comida caliente en un momento muy concreto.', difficulty: 2 }
+    ],
+    'internet-juegos': [
+      { word: 'Mando de consola', hint: 'Se usa con las dos manos.', difficulty: 1 },
+      { word: 'Barra de vida', hint: 'Indica cuánto aguanta un personaje.', difficulty: 2 },
+      { word: 'Pantalla de carga', hint: 'Aparece mientras algo todavía no está listo.', difficulty: 2 },
+      { word: 'Videollamada', hint: 'Varias personas pueden aparecer en una pantalla.', difficulty: 2 }
+    ],
+    mix: [
+      { word: 'Globo aerostático', hint: 'Se desplaza por el cielo de una forma tranquila.', difficulty: 1 },
+      { word: 'Máquina de palomitas', hint: 'Convierte algo pequeño en un snack muy reconocible.', difficulty: 2 },
+      { word: 'Fotomatón', hint: 'Cabina pensada para llevarte una imagen de recuerdo.', difficulty: 2 },
+      { word: 'Fuegos artificiales', hint: 'Dibujan formas de luz durante unos segundos.', difficulty: 1 }
+    ]
+  };
+
+  const TABOO_33_EXTRA = {
+    futbol: [
+      { word: 'Jude Bellingham', banned: ['Real Madrid', 'Inglaterra', 'centrocampista', 'gol'], difficulty: 2 },
+      { word: 'Erling Haaland', banned: ['Manchester City', 'Noruega', 'delantero', 'goles'], difficulty: 1 },
+      { word: 'Sergio Ramos', banned: ['defensa', 'Real Madrid', 'Sevilla', 'tarjetas'], difficulty: 1 },
+      { word: 'Champions League', banned: ['Europa', 'Real Madrid', 'copa', 'fútbol'], difficulty: 1 }
+    ],
+    'pop-disney': [
+      { word: 'Olaf', banned: ['Frozen', 'nieve', 'muñeco', 'Elsa'], difficulty: 1 },
+      { word: 'Stitch', banned: ['Lilo', 'azul', 'alien', 'Hawái'], difficulty: 1 },
+      { word: 'Rapunzel', banned: ['pelo', 'torre', 'Tangled', 'princesa'], difficulty: 1 },
+      { word: 'Rayo McQueen', banned: ['Cars', 'coche', 'rojo', 'velocidad'], difficulty: 1 }
+    ],
+    series: [
+      { word: 'The Last of Us', banned: ['Joel', 'Ellie', 'infectados', 'HBO'], difficulty: 2 },
+      { word: 'Wednesday', banned: ['Miércoles', 'Addams', 'Netflix', 'Nevermore'], difficulty: 1 },
+      { word: 'The Bear', banned: ['cocina', 'restaurante', 'Carmy', 'Chicago'], difficulty: 2 },
+      { word: 'Élite', banned: ['Las Encinas', 'Netflix', 'instituto', 'España'], difficulty: 1 }
+    ],
+    peliculas: [
+      { word: 'Barbie', banned: ['rosa', 'Ken', 'muñeca', 'Margot Robbie'], difficulty: 1 },
+      { word: 'Oppenheimer', banned: ['bomba', 'atómica', 'Nolan', 'Cillian Murphy'], difficulty: 2 },
+      { word: 'Shrek', banned: ['ogro', 'Fiona', 'Burro', 'pantano'], difficulty: 1 },
+      { word: 'Titanic', banned: ['barco', 'iceberg', 'Jack', 'Rose'], difficulty: 1 }
+    ],
+    musica: [
+      { word: 'Aitana', banned: ['OT', 'cantante', 'España', 'pop'], difficulty: 1 },
+      { word: 'Bad Bunny', banned: ['Puerto Rico', 'reguetón', 'conejo', 'cantante'], difficulty: 1 },
+      { word: 'Taylor Swift', banned: ['Eras', 'cantante', 'Estados Unidos', 'Swifties'], difficulty: 1 },
+      { word: 'Quevedo', banned: ['Canarias', 'BZRP', 'cantante', 'Quédate'], difficulty: 1 }
+    ],
+    sagas: [
+      { word: 'Harry Potter', banned: ['Hogwarts', 'mago', 'Voldemort', 'varita'], difficulty: 1 },
+      { word: 'Star Wars', banned: ['Jedi', 'Darth Vader', 'espacio', 'sable'], difficulty: 1 },
+      { word: 'Los Juegos del Hambre', banned: ['Katniss', 'distritos', 'Sinsajo', 'arena'], difficulty: 2 },
+      { word: 'Piratas del Caribe', banned: ['Jack Sparrow', 'barco', 'pirata', 'Caribe'], difficulty: 1 }
+    ],
+    famosos: [
+      { word: 'Ibai Llanos', banned: ['streamer', 'Twitch', 'Velada', 'Bilbao'], difficulty: 1 },
+      { word: 'Rosalía', banned: ['Motomami', 'cantante', 'Cataluña', 'Malamente'], difficulty: 1 },
+      { word: 'Pedro Pascal', banned: ['actor', 'The Last of Us', 'Chile', 'Mandalorian'], difficulty: 2 },
+      { word: 'Zendaya', banned: ['actriz', 'Euphoria', 'Spider-Man', 'Dune'], difficulty: 2 }
+    ],
+    tendencias: [
+      { word: 'TikTok', banned: ['vídeos', 'vertical', 'For You', 'red social'], difficulty: 1 },
+      { word: 'ChatGPT', banned: ['inteligencia artificial', 'OpenAI', 'chat', 'preguntas'], difficulty: 1 },
+      { word: 'Vinted', banned: ['ropa', 'segunda mano', 'vender', 'app'], difficulty: 1 },
+      { word: 'Airbnb', banned: ['alojamiento', 'viaje', 'casa', 'reservar'], difficulty: 1 }
+    ],
+    mix: [
+      { word: 'Mercadona', banned: ['supermercado', 'Hacendado', 'compra', 'España'], difficulty: 1 },
+      { word: 'IKEA', banned: ['muebles', 'Suecia', 'montar', 'tienda'], difficulty: 1 },
+      { word: 'Netflix', banned: ['series', 'películas', 'streaming', 'pantalla'], difficulty: 1 },
+      { word: 'Apple', banned: ['iPhone', 'Mac', 'Steve Jobs', 'manzana'], difficulty: 1 }
+    ]
+  };
+
+  Object.entries(DRAW_33_EXTRA).forEach(([id, cards]) => addUniqueCards(DRAW_SECTIONS, id, cards));
+  Object.entries(TABOO_33_EXTRA).forEach(([id, cards]) => addUniqueCards(TABOO_SECTIONS, id, cards));
+
   const UNLOCK_AT = new Date('2026-08-30T22:00:00+02:00').getTime();
   const PLAYERS = { javi: 'Javi', laura: 'Laura' };
   const $ = id => document.getElementById(id);
@@ -166,7 +297,6 @@
   }
 
   function chooseDrawDifficulty(section) {
-    // Un duelo puede llegar a consumir 4 cartas del mismo nivel (dos intentos + un cambio por intento).
     const counts = section.cards.reduce((acc, card) => {
       const level = Number(card.difficulty) || 2;
       acc[level] = (acc[level] || 0) + 1;
@@ -363,7 +493,7 @@
     if (draw.guesserName) draw.guesserName.textContent = playerName(guesser);
     if (draw.duelState) {
       const first = drawGame.attempts[0];
-      draw.duelState.textContent = first ? `${playerName(first.drawer)}: ${first.success ? formatDrawTime(first.elapsedMs) : 'sin acierto'}` : 'Primer intento';
+      draw.duelState.textContent = first ? `${playerName(other(first.drawer))}: ${first.success ? formatDrawTime(first.elapsedMs) : 'sin acierto'}` : 'Primer intento';
     }
     if (draw.secretWarning) draw.secretWarning.textContent = `${playerName(guesser)}, no mires 👀`;
     if (draw.secretTitle) draw.secretTitle.textContent = `${playerName(drawer)}, mira lo que tienes que dibujar`;
@@ -440,9 +570,9 @@
   function resolveDrawDuel() {
     const [a, b] = drawGame.attempts;
     let winner = null;
-    if (a.success && !b.success) winner = a.drawer;
-    else if (!a.success && b.success) winner = b.drawer;
-    else if (a.success && b.success && a.elapsedMs !== b.elapsedMs) winner = a.elapsedMs < b.elapsedMs ? a.drawer : b.drawer;
+    if (a.success && !b.success) winner = other(a.drawer);
+    else if (!a.success && b.success) winner = other(b.drawer);
+    else if (a.success && b.success && a.elapsedMs !== b.elapsedMs) winner = other(a.elapsedMs < b.elapsedMs ? a.drawer : b.drawer);
 
     if (winner) {
       drawGame.claimed[drawGame.currentSection.id] = winner;
@@ -450,7 +580,7 @@
       drawGame.blockedSectionId = null;
       drawGame.chooser = other(winner); // El perdedor elige para favorecer remontadas.
     } else {
-      drawGame.blockedSectionId = drawGame.currentSection.id; // No se puede repetir inmediatamente.
+      drawGame.blockedSectionId = drawGame.currentSection.id;
       drawGame.chooser = other(drawGame.chooser);
     }
 
@@ -462,14 +592,14 @@
     if (winner) {
       if (draw.resultIcon) draw.resultIcon.textContent = '🏆';
       if (draw.resultTitle) draw.resultTitle.textContent = `${playerName(winner)} conquista ${drawGame.currentSection.title}`;
-      if (draw.resultCopy) draw.resultCopy.textContent = drawGame.attempts.map(item => `${playerName(item.drawer)}: ${item.success ? formatDrawTime(item.elapsedMs) : 'no acertado'}`).join(' · ');
+      if (draw.resultCopy) draw.resultCopy.textContent = drawGame.attempts.map(item => `${playerName(other(item.drawer))}: ${item.success ? `adivina en ${formatDrawTime(item.elapsedMs)}` : 'no acierta'}`).join(' · ');
     } else {
       if (draw.resultIcon) draw.resultIcon.textContent = '🤝';
       if (draw.resultTitle) draw.resultTitle.textContent = `${drawGame.currentSection.title} queda libre`;
       if (draw.resultCopy) {
         draw.resultCopy.textContent = a.success && b.success
-          ? `Habéis clavado exactamente el mismo tiempo. La categoría descansará un turno.`
-          : 'Ninguno consiguió el acierto. La categoría descansará un turno antes de poder volver a elegirse.';
+          ? 'Habéis adivinado exactamente en el mismo tiempo. La categoría descansará un turno.'
+          : 'Ninguno consiguió adivinar. La categoría descansará un turno antes de poder volver a elegirse.';
       }
     }
 
@@ -487,7 +617,7 @@
     draw.result?.classList.add('hidden');
     draw.lobby?.classList.remove('hidden');
     if (draw.turnTitle) draw.turnTitle.textContent = `${playerName(drawGame.chooser)} elige categoría`;
-    if (draw.turnCopy) draw.turnCopy.textContent = 'El que perdió el último territorio elige ahora. Cada duelo usa palabras de dificultad equivalente.';
+    if (draw.turnCopy) draw.turnCopy.textContent = 'Quien perdió el último territorio elige ahora. Cada duelo usa palabras de dificultad equivalente.';
     renderDrawBoard();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
@@ -628,7 +758,7 @@
   const tabooGame = {
     started: false,
     flipping: false,
-    starter: null, // Primer jugador que ADIVINA.
+    starter: null,
     sequence: [],
     turnIndex: 0,
     phase: 'regular',
@@ -684,9 +814,6 @@
     const recent = tabooRecentSet();
     const unused = card => !tabooGame.usedWords.has(card.word);
     const fresh = card => !recent.has(card.word);
-
-    // Seleccionamos LAS DOS cartas a la vez para garantizar que los jugadores
-    // reciben la misma categoría y el mismo nivel en la misma posición del turno.
     let pool = tabooAllCards.filter(card => unused(card) && card.sectionId === spec.sectionId && card.difficulty === spec.difficulty);
     if (pool.length < 2) {
       const sameSection = tabooAllCards.filter(card => unused(card) && card.sectionId === spec.sectionId);
@@ -702,7 +829,6 @@
     if (freshPool.length >= 2) pool = freshPool;
     const pair = shuffle(pool).slice(0, 2);
     if (pair.length < 2) {
-      // Caso extremo: partida excepcionalmente larga. Permitimos reciclar batería.
       tabooGame.usedWords.clear();
       return pickTabooPair(spec);
     }
@@ -737,13 +863,8 @@
     tabooGame.turnDecks[pairStart + 1] = second;
   }
 
-  function currentTabooGuesser() {
-    return tabooGame.sequence[tabooGame.turnIndex];
-  }
-
-  function currentTabooClue() {
-    return other(currentTabooGuesser());
-  }
+  function currentTabooGuesser() { return tabooGame.sequence[tabooGame.turnIndex]; }
+  function currentTabooClue() { return other(currentTabooGuesser()); }
 
   function tabooTurnSeconds() {
     if (tabooGame.phase === 'regular') return TABOO_SECONDS;
@@ -752,9 +873,7 @@
   }
 
   function nextTabooCard() {
-    if (!tabooGame.currentDeck.length) {
-      tabooGame.currentDeck.push(...buildTabooEmergencyDeck(10));
-    }
+    if (!tabooGame.currentDeck.length) tabooGame.currentDeck.push(...buildTabooEmergencyDeck(10));
     tabooGame.currentCard = tabooGame.currentDeck.shift() || null;
     if (tabooGame.currentCard) rememberTaboo(tabooGame.currentCard.word);
     renderTabooCard();
@@ -928,9 +1047,7 @@
     taboo.summary?.classList.remove('hidden');
     const guesser = currentTabooGuesser();
     if (taboo.summaryTitle) taboo.summaryTitle.textContent = `${playerName(guesser)} adivina ${tabooGame.turnHits} ${tabooGame.turnHits === 1 ? 'palabra' : 'palabras'}`;
-    if (taboo.summaryCopy) {
-      taboo.summaryCopy.textContent = `Pases: ${tabooGame.turnPasses} · Prohibidas: ${tabooGame.turnBanned} · marcador Javi ${tabooGame.scores.javi} - Laura ${tabooGame.scores.laura}`;
-    }
+    if (taboo.summaryCopy) taboo.summaryCopy.textContent = `Pases: ${tabooGame.turnPasses} · Prohibidas: ${tabooGame.turnBanned} · marcador Javi ${tabooGame.scores.javi} - Laura ${tabooGame.scores.laura}`;
     tabooGame.turnIndex += 1;
 
     if (tabooGame.turnIndex >= tabooGame.sequence.length) {
@@ -978,9 +1095,7 @@
     const winner = tabooGame.scores.javi > tabooGame.scores.laura ? 'javi' : 'laura';
     const margin = Math.abs(tabooGame.scores.javi - tabooGame.scores.laura);
     if (taboo.finalTitle) taboo.finalTitle.textContent = `${playerName(winner)} gana No lo digas`;
-    if (taboo.finalCopy) {
-      taboo.finalCopy.textContent = `Marcador final: Javi ${tabooGame.scores.javi} · Laura ${tabooGame.scores.laura}${margin >= 5 ? ' · Paliza seria 😂' : margin === 1 ? ' · Por la mínima 🔥' : ''}`;
-    }
+    if (taboo.finalCopy) taboo.finalCopy.textContent = `Marcador final: Javi ${tabooGame.scores.javi} · Laura ${tabooGame.scores.laura}${margin >= 5 ? ' · Paliza seria 😂' : margin === 1 ? ' · Por la mínima 🔥' : ''}`;
   }
 
   if (taboo.startBtn && TABOO_SECTIONS.length) {
