@@ -202,6 +202,24 @@ No tocar la estructura de `propuestas` sin revisar el contexto de BD.
 
 # MINIJUEGOS
 
+## Entre tú y yo
+
+`Entre tú y yo` es un minijuego presencial para Javi y Laura que se juega pasando un único móvil.
+
+- cada partida tiene 8 rondas con orden fijo: quién, apuesta, ranking, quién, ranking inverso, apuesta, ranking y ranking inverso;
+- combina `¿Quién de los dos?`, `Apuesta por mí`, ranking normal y ranking inverso;
+- la sincronía final pertenece solo a este juego y no modifica la compatibilidad de `¿Y si…?`;
+- la partida activa y las últimas 100 propuestas de cada batería se guardan exclusivamente en `localStorage`;
+- no utiliza Supabase ni añade tablas, RPC, políticas o Edge Functions;
+- sus 450 propuestas se reparten en 150 preguntas, 150 apuestas y 150 rankings;
+- los datos, la lógica y los estilos viven en módulos propios y se cargan desde `minigames.js` antes del core histórico.
+
+Archivos:
+
+- `entre-tu-y-yo-data.js`;
+- `entre-tu-y-yo.js`;
+- `entre-tu-y-yo.css`.
+
 ## Dibuja
 
 Reglas clave:

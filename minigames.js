@@ -222,7 +222,9 @@
 
   addStyles();
   updateBranding();
-  loadScript("minigames-core.js?v=3.3.2")
+  loadScript("entre-tu-y-yo-data.js?v=1.0.0")
+    .then(() => loadScript("entre-tu-y-yo.js?v=1.0.0"))
+    .then(() => loadScript("minigames-core.js?v=3.3.2"))
     .then(() => loadScript("nuestra-vida-launcher.js?v=1.0.2"))
     .then(start)
     .catch(error => console.error("JaviEats: no se ha podido cargar un modulo", error));
