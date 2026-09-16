@@ -159,7 +159,7 @@
     const prompt = personalized(round.item.prompt, round);
     if (round.type === 'rank' || round.type === 'inverse') {
       draftOrder = round.item.options.map(option => option.id);
-      shell(`<section class="between-question"><p class="between-kicker">${round.item.category}</p><h2>${prompt}</h2><p class="between-instruction">${instruction}</p><p class="between-rank-guide">1 = lo que pondrías primero · 5 = lo que pondrías último</p><ol class="between-ranking" id="between-ranking"></ol><button class="btn between-primary" data-between="rank-submit">Guardar ranking</button></section>`);
+      shell(`<section class="between-question"><p class="between-kicker">${round.item.category}</p><h2>${prompt}</h2><p class="between-instruction">${instruction}</p><p class="between-rank-guide">${round.item.direction || '1 = lo que pondrías primero · 5 = lo que pondrías último'}</p><ol class="between-ranking" id="between-ranking"></ol><button class="btn between-primary" data-between="rank-submit">Guardar ranking</button></section>`);
       renderRanking();
       return;
     }
