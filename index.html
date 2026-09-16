@@ -51,6 +51,78 @@
   .javieats-v3 .v33-life-icon{width:64px;height:64px;}
 }
 </style>
+
+<style id="today-plan-styles">
+.today-plan-modal{z-index:140;place-items:center;padding:clamp(10px,3vw,24px);}
+.today-plan-modal .modal-backdrop{background:rgba(35,24,36,.46);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);}
+.today-plan-panel{
+  width:min(100%,560px);max-height:min(92dvh,820px);padding:0;overflow:auto;
+  border:1px solid rgba(255,255,255,.58);border-radius:28px;
+  background:linear-gradient(180deg,#fff8f3 0,#fffdf9 32%,#fff 100%);
+  box-shadow:0 28px 80px rgba(48,29,38,.30);
+  animation:todayPlanIn .42s cubic-bezier(.2,.8,.2,1);
+  color:#282326;scrollbar-width:thin;
+}
+.today-plan-hero{position:relative;overflow:hidden;padding:30px 58px 24px 24px;background:linear-gradient(145deg,#f7b27d 0%,#e98a86 47%,#9c7aa7 100%);color:#fff;}
+.today-plan-hero::after{content:"";position:absolute;inset:auto -10% -55px 28%;height:110px;border-radius:50%;background:rgba(255,218,164,.32);filter:blur(2px);}
+.today-plan-kicker,.today-plan-hero h2,.today-plan-subtitle{position:relative;z-index:1;}
+.today-plan-kicker{margin:0 0 7px;font-size:.7rem;font-weight:900;letter-spacing:.12em;text-transform:uppercase;opacity:.9;}
+.today-plan-hero h2{margin:0;font-size:clamp(1.75rem,6vw,2.35rem);line-height:1.04;letter-spacing:0;}
+.today-plan-subtitle{margin:8px 0 0;font-size:1rem;font-weight:750;opacity:.93;}
+.today-plan-close{top:16px;right:16px;border-color:rgba(255,255,255,.38);background:rgba(255,255,255,.18);color:#fff;backdrop-filter:blur(8px);}
+.today-plan-content{display:grid;gap:24px;padding:22px 22px calc(24px + env(safe-area-inset-bottom));}
+.today-plan-route{display:flex;align-items:center;justify-content:center;gap:9px;padding:12px 8px;border-bottom:1px solid rgba(83,60,65,.10);font-size:.78rem;font-weight:850;color:#5d4851;}
+.today-plan-route-arrow{color:#c26867;font-size:1rem;transform:rotate(-90deg);}
+.today-plan-section{display:grid;gap:9px;}
+.today-plan-section + .today-plan-section{padding-top:20px;border-top:1px solid rgba(83,60,65,.10);}
+.today-plan-label{margin:0;color:#a54e50;font-size:.67rem;font-weight:900;letter-spacing:.1em;text-transform:uppercase;}
+.today-plan-section h3{margin:0;font-size:1.12rem;line-height:1.25;letter-spacing:0;}
+.today-plan-section p{margin:0;color:#665d60;font-size:.88rem;line-height:1.58;}
+.today-plan-map{
+  width:max-content;max-width:100%;display:inline-flex;align-items:center;justify-content:center;
+  min-height:44px;margin-top:3px;padding:10px 14px;border:1px solid rgba(123,71,75,.14);
+  border-radius:14px;background:#fff;color:#5c3d46;font-size:.78rem;font-weight:850;text-decoration:none;
+  box-shadow:0 8px 20px rgba(90,53,64,.07);
+}
+.today-plan-map:hover{transform:translateY(-1px);box-shadow:0 10px 24px rgba(90,53,64,.11);}
+.today-plan-schedule{display:grid;gap:0;padding:2px 0;}
+.today-plan-schedule h3{margin:0 0 12px;font-size:1rem;}
+.today-plan-time{display:grid;grid-template-columns:92px 24px minmax(0,1fr);gap:8px;align-items:start;padding:8px 0;border-bottom:1px dashed rgba(94,74,78,.12);font-size:.8rem;line-height:1.4;}
+.today-plan-time:last-child{border-bottom:0;}
+.today-plan-time strong{color:#a24e50;font-size:.75rem;}
+.today-plan-time span:last-child{color:#524a4d;font-weight:650;}
+.today-plan-details{display:grid;border-top:1px solid rgba(83,60,65,.10);}
+.today-plan-details details{border-bottom:1px solid rgba(83,60,65,.10);}
+.today-plan-details summary{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:15px 2px;cursor:pointer;list-style:none;font-size:.88rem;font-weight:850;}
+.today-plan-details summary::-webkit-details-marker{display:none;}
+.today-plan-details summary::after{content:"+";flex:0 0 auto;color:#a24e50;font-size:1.15rem;font-weight:500;}
+.today-plan-details details[open] summary::after{content:"−";}
+.today-plan-detail-copy{padding:0 2px 16px;color:#655c5f;font-size:.82rem;line-height:1.55;}
+.today-plan-detail-copy p{margin:0 0 10px;}
+.today-plan-detail-copy ul{margin:7px 0 0;padding-left:19px;}
+.today-plan-detail-copy li+li{margin-top:5px;}
+.today-plan-detail-copy strong{color:#3f3639;}
+.today-plan-rule{padding:18px;border:1px solid rgba(181,107,89,.16);border-radius:16px;background:linear-gradient(135deg,#fff0dc,#f9e6e7 58%,#eee6f3);}
+.today-plan-rule span{display:block;margin-bottom:6px;color:#975152;font-size:.7rem;font-weight:900;letter-spacing:.08em;text-transform:uppercase;}
+.today-plan-rule strong{font-size:.94rem;line-height:1.45;}
+.today-plan-pill{
+  position:fixed;right:max(16px,calc((100vw - 540px)/2 + 16px));bottom:calc(84px + env(safe-area-inset-bottom));
+  z-index:90;min-height:42px;padding:9px 14px;border:1px solid rgba(255,255,255,.48);border-radius:999px;
+  background:linear-gradient(135deg,#dc7a68,#8c718f);color:#fff;font-size:.75rem;font-weight:850;
+  box-shadow:0 10px 28px rgba(69,42,53,.24);
+}
+body.today-plan-open{overflow:hidden;}
+@keyframes todayPlanIn{from{opacity:0;transform:translateY(18px) scale(.985)}to{opacity:1;transform:translateY(0) scale(1)}}
+@media (max-width:620px){
+  .today-plan-modal{place-items:end center;padding:0;}
+  .today-plan-panel{width:100%;max-height:94dvh;border-width:0;border-radius:26px 26px 0 0;}
+  .today-plan-content{gap:21px;padding:19px 18px calc(22px + env(safe-area-inset-bottom));}
+  .today-plan-hero{padding:27px 56px 22px 20px;}
+  .today-plan-route{gap:6px;font-size:.7rem;}
+  .today-plan-time{grid-template-columns:84px 22px minmax(0,1fr);gap:6px;}
+}
+@media (prefers-reduced-motion:reduce){.today-plan-panel{animation:none}.today-plan-map:hover{transform:none}}
+</style>
 </head>
 <body>
 <main class="app-shell">
@@ -141,6 +213,93 @@
 <section class="modal hidden" id="memory-modal"><div class="modal-backdrop" data-memory-close=""></div><div class="modal-panel memory-panel"><button aria-label="Cerrar" class="modal-close" data-memory-close="" type="button">×</button><p class="eyebrow" id="memory-modal-date">Fecha</p><h2 id="memory-modal-title">Recuerdo</h2><p class="muted" id="memory-modal-description"></p><div class="gallery-viewer"><button aria-label="Foto anterior" class="gallery-arrow" id="gallery-prev" type="button">‹</button><img alt="Recuerdo" id="gallery-image" src=""/><button aria-label="Foto siguiente" class="gallery-arrow" id="gallery-next" type="button">›</button></div><p class="gallery-counter" id="gallery-counter"></p></div></section>
 <section class="modal hidden" id="memory-editor-modal"><div class="modal-backdrop" data-memory-editor-close=""></div><div class="modal-panel memory-editor-panel"><button aria-label="Cerrar" class="modal-close" data-memory-editor-close="" type="button">×</button><div class="memory-editor-heading"><div class="memory-editor-icon">📸</div><div><p class="eyebrow" id="memory-editor-eyebrow">Nuevo recuerdo</p><h2 id="memory-editor-title">Guardar un momento</h2><p class="muted">JaviEats optimiza las fotos antes de subirlas para ahorrar espacio.</p></div></div><form class="form memory-editor-form" id="memory-editor-form"><div class="form-row"><label>Fecha<input id="memory-editor-date" required type="date"/></label><label>Título<input id="memory-editor-name" maxlength="140" placeholder="Ej: Nuestra tarde en..." required type="text"/></label></div><label>Descripción<textarea id="memory-editor-description" maxlength="1500" placeholder="Una frase para recordar qué pasó..." rows="4"></textarea></label><div class="memory-photo-section"><div class="memory-photo-section-head"><div><strong>Fotos</strong><small id="memory-photo-counter">0 de 8</small></div><button class="btn btn-secondary memory-photo-picker" id="memory-photo-picker" type="button">＋ Añadir fotos</button></div><input accept="image/jpeg,image/png,image/webp,image/heic,image/heif" hidden id="memory-photo-input" multiple type="file"/><div class="memory-photo-grid" id="memory-photo-grid"></div><p class="memory-photo-help">Máximo 8 fotos. Se convierten automáticamente a WebP y se reducen antes de subirlas.</p></div><div aria-live="polite" class="memory-upload-status" id="memory-upload-status"></div><div class="memory-editor-actions"><button class="btn btn-danger hidden" id="memory-delete-btn" type="button">Eliminar recuerdo</button><button class="btn btn-primary" id="memory-save-btn" type="submit">Guardar recuerdo</button></div></form></div></section>
 <section class="modal hidden" id="notifications-modal"><div class="modal-backdrop" data-notifications-close=""></div><div class="modal-panel notifications-panel"><button aria-label="Cerrar" class="modal-close" data-notifications-close="" type="button">×</button><div class="notifications-heading"><div><p class="eyebrow">Lo que ha pasado</p><h2>Actividad</h2></div><button class="link-btn hidden" id="notifications-read-all" type="button">Marcar todo leído</button></div><div class="push-settings" id="push-settings" data-state="loading"><div class="push-settings-icon" aria-hidden="true">🔔</div><div class="push-settings-copy"><strong>Notificaciones en el dispositivo</strong><p id="push-status">Comprobando este dispositivo…</p></div><button class="push-toggle" id="push-toggle" type="button" disabled>Comprobando…</button></div><div class="notifications-list" id="notifications-list"></div></div></section>
+
+<section aria-labelledby="today-plan-title" aria-modal="true" class="modal today-plan-modal hidden" id="today-plan-modal" role="dialog">
+  <div class="modal-backdrop" data-today-plan-close=""></div>
+  <article class="modal-panel today-plan-panel">
+    <header class="today-plan-hero">
+      <button aria-label="Cerrar plan de hoy" class="modal-close today-plan-close" data-today-plan-close="" type="button">×</button>
+      <p class="today-plan-kicker">Solo por hoy · 16 septiembre</p>
+      <h2 id="today-plan-title">🌅 Plan de hoy</h2>
+      <p class="today-plan-subtitle">Helado + atardecer</p>
+    </header>
+    <div class="today-plan-content">
+      <div aria-label="Ruta: Capri, Siete Tetas y atardecer" class="today-plan-route">
+        <span>🍦 Capri</span><span aria-hidden="true" class="today-plan-route-arrow">↓</span>
+        <span>🌳 Siete Tetas</span><span aria-hidden="true" class="today-plan-route-arrow">↓</span>
+        <span>🌇 Atardecer</span>
+      </div>
+
+      <section class="today-plan-section">
+        <p class="today-plan-label">🍦 Primera parada</p>
+        <h3>Heladería Capri</h3>
+        <p>Empezamos con un helado tranquilamente antes de subir al parque.</p>
+        <a class="today-plan-map" href="https://www.google.com/maps/place/Helader%C3%ADa+Capri/@40.3926059,-3.6584626,1502m/data=!3m1!1e3!4m9!1m2!2m1!1sheladeria!3m5!1s0xd42250033d32099:0x83f44ae459b03ac!8m2!3d40.390711!4d-3.6481208!16s%2Fg%2F11w4kxt82y" rel="noopener noreferrer" target="_blank">🍦 Abrir Capri en Maps</a>
+      </section>
+
+      <section class="today-plan-section">
+        <p class="today-plan-label">🌳 Segunda parada</p>
+        <h3>Parque del Cerro del Tío Pío — Las Siete Tetas</h3>
+        <p>Después del helado toca subir al parque, buscar una buena ladera de césped con vistas a Madrid y esperar al atardecer.</p>
+        <a class="today-plan-map" href="https://www.google.com/maps/search/?api=1&amp;query=Mirador+del+Cerro+del+T%C3%ADo+P%C3%ADo%2C+Calle+Benjam%C3%ADn+Palencia+1%2C+Madrid" rel="noopener noreferrer" target="_blank">🌳 Abrir Las Siete Tetas en Maps</a>
+      </section>
+
+      <section class="today-plan-schedule" aria-labelledby="today-plan-schedule-title">
+        <h3 id="today-plan-schedule-title">La tarde, sin prisas</h3>
+        <div class="today-plan-time"><strong>19:00 aprox.</strong><span>🍦</span><span>Helado en Capri</span></div>
+        <div class="today-plan-time"><strong>19:30–19:40</strong><span>🚗</span><span>Camino al Cerro del Tío Pío</span></div>
+        <div class="today-plan-time"><strong>19:45</strong><span>🌳</span><span>Paseo por el parque y elección del sitio</span></div>
+        <div class="today-plan-time"><strong>20:00</strong><span>🧺</span><span>Sentarnos en el césped</span></div>
+        <div class="today-plan-time"><strong>20:22 aprox.</strong><span>🌇</span><span>Puesta de sol</span></div>
+        <div class="today-plan-time"><strong>20:40</strong><span>✨</span><span>Últimos colores sobre Madrid</span></div>
+      </section>
+
+      <div class="today-plan-details">
+        <details>
+          <summary>🎒 Qué llevar</summary>
+          <div class="today-plan-detail-copy">
+            <ul>
+              <li>Una manta o toalla pequeña para sentarnos.</li>
+              <li>Agua.</li>
+              <li>Algo fino de abrigo por si refresca después del atardecer.</li>
+              <li>Móvil con batería para hacer alguna foto.</li>
+              <li>Nada más. La idea es ir ligeros.</li>
+            </ul>
+          </div>
+        </details>
+        <details>
+          <summary>🌳 Cómo elegir un buen sitio</summary>
+          <div class="today-plan-detail-copy">
+            <p>No hace falta buscar una de las siete colinas concreta. Hay que subir hacia la zona alta del parque y buscar una ladera desde la que se vea:</p>
+            <p><strong>césped → Madrid → cielo abierto</strong></p>
+            <p>Mejor colocarnos ligeramente por debajo de la cima que justo encima del mirador. Tendremos prácticamente las mismas vistas, pero:</p>
+            <ul>
+              <li>con menos gente pasando por delante,</li>
+              <li>algo más de intimidad,</li>
+              <li>y más comodidad para sentarnos.</li>
+            </ul>
+          </div>
+        </details>
+        <details>
+          <summary>✨ Tips para ver mejor el atardecer</summary>
+          <div class="today-plan-detail-copy">
+            <p><strong>Llegar antes.</strong><br>Lo ideal es estar sentados unos 20 minutos antes de la puesta de sol.</p>
+            <p><strong>No marcharse cuando desaparezca el sol.</strong><br>Muchas veces los mejores colores aparecen durante los 15–20 minutos posteriores.</p>
+            <p><strong>Las nubes pueden ser buenas.</strong><br>Si hay algunas nubes altas pueden coger tonos rosas, naranjas y rojos.</p>
+            <p><strong>Buscar un horizonte despejado.</strong><br>Evitar árboles, farolas o mucha gente directamente delante.</p>
+            <p><strong>Fotos.</strong><br>Hacer algunas antes de la puesta de sol y otras justo después, cuando todavía hay luz en el cielo pero Madrid empieza a encenderse.</p>
+          </div>
+        </details>
+      </div>
+
+      <footer class="today-plan-rule">
+        <span>💛 Regla de hoy</span>
+        <strong>Desconectar un rato y dejar el estrés fuera.</strong>
+      </footer>
+    </div>
+  </article>
+</section>
+<button class="today-plan-pill hidden" id="today-plan-pill" type="button">🌅 Plan de hoy</button>
 <div class="toast hidden" id="toast"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="minigames-data.js?v=3.3"></script><script src="script.js?v=3.3"></script><script src="minigames.js?v=3.3"></script>
@@ -345,6 +504,121 @@
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start, {once:true}); else start();
   window.addEventListener("javieats:data", () => setTimeout(render33, 0));
   window.addEventListener("pageshow", () => setTimeout(render33, 0));
+})();
+</script>
+
+<script id="today-plan-script">
+(() => {
+  "use strict";
+
+  const EVENT_DATE = "2026-09-16";
+  const SESSION_KEY = "javieats:today-plan:2026-09-16:closed";
+  const modal = document.getElementById("today-plan-modal");
+  const pill = document.getElementById("today-plan-pill");
+  const appScreen = document.getElementById("app-screen");
+  let openTimer = null;
+  let previousFocus = null;
+
+  function madridDateKey(date = new Date()) {
+    const parts = new Intl.DateTimeFormat("en-GB", {
+      timeZone: "Europe/Madrid",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit"
+    }).formatToParts(date);
+    const value = type => parts.find(part => part.type === type)?.value;
+    return `${value("year")}-${value("month")}-${value("day")}`;
+  }
+
+  function isEventDay() {
+    return madridDateKey() === EVENT_DATE;
+  }
+
+  function wasClosedThisSession() {
+    try {
+      return sessionStorage.getItem(SESSION_KEY) === "1";
+    } catch (_) {
+      return false;
+    }
+  }
+
+  function rememberClosed() {
+    try {
+      sessionStorage.setItem(SESSION_KEY, "1");
+    } catch (_) {
+      // El evento sigue siendo funcional aunque el navegador bloquee sessionStorage.
+    }
+  }
+
+  function appIsReady() {
+    return Boolean(window.JaviEatsApp?.getUser?.()) && appScreen && !appScreen.classList.contains("hidden");
+  }
+
+  function anotherModalIsOpen() {
+    return [...document.querySelectorAll(".modal:not(.hidden)")].some(item => item !== modal);
+  }
+
+  function hideExpiredEvent() {
+    window.clearTimeout(openTimer);
+    modal?.classList.add("hidden");
+    pill?.classList.add("hidden");
+    document.body.classList.remove("today-plan-open");
+  }
+
+  function openTodayPlan() {
+    if (!isEventDay() || !appIsReady()) {
+      hideExpiredEvent();
+      return;
+    }
+    if (anotherModalIsOpen()) {
+      openTimer = window.setTimeout(openTodayPlan, 600);
+      return;
+    }
+    previousFocus = document.activeElement;
+    pill?.classList.add("hidden");
+    modal?.classList.remove("hidden");
+    document.body.classList.add("today-plan-open");
+    modal?.querySelector(".today-plan-close")?.focus();
+  }
+
+  function closeTodayPlan() {
+    modal?.classList.add("hidden");
+    document.body.classList.remove("today-plan-open");
+    rememberClosed();
+    pill?.classList.toggle("hidden", !isEventDay() || !appIsReady());
+    previousFocus?.focus?.();
+  }
+
+  function maybeShowTodayPlan() {
+    if (!isEventDay()) {
+      hideExpiredEvent();
+      return;
+    }
+    if (!appIsReady()) return;
+    if (wasClosedThisSession()) {
+      pill?.classList.remove("hidden");
+      return;
+    }
+    window.clearTimeout(openTimer);
+    openTimer = window.setTimeout(openTodayPlan, 450);
+  }
+
+  document.querySelectorAll("[data-today-plan-close]").forEach(element => {
+    element.addEventListener("click", closeTodayPlan);
+  });
+  pill?.addEventListener("click", openTodayPlan);
+  document.addEventListener("keydown", event => {
+    if (event.key === "Escape" && modal && !modal.classList.contains("hidden")) closeTodayPlan();
+  });
+
+  if (appScreen) {
+    new MutationObserver(maybeShowTodayPlan).observe(appScreen, { attributes: true, attributeFilter: ["class"] });
+  }
+  window.addEventListener("pageshow", maybeShowTodayPlan);
+  window.setInterval(() => {
+    if (!isEventDay()) hideExpiredEvent();
+  }, 60000);
+  maybeShowTodayPlan();
 })();
 </script>
 </body>
