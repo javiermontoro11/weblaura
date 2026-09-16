@@ -206,7 +206,7 @@ No tocar la estructura de `propuestas` sin revisar el contexto de BD.
 
 `Entre tú y yo` es un minijuego presencial para Javi y Laura que se juega pasando un único móvil.
 
-- cada partida tiene 12 rondas con orden fijo de mecánicas;
+- cada partida tiene 8 rondas con orden fijo: quién, apuesta, ranking, quién, ranking inverso, apuesta, ranking y ranking inverso;
 - combina `¿Quién de los dos?`, `Apuesta por mí`, ranking normal y ranking inverso;
 - la sincronía final pertenece solo a este juego y no modifica la compatibilidad de `¿Y si…?`;
 - la partida activa y las últimas 100 propuestas de cada batería se guardan exclusivamente en `localStorage`;
