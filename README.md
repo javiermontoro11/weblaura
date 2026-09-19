@@ -1,17 +1,17 @@
 # JaviEats 💌
 
-**Versión de producto: 3.2 — ESTABLE**  
-**Mantenimiento actual: 3.2.1**
+**Versión de producto: 3.3 — ESTABLE**  
+**Mantenimiento actual: 3.3.2**
 
 JaviEats es una aplicación web privada creada para Laura y Javi. Reúne planes compartidos, recuerdos, minijuegos, actividad, notificaciones y un espacio común pensado para funcionar como una PWA en móvil, tablet y escritorio.
 
-JaviEats 3.2 parte de la base estable de 3.1 e integra **Nuestra Vida 1.0** como experiencia principal independiente, sin rehacer el core de JaviEats ni mezclar el juego completo con la lógica de los minijuegos existentes.
+JaviEats 3.3.2 mantiene **Nuestra Vida 1.0** como experiencia principal independiente y consolida las mejoras de 3.3: catálogo ampliado, exportación de planes, refinamientos de Inicio y minijuegos, además de la integración del nuevo **Entre tú y yo**.
 
-> **Estado actual:** la base funcional de JaviEats 3.1 se mantiene, Nuestra Vida está integrada y accesible desde la navegación principal, y los hotfixes posteriores al estreno quedan dentro del mantenimiento 3.2.1. `main` es la fuente de verdad del proyecto.
+> **Estado actual:** `main` es la fuente de verdad. A 19/09/2026, los minijuegos están agrupados bajo `/minijuegos/`, **Entre tú y yo** está integrado en `main` y el despliegue de Vercel asociado al merge ha finalizado correctamente. La prueba funcional real en dispositivos sigue siendo una verificación separada del deployment.
 
 ---
 
-## 🚀 JaviEats 3.2
+## 🚀 JaviEats 3.3.2
 
 La 3.2 mantiene la filosofía del proyecto:
 
@@ -19,7 +19,7 @@ La 3.2 mantiene la filosofía del proyecto:
 
 Cuando una función ya está validada, los cambios deben ser pequeños, incrementales y compatibles con lo que ya funciona.
 
-### Incluido en la rama 3.2
+### Estado actual de la 3.3.2
 
 - base funcional de JaviEats 3.1 conservada;
 - navegación final `Inicio · Planes · Nuestra Vida · Minijuegos · Recuerdos`;
@@ -35,7 +35,12 @@ Cuando una función ya está validada, los cambios deben ser pequeños, incremen
 - Planes compartidos en Supabase;
 - Recuerdos privados con varias fotografías;
 - PWA instalable con Service Worker y Web Push;
-- autenticación persistente para Javi y Laura.
+- autenticación persistente para Javi y Laura;
+- catálogo de 10 servicios, incluyendo `☕ Tomar algo` y `🍽️ Ir a comer / cenar`;
+- exportación `.ics` para planes confirmados;
+- mejoras de Inicio/Agenda y refinamientos de `¿Y si…?`;
+- reorganización física de todos los archivos propios de minijuegos bajo `/minijuegos/`;
+- integración en producción de **Entre tú y yo**, con 8 rondas y cuatro mecánicas, sin dependencia de Supabase.
 
 ---
 
@@ -93,7 +98,7 @@ Esta separación es deliberada. No se debe volver a fusionar todo dentro de `min
 JaviEats y Nuestra Vida mantienen versionados distintos:
 
 ```text
-JaviEats 3.2 / mantenimiento 3.2.1
+JaviEats 3.3 / mantenimiento 3.3.2
 Nuestra Vida 1.0 / patches propios cuando sean necesarios
 ```
 
@@ -163,9 +168,11 @@ Sincronizado · HH:MM
 
 ## 🗓️ Planes
 
-El catálogo principal mantiene ocho servicios.
+El catálogo principal mantiene **diez servicios**. A los ocho servicios históricos se añadieron `☕ Tomar algo` y `🍽️ Ir a comer / cenar`.
 
-En móvil se recorre con swipe y en escritorio puede desplazarse manteniendo pulsado el botón izquierdo del ratón y arrastrando lateralmente.
+Los planes confirmados pueden exportarse como archivo `.ics`, pensado para añadirlos con facilidad a Apple Calendar y otros calendarios compatibles.
+
+En móvil el catálogo se recorre con swipe y en escritorio puede desplazarse manteniendo pulsado el botón izquierdo del ratón y arrastrando lateralmente.
 
 Formspree ya no forma parte del flujo actual de propuestas. Los Planes se guardan en Supabase y utilizan el sistema de Actividad/Push.
 
@@ -183,7 +190,7 @@ JaviEats mantiene cinco minijuegos propios:
 - `No lo digas`;
 - `Entre tú y yo`.
 
-Además, en la rama 3.2 existe una entrada adicional de laboratorio para probar directamente los minijuegos de Nuestra Vida sin iniciar una partida completa del juego principal.
+Además, se mantiene una entrada de laboratorio para probar directamente los minijuegos de Nuestra Vida sin iniciar una partida completa del juego principal.
 
 ### Separación actual
 
@@ -194,6 +201,21 @@ Además, en la rama 3.2 existe una entrada adicional de laboratorio para probar 
 - Nuestra Vida conserva su lógica propia dentro de `/nuestra-vida/`.
 
 El juego principal no debe mezclarse dentro del core de los minijuegos salvo que exista una necesidad técnica concreta.
+
+### Entre tú y yo
+
+Integrado en `main` el **19/09/2026**.
+
+- partida presencial para Javi y Laura pasando un único móvil;
+- 8 rondas;
+- cuatro mecánicas: **Apuesta**, **Duelo**, **Telepatía** y **Elige 2**;
+- batería propia: 100 apuestas, 100 duelos, 100 propuestas de Elige 2 y 36 tríos de emojis;
+- estado e historial guardados localmente;
+- no utiliza Supabase ni modifica la persistencia de los demás minijuegos;
+- interfaz marfil/coral/lila con ilustraciones propias;
+- archivos encapsulados dentro de `minijuegos/entre-tu-y-yo/`.
+
+La carga se realiza desde `minijuegos/minigames.js`: primero se cargan los datos y la lógica de Entre tú y yo, después el core histórico y finalmente el launcher de Nuestra Vida.
 
 ---
 
@@ -253,11 +275,22 @@ Las variantes maskable independientes continúan aplazadas para una fase posteri
 
 ```text
 JaviEats/
-├── CONTEXTO_JAVIEATS_3.2.md
 ├── README.md
 ├── index.html
 ├── style.css
 ├── script.js
+├── manifest.webmanifest
+├── service-worker.js
+├── favicon.ico
+├── assets/
+│   ├── apple-touch-icon.png
+│   ├── icon-192.png
+│   ├── icon-512.png
+│   └── puzzle-masaje.svg
+├── contextos/
+│   ├── CONTEXTO_JAVIEATS.md
+│   ├── CONTEXTO_BASE_DATOS.md
+│   └── CONTEXTO_NUESTRA_VIDA.md
 ├── minijuegos/
 │   ├── minigames-data.js
 │   ├── minigames-core.js
@@ -269,17 +302,8 @@ JaviEats/
 │       ├── entre-tu-y-yo.css
 │       └── assets/
 │           └── illustrations.png
-├── manifest.webmanifest
-├── service-worker.js
-├── favicon.ico
-├── assets/
-│   ├── apple-touch-icon.png
-│   ├── icon-192.png
-│   ├── icon-512.png
-│   └── puzzle-masaje.svg
 ├── recuerdos/
 └── nuestra-vida/
-    ├── CONTEXTO_NUESTRA_VIDA_1.0.md
     ├── README_1.0.txt
     ├── QA_1.0.json
     ├── index.html
@@ -295,13 +319,14 @@ JaviEats/
     └── icons/
 ```
 
-La lógica general de JaviEats permanece principalmente en `script.js`, la presentación en `style.css` y los minijuegos históricos en `minigames-core.js` / `minigames-data.js`.
+La lógica general de JaviEats permanece principalmente en `script.js`, la presentación en `style.css` y el núcleo histórico de minijuegos en `minijuegos/minigames-core.js` / `minijuegos/minigames-data.js`.
 
-Nuestra Vida conserva sus archivos y assets dentro de su propia carpeta.
+Los tres contextos maestros viven juntos dentro de `/contextos/`. **Nuestra Vida** conserva su aplicación y recursos dentro de `/nuestra-vida/`; únicamente su launcher de integración con JaviEats vive en `/minijuegos/`.
+
 
 ---
 
-## 🧪 QA y mantenimiento 3.2
+## 🧪 QA y mantenimiento 3.3.2
 
 La integración de Nuestra Vida no elimina la necesidad de comprobar las funciones ya estables de JaviEats.
 
@@ -337,12 +362,8 @@ Si aparece una diferencia entre `main` y producción, comprobar primero el deplo
 
 ## ⏭️ Backlog de pulido
 
-Estas mejoras continúan fuera del núcleo de 3.2:
+Estas mejoras continúan pendientes de pulido:
 
-- ampliar el catálogo de 8 a 10 planes;
-- añadir `☕ Tomar algo`;
-- añadir `🍽️ Ir a comer / cenar`;
-- exportación `.ics` a Apple Calendar;
 - limpieza profunda del frontend legacy de `Mensaje del día` y otros nodos antiguos ya no visibles;
 - revisión de código legacy que pueda eliminarse sin afectar funcionalidad;
 - iconos maskable independientes;
@@ -355,7 +376,7 @@ El arrastre de escritorio, la retirada de Formspree y la unificación de la nave
 
 # Base de datos
 
-JaviEats 3.2 **no reconstruye la base de datos principal** para integrar Nuestra Vida.
+JaviEats 3.3.2 **no reconstruye la base de datos principal** por la reorganización de minijuegos ni por la integración de Entre tú y yo.
 
 Tablas principales existentes de JaviEats:
 
@@ -448,10 +469,13 @@ La línea actual es:
 
 ```text
 3.2   → integración de Nuestra Vida
-3.2.1 → hotfixes y mantenimiento posterior al estreno
+3.2.1 → hotfixes posteriores al estreno
+3.3   → catálogo, agenda, .ics y mejoras de minijuegos
+3.3.1 → identidad, protagonismo de Nuestra Vida y refinamientos de ¿Y si…?
+3.3.2 → mantenimiento actual, reorganización de minijuegos e integración de Entre tú y yo
 ```
 
-Los siguientes cambios pequeños deben continuar de forma incremental antes de plantear una nueva versión mayor.
+`3.3.2` es la referencia actual de mantenimiento. Los siguientes cambios deben seguir siendo incrementales y quedar reflejados tanto aquí como en `contextos/CONTEXTO_JAVIEATS.md`.
 
 ## Nuestra Vida
 
@@ -460,6 +484,35 @@ Nuestra Vida conserva su propio versionado. Los bugs o ajustes internos del jueg
 ---
 
 # Historial de versiones
+
+## v3.3.2 — Mantenimiento actual, reorganización de minijuegos y Entre tú y yo
+
+- Reorganización de los archivos propios de minijuegos bajo `/minijuegos/`.
+- `minigames.js`, `minigames-core.js`, `minigames-data.js` y `nuestra-vida-launcher.js` quedan agrupados en esa carpeta.
+- Nuestra Vida permanece en `/nuestra-vida/` como aplicación independiente.
+- Integración de **Entre tú y yo** en `main`.
+- Nuevo módulo `minijuegos/entre-tu-y-yo/` con lógica, batería, estilos e ilustraciones propias.
+- 8 rondas y mecánicas Apuesta, Duelo, Telepatía y Elige 2.
+- Persistencia local del nuevo juego, sin cambios de esquema de Supabase.
+- Rutas de carga de `index.html` y del loader adaptadas a la nueva estructura.
+- README y contexto maestro alineados con la estructura real de `main`.
+
+## v3.3.1 — Identidad y recompensa emocional
+
+- Reutilización del icono real de la PWA como identidad visual.
+- Nuestra Vida gana protagonismo en Inicio con una tarjeta principal propia.
+- Refinamientos de compatibilidad y ventaja compartida en `¿Y si…?`.
+- Celebración específica para el pleno de 5/5.
+
+## v3.3 — Catálogo, Agenda y mejoras de juego
+
+- Catálogo ampliado de 8 a 10 servicios.
+- Nuevos servicios `☕ Tomar algo` y `🍽️ Ir a comer / cenar`.
+- Exportación `.ics` para planes confirmados.
+- Mejoras de Inicio/Agenda.
+- Más contenido para Dibuja y No lo Digas.
+- Corrección de Dibuja para que el territorio pertenezca a quien adivina antes.
+- Limpieza y endurecimiento de la lógica de no repetición de `¿Y si…?`.
 
 ## v3.2.1 — Hotfixes posteriores al estreno
 
