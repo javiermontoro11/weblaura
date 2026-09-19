@@ -216,7 +216,7 @@ Minijuego local para Javi y Laura, pasando un único móvil. Versión preparada 
 - Guardado local versionado, historial de últimas 100 propuestas por mecánica y cubierta de privacidad al retomar respuestas.
 - UI marfil/coral/lila, tarjetas ilustradas, escena de Telepatía y resultado con corona.
 - No utiliza Supabase ni modifica otros minijuegos.
-- Archivos: `minijuegos/entre-tu-y-yo/entre-tu-y-yo-data.js`, `minijuegos/entre-tu-y-yo/entre-tu-y-yo.js`, `minijuegos/entre-tu-y-yo/entre-tu-y-yo.css`, `minijuegos/entre-tu-y-yo/assets/illustrations.webp`. Carga desde `minijuegos/minigames.js`.
+- Archivos: `minijuegos/entre-tu-y-yo/entre-tu-y-yo-data.js`, `minijuegos/entre-tu-y-yo/entre-tu-y-yo.js`, `minijuegos/entre-tu-y-yo/entre-tu-y-yo.css`, `minijuegos/entre-tu-y-yo/assets/illustrations.png`. Carga desde `minijuegos/minigames.js`.
 - Pruebas automatizadas: `node --test tests/entre-tu-y-yo*.test.cjs`.
 
 ## Dibuja

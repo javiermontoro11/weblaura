@@ -268,7 +268,7 @@ JaviEats/
 │       ├── entre-tu-y-yo.js
 │       ├── entre-tu-y-yo.css
 │       └── assets/
-│           └── illustrations.webp
+│           └── illustrations.png
 ├── manifest.webmanifest
 ├── service-worker.js
 ├── favicon.ico
