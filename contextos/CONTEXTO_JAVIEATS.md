@@ -1,4 +1,4 @@
-# CONTEXTO MAESTRO — JAVIEATS 3.3.1
+# CONTEXTO MAESTRO — JAVIEATS 3.3.2
 
 > **Ámbito:** contexto funcional y técnico general de JaviEats.
 >
@@ -10,13 +10,13 @@
 >
 > **Rama:** `main`
 >
-> **Estado de referencia:** 14 de septiembre de 2026 · JaviEats 3.3.1.
+> **Estado de referencia:** 19 de septiembre de 2026 · JaviEats 3.3.2.
 
 ---
 
 # PROMPT PARA CONTINUAR EN UN CHAT NUEVO
 
-Quiero que continúes el desarrollo y mantenimiento de **JaviEats 3.3.1** sin empezar de cero.
+Quiero que continúes el desarrollo y mantenimiento de **JaviEats 3.3.2** sin empezar de cero.
 
 La prioridad es:
 
@@ -43,10 +43,10 @@ Archivos principales:
 - `index.html`
 - `script.js`
 - `style.css`
-- `minigames-data.js`
-- `minigames-core.js`
-- `minigames.js`
-- `nuestra-vida-launcher.js`
+- `minijuegos/minigames-data.js`
+- `minijuegos/minigames-core.js`
+- `minijuegos/minigames.js`
+- `minijuegos/nuestra-vida-launcher.js`
 - `service-worker.js`
 - `manifest.webmanifest`
 - `assets/`
@@ -73,6 +73,7 @@ JaviEats incluye:
 - Dibuja;
 - No lo Digas;
 - puzle/vales;
+- Entre tú y yo;
 - integración de Nuestra Vida 1.0.
 
 En 3.3 se añadieron además:
@@ -201,6 +202,22 @@ No tocar la estructura de `propuestas` sin revisar el contexto de BD.
 ---
 
 # MINIJUEGOS
+
+## Entre tú y yo
+
+Minijuego local para Javi y Laura, pasando un único móvil. Versión preparada para integración en JaviEats; su presencia en una rama no implica despliegue en producción.
+
+- 8 rondas: Apuesta/Javi, Duelo/Laura, Telepatía/Javi, Elige 2/Laura, Apuesta/Laura, Duelo/Javi, Telepatía/Laura, Elige 2/Javi. El nombre indica quién predice.
+- Apuesta: 4 opciones; Duelo: 2. Acierto exacto = 1 punto.
+- Elige 2: exactamente 2 de 5; 0, 1 o 2 coincidencias suman 0, 0,5 o 1 punto.
+- Cada persona tiene 3 pruebas de conocimiento. Porcentaje = puntos / 3, redondeado. El título de mejor novio/a depende exclusivamente de esos puntos; empate compartido.
+- Telepatía: 3 emojis idénticos para ambos, sin puntos de conocimiento. La conexión secundaria muestra coincidencias sobre 2; no existe fórmula combinada aprobada.
+- Batería nueva: 100 apuestas, 100 duelos, 100 Elige 2 y 36 tríos de emojis. Sin rankings.
+- Guardado local versionado, historial de últimas 100 propuestas por mecánica y cubierta de privacidad al retomar respuestas.
+- UI marfil/coral/lila, tarjetas ilustradas, escena de Telepatía y resultado con corona.
+- No utiliza Supabase ni modifica otros minijuegos.
+- Archivos: `minijuegos/entre-tu-y-yo/entre-tu-y-yo-data.js`, `minijuegos/entre-tu-y-yo/entre-tu-y-yo.js`, `minijuegos/entre-tu-y-yo/entre-tu-y-yo.css`, `minijuegos/entre-tu-y-yo/assets/illustrations.png`. Carga desde `minijuegos/minigames.js`.
+- Pruebas automatizadas: `node --test tests/entre-tu-y-yo*.test.cjs`.
 
 ## Dibuja
 

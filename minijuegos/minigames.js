@@ -222,8 +222,22 @@
 
   addStyles();
   updateBranding();
-  loadScript("minigames-core.js?v=3.3.2")
-    .then(() => loadScript("nuestra-vida-launcher.js?v=1.0.2"))
+  loadScript("minijuegos/entre-tu-y-yo/entre-tu-y-yo-data.js?v=3.0.0")
+    .then(() => loadScript("minijuegos/entre-tu-y-yo/entre-tu-y-yo.js?v=3.0.0"))
+    .catch(error => {
+      console.error("Entre tú y yo: no se ha podido cargar", error);
+      const grid = document.querySelector("#minigames-hub .minigames-grid");
+      if (grid) {
+        const retry = document.createElement("button");
+        retry.type = "button";
+        retry.className = "minigame-card";
+        retry.textContent = "Entre tú y yo no se ha cargado. Toca para reintentar.";
+        retry.addEventListener("click", () => location.reload());
+        grid.appendChild(retry);
+      }
+    })
+    .then(() => loadScript("minijuegos/minigames-core.js?v=3.3.2"))
+    .then(() => loadScript("minijuegos/nuestra-vida-launcher.js?v=1.0.2"))
     .then(start)
     .catch(error => console.error("JaviEats: no se ha podido cargar un modulo", error));
 })();

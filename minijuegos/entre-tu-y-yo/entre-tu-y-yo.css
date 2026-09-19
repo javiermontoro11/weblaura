@@ -1,0 +1,138 @@
+/* Estilo exclusivo de Entre tú y yo. */
+.between-us-page{--ety-cream:#f8f2e9;--ety-ink:#241d26;--ety-coral:#ed634b;--ety-plum:#654567;max-width:540px;margin-inline:auto;color:var(--ety-ink)}
+.between-us-page .minigame-back{margin:4px 0 14px;font-size:13px;color:#65575b}
+#between-us-root,#between-us-root *{box-sizing:border-box}
+#between-us-root{position:relative;isolation:isolate;overflow:hidden;padding:24px 20px 22px;border:1px solid #e2d7ca;border-radius:30px;background:radial-gradient(ellipse at 90% 0%,#fffaf3,transparent 50%),#f8f2e9;box-shadow:0 14px 38px #63443910;color:#241d26;font-family:ui-rounded,'Arial Rounded MT Bold',system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;line-height:1.45;text-align:center}
+#between-us-root h1{margin:12px 0 20px;font-size:clamp(27px,7.5vw,39px);line-height:1.1;letter-spacing:-1.35px;font-weight:850;overflow-wrap:anywhere;color:inherit}
+#between-us-root h1:focus{outline:none}
+#between-us-root h2,#between-us-root p{margin:0}#between-us-root button{font:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+#between-us-root button:focus-visible,.between-us-hub-card:focus-visible{outline:3px solid #246870;outline-offset:4px}
+#between-us-root button:disabled{cursor:default;opacity:.5}
+#between-us-root .ety-label{display:block;font-size:10px;letter-spacing:1.6px;font-weight:800;line-height:1.5;color:#a34235}
+#between-us-root .ety-brand{font-size:10px;letter-spacing:4px;font-weight:700;color:#715f65}.ety-brand span{margin:0 8px}.ety-dot{color:#ed634b}
+#between-us-root .ety-button{display:flex;align-items:center;justify-content:center;gap:16px;width:100%;min-height:56px;padding:15px 18px;border:0;border-radius:18px;background:linear-gradient(130deg,#f26950,#e9553f);box-shadow:0 5px 0 #c4483012,0 8px 20px #d9472420;color:#fff;font-weight:800;font-size:17px;line-height:1.3;transition:transform .15s,box-shadow .15s}
+#between-us-root .ety-button:not(:disabled):active{transform:translateY(2px);box-shadow:none}
+#between-us-root .ety-text-button{display:block;min-height:44px;margin:10px auto 0;padding:10px;background:none;border:0;color:#795951;font-size:13px;text-decoration:underline;text-underline-offset:4px}
+#between-us-root .ety-signature{margin:25px auto 4px;font-family:'Segoe Print','Bradley Hand',cursive;font-size:17px;font-style:italic;color:#8a747b;max-width:245px;transform:rotate(-5deg)}
+#between-us-root .ety-signature span{font-size:27px;margin-left:5px}.ety-art{display:block;aspect-ratio:1;background-image:url('assets/illustrations.png');background-size:400% 300%;background-position:var(--art-x) var(--art-y);background-repeat:no-repeat;mix-blend-mode:multiply;flex-shrink:0}
+.ety-avatar{display:inline-grid;place-items:center;width:42px;height:42px;border-radius:50%;font-size:25px;font-weight:800;line-height:1;color:#fff4dd;box-shadow:inset 2px 2px 3px #ffffff55,inset -2px -3px 4px #00000020;flex-shrink:0}
+.ety-javi{background:linear-gradient(145deg,#71a7a4,#39797c)}.ety-laura{background:linear-gradient(145deg,#a3779b,#693f69)}
+#between-us-root .ety-home-art{position:relative;width:215px;margin:8px auto -12px;height:186px}.ety-home-art>.ety-art{width:200px;margin:auto}.ety-home-art>.ety-avatar{position:absolute;bottom:17px}.ety-home-art>.ety-javi{left:27px}.ety-home-art>.ety-laura{right:28px}.ety-spark{position:absolute;color:#d79d31;font-size:26px}.spark-one{top:29px;left:0}.spark-two{top:76px;right:0}
+#between-us-root .ety-home h1{font-size:64px;line-height:.96;letter-spacing:-3px;margin:15px 0 20px}#between-us-root .ety-lead{font-size:24px;line-height:1.25;margin:0 0 15px;letter-spacing:-.6px}#between-us-root .ety-home>p:not(.ety-lead):not(.ety-signature){font-size:14px;color:#6e5e62}
+.ety-home-badges{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin:22px 0}.ety-home-badges span{font-size:11px;padding:8px 11px;border-radius:20px;background:#f1dfd7;color:#6b3936}.ety-home-badges span+span{background:#e9dfeb;color:#644668}
+.ety-mechanics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;padding:17px 0 22px;border-top:1px solid #e8ddd1}.ety-mechanics span{font-size:10px;font-weight:700;line-height:1.3}.ety-mechanics b{display:block;font-size:26px;margin-bottom:8px}.ety-home-note{display:block;font-size:11px;color:#7c6c6b;margin-top:14px}
+#between-us-root .ety-round-header{margin:0 0 16px}.ety-progress{display:flex;gap:5px;justify-content:center;margin:0 auto 13px;max-width:228px}.ety-progress i{display:block;height:8px;flex:1;border-radius:4px;background:#dccdc1}.ety-progress .is-done{background:#ed634b}
+.ety-round-header small{display:block;font-size:10px;letter-spacing:1.7px;font-weight:800}#between-us-root .ety-round-header p{font-size:15px;line-height:1.5;font-weight:850;text-transform:uppercase;letter-spacing:.8px;color:#d74936}
+.ety-role{display:flex;align-items:center;gap:13px;padding:10px 15px;border-radius:17px;background:#f1e5d9;text-align:left}.ety-role strong{font-size:15px;flex:1}.ety-role strong span{margin:0 8px;font-weight:400}.ety-heart{color:#ed634b;font-size:31px;line-height:1}
+#between-us-root .ety-question{position:relative;margin:23px 0 18px}#between-us-root .ety-question h1{margin:8px 0 0}.ety-counter{display:inline-block;padding:6px 13px;background:#ffcf6a;border-radius:12px;font-size:13px;font-weight:800;margin-top:13px}
+.ety-options{display:grid;gap:12px}.ety-options-bet{grid-template-columns:repeat(2,minmax(0,1fr))}
+#between-us-root .ety-option{position:relative;display:flex;align-items:center;justify-content:center;flex-direction:column;min-width:0;border:2px solid transparent;border-radius:18px;padding:12px 6px 15px;background:#efe4d6;color:#221f23;font-weight:800;line-height:1.25;transition:transform .15s,border-color .15s,background .15s}
+#between-us-root .ety-option:not(:disabled):active{transform:scale(.98)}#between-us-root .ety-options-bet .ety-color-0{background:#adc4a4}#between-us-root .ety-options-bet .ety-color-1{background:#ed987e}#between-us-root .ety-options-bet .ety-color-2{background:#f1d081}#between-us-root .ety-options-bet .ety-color-3{background:#a3c5c6}
+.ety-option .ety-art{width:100%;max-width:165px}.ety-emoji{display:grid;place-items:center;min-width:0;font-family:'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji',sans-serif;font-size:70px;line-height:1.5;filter:drop-shadow(0 7px 5px #49302016)}
+.ety-options-bet .ety-emoji{height:130px}.ety-option-label{display:block;overflow-wrap:anywhere;font-size:15px}.ety-hint{font-size:12px;margin-top:19px!important;color:#605156}
+.ety-options-choose2{gap:10px}#between-us-root .ety-options-choose2 .ety-option{display:grid;grid-template-columns:66px minmax(0,1fr) 28px;gap:10px;padding:5px 10px 5px 3px;min-height:76px;background:#f3e9dd;border-color:#eaddce;text-align:left;border-radius:16px}.ety-options-choose2 .ety-art{width:66px}.ety-options-choose2 .ety-emoji{font-size:37px;line-height:1.2;height:60px}.ety-options-choose2 .ety-option-label{font-size:14px;font-weight:750}.ety-check{display:grid;place-items:center;width:27px;height:27px;background:#e7d9ca;border-radius:50%;color:#735e52;font-size:20px;font-weight:500}#between-us-root .ety-options-choose2 .is-selected{background:#ffe3d8;border-color:#e85d45}.is-selected .ety-check{background:#ed634b;color:#fff}.ety-options-choose2+.ety-button{margin-top:18px}
+.ety-options-duel{position:relative;gap:20px;padding:7px 0}#between-us-root .ety-options-duel .ety-option{min-height:177px;border-radius:25px;flex-direction:row;gap:14px;padding:18px;background:linear-gradient(135deg,#bbd5cf,#d6e5d9)}#between-us-root .ety-options-duel .ety-option:nth-child(2){background:linear-gradient(135deg,#f5bb9f,#f5d5b0)}.ety-options-duel .ety-emoji{font-size:78px}.ety-options-duel .ety-art{width:115px}.ety-options-duel .ety-option-label{font-size:23px;max-width:57%;text-align:left}.ety-versus{position:absolute;left:calc(50% - 24px);top:calc(50% - 24px);display:grid;place-items:center;width:48px;height:48px;border-radius:50%;background:#f8f2e9;border:5px solid #f8f2e9;font-size:15px;font-weight:850;box-shadow:0 3px 12px #49302015;pointer-events:none}
+#between-us-root.ety-night{background:radial-gradient(ellipse at 50% 40%,#644465 0%,#39263f 70%);color:#fff5e8;min-height:720px;border-color:#785877}.ety-night:after{content:'';position:absolute;z-index:-1;bottom:-90px;left:-20%;width:140%;height:220px;border-radius:50%;background:radial-gradient(ellipse,#8c598258,transparent 70%);box-shadow:30px -40px 80px #9d58842b}.ety-night .ety-progress i{background:#62485e}#between-us-root.ety-night .ety-round-header p{color:#fff0e9}.ety-night .ety-progress .is-done{background:#f27559}
+.ety-orbit{position:relative;display:flex;justify-content:center;align-items:center;gap:30px;height:202px;margin:13px 0 8px}.ety-orbit>.ety-avatar{position:relative;z-index:1;width:77px;height:77px;font-size:47px;border:2px solid #e8bd68;box-shadow:inset 4px 4px 9px #ffffff66,inset -5px -7px 9px #00000055,0 12px 28px #17071f44}.ety-orbit>.ety-laura{background:linear-gradient(130deg,#e9a1a5,#a25372)}.ety-orbit>span:not(.ety-avatar){color:#f78060;font-size:29px}.ety-orbit i{position:absolute;left:0;width:100%;height:74px;top:64px;border:2px solid #dfb957;border-radius:50%;transform:rotate(-21deg);box-shadow:0 0 6px #e6b65520}.ety-orbit i+i{left:24%;top:23px;width:58%;height:158px;transform:rotate(-39deg)}.ety-orbit b{position:absolute;left:4px;top:17px;color:#f2ca70;font-size:29px}.ety-orbit b:last-child{left:auto;right:4px;top:145px;font-size:24px}
+#between-us-root .ety-telepathy-copy h1{font-size:clamp(38px,10vw,52px);letter-spacing:-1.5px;margin:15px 0 12px}#between-us-root .ety-telepathy-copy p{font-size:19px;line-height:1.4;margin-bottom:23px}.ety-options-telepathy{grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}#between-us-root .ety-options-telepathy .ety-option{min-height:125px;background:#faf0e2;border-radius:23px;padding:10px 2px}.ety-options-telepathy .ety-emoji{font-size:58px}.ety-options-telepathy .ety-option-label{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}#between-us-root.ety-night .ety-signature{margin-top:70px;color:#d2b9d0}
+.ety-cover{padding:10px 0 12px}.ety-cover>.ety-art{width:210px;margin:0 auto 6px}.ety-cover-avatar{margin:4px 0 15px}.ety-cover-avatar .ety-avatar{width:58px;height:58px;font-size:34px}#between-us-root .ety-cover p{font-size:15px;line-height:1.65;margin:0 0 27px;color:#726069}.ety-cover h1{font-size:36px!important}
+.ety-reveal-symbol{display:block;font-size:69px;margin:16px 0 9px}#between-us-root .ety-reveal>p{font-size:14px;color:#74606b;margin:-6px 0 23px}.ety-comparison{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.ety-comparison article{min-width:0;border-radius:20px;background:#eee1d7;padding:14px 8px}.ety-comparison article+article{background:#e4e7df}.ety-comparison small{font-size:11px;color:#675158;font-weight:750;display:block;margin-bottom:7px}.ety-chosen{display:block}.ety-chosen .ety-art{width:92px;max-width:100%;margin:auto}.ety-chosen .ety-emoji{font-size:47px;line-height:1.5}.ety-chosen strong{font-size:13px;line-height:1.3;display:block;overflow-wrap:anywhere}.ety-chosen+.ety-chosen{margin-top:12px}.ety-points{margin:18px 0 23px;border-radius:16px;background:#eadce9;padding:15px 9px;color:#634064;font-size:13px}.ety-points b{font-size:21px}
+.ety-winner-art{position:relative;margin:9px auto 25px;width:260px;max-width:100%;height:235px}.ety-winner-art>.ety-art{width:260px;max-width:100%;position:absolute;top:-10px}.ety-winner-medal{position:absolute;left:calc(50% - 57px);bottom:0;display:grid;place-items:center;width:114px;height:114px;border-radius:50%;background:linear-gradient(135deg,#ff9d75,#ed654f);border:6px solid #ffb185;color:#fff1d5;font-size:65px;font-weight:850;box-shadow:inset 3px 3px 6px #ffffff55,inset -4px -4px 7px #b34a30,0 8px 13px #a33b1615;text-shadow:2px 4px 3px #a43a3555}.ety-confetti{position:absolute;top:53px;left:-12px;right:-12px;color:#df9254;font-size:32px;letter-spacing:40px;pointer-events:none}#between-us-root .ety-final h1{margin:15px 0 9px;font-size:38px}#between-us-root .ety-winner-subtitle{font-size:18px;line-height:1.4;margin-bottom:22px}.ety-scores{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.ety-scores article{min-width:0;border-radius:17px;padding:17px 9px 12px;background:#dce6df}.ety-scores article+article{background:#f8dad4}#between-us-root .ety-scores h2{font-size:12px;font-weight:750;line-height:1.4}.ety-scores strong{display:block;font-size:43px;line-height:1.25;letter-spacing:-2px;margin-top:8px}.ety-scores small{display:block;font-size:10px;color:#66585c}.ety-scores article>span{display:block;font-size:27px;color:#598d8c}.ety-scores article+article>span{color:#e5654d}.ety-connection{display:flex;justify-content:center;align-items:center;gap:14px;border-radius:17px;background:#e3d5e2;padding:15px;margin:14px 0;color:#5d3c60;font-size:13px}.ety-connection>span{font-size:25px}.ety-connection div{display:grid;text-align:left;gap:2px}.ety-connection strong{font-size:12px}.ety-fineprint{font-size:10px;line-height:1.6;color:#7a686f;margin:0 0 20px!important}.ety-final .ety-brand{margin-top:23px}.ety-notice{padding:12px;border-radius:12px;background:#fff0cf;color:#6c4c19;font-size:12px;margin:0 0 18px!important}
+.minigame-card.between-us-hub-card{position:relative;display:grid!important;grid-template-columns:90px minmax(0,1fr) 26px!important;gap:10px!important;align-items:center!important;overflow:hidden;min-height:158px;padding:19px 17px!important;border:1px solid #eccfc6!important;border-radius:25px!important;background:linear-gradient(125deg,#fff5e9,#f4dad4)!important;color:#32212c!important;text-align:left;box-shadow:0 10px 23px #7e392410!important}.between-us-hub-card>.ety-art{width:96px}.between-us-hub-card .minigame-card-copy{display:grid;gap:5px;min-width:0}.between-us-hub-card .minigame-card-copy small{color:#a2473c!important;font-size:10px!important;letter-spacing:1px}.between-us-hub-card .minigame-card-copy strong{font-size:24px!important;line-height:1.05!important;letter-spacing:-.6px;color:#32212c!important}.between-us-hub-card .minigame-card-copy>span{font-size:13px!important;color:#674e55!important}.between-us-hub-card em{font-size:10px;font-style:normal;color:#84656c}.ety-hub-arrow{font-size:28px;color:#d65a45}
+@media(min-width:600px){#between-us-root{padding:30px 30px}.ety-options-bet .ety-emoji{height:158px}.ety-home h1{font-size:70px!important}}
+@media(max-width:420px){#between-us-root{padding:20px 14px 28px;border-radius:26px}#between-us-root .ety-round-header{margin-bottom:12px}.ety-role{gap:10px;padding:9px 12px}.ety-role strong{font-size:14px}#between-us-root .ety-question{margin:18px 0 14px}#between-us-root .ety-question h1{font-size:clamp(25px,7.5vw,30px);line-height:1.08;letter-spacing:-1.1px}.ety-options{gap:10px}#between-us-root .ety-options-bet .ety-option{border-radius:16px;padding:8px 5px 11px}.ety-options-bet .ety-art{width:94px}.ety-options-bet .ety-emoji{height:90px;font-size:56px}.ety-options-bet .ety-option-label{font-size:13px;line-height:1.22}.ety-options-choose2{gap:8px}#between-us-root .ety-options-choose2 .ety-option{grid-template-columns:56px minmax(0,1fr) 26px;gap:8px;min-height:66px;padding:4px 8px 4px 2px}.ety-options-choose2 .ety-art{width:56px}.ety-options-choose2 .ety-emoji{height:52px;font-size:33px}.ety-options-choose2 .ety-option-label{font-size:13px;line-height:1.2}.ety-options-choose2+.ety-button{margin-top:12px}.ety-hint{margin-top:14px!important}}
+@media(max-width:359px){#between-us-root{padding:20px 13px;border-radius:24px}#between-us-root h1{font-size:27px}.ety-role{gap:8px;padding:9px}.ety-role strong{font-size:13px}.ety-role strong span{margin:0 4px}.ety-options{gap:9px}.ety-options-bet .ety-emoji{height:110px;font-size:61px}.ety-option-label{font-size:13px}.ety-options-choose2 .ety-option{grid-template-columns:52px minmax(0,1fr) 24px!important;gap:5px!important}.ety-options-choose2 .ety-art{width:52px}.ety-options-choose2 .ety-option-label{font-size:12px}.ety-options-telepathy .ety-emoji{font-size:48px}.ety-options-telepathy .ety-option{min-height:106px!important}.ety-orbit{gap:19px}.ety-orbit>.ety-avatar{width:64px;height:64px;font-size:39px}.ety-scores strong{font-size:37px}.ety-scores h2{font-size:11px!important}.minigame-card.between-us-hub-card{grid-template-columns:65px minmax(0,1fr) 20px!important}.between-us-hub-card>.ety-art{width:73px}.between-us-hub-card .minigame-card-copy strong{font-size:21px!important}}
+@media(prefers-reduced-motion:reduce){#between-us-root *,#between-us-root *:before,#between-us-root *:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+/* The game owns only the space BETWEEN the app header and navigation.
+   Its content may scroll on short/zoomed screens; controls never sit under the nav. */
+html.ety-playing,body.ety-playing{overflow:hidden;overscroll-behavior:none}
+body.ety-playing #page-minigames{animation:none}
+.between-us-page.ety-viewport{
+  position:fixed;z-index:20;top:var(--ety-viewport-top);left:50%;transform:translateX(-50%);
+  width:min(540px,calc(100% - 28px));height:var(--ety-viewport-height);
+  display:flex;flex-direction:column;gap:4px;padding:0;container:ety / size;
+}
+.ety-viewport>.minigame-back{flex:0 0 32px;align-self:flex-start;margin:0!important;padding:4px 0;line-height:24px}
+.ety-viewport #between-us-root{flex:1;min-height:0;display:flex;flex-direction:column;padding:0;overflow:hidden}
+.ety-scroll{min-height:0}
+.ety-viewport .ety-scroll{flex:1;overflow:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding:20px;scroll-padding-block:12px}
+.ety-actions{flex-shrink:0;padding:12px 20px 16px;background:var(--ety-cream);border-top:1px solid #e8ddd1}
+#between-us-root .ety-scroll-help{display:none;font-size:11px;line-height:1.4;color:#726069;margin:0 0 7px}
+#between-us-root[data-overflow="true"] .ety-scroll-help{display:block}
+.ety-question-meta{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:8px}
+#between-us-root .ety-question-meta .ety-counter{margin:0;padding:3px 9px;font-size:12px}
+.ety-viewport #between-us-root[data-type]:not([data-type=""]) .ety-signature{display:none}
+.ety-viewport #between-us-root.ety-night{min-height:0}
+
+@container ety (max-height:780px){
+  .ety-viewport .ety-scroll{padding:14px}
+  .ety-actions{padding:10px 14px 12px}
+  #between-us-root .ety-round-header{display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:4px 10px;margin:0 0 10px}
+  .ety-progress{grid-column:1 / -1;width:100%;margin:0 auto 3px;gap:5px}
+  .ety-progress i{height:6px}
+  .ety-round-header small{text-align:right;font-size:9px;letter-spacing:1px}
+  #between-us-root .ety-round-header p{text-align:left;font-size:12px;line-height:1.5}
+  .ety-role{padding:6px 10px;gap:9px;border-radius:14px}
+  .ety-role .ety-avatar{width:32px;height:32px;font-size:21px}
+  .ety-role strong{font-size:13px}
+  .ety-role .ety-heart{font-size:26px}
+  #between-us-root .ety-question{margin:12px 0}
+  #between-us-root .ety-question h1{font-size:clamp(22px,6.2vw,28px);line-height:1.12;letter-spacing:-.7px;margin-top:8px}
+  #between-us-root .ety-label{font-size:9px;letter-spacing:1.2px}
+  .ety-options{gap:8px}
+  #between-us-root .ety-options-bet .ety-option{padding:7px 6px 10px}
+  .ety-options-bet .ety-art{width:80px}
+  .ety-options-bet .ety-emoji{height:80px;font-size:52px}
+  .ety-options-bet .ety-option-label{font-size:14px;line-height:1.25}
+  #between-us-root .ety-options-choose2 .ety-option{grid-template-columns:40px minmax(0,1fr) 24px;min-height:48px;padding:4px 8px;gap:8px;border-radius:13px}
+  .ety-options-choose2 .ety-art{width:40px}
+  .ety-options-choose2 .ety-emoji{height:36px;font-size:29px}
+  .ety-options-choose2 .ety-option-label{font-size:13px;line-height:1.3}
+  .ety-options-choose2 .ety-check{width:24px;height:24px;font-size:18px}
+  #between-us-root .ety-actions .ety-button{min-height:46px;padding:11px 14px;font-size:15px;border-radius:14px}
+  #between-us-root .ety-options-duel .ety-option{min-height:130px;padding:14px;gap:12px}
+  .ety-options-duel .ety-emoji{font-size:60px}
+  .ety-options-duel .ety-art{width:85px}
+  .ety-options-duel .ety-option-label{font-size:19px}
+  .ety-orbit{height:155px;margin:6px 0}
+  .ety-orbit i{top:45px}.ety-orbit i+i{top:3px}.ety-orbit b:last-child{top:120px}
+  #between-us-root .ety-telepathy-copy h1{font-size:36px;margin:12px 0}
+  #between-us-root .ety-telepathy-copy p{font-size:17px;margin-bottom:16px}
+  #between-us-root .ety-options-telepathy .ety-option{min-height:100px}
+  .ety-options-telepathy .ety-emoji{font-size:48px}
+  .ety-cover{padding:0}
+  .ety-cover>.ety-art{width:145px;margin:0 auto 4px}
+  #between-us-root .ety-cover h1{font-size:30px!important;margin:10px 0 14px}
+  .ety-cover-avatar{margin:0 0 10px}
+  .ety-cover-avatar .ety-avatar{width:48px;height:48px;font-size:28px}
+  #between-us-root .ety-cover p{font-size:14px;margin-bottom:18px}
+  #between-us-root .ety-signature{margin-top:16px;font-size:15px}
+  #between-us-root .ety-signature span{font-size:20px}
+  .ety-reveal-symbol{font-size:45px;margin:4px 0}
+  #between-us-root .ety-reveal h1{font-size:28px;margin:10px 0 14px}
+  .ety-comparison article{padding:10px 8px;border-radius:15px}
+  .ety-chosen .ety-art{width:58px}.ety-chosen .ety-emoji{font-size:32px}
+  .ety-points{margin:12px 0;padding:10px}
+  .ety-winner-art{height:135px;width:175px;margin:0 auto 10px}
+  .ety-winner-art>.ety-art{width:165px;left:5px}
+  .ety-winner-medal{width:75px;height:75px;left:calc(50% - 37px);font-size:40px;border-width:4px}
+  .ety-confetti{font-size:23px;letter-spacing:20px;top:25px}
+  #between-us-root .ety-final h1{font-size:29px;margin:8px 0}
+  #between-us-root .ety-winner-subtitle{font-size:16px;margin-bottom:14px}
+  .ety-scores article{padding:10px 8px}.ety-scores strong{font-size:34px;margin-top:4px}
+  .ety-connection{padding:10px;margin:10px 0}
+  #between-us-root .ety-home-art{height:126px;width:160px;margin:0 auto}.ety-home-art>.ety-art{width:140px!important}
+  .ety-home-art>.ety-avatar{bottom:6px!important}
+  #between-us-root .ety-home h1{font-size:48px;line-height:.98;margin:12px 0}
+  #between-us-root .ety-lead{font-size:20px;margin-bottom:10px}
+  .ety-home-badges{margin:14px 0}
+  .ety-mechanics{padding:12px 0 14px}.ety-mechanics b{font-size:22px;margin-bottom:4px}
+}
+@container ety (max-height:720px){
+  .ety-viewport .ety-scroll{padding:12px}
+  #between-us-root[data-type="choose2"] .ety-question h1{font-size:22px;line-height:1.13}
+  #between-us-root .ety-options-choose2{gap:6px}
+  #between-us-root .ety-options-choose2 .ety-option{min-height:46px}
+  #between-us-root .ety-round-header{margin-bottom:8px}
+}
