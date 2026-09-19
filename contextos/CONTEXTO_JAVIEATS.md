@@ -10,7 +10,7 @@
 >
 > **Rama:** `main`
 >
-> **Estado de referencia:** 19 de septiembre de 2026 · JaviEats 3.3.2.
+> **Estado de referencia:** 19 de septiembre de 2026 · JaviEats 3.3.2 · estructura de minijuegos consolidada e integración de Entre tú y yo en `main`.
 
 ---
 
@@ -43,16 +43,21 @@ Archivos principales:
 - `index.html`
 - `script.js`
 - `style.css`
-- `minijuegos/minigames-data.js`
-- `minijuegos/minigames-core.js`
-- `minijuegos/minigames.js`
-- `minijuegos/nuestra-vida-launcher.js`
-- `service-worker.js`
+- `index.html`
+- `script.js`
+- `style.css`
 - `manifest.webmanifest`
+- `service-worker.js`
 - `assets/`
+- `contextos/`
+- `minijuegos/`
+  - `minigames-data.js`
+  - `minigames-core.js`
+  - `minigames.js`
+  - `nuestra-vida-launcher.js`
+  - `entre-tu-y-yo/`
 - `nuestra-vida/`
 - `recuerdos/`
-- `contextos/`
 
 `main` es la fuente de verdad.
 
@@ -86,6 +91,14 @@ En 3.3 se añadieron además:
 - más contenido para Dibuja y No lo Digas;
 - corrección de Dibuja para que el territorio pertenezca a quien adivina antes;
 - limpieza y endurecimiento de la lógica de no repetición de `¿Y si…?`.
+
+En **3.3.2** queda consolidada además la nueva organización de minijuegos:
+
+- los archivos de minijuegos de JaviEats viven bajo `/minijuegos/`;
+- `minigames.js`, `minigames-core.js`, `minigames-data.js` y `nuestra-vida-launcher.js` se agrupan en esa carpeta;
+- **Nuestra Vida** sigue siendo una aplicación independiente dentro de `/nuestra-vida/`;
+- **Entre tú y yo** queda integrado en `main` dentro de `minijuegos/entre-tu-y-yo/`;
+- el nuevo juego no requiere cambios de esquema en Supabase y persiste su estado localmente.
 
 ---
 
@@ -205,7 +218,7 @@ No tocar la estructura de `propuestas` sin revisar el contexto de BD.
 
 ## Entre tú y yo
 
-Minijuego local para Javi y Laura, pasando un único móvil. Versión preparada para integración en JaviEats; su presencia en una rama no implica despliegue en producción.
+Minijuego local para Javi y Laura, pasando un único móvil. **Integrado en `main` el 19/09/2026**.
 
 - 8 rondas: Apuesta/Javi, Duelo/Laura, Telepatía/Javi, Elige 2/Laura, Apuesta/Laura, Duelo/Javi, Telepatía/Laura, Elige 2/Javi. El nombre indica quién predice.
 - Apuesta: 4 opciones; Duelo: 2. Acierto exacto = 1 punto.
@@ -216,8 +229,11 @@ Minijuego local para Javi y Laura, pasando un único móvil. Versión preparada 
 - Guardado local versionado, historial de últimas 100 propuestas por mecánica y cubierta de privacidad al retomar respuestas.
 - UI marfil/coral/lila, tarjetas ilustradas, escena de Telepatía y resultado con corona.
 - No utiliza Supabase ni modifica otros minijuegos.
-- Archivos: `minijuegos/entre-tu-y-yo/entre-tu-y-yo-data.js`, `minijuegos/entre-tu-y-yo/entre-tu-y-yo.js`, `minijuegos/entre-tu-y-yo/entre-tu-y-yo.css`, `minijuegos/entre-tu-y-yo/assets/illustrations.png`. Carga desde `minijuegos/minigames.js`.
-- Pruebas automatizadas: `node --test tests/entre-tu-y-yo*.test.cjs`.
+- Archivos: `minijuegos/entre-tu-y-yo/entre-tu-y-yo-data.js`, `minijuegos/entre-tu-y-yo/entre-tu-y-yo.js`, `minijuegos/entre-tu-y-yo/entre-tu-y-yo.css`, `minijuegos/entre-tu-y-yo/assets/illustrations.png`.
+- Carga desde `minijuegos/minigames.js`, antes del core histórico y del launcher de Nuestra Vida.
+- No usa Supabase ni altera otros minijuegos.
+- Las pruebas automatizadas del juego y de la reorganización se ejecutaron antes de integrar la rama.
+- El merge a `main` corresponde al commit `6a57d128c87ba53a827664848f6c5e7fad64f177`.
 
 ## Dibuja
 
@@ -258,16 +274,18 @@ Reglas permanentes:
 
 # ESTADO DE VERIFICACIÓN
 
-A 14/09/2026:
+A 19/09/2026:
 
 - lógica de Supabase 3.3.1 para compatibilidad/cambios: **aplicada y verificada**;
 - no repetición global de `¿Y si…?`: **verificada**;
-- código 3.3.1 de refinamiento: **subido a GitHub**;
-- producción real: no afirmar hasta comprobar deployment;
-- prueba real en navegador/iPad: pendiente salvo comprobación posterior explícita.
+- reorganización de minijuegos: **integrada en `main`**;
+- Entre tú y yo: **integrado en `main`**;
+- merge principal: `6a57d128c87ba53a827664848f6c5e7fad64f177`;
+- estado Vercel asociado al merge: **success**;
+- prueba funcional real completa en navegador/iPhone/iPad: debe considerarse una verificación separada del deployment.
 
 ---
 
 # RESUMEN
 
-**JaviEats 3.3.1 = JaviEats 3.3 + mejor identidad visual + Nuestra Vida con más protagonismo + compatibilidad móvil de 20 preguntas + ventaja compartida de 2 cambios al 75% + reconocimiento real del pleno 5/5.**
+**JaviEats 3.3.2 = JaviEats 3.3 + refinamientos de 3.3.1 + estructura de minijuegos ordenada bajo `/minijuegos/` + Entre tú y yo integrado en `main`, manteniendo Nuestra Vida independiente y sin cambios de esquema de Supabase para el nuevo juego.**
