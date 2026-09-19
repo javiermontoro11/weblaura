@@ -68,7 +68,7 @@ Nuestra Vida se mantiene como módulo independiente dentro del repositorio para 
 
 ### Piezas principales
 
-- `nuestra-vida-launcher.js` conecta la navegación de JaviEats con el juego;
+- `minijuegos/nuestra-vida-launcher.js` conecta la navegación de JaviEats con el juego;
 - `window.JAVIEATS_MAIN_GAME_URL` contiene la URL utilizada para abrir Nuestra Vida;
 - el launcher sincroniza el perfil activo de JaviEats antes de entrar;
 - `/nuestra-vida/` contiene la release y sus recursos;
@@ -81,12 +81,12 @@ Por ese motivo, la arquitectura provisional descrita durante el estreno no debe 
 
 ### Carga desde JaviEats
 
-`minigames.js` actúa actualmente como un cargador pequeño:
+`minijuegos/minigames.js` actúa actualmente como un cargador pequeño:
 
-1. carga `minigames-core.js`, donde vive la lógica histórica de los minijuegos de JaviEats;
-2. carga `nuestra-vida-launcher.js`, que conecta JaviEats con Nuestra Vida y su zona de pruebas.
+1. carga `minijuegos/minigames-core.js`, donde vive la lógica histórica de los minijuegos de JaviEats;
+2. carga `minijuegos/nuestra-vida-launcher.js`, que conecta JaviEats con Nuestra Vida y su zona de pruebas.
 
-Esta separación es deliberada. No se debe volver a fusionar todo dentro de `minigames.js` sin una razón técnica real y QA posterior.
+Esta separación es deliberada. No se debe volver a fusionar todo dentro de `minijuegos/minigames.js` sin una razón técnica real y QA posterior.
 
 ### Versionado independiente
 
@@ -175,20 +175,22 @@ Ambos perfiles pueden trabajar con propuestas y planes compartidos desde el cale
 
 ## 🎮 Minijuegos
 
-JaviEats mantiene cuatro minijuegos propios:
+JaviEats mantiene cinco minijuegos propios:
 
 - `¿Y si…?`;
 - `Piedra, papel o tijera`;
 - `Dibuja`;
-- `No lo digas`.
+- `No lo digas`;
+- `Entre tú y yo`.
 
 Además, en la rama 3.2 existe una entrada adicional de laboratorio para probar directamente los minijuegos de Nuestra Vida sin iniciar una partida completa del juego principal.
 
 ### Separación actual
 
-- `minigames-data.js` contiene baterías y datos;
-- `minigames-core.js` contiene la lógica histórica de los minijuegos de JaviEats;
-- `minigames.js` carga el core y después el launcher de Nuestra Vida;
+- `minijuegos/minigames-data.js` contiene las baterías y datos históricos;
+- `minijuegos/entre-tu-y-yo/` contiene íntegramente el nuevo juego Entre tú y yo;
+- `minijuegos/minigames-core.js` contiene la lógica histórica de los minijuegos de JaviEats;
+- `minijuegos/minigames.js` carga el core y después el launcher de Nuestra Vida;
 - Nuestra Vida conserva su lógica propia dentro de `/nuestra-vida/`.
 
 El juego principal no debe mezclarse dentro del core de los minijuegos salvo que exista una necesidad técnica concreta.
@@ -256,10 +258,17 @@ JaviEats/
 ├── index.html
 ├── style.css
 ├── script.js
-├── minigames-data.js
-├── minigames-core.js
-├── minigames.js
-├── nuestra-vida-launcher.js
+├── minijuegos/
+│   ├── minigames-data.js
+│   ├── minigames-core.js
+│   ├── minigames.js
+│   ├── nuestra-vida-launcher.js
+│   └── entre-tu-y-yo/
+│       ├── entre-tu-y-yo-data.js
+│       ├── entre-tu-y-yo.js
+│       ├── entre-tu-y-yo.css
+│       └── assets/
+│           └── illustrations.webp
 ├── manifest.webmanifest
 ├── service-worker.js
 ├── favicon.ico
@@ -458,14 +467,14 @@ Nuestra Vida conserva su propio versionado. Los bugs o ajustes internos del jueg
 - Ajustes para evitar reutilizar el wrapper de estreno desde caché.
 - Renovación de referencias de caché del launcher.
 - Incorporación de una zona de pruebas de minijuegos de Nuestra Vida.
-- Carga de `minigames-core.js` y `nuestra-vida-launcher.js` mediante el loader actual `minigames.js`.
+- Carga de `minigames-core.js` y `nuestra-vida-launcher.js` mediante el loader actual `minijuegos/minigames.js`.
 
 ## v3.2 — Integración de Nuestra Vida
 
 - Integración de Nuestra Vida 1.0 dentro del repositorio de JaviEats.
 - Nueva navegación final `Inicio · Planes · Nuestra Vida · Minijuegos · Recuerdos`.
 - Acceso desde la pestaña central de JaviEats.
-- Lanzador independiente mediante `nuestra-vida-launcher.js`.
+- Lanzador independiente mediante `minijuegos/nuestra-vida-launcher.js`.
 - Revelación programada originalmente para el 12/09/2026 a las 14:00 en Madrid.
 - Acceso previo de Javi para pruebas antes del estreno.
 - Protección de la experiencia de Laura antes de la revelación.
@@ -537,7 +546,7 @@ Nuestra Vida conserva su propio versionado. Los bugs o ajustes internos del jueg
 
 - Hub general `Minijuegos`.
 - `¿Y si…?`, `Piedra, papel o tijera`, `Dibuja` y `No lo digas`.
-- Baterías y lógica separadas en `minigames-data.js` y `minigames.js`.
+- Baterías y lógica separadas dentro de `minijuegos/`.
 - Eliminados `draw-data.js` y `draw-game.js`.
 
 ## v2.6 — Primera versión de Dibuja
