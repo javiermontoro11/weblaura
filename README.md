@@ -7,7 +7,7 @@ JaviEats es una aplicación web privada creada para Laura y Javi. Reúne planes 
 
 JaviEats 3.3.3 mantiene **Nuestra Vida 1.0** como experiencia principal independiente y consolida las mejoras de 3.3: catálogo ampliado, exportación de planes, refinamientos de Inicio y minijuegos, además de la integración de **Entre tú y yo**. Esta revisión añade el microevento efímero de flores amarillas del 21/09/2026.
 
-> **Estado actual:** `main` sigue siendo la fuente de verdad. La rama `feat/flores-amarillas-21-septiembre` contiene la propuesta 3.3.3 para el microevento efímero del 21/09/2026; hasta su merge, producción sigue en 3.3.2. La prueba funcional real en dispositivos sigue siendo una verificación separada del deployment.
+> **Estado actual:** `main` es la fuente de verdad. JaviEats 3.3.3 incorpora el microevento efímero de flores amarillas del 21/09/2026 para Laura. El código y el deployment pueden verificarse por separado de la prueba funcional real en iPhone/PWA.
 
 ---
 
@@ -479,7 +479,7 @@ La línea actual es:
 3.3.3 → microevento efímero de flores amarillas del 21/09/2026
 ```
 
-`3.3.3` es la revisión de mantenimiento propuesta para el microevento del 21/09/2026. Hasta su merge, `main` conserva 3.3.2 como referencia desplegada. Los siguientes cambios deben seguir siendo incrementales y quedar reflejados tanto aquí como en `contextos/CONTEXTO_JAVIEATS.md`.
+`3.3.3` es la referencia actual de mantenimiento e incorpora el microevento del 21/09/2026. Los siguientes cambios deben seguir siendo incrementales y quedar reflejados tanto aquí como en `contextos/CONTEXTO_JAVIEATS.md`.
 
 ## Nuestra Vida
 
