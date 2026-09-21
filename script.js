@@ -388,6 +388,15 @@ const MEMORIES = [
     cover: "recuerdos/ramo-2026-07-24.jpeg",
     images: ["recuerdos/ramo-2026-07-24.jpeg", "recuerdos/laura-ramo-2026-07-24.jpeg"],
     actionLabel: "Ver 2 fotos"
+  },
+  {
+    id: "2026-09-21-yellow-flowers",
+    dateLabel: "21/09/2026",
+    title: "Las flores amarillas de JaviEats",
+    description: "Un 21 de septiembre, JaviEats también encontró su propia forma de regalarte flores amarillas.",
+    type: "yellow-flowers",
+    emoji: "🌻",
+    actionLabel: "Volver a verlo"
   }
 ];
 
@@ -2622,6 +2631,14 @@ function openMemory(id) {
   const memory = MEMORIES.find(item => item.id === id);
   if (!memory) return;
   if (memory.type === "letter") { letterEyebrow.textContent = memory.letterEyebrow; letterTitle.textContent = memory.letterTitle; showPage("letter"); loadLetter(memory.letterFile); return; }
+  if (memory.type === "yellow-flowers") {
+    if (window.JaviEatsYellowFlowers?.openMemory) {
+      window.JaviEatsYellowFlowers.openMemory();
+    } else {
+      showToast("No se ha podido abrir este recuerdo.");
+    }
+    return;
+  }
   currentGallery = memory.images || [];
   currentGalleryIndex = 0;
   memoryModalDate.textContent = memory.dateLabel;
