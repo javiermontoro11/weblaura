@@ -123,7 +123,7 @@
   filter:drop-shadow(0 18px 22px rgba(112,81,8,.15))
 }
 .yellow-flowers-stem{
-  --rot:0deg;--h:132px;--left:50%;position:absolute;left:var(--left);bottom:35px;
+  --rot:0deg;--h:132px;--left:50%;position:absolute;left:var(--left);bottom:20px;
   width:5px;height:var(--h);border-radius:999px;background:linear-gradient(90deg,#5f8b42,#85aa55);
   transform-origin:50% 100%;transform:translateX(-50%) rotate(var(--rot)) scaleY(.15);
   animation:yellowStemGrow .72s cubic-bezier(.2,.8,.2,1) forwards
@@ -138,7 +138,7 @@
   animation:yellowBloom .55s cubic-bezier(.16,1.35,.34,1) .52s forwards
 }
 .yellow-flowers-ribbon{
-  position:absolute;left:50%;bottom:18px;z-index:4;transform:translateX(-50%);
+  position:absolute;left:50%;bottom:4px;z-index:4;transform:translateX(-50%);
   font-size:2rem;filter:drop-shadow(0 6px 8px rgba(117,77,7,.16));
   animation:yellowRibbonPop .45s cubic-bezier(.16,1.35,.34,1) .72s both
 }
@@ -168,13 +168,38 @@ body.yellow-flowers-open{overflow:hidden}
 @media (max-width:620px){
   .yellow-flowers-modal{place-items:end center;padding:0}
   .yellow-flowers-panel{width:100%;max-height:calc(100dvh - max(8px,env(safe-area-inset-top)));border-width:0;border-radius:28px 28px 0 0}
-  .yellow-flowers-intro,.yellow-flowers-reveal{padding-left:20px;padding-right:20px}
+  .yellow-flowers-intro{padding-left:20px;padding-right:20px}
+  .yellow-flowers-reveal{
+    gap:12px;
+    padding:42px 20px calc(24px + env(safe-area-inset-bottom));
+  }
+  .yellow-flowers-bouquet{
+    width:238px;
+    max-width:76vw;
+    height:205px;
+    margin-top:0;
+  }
+  .yellow-flowers-reveal-title{
+    max-width:360px;
+    font-size:clamp(1.62rem,6.4vw,2.05rem);
+    line-height:1.08;
+  }
+  .yellow-flowers-message{
+    max-width:370px;
+    padding:14px 16px;
+    font-size:.88rem;
+    line-height:1.55;
+  }
+  .yellow-flowers-love{font-size:.98rem}
+  .yellow-flowers-finish-btn{min-height:50px}
 }
 @media (max-height:690px){
   .yellow-flowers-mini-bouquet{min-height:58px}.yellow-flowers-mini-bouquet span:nth-child(n){font-size:2.4rem}
   .yellow-flowers-intro{gap:11px;padding-top:24px}.yellow-flowers-copy{line-height:1.52}
-  .yellow-flowers-bouquet{height:185px;transform:scale(.9);transform-origin:50% 100%;margin-top:-18px}
-  .yellow-flowers-reveal{gap:10px;padding-top:20px}
+  .yellow-flowers-bouquet{height:180px;transform:scale(.86);transform-origin:50% 50%;margin:-8px 0 -10px}
+  .yellow-flowers-reveal{gap:9px;padding-top:36px}
+  .yellow-flowers-reveal-title{font-size:1.55rem}
+  .yellow-flowers-message{padding:12px 14px;font-size:.84rem;line-height:1.48}
 }
 @media (prefers-reduced-motion:reduce){
   .yellow-flowers-panel,.yellow-flowers-mini-bouquet span,.yellow-flowers-stem,.yellow-flowers-bloom,.yellow-flowers-ribbon,.yellow-flowers-petal{animation:none!important}
@@ -613,8 +638,10 @@ body.yellow-flowers-open{overflow:hidden}
     intro?.classList.remove("hidden");
     reveal?.classList.add("hidden");
     reveal?.setAttribute("aria-hidden", "true");
-    const panel = modal?.querySelector(".yellow-flowers-panel");
-    if (panel) panel.scrollTop = 0;
+    reveal?.querySelectorAll(
+      ".yellow-flowers-stem, .yellow-flowers-bloom, .yellow-flowers-ribbon, .yellow-flowers-petal"
+    ).forEach(element => element.style.removeProperty("animation"));
+    resetRevealScroll();
   }
 
   function hideEventCompletely() {
@@ -663,13 +690,36 @@ body.yellow-flowers-open{overflow:hidden}
     showModal();
   }
 
+  function restartRevealAnimations() {
+    if (!reveal || window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches) return;
+    const animated = reveal.querySelectorAll(
+      ".yellow-flowers-stem, .yellow-flowers-bloom, .yellow-flowers-ribbon, .yellow-flowers-petal"
+    );
+    animated.forEach(element => { element.style.animation = "none"; });
+    void reveal.offsetWidth;
+    animated.forEach(element => { element.style.removeProperty("animation"); });
+  }
+
+  function resetRevealScroll() {
+    const panel = modal?.querySelector(".yellow-flowers-panel");
+    if (!panel) return;
+    panel.scrollTop = 0;
+    window.requestAnimationFrame(() => {
+      panel.scrollTop = 0;
+      window.requestAnimationFrame(() => {
+        panel.scrollTop = 0;
+      });
+    });
+  }
+
   function revealYellowFlowers() {
     rememberSeen();
+    revealButton?.blur();
     intro?.classList.add("hidden");
     reveal?.classList.remove("hidden");
     reveal?.setAttribute("aria-hidden", "false");
-    const panel = modal?.querySelector(".yellow-flowers-panel");
-    if (panel) panel.scrollTop = 0;
+    restartRevealAnimations();
+    resetRevealScroll();
   }
 
   function closeYellowFlowers() {
