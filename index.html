@@ -52,76 +52,136 @@
 }
 </style>
 
-<style id="today-plan-styles">
-.today-plan-modal{z-index:140;place-items:center;padding:clamp(10px,3vw,24px);}
-.today-plan-modal .modal-backdrop{background:rgba(35,24,36,.46);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);}
-.today-plan-panel{
-  width:min(100%,560px);max-height:min(92dvh,820px);padding:0;overflow:auto;
-  border:1px solid rgba(255,255,255,.58);border-radius:28px;
-  background:linear-gradient(180deg,#fff8f3 0,#fffdf9 32%,#fff 100%);
-  box-shadow:0 28px 80px rgba(48,29,38,.30);
-  animation:todayPlanIn .42s cubic-bezier(.2,.8,.2,1);
-  color:#282326;scrollbar-width:thin;
+<style id="yellow-flowers-styles">
+.yellow-flowers-modal{z-index:145;place-items:center;padding:clamp(12px,3vw,24px)}
+.yellow-flowers-modal .modal-backdrop{
+  background:radial-gradient(circle at 50% 15%,rgba(255,226,78,.16),transparent 36%),rgba(42,33,20,.48);
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)
 }
-.today-plan-hero{position:relative;overflow:hidden;padding:30px 58px 24px 24px;background:linear-gradient(145deg,#f7b27d 0%,#e98a86 47%,#9c7aa7 100%);color:#fff;}
-.today-plan-hero::after{content:"";position:absolute;inset:auto -10% -55px 28%;height:110px;border-radius:50%;background:rgba(255,218,164,.32);filter:blur(2px);}
-.today-plan-kicker,.today-plan-hero h2,.today-plan-subtitle{position:relative;z-index:1;}
-.today-plan-kicker{margin:0 0 7px;font-size:.7rem;font-weight:900;letter-spacing:.12em;text-transform:uppercase;opacity:.9;}
-.today-plan-hero h2{margin:0;font-size:clamp(1.75rem,6vw,2.35rem);line-height:1.04;letter-spacing:0;}
-.today-plan-subtitle{margin:8px 0 0;font-size:1rem;font-weight:750;opacity:.93;}
-.today-plan-close{top:16px;right:16px;border-color:rgba(255,255,255,.38);background:rgba(255,255,255,.18);color:#fff;backdrop-filter:blur(8px);}
-.today-plan-content{display:grid;gap:24px;padding:22px 22px calc(24px + env(safe-area-inset-bottom));}
-.today-plan-route{display:flex;align-items:center;justify-content:center;gap:9px;padding:12px 8px;border-bottom:1px solid rgba(83,60,65,.10);font-size:.78rem;font-weight:850;color:#5d4851;}
-.today-plan-route-arrow{color:#c26867;font-size:1rem;transform:rotate(-90deg);}
-.today-plan-section{display:grid;gap:9px;}
-.today-plan-section + .today-plan-section{padding-top:20px;border-top:1px solid rgba(83,60,65,.10);}
-.today-plan-label{margin:0;color:#a54e50;font-size:.67rem;font-weight:900;letter-spacing:.1em;text-transform:uppercase;}
-.today-plan-section h3{margin:0;font-size:1.12rem;line-height:1.25;letter-spacing:0;}
-.today-plan-section p{margin:0;color:#665d60;font-size:.88rem;line-height:1.58;}
-.today-plan-map{
-  width:max-content;max-width:100%;display:inline-flex;align-items:center;justify-content:center;
-  min-height:44px;margin-top:3px;padding:10px 14px;border:1px solid rgba(123,71,75,.14);
-  border-radius:14px;background:#fff;color:#5c3d46;font-size:.78rem;font-weight:850;text-decoration:none;
-  box-shadow:0 8px 20px rgba(90,53,64,.07);
+.yellow-flowers-panel{
+  position:relative;width:min(100%,500px);max-height:min(92dvh,760px);overflow:auto;padding:0;
+  border:1px solid rgba(255,255,255,.72);border-radius:30px;
+  background:radial-gradient(circle at 10% 0%,rgba(255,224,72,.22),transparent 25%),
+             radial-gradient(circle at 95% 10%,rgba(255,245,183,.58),transparent 30%),
+             linear-gradient(180deg,#fffdf0 0%,#fff9e9 52%,#fffdf8 100%);
+  box-shadow:0 30px 90px rgba(48,38,14,.30);color:#342c18;
+  animation:yellowFlowersIn .44s cubic-bezier(.2,.8,.2,1);scrollbar-width:thin
 }
-.today-plan-map:hover{transform:translateY(-1px);box-shadow:0 10px 24px rgba(90,53,64,.11);}
-.today-plan-schedule{display:grid;gap:0;padding:2px 0;}
-.today-plan-schedule h3{margin:0 0 12px;font-size:1rem;}
-.today-plan-time{display:grid;grid-template-columns:92px 24px minmax(0,1fr);gap:8px;align-items:start;padding:8px 0;border-bottom:1px dashed rgba(94,74,78,.12);font-size:.8rem;line-height:1.4;}
-.today-plan-time:last-child{border-bottom:0;}
-.today-plan-time strong{color:#a24e50;font-size:.75rem;}
-.today-plan-time span:last-child{color:#524a4d;font-weight:650;}
-.today-plan-details{display:grid;border-top:1px solid rgba(83,60,65,.10);}
-.today-plan-details details{border-bottom:1px solid rgba(83,60,65,.10);}
-.today-plan-details summary{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:15px 2px;cursor:pointer;list-style:none;font-size:.88rem;font-weight:850;}
-.today-plan-details summary::-webkit-details-marker{display:none;}
-.today-plan-details summary::after{content:"+";flex:0 0 auto;color:#a24e50;font-size:1.15rem;font-weight:500;}
-.today-plan-details details[open] summary::after{content:"−";}
-.today-plan-detail-copy{padding:0 2px 16px;color:#655c5f;font-size:.82rem;line-height:1.55;}
-.today-plan-detail-copy p{margin:0 0 10px;}
-.today-plan-detail-copy ul{margin:7px 0 0;padding-left:19px;}
-.today-plan-detail-copy li+li{margin-top:5px;}
-.today-plan-detail-copy strong{color:#3f3639;}
-.today-plan-rule{padding:18px;border:1px solid rgba(181,107,89,.16);border-radius:16px;background:linear-gradient(135deg,#fff0dc,#f9e6e7 58%,#eee6f3);}
-.today-plan-rule span{display:block;margin-bottom:6px;color:#975152;font-size:.7rem;font-weight:900;letter-spacing:.08em;text-transform:uppercase;}
-.today-plan-rule strong{font-size:.94rem;line-height:1.45;}
-.today-plan-pill{
+.yellow-flowers-close{
+  top:16px;right:16px;z-index:8;border-color:rgba(91,72,22,.10);
+  background:rgba(255,255,255,.76);color:#6a5722;box-shadow:0 8px 24px rgba(81,62,16,.09)
+}
+.yellow-flowers-intro,.yellow-flowers-reveal{
+  position:relative;display:grid;justify-items:center;gap:15px;
+  padding:34px 28px calc(30px + env(safe-area-inset-bottom));text-align:center
+}
+.yellow-flowers-kicker{
+  margin:0;color:#9a7716;font-size:.68rem;font-weight:900;letter-spacing:.13em;text-transform:uppercase
+}
+.yellow-flowers-mini-bouquet{
+  display:flex;align-items:flex-end;justify-content:center;gap:1px;min-height:78px;
+  filter:drop-shadow(0 13px 16px rgba(156,119,17,.15))
+}
+.yellow-flowers-mini-bouquet span{display:inline-block;transform-origin:50% 100%;animation:yellowFlowerSway 3.8s ease-in-out infinite}
+.yellow-flowers-mini-bouquet span:nth-child(1){font-size:2.55rem;transform:rotate(-10deg);animation-delay:-.6s}
+.yellow-flowers-mini-bouquet span:nth-child(2){font-size:3.15rem;animation-delay:-1.4s}
+.yellow-flowers-mini-bouquet span:nth-child(3){font-size:2.8rem;animation-delay:-2.1s}
+.yellow-flowers-mini-bouquet span:nth-child(4){font-size:3.1rem;animation-delay:-.9s}
+.yellow-flowers-mini-bouquet span:nth-child(5){font-size:2.5rem;transform:rotate(9deg);animation-delay:-1.8s}
+.yellow-flowers-title,.yellow-flowers-reveal-title{
+  margin:0;max-width:390px;color:#342b14;font-size:clamp(1.8rem,7vw,2.6rem);line-height:1.05;letter-spacing:-.035em
+}
+.yellow-flowers-copy{
+  margin:0;max-width:390px;color:#675a3b;font-size:.96rem;line-height:1.65
+}
+.yellow-flowers-dedication{
+  display:inline-flex;align-items:center;justify-content:center;min-height:42px;padding:9px 15px;
+  border:1px solid rgba(192,149,28,.18);border-radius:999px;background:rgba(255,255,255,.70);
+  color:#71591d;font-size:.82rem;font-weight:900;box-shadow:0 8px 22px rgba(125,95,14,.08)
+}
+.yellow-flowers-reveal-btn,.yellow-flowers-finish-btn{
+  width:100%;min-height:52px;margin-top:2px;border:0;border-radius:17px;font:inherit;
+  font-size:.92rem;font-weight:900;cursor:pointer;transition:transform .18s ease,filter .18s ease
+}
+.yellow-flowers-reveal-btn{
+  background:linear-gradient(135deg,#f3cf37 0%,#e7ad17 100%);color:#40320c;
+  box-shadow:0 14px 30px rgba(195,143,8,.25)
+}
+.yellow-flowers-finish-btn{background:#3b321d;color:#fff8de;box-shadow:0 13px 28px rgba(55,45,20,.18)}
+.yellow-flowers-reveal-btn:hover,.yellow-flowers-finish-btn:hover{transform:translateY(-1px);filter:brightness(1.02)}
+.yellow-flowers-reveal.hidden{display:none}
+.yellow-flowers-petals{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+.yellow-flowers-petal{
+  --x:50%;--delay:0s;--drift:0px;position:absolute;top:-24px;left:var(--x);
+  width:11px;height:17px;border-radius:70% 30% 65% 35%;
+  background:linear-gradient(145deg,#ffd83f,#f3b91c);opacity:0;
+  animation:yellowPetalFall 4.6s linear var(--delay) infinite
+}
+.yellow-flowers-petal:nth-child(2n){width:9px;height:14px;background:linear-gradient(145deg,#ffe881,#f8ca32)}
+.yellow-flowers-bouquet{
+  position:relative;width:260px;max-width:82vw;height:220px;margin-top:-2px;
+  filter:drop-shadow(0 18px 22px rgba(112,81,8,.15))
+}
+.yellow-flowers-stem{
+  --rot:0deg;--h:132px;--left:50%;position:absolute;left:var(--left);bottom:35px;
+  width:5px;height:var(--h);border-radius:999px;background:linear-gradient(90deg,#5f8b42,#85aa55);
+  transform-origin:50% 100%;transform:translateX(-50%) rotate(var(--rot)) scaleY(.15);
+  animation:yellowStemGrow .72s cubic-bezier(.2,.8,.2,1) forwards
+}
+.yellow-flowers-stem::after{
+  content:"";position:absolute;left:-8px;top:58%;width:18px;height:10px;border-radius:100% 0 100% 0;
+  background:#7da24e;transform:rotate(-24deg)
+}
+.yellow-flowers-bloom{
+  position:absolute;left:50%;top:-31px;font-style:normal;font-size:46px;line-height:1;
+  transform:translateX(-50%) scale(.05) rotate(-14deg);
+  animation:yellowBloom .55s cubic-bezier(.16,1.35,.34,1) .52s forwards
+}
+.yellow-flowers-ribbon{
+  position:absolute;left:50%;bottom:18px;z-index:4;transform:translateX(-50%);
+  font-size:2rem;filter:drop-shadow(0 6px 8px rgba(117,77,7,.16));
+  animation:yellowRibbonPop .45s cubic-bezier(.16,1.35,.34,1) .72s both
+}
+.yellow-flowers-message{
+  position:relative;z-index:2;margin:0;max-width:390px;padding:17px 18px;
+  border:1px solid rgba(191,151,35,.14);border-radius:19px;background:rgba(255,255,255,.74);
+  color:#625537;font-size:.91rem;line-height:1.65;box-shadow:0 10px 28px rgba(124,91,10,.07)
+}
+.yellow-flowers-love{position:relative;z-index:2;margin:1px 0 2px;color:#8b6810;font-size:1.03rem;font-weight:950}
+.yellow-flowers-pill{
   position:fixed;right:max(16px,calc((100vw - 540px)/2 + 16px));bottom:calc(84px + env(safe-area-inset-bottom));
-  z-index:90;min-height:42px;padding:9px 14px;border:1px solid rgba(255,255,255,.48);border-radius:999px;
-  background:linear-gradient(135deg,#dc7a68,#8c718f);color:#fff;font-size:.75rem;font-weight:850;
-  box-shadow:0 10px 28px rgba(69,42,53,.24);
+  z-index:90;min-height:42px;padding:9px 14px;border:1px solid rgba(255,255,255,.70);border-radius:999px;
+  background:linear-gradient(135deg,#f5cf3b,#e9b21a);color:#40330c;font-size:.75rem;font-weight:900;
+  box-shadow:0 10px 28px rgba(104,78,12,.22)
 }
-body.today-plan-open{overflow:hidden;}
-@keyframes todayPlanIn{from{opacity:0;transform:translateY(18px) scale(.985)}to{opacity:1;transform:translateY(0) scale(1)}}
+body.yellow-flowers-open{overflow:hidden}
+@keyframes yellowFlowersIn{from{opacity:0;transform:translateY(18px) scale(.985)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes yellowFlowerSway{0%,100%{translate:0 0;rotate:-2deg}50%{translate:0 -3px;rotate:2deg}}
+@keyframes yellowStemGrow{from{transform:translateX(-50%) rotate(var(--rot)) scaleY(.15)}to{transform:translateX(-50%) rotate(var(--rot)) scaleY(1)}}
+@keyframes yellowBloom{from{transform:translateX(-50%) scale(.05) rotate(-16deg);opacity:.2}to{transform:translateX(-50%) scale(1);opacity:1}}
+@keyframes yellowRibbonPop{from{opacity:0;transform:translateX(-50%) scale(.3)}to{opacity:1;transform:translateX(-50%) scale(1)}}
+@keyframes yellowPetalFall{
+  0%{opacity:0;transform:translate3d(0,-18px,0) rotate(0)}
+  10%{opacity:.9}88%{opacity:.72}
+  100%{opacity:0;transform:translate3d(var(--drift),760px,0) rotate(560deg)}
+}
 @media (max-width:620px){
-  .today-plan-modal{place-items:end center;padding:0;}
-  .today-plan-panel{width:100%;max-height:94dvh;border-width:0;border-radius:26px 26px 0 0;}
-  .today-plan-content{gap:21px;padding:19px 18px calc(22px + env(safe-area-inset-bottom));}
-  .today-plan-hero{padding:27px 56px 22px 20px;}
-  .today-plan-route{gap:6px;font-size:.7rem;}
-  .today-plan-time{grid-template-columns:84px 22px minmax(0,1fr);gap:6px;}
+  .yellow-flowers-modal{place-items:end center;padding:0}
+  .yellow-flowers-panel{width:100%;max-height:calc(100dvh - max(8px,env(safe-area-inset-top)));border-width:0;border-radius:28px 28px 0 0}
+  .yellow-flowers-intro,.yellow-flowers-reveal{padding-left:20px;padding-right:20px}
 }
-@media (prefers-reduced-motion:reduce){.today-plan-panel{animation:none}.today-plan-map:hover{transform:none}}
+@media (max-height:690px){
+  .yellow-flowers-mini-bouquet{min-height:58px}.yellow-flowers-mini-bouquet span:nth-child(n){font-size:2.4rem}
+  .yellow-flowers-intro{gap:11px;padding-top:24px}.yellow-flowers-copy{line-height:1.52}
+  .yellow-flowers-bouquet{height:185px;transform:scale(.9);transform-origin:50% 100%;margin-top:-18px}
+  .yellow-flowers-reveal{gap:10px;padding-top:20px}
+}
+@media (prefers-reduced-motion:reduce){
+  .yellow-flowers-panel,.yellow-flowers-mini-bouquet span,.yellow-flowers-stem,.yellow-flowers-bloom,.yellow-flowers-ribbon,.yellow-flowers-petal{animation:none!important}
+  .yellow-flowers-stem{transform:translateX(-50%) rotate(var(--rot)) scaleY(1)}
+  .yellow-flowers-bloom{transform:translateX(-50%) scale(1)}
+  .yellow-flowers-petal{display:none}
+}
 </style>
 </head>
 <body>
@@ -214,92 +274,54 @@ body.today-plan-open{overflow:hidden;}
 <section class="modal hidden" id="memory-editor-modal"><div class="modal-backdrop" data-memory-editor-close=""></div><div class="modal-panel memory-editor-panel"><button aria-label="Cerrar" class="modal-close" data-memory-editor-close="" type="button">×</button><div class="memory-editor-heading"><div class="memory-editor-icon">📸</div><div><p class="eyebrow" id="memory-editor-eyebrow">Nuevo recuerdo</p><h2 id="memory-editor-title">Guardar un momento</h2><p class="muted">JaviEats optimiza las fotos antes de subirlas para ahorrar espacio.</p></div></div><form class="form memory-editor-form" id="memory-editor-form"><div class="form-row"><label>Fecha<input id="memory-editor-date" required type="date"/></label><label>Título<input id="memory-editor-name" maxlength="140" placeholder="Ej: Nuestra tarde en..." required type="text"/></label></div><label>Descripción<textarea id="memory-editor-description" maxlength="1500" placeholder="Una frase para recordar qué pasó..." rows="4"></textarea></label><div class="memory-photo-section"><div class="memory-photo-section-head"><div><strong>Fotos</strong><small id="memory-photo-counter">0 de 8</small></div><button class="btn btn-secondary memory-photo-picker" id="memory-photo-picker" type="button">＋ Añadir fotos</button></div><input accept="image/jpeg,image/png,image/webp,image/heic,image/heif" hidden id="memory-photo-input" multiple type="file"/><div class="memory-photo-grid" id="memory-photo-grid"></div><p class="memory-photo-help">Máximo 8 fotos. Se convierten automáticamente a WebP y se reducen antes de subirlas.</p></div><div aria-live="polite" class="memory-upload-status" id="memory-upload-status"></div><div class="memory-editor-actions"><button class="btn btn-danger hidden" id="memory-delete-btn" type="button">Eliminar recuerdo</button><button class="btn btn-primary" id="memory-save-btn" type="submit">Guardar recuerdo</button></div></form></div></section>
 <section class="modal hidden" id="notifications-modal"><div class="modal-backdrop" data-notifications-close=""></div><div class="modal-panel notifications-panel"><button aria-label="Cerrar" class="modal-close" data-notifications-close="" type="button">×</button><div class="notifications-heading"><div><p class="eyebrow">Lo que ha pasado</p><h2>Actividad</h2></div><button class="link-btn hidden" id="notifications-read-all" type="button">Marcar todo leído</button></div><div class="push-settings" id="push-settings" data-state="loading"><div class="push-settings-icon" aria-hidden="true">🔔</div><div class="push-settings-copy"><strong>Notificaciones en el dispositivo</strong><p id="push-status">Comprobando este dispositivo…</p></div><button class="push-toggle" id="push-toggle" type="button" disabled>Comprobando…</button></div><div class="notifications-list" id="notifications-list"></div></div></section>
 
-<section aria-labelledby="today-plan-title" aria-modal="true" class="modal today-plan-modal hidden" id="today-plan-modal" role="dialog">
-  <div class="modal-backdrop" data-today-plan-close=""></div>
-  <article class="modal-panel today-plan-panel">
-    <header class="today-plan-hero">
-      <button aria-label="Cerrar plan de hoy" class="modal-close today-plan-close" data-today-plan-close="" type="button">×</button>
-      <p class="today-plan-kicker">Solo por hoy · 16 septiembre</p>
-      <h2 id="today-plan-title">🌅 Plan de hoy</h2>
-      <p class="today-plan-subtitle">Helado + atardecer</p>
-    </header>
-    <div class="today-plan-content">
-      <div aria-label="Ruta: Capri, Siete Tetas y atardecer" class="today-plan-route">
-        <span>🍦 Capri</span><span aria-hidden="true" class="today-plan-route-arrow">↓</span>
-        <span>🌳 Siete Tetas</span><span aria-hidden="true" class="today-plan-route-arrow">↓</span>
-        <span>🌇 Atardecer</span>
+<section aria-labelledby="yellow-flowers-title" aria-describedby="yellow-flowers-description" aria-modal="true" class="modal yellow-flowers-modal hidden" id="yellow-flowers-modal" role="dialog">
+  <div class="modal-backdrop" data-yellow-flowers-close=""></div>
+  <article class="modal-panel yellow-flowers-panel">
+    <button aria-label="Cerrar sorpresa" class="modal-close yellow-flowers-close" data-yellow-flowers-close="" type="button">×</button>
+
+    <div class="yellow-flowers-intro" id="yellow-flowers-intro">
+      <p class="yellow-flowers-kicker">Solo por hoy · 21 de septiembre</p>
+      <div class="yellow-flowers-mini-bouquet" aria-hidden="true">
+        <span>🌼</span><span>🌻</span><span>🌼</span><span>🌻</span><span>🌼</span>
+      </div>
+      <h2 class="yellow-flowers-title" id="yellow-flowers-title">Hoy es 21 de septiembre</h2>
+      <p class="yellow-flowers-copy" id="yellow-flowers-description">Dicen que hoy se regalan flores amarillas…<br>así que obviamente tú no te ibas a quedar sin las tuyas. 💛</p>
+      <div class="yellow-flowers-dedication">Para Laura 🌼</div>
+      <button class="yellow-flowers-reveal-btn" id="yellow-flowers-reveal-btn" type="button">🌼 Ver mis flores</button>
+    </div>
+
+    <div aria-hidden="true" class="yellow-flowers-reveal hidden" id="yellow-flowers-reveal">
+      <div class="yellow-flowers-petals" aria-hidden="true">
+        <span class="yellow-flowers-petal" style="--x:5%;--delay:.1s;--drift:58px"></span>
+        <span class="yellow-flowers-petal" style="--x:15%;--delay:1.2s;--drift:-26px"></span>
+        <span class="yellow-flowers-petal" style="--x:26%;--delay:.65s;--drift:42px"></span>
+        <span class="yellow-flowers-petal" style="--x:38%;--delay:1.8s;--drift:-38px"></span>
+        <span class="yellow-flowers-petal" style="--x:50%;--delay:.3s;--drift:34px"></span>
+        <span class="yellow-flowers-petal" style="--x:61%;--delay:1.45s;--drift:-46px"></span>
+        <span class="yellow-flowers-petal" style="--x:72%;--delay:.85s;--drift:35px"></span>
+        <span class="yellow-flowers-petal" style="--x:83%;--delay:2.05s;--drift:-35px"></span>
+        <span class="yellow-flowers-petal" style="--x:94%;--delay:.45s;--drift:23px"></span>
       </div>
 
-      <section class="today-plan-section">
-        <p class="today-plan-label">🍦 Primera parada</p>
-        <h3>Heladería Capri</h3>
-        <p>Empezamos con un helado tranquilamente antes de subir al parque.</p>
-        <a class="today-plan-map" href="https://www.google.com/maps/place/Helader%C3%ADa+Capri/@40.3926059,-3.6584626,1502m/data=!3m1!1e3!4m9!1m2!2m1!1sheladeria!3m5!1s0xd42250033d32099:0x83f44ae459b03ac!8m2!3d40.390711!4d-3.6481208!16s%2Fg%2F11w4kxt82y" rel="noopener noreferrer" target="_blank">🍦 Abrir Capri en Maps</a>
-      </section>
-
-      <section class="today-plan-section">
-        <p class="today-plan-label">🌳 Segunda parada</p>
-        <h3>Parque del Cerro del Tío Pío — Las Siete Tetas</h3>
-        <p>Después del helado toca subir al parque, buscar una buena ladera de césped con vistas a Madrid y esperar al atardecer.</p>
-        <a class="today-plan-map" href="https://www.google.com/maps/search/?api=1&amp;query=Mirador+del+Cerro+del+T%C3%ADo+P%C3%ADo%2C+Calle+Benjam%C3%ADn+Palencia+1%2C+Madrid" rel="noopener noreferrer" target="_blank">🌳 Abrir Las Siete Tetas en Maps</a>
-      </section>
-
-      <section class="today-plan-schedule" aria-labelledby="today-plan-schedule-title">
-        <h3 id="today-plan-schedule-title">La tarde, sin prisas</h3>
-        <div class="today-plan-time"><strong>19:00 aprox.</strong><span>🍦</span><span>Helado en Capri</span></div>
-        <div class="today-plan-time"><strong>19:30–19:40</strong><span>🚗</span><span>Camino al Cerro del Tío Pío</span></div>
-        <div class="today-plan-time"><strong>19:45</strong><span>🌳</span><span>Paseo por el parque y elección del sitio</span></div>
-        <div class="today-plan-time"><strong>20:00</strong><span>🧺</span><span>Sentarnos en el césped</span></div>
-        <div class="today-plan-time"><strong>20:22 aprox.</strong><span>🌇</span><span>Puesta de sol</span></div>
-        <div class="today-plan-time"><strong>20:40</strong><span>✨</span><span>Últimos colores sobre Madrid</span></div>
-      </section>
-
-      <div class="today-plan-details">
-        <details>
-          <summary>🎒 Qué llevar</summary>
-          <div class="today-plan-detail-copy">
-            <ul>
-              <li>Una manta o toalla pequeña para sentarnos.</li>
-              <li>Agua.</li>
-              <li>Algo fino de abrigo por si refresca después del atardecer.</li>
-              <li>Móvil con batería para hacer alguna foto.</li>
-              <li>Nada más. La idea es ir ligeros.</li>
-            </ul>
-          </div>
-        </details>
-        <details>
-          <summary>🌳 Cómo elegir un buen sitio</summary>
-          <div class="today-plan-detail-copy">
-            <p>No hace falta buscar una de las siete colinas concreta. Hay que subir hacia la zona alta del parque y buscar una ladera desde la que se vea:</p>
-            <p><strong>césped → Madrid → cielo abierto</strong></p>
-            <p>Mejor colocarnos ligeramente por debajo de la cima que justo encima del mirador. Tendremos prácticamente las mismas vistas, pero:</p>
-            <ul>
-              <li>con menos gente pasando por delante,</li>
-              <li>algo más de intimidad,</li>
-              <li>y más comodidad para sentarnos.</li>
-            </ul>
-          </div>
-        </details>
-        <details>
-          <summary>✨ Tips para ver mejor el atardecer</summary>
-          <div class="today-plan-detail-copy">
-            <p><strong>Llegar antes.</strong><br>Lo ideal es estar sentados unos 20 minutos antes de la puesta de sol.</p>
-            <p><strong>No marcharse cuando desaparezca el sol.</strong><br>Muchas veces los mejores colores aparecen durante los 15–20 minutos posteriores.</p>
-            <p><strong>Las nubes pueden ser buenas.</strong><br>Si hay algunas nubes altas pueden coger tonos rosas, naranjas y rojos.</p>
-            <p><strong>Buscar un horizonte despejado.</strong><br>Evitar árboles, farolas o mucha gente directamente delante.</p>
-            <p><strong>Fotos.</strong><br>Hacer algunas antes de la puesta de sol y otras justo después, cuando todavía hay luz en el cielo pero Madrid empieza a encenderse.</p>
-          </div>
-        </details>
+      <div class="yellow-flowers-bouquet" aria-hidden="true">
+        <span class="yellow-flowers-stem" style="--left:31%;--rot:-19deg;--h:116px"><i class="yellow-flowers-bloom">🌼</i></span>
+        <span class="yellow-flowers-stem" style="--left:39%;--rot:-11deg;--h:145px"><i class="yellow-flowers-bloom">🌻</i></span>
+        <span class="yellow-flowers-stem" style="--left:46%;--rot:-5deg;--h:128px"><i class="yellow-flowers-bloom">🌼</i></span>
+        <span class="yellow-flowers-stem" style="--left:51%;--rot:1deg;--h:160px"><i class="yellow-flowers-bloom">🌻</i></span>
+        <span class="yellow-flowers-stem" style="--left:57%;--rot:7deg;--h:135px"><i class="yellow-flowers-bloom">🌼</i></span>
+        <span class="yellow-flowers-stem" style="--left:64%;--rot:13deg;--h:150px"><i class="yellow-flowers-bloom">🌻</i></span>
+        <span class="yellow-flowers-stem" style="--left:71%;--rot:20deg;--h:118px"><i class="yellow-flowers-bloom">🌼</i></span>
+        <span class="yellow-flowers-ribbon">💛</span>
       </div>
 
-      <footer class="today-plan-rule">
-        <span>💛 Regla de hoy</span>
-        <strong>Desconectar un rato y dejar el estrés fuera.</strong>
-      </footer>
+      <h2 class="yellow-flowers-reveal-title">Estas son para ti, Laura 💛</h2>
+      <p class="yellow-flowers-message">No son las flores más tradicionales del mundo…<br>pero son flores hechas en JaviEats,<br>así que técnicamente son mejores.</p>
+      <p class="yellow-flowers-love">Te quiero, Laura 💛</p>
+      <button class="yellow-flowers-finish-btn" data-yellow-flowers-close="" type="button">Cerrar 💛</button>
     </div>
   </article>
 </section>
-<button class="today-plan-pill hidden" id="today-plan-pill" type="button">🌅 Plan de hoy</button>
+<button class="yellow-flowers-pill hidden" id="yellow-flowers-pill" type="button">🌼 Tus flores</button>
 <div class="toast hidden" id="toast"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="minijuegos/minigames-data.js?v=3.3"></script><script src="script.js?v=3.3"></script><script src="minijuegos/minigames.js?v=3.3"></script>
@@ -507,26 +529,27 @@ body.today-plan-open{overflow:hidden;}
 })();
 </script>
 
-<script id="today-plan-script">
+<script id="yellow-flowers-script">
 (() => {
   "use strict";
 
-  const EVENT_DATE = "2026-09-16";
-  const SESSION_KEY = "javieats:today-plan:2026-09-16:closed";
-  const modal = document.getElementById("today-plan-modal");
-  const pill = document.getElementById("today-plan-pill");
+  const EVENT_DATE = "2026-09-21";
+  const SEEN_KEY = "javieats:yellow-flowers:2026-09-21:seen";
+  const PREVIEW_VALUE = "yellow-flowers";
+  const modal = document.getElementById("yellow-flowers-modal");
+  const pill = document.getElementById("yellow-flowers-pill");
+  const intro = document.getElementById("yellow-flowers-intro");
+  const reveal = document.getElementById("yellow-flowers-reveal");
+  const revealButton = document.getElementById("yellow-flowers-reveal-btn");
   const appScreen = document.getElementById("app-screen");
   let openTimer = null;
   let previousFocus = null;
 
   function madridDateKey(date = new Date()) {
     const parts = new Intl.DateTimeFormat("en-GB", {
-      timeZone: "Europe/Madrid",
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit"
+      timeZone: "Europe/Madrid", year: "numeric", month: "2-digit", day: "2-digit"
     }).formatToParts(date);
-    const value = type => parts.find(part => part.type === type)?.value;
+    const value = type => parts.find(part => part.type === type)?.value || "";
     return `${value("year")}-${value("month")}-${value("day")}`;
   }
 
@@ -534,19 +557,11 @@ body.today-plan-open{overflow:hidden;}
     return madridDateKey() === EVENT_DATE;
   }
 
-  function wasClosedThisSession() {
+  function isPreviewMode() {
     try {
-      return sessionStorage.getItem(SESSION_KEY) === "1";
+      return new URLSearchParams(window.location.search).get("preview") === PREVIEW_VALUE;
     } catch (_) {
       return false;
-    }
-  }
-
-  function rememberClosed() {
-    try {
-      sessionStorage.setItem(SESSION_KEY, "1");
-    } catch (_) {
-      // El evento sigue siendo funcional aunque el navegador bloquee sessionStorage.
     }
   }
 
@@ -554,71 +569,124 @@ body.today-plan-open{overflow:hidden;}
     return Boolean(window.JaviEatsApp?.getUser?.()) && appScreen && !appScreen.classList.contains("hidden");
   }
 
+  function isEligibleProfile() {
+    return window.JaviEatsApp?.getRole?.() === "laura" || isPreviewMode();
+  }
+
+  function hasSeenEvent() {
+    if (isPreviewMode()) return false;
+    try { return localStorage.getItem(SEEN_KEY) === "1"; } catch (_) { return false; }
+  }
+
+  function rememberSeen() {
+    if (isPreviewMode()) return;
+    try { localStorage.setItem(SEEN_KEY, "1"); } catch (_) {}
+  }
+
   function anotherModalIsOpen() {
     return [...document.querySelectorAll(".modal:not(.hidden)")].some(item => item !== modal);
   }
 
-  function hideExpiredEvent() {
+  function resetExperience() {
+    intro?.classList.remove("hidden");
+    reveal?.classList.add("hidden");
+    reveal?.setAttribute("aria-hidden", "true");
+    const panel = modal?.querySelector(".yellow-flowers-panel");
+    if (panel) panel.scrollTop = 0;
+  }
+
+  function hideEventCompletely() {
     window.clearTimeout(openTimer);
     modal?.classList.add("hidden");
     pill?.classList.add("hidden");
-    document.body.classList.remove("today-plan-open");
+    document.body.classList.remove("yellow-flowers-open");
   }
 
-  function openTodayPlan() {
-    if (!isEventDay() || !appIsReady()) {
-      hideExpiredEvent();
+  function canShowEvent() {
+    return isEventDay() && appIsReady() && isEligibleProfile();
+  }
+
+  function openYellowFlowers() {
+    if (!canShowEvent()) {
+      hideEventCompletely();
       return;
     }
     if (anotherModalIsOpen()) {
-      openTimer = window.setTimeout(openTodayPlan, 600);
+      window.clearTimeout(openTimer);
+      openTimer = window.setTimeout(openYellowFlowers, 600);
       return;
     }
+
     previousFocus = document.activeElement;
+    resetExperience();
     pill?.classList.add("hidden");
     modal?.classList.remove("hidden");
-    document.body.classList.add("today-plan-open");
-    modal?.querySelector(".today-plan-close")?.focus();
+    document.body.classList.add("yellow-flowers-open");
+    window.setTimeout(() => revealButton?.focus(), 60);
   }
 
-  function closeTodayPlan() {
+  function revealYellowFlowers() {
+    rememberSeen();
+    intro?.classList.add("hidden");
+    reveal?.classList.remove("hidden");
+    reveal?.setAttribute("aria-hidden", "false");
+    const panel = modal?.querySelector(".yellow-flowers-panel");
+    if (panel) panel.scrollTop = 0;
+  }
+
+  function closeYellowFlowers() {
+    rememberSeen();
     modal?.classList.add("hidden");
-    document.body.classList.remove("today-plan-open");
-    rememberClosed();
-    pill?.classList.toggle("hidden", !isEventDay() || !appIsReady());
+    document.body.classList.remove("yellow-flowers-open");
+    pill?.classList.toggle("hidden", !canShowEvent() || isPreviewMode());
     previousFocus?.focus?.();
   }
 
-  function maybeShowTodayPlan() {
-    if (!isEventDay()) {
-      hideExpiredEvent();
+  function maybeShowYellowFlowers() {
+    if (!canShowEvent()) {
+      hideEventCompletely();
       return;
     }
-    if (!appIsReady()) return;
-    if (wasClosedThisSession()) {
+    if (hasSeenEvent()) {
+      modal?.classList.add("hidden");
+      document.body.classList.remove("yellow-flowers-open");
       pill?.classList.remove("hidden");
       return;
     }
     window.clearTimeout(openTimer);
-    openTimer = window.setTimeout(openTodayPlan, 450);
+    openTimer = window.setTimeout(openYellowFlowers, 500);
   }
 
-  document.querySelectorAll("[data-today-plan-close]").forEach(element => {
-    element.addEventListener("click", closeTodayPlan);
+  revealButton?.addEventListener("click", revealYellowFlowers);
+  document.querySelectorAll("[data-yellow-flowers-close]").forEach(element => {
+    element.addEventListener("click", closeYellowFlowers);
   });
-  pill?.addEventListener("click", openTodayPlan);
+  pill?.addEventListener("click", openYellowFlowers);
+
   document.addEventListener("keydown", event => {
-    if (event.key === "Escape" && modal && !modal.classList.contains("hidden")) closeTodayPlan();
+    if (event.key === "Escape" && modal && !modal.classList.contains("hidden")) closeYellowFlowers();
   });
 
   if (appScreen) {
-    new MutationObserver(maybeShowTodayPlan).observe(appScreen, { attributes: true, attributeFilter: ["class"] });
+    new MutationObserver(maybeShowYellowFlowers).observe(appScreen, {
+      attributes: true, attributeFilter: ["class"]
+    });
   }
-  window.addEventListener("pageshow", maybeShowTodayPlan);
+
+  window.addEventListener("pageshow", maybeShowYellowFlowers);
+  window.addEventListener("focus", () => {
+    if (!isEventDay()) hideEventCompletely();
+  });
+
   window.setInterval(() => {
-    if (!isEventDay()) hideExpiredEvent();
-  }, 60000);
-  maybeShowTodayPlan();
+    if (!isEventDay()) {
+      hideEventCompletely();
+      return;
+    }
+    if (appIsReady() && isEligibleProfile() && hasSeenEvent()) pill?.classList.remove("hidden");
+  }, 30000);
+
+  maybeShowYellowFlowers();
 })();
 </script>
 </body>
