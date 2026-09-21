@@ -1,17 +1,17 @@
 # JaviEats 💌
 
 **Versión de producto: 3.3 — ESTABLE**  
-**Mantenimiento actual: 3.3.3**
+**Mantenimiento actual: 3.3.4**
 
 JaviEats es una aplicación web privada creada para Laura y Javi. Reúne planes compartidos, recuerdos, minijuegos, actividad, notificaciones y un espacio común pensado para funcionar como una PWA en móvil, tablet y escritorio.
 
-JaviEats 3.3.3 mantiene **Nuestra Vida 1.0** como experiencia principal independiente y consolida las mejoras de 3.3: catálogo ampliado, exportación de planes, refinamientos de Inicio y minijuegos, además de la integración de **Entre tú y yo**. Esta revisión añade el microevento efímero de flores amarillas del 21/09/2026.
+JaviEats 3.3.4 mantiene **Nuestra Vida 1.0** como experiencia principal independiente y consolida las mejoras de 3.3. La sorpresa de flores amarillas del 21/09/2026 pasa además a formar parte de **Recuerdos**, para poder revivirla después de que termine el evento temporal.
 
-> **Estado actual:** `main` es la fuente de verdad. JaviEats 3.3.3 incorpora el microevento efímero de flores amarillas del 21/09/2026 para Laura. El código y el deployment pueden verificarse por separado de la prueba funcional real en iPhone/PWA.
+> **Estado actual:** `main` es la fuente de verdad. JaviEats 3.3.4 conserva el microevento efímero de flores amarillas del 21/09/2026 y añade una reproducción permanente desde Recuerdos. El código y el deployment deben verificarse por separado de la prueba funcional real en iPhone/PWA.
 
 ---
 
-## 🚀 JaviEats 3.3.3
+## 🚀 JaviEats 3.3.4
 
 La 3.3 mantiene la filosofía del proyecto:
 
@@ -19,7 +19,7 @@ La 3.3 mantiene la filosofía del proyecto:
 
 Cuando una función ya está validada, los cambios deben ser pequeños, incrementales y compatibles con lo que ya funciona.
 
-### Estado actual de la 3.3.3
+### Estado actual de la 3.3.4
 
 - base funcional de JaviEats 3.1 conservada;
 - navegación final `Inicio · Planes · Nuestra Vida · Minijuegos · Recuerdos`;
@@ -42,6 +42,7 @@ Cuando una función ya está validada, los cambios deben ser pequeños, incremen
 - reorganización física de todos los archivos propios de minijuegos bajo `/minijuegos/`;
 - integración en producción de **Entre tú y yo**, con 8 rondas y cuatro mecánicas, sin dependencia de Supabase.
 - microevento efímero de flores amarillas para Laura el 21/09/2026, limitado por fecha de Madrid, con persistencia local de visto y sin tocar Supabase.
+- recuerdo permanente `Las flores amarillas de JaviEats`, accesible desde Recuerdos y capaz de volver a reproducir la experiencia animada fuera del 21/09.
 
 ---
 
@@ -99,7 +100,7 @@ Esta separación es deliberada. No se debe volver a fusionar todo dentro de `min
 JaviEats y Nuestra Vida mantienen versionados distintos:
 
 ```text
-JaviEats 3.3 / mantenimiento 3.3.2
+JaviEats 3.3 / mantenimiento 3.3.4
 Nuestra Vida 1.0 / patches propios cuando sean necesarios
 ```
 
@@ -329,7 +330,7 @@ Los tres contextos maestros viven juntos dentro de `/contextos/`. **Nuestra Vida
 
 ---
 
-## 🧪 QA y mantenimiento 3.3.3
+## 🧪 QA y mantenimiento 3.3.4
 
 La integración de Nuestra Vida no elimina la necesidad de comprobar las funciones ya estables de JaviEats.
 
@@ -477,9 +478,10 @@ La línea actual es:
 3.3.1 → identidad, protagonismo de Nuestra Vida y refinamientos de ¿Y si…?
 3.3.2 → mantenimiento actual, reorganización de minijuegos e integración de Entre tú y yo
 3.3.3 → microevento efímero de flores amarillas del 21/09/2026
+3.3.4 → recuerdo permanente de las flores amarillas con reproducción de la experiencia
 ```
 
-`3.3.3` es la referencia actual de mantenimiento e incorpora el microevento del 21/09/2026. Los siguientes cambios deben seguir siendo incrementales y quedar reflejados tanto aquí como en `contextos/CONTEXTO_JAVIEATS.md`.
+`3.3.4` es la referencia actual de mantenimiento: conserva el microevento del 21/09/2026 y permite revivirlo desde Recuerdos. Los siguientes cambios deben seguir siendo incrementales y quedar reflejados tanto aquí como en `contextos/CONTEXTO_JAVIEATS.md`.
 
 ## Nuestra Vida
 
@@ -488,6 +490,17 @@ Nuestra Vida conserva su propio versionado. Los bugs o ajustes internos del jueg
 ---
 
 # Historial de versiones
+
+## v3.3.4 — Recuerdo permanente de las flores amarillas
+
+- Añadido el recuerdo estático `Las flores amarillas de JaviEats` con fecha 21/09/2026.
+- Se muestra dentro de la cronología de Recuerdos con icono 🌻 y CTA `Volver a verlo`.
+- Al abrirlo se reutiliza la experiencia original: mensaje inicial, botón `🌼 Ver mis flores`, ramo animado, pétalos y dedicatoria.
+- La reproducción desde Recuerdos funciona también después del 21/09/2026 y para ambos perfiles.
+- El modo recuerdo no altera el estado `localStorage` del evento efímero.
+- No se añaden tablas ni cambios de Supabase.
+- `script.js` se versiona como `?v=3.3.4` para evitar caché antigua en PWA/navegador.
+
 
 ## v3.3.3 — Microevento de flores amarillas · 21/09/2026
 

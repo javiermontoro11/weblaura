@@ -1,4 +1,4 @@
-# CONTEXTO MAESTRO — JAVIEATS 3.3.3
+# CONTEXTO MAESTRO — JAVIEATS 3.3.4
 
 > **Ámbito:** contexto funcional y técnico general de JaviEats.
 >
@@ -10,13 +10,13 @@
 >
 > **Rama:** `main`
 >
-> **Estado de referencia:** 21 de septiembre de 2026 · JaviEats 3.3.3 · microevento efímero de flores amarillas integrado en la línea principal.
+> **Estado de referencia:** 22 de septiembre de 2026 · JaviEats 3.3.4 · flores amarillas conservadas como recuerdo permanente reproducible desde Recuerdos.
 
 ---
 
 # PROMPT PARA CONTINUAR EN UN CHAT NUEVO
 
-Quiero que continúes el desarrollo y mantenimiento de **JaviEats 3.3.3** sin empezar de cero.
+Quiero que continúes el desarrollo y mantenimiento de **JaviEats 3.3.4** sin empezar de cero.
 
 La prioridad es:
 
@@ -111,6 +111,18 @@ En **3.3.3** se añade un microevento frontend-only para el 21/09/2026:
 - sin tablas, RPC, Storage ni cambios de Supabase;
 - encapsulado en `index.html`, reutilizando el antiguo bloque temporal del plan del 16/09;
 - modo de revisión `?preview=yellow-flowers` para comprobar la experiencia sin consumir el estado de visto.
+
+En **3.3.4** la sorpresa se conserva además como recuerdo permanente:
+
+- nuevo recuerdo estático con id `2026-09-21-yellow-flowers`;
+- título `Las flores amarillas de JaviEats`;
+- aparece en la cronología de Recuerdos con emoji 🌻;
+- CTA `Volver a verlo`;
+- `openMemory()` detecta el tipo `yellow-flowers` y delega en `window.JaviEatsYellowFlowers.openMemory()`;
+- el popup de flores tiene un modo `memoryReplay` que ignora la restricción de fecha y perfil únicamente cuando se abre desde Recuerdos;
+- durante la reproducción desde Recuerdos no se escribe el `localStorage` del evento temporal;
+- no hay cambios en Supabase ni en `recuerdos_app`;
+- `script.js` se referencia como `?v=3.3.4` para evitar caché antigua.
 
 ---
 
@@ -286,7 +298,7 @@ Reglas permanentes:
 
 # ESTADO DE VERIFICACIÓN
 
-A 21/09/2026:
+A 22/09/2026:
 
 - microevento de flores amarillas: **implementado en rama**;
 - activación por fecha Madrid y perfil Laura: **implementada**;
@@ -297,7 +309,10 @@ A 21/09/2026:
 - integración prevista en `main` mediante PR #4;
 - deployment de la rama: **Vercel success**;
 - prueba real en iPhone/PWA: **verificación separada del deployment**.
+- recuerdo permanente de flores amarillas: **implementado en rama 3.3.4**;
+- reproducción fuera del día 21 mediante modo `memoryReplay`: **implementada**;
+- Supabase/base de datos: **sin cambios**.
 
 # RESUMEN
 
-**JaviEats 3.3.3 = JaviEats 3.3.2 + microevento efímero de flores amarillas del 21/09/2026 para Laura, totalmente frontend-only y sin cambios de esquema de Supabase.**
+**JaviEats 3.3.4 = JaviEats 3.3.3 + conservación permanente de la sorpresa de flores amarillas dentro de Recuerdos, reutilizando la experiencia animada original y sin cambios de esquema de Supabase.**
