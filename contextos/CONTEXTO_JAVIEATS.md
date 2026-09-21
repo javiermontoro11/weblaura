@@ -1,4 +1,4 @@
-# CONTEXTO MAESTRO — JAVIEATS 3.3.4
+# CONTEXTO MAESTRO — JAVIEATS 3.3.5
 
 > **Ámbito:** contexto funcional y técnico general de JaviEats.
 >
@@ -10,13 +10,13 @@
 >
 > **Rama:** `main`
 >
-> **Estado de referencia:** 22 de septiembre de 2026 · JaviEats 3.3.4 · flores amarillas conservadas como recuerdo permanente reproducible desde Recuerdos.
+> **Estado de referencia:** 22 de septiembre de 2026 · JaviEats 3.3.5 · reproducción móvil del recuerdo de flores amarillas corregida y animaciones reiniciables en cada apertura.
 
 ---
 
 # PROMPT PARA CONTINUAR EN UN CHAT NUEVO
 
-Quiero que continúes el desarrollo y mantenimiento de **JaviEats 3.3.4** sin empezar de cero.
+Quiero que continúes el desarrollo y mantenimiento de **JaviEats 3.3.5** sin empezar de cero.
 
 La prioridad es:
 
@@ -123,6 +123,16 @@ En **3.3.4** la sorpresa se conserva además como recuerdo permanente:
 - durante la reproducción desde Recuerdos no se escribe el `localStorage` del evento temporal;
 - no hay cambios en Supabase ni en `recuerdos_app`;
 - `script.js` se referencia como `?v=3.3.4` para evitar caché antigua.
+
+En **3.3.5** se corrige la reproducción móvil del recuerdo:
+
+- el ramo se desplaza dentro de su contenedor para evitar recorte superior en Safari/iPhone;
+- el estado revelado usa un layout móvil más compacto y con más margen superior;
+- en viewports bajos se reduce ligeramente el ramo y el copy;
+- `restartRevealAnimations()` reinicia tallos, flores, lazo y pétalos en cada pulsación de `Ver mis flores`;
+- `resetRevealScroll()` fuerza el scroll interno del modal a 0 durante la transición;
+- se hace `blur()` del botón de revelado antes de ocultarlo para evitar scroll asociado al foco en Safari;
+- si el sistema solicita `prefers-reduced-motion`, no se fuerza el reinicio de animaciones.
 
 ---
 
@@ -312,7 +322,9 @@ A 22/09/2026:
 - recuerdo permanente de flores amarillas: **implementado en rama 3.3.4**;
 - reproducción fuera del día 21 mediante modo `memoryReplay`: **implementada**;
 - Supabase/base de datos: **sin cambios**.
+- composición móvil del recuerdo de flores amarillas: **corregida en rama 3.3.5**;
+- animaciones de flores amarillas: **reinicio explícito implementado**.
 
 # RESUMEN
 
-**JaviEats 3.3.4 = JaviEats 3.3.3 + conservación permanente de la sorpresa de flores amarillas dentro de Recuerdos, reutilizando la experiencia animada original y sin cambios de esquema de Supabase.**
+**JaviEats 3.3.5 = JaviEats 3.3.4 + corrección responsive y reinicio fiable de las animaciones del recuerdo de flores amarillas, sin cambios de Supabase.**
