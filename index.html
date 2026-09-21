@@ -280,7 +280,7 @@ body.yellow-flowers-open{overflow:hidden}
     <button aria-label="Cerrar sorpresa" class="modal-close yellow-flowers-close" data-yellow-flowers-close="" type="button">×</button>
 
     <div class="yellow-flowers-intro" id="yellow-flowers-intro">
-      <p class="yellow-flowers-kicker">Solo por hoy · 21 de septiembre</p>
+      <p class="yellow-flowers-kicker" id="yellow-flowers-kicker">Solo por hoy · 21 de septiembre</p>
       <div class="yellow-flowers-mini-bouquet" aria-hidden="true">
         <span>🌼</span><span>🌻</span><span>🌼</span><span>🌻</span><span>🌼</span>
       </div>
@@ -541,9 +541,13 @@ body.yellow-flowers-open{overflow:hidden}
   const intro = document.getElementById("yellow-flowers-intro");
   const reveal = document.getElementById("yellow-flowers-reveal");
   const revealButton = document.getElementById("yellow-flowers-reveal-btn");
+  const kicker = document.getElementById("yellow-flowers-kicker");
+  const title = document.getElementById("yellow-flowers-title");
+  const description = document.getElementById("yellow-flowers-description");
   const appScreen = document.getElementById("app-screen");
   let openTimer = null;
   let previousFocus = null;
+  let memoryReplay = false;
 
   function madridDateKey(date = new Date()) {
     const parts = new Intl.DateTimeFormat("en-GB", {
@@ -579,7 +583,7 @@ body.yellow-flowers-open{overflow:hidden}
   }
 
   function rememberSeen() {
-    if (isPreviewMode()) return;
+    if (isPreviewMode() || memoryReplay) return;
     try { localStorage.setItem(SEEN_KEY, "1"); } catch (_) {}
   }
 
@@ -587,7 +591,25 @@ body.yellow-flowers-open{overflow:hidden}
     return [...document.querySelectorAll(".modal:not(.hidden)")].some(item => item !== modal);
   }
 
+  function setCopyForMode() {
+    if (memoryReplay) {
+      if (kicker) kicker.textContent = "Recuerdo · 21 de septiembre de 2026";
+      if (title) title.textContent = "El día de las flores amarillas";
+      if (description) {
+        description.innerHTML = "Ese día se regalaban flores amarillas…<br>y JaviEats también quiso darte las tuyas. 💛";
+      }
+      return;
+    }
+
+    if (kicker) kicker.textContent = "Solo por hoy · 21 de septiembre";
+    if (title) title.textContent = "Hoy es 21 de septiembre";
+    if (description) {
+      description.innerHTML = "Dicen que hoy se regalan flores amarillas…<br>así que obviamente tú no te ibas a quedar sin las tuyas. 💛";
+    }
+  }
+
   function resetExperience() {
+    setCopyForMode();
     intro?.classList.remove("hidden");
     reveal?.classList.add("hidden");
     reveal?.setAttribute("aria-hidden", "true");
@@ -596,6 +618,7 @@ body.yellow-flowers-open{overflow:hidden}
   }
 
   function hideEventCompletely() {
+    if (memoryReplay && modal && !modal.classList.contains("hidden")) return;
     window.clearTimeout(openTimer);
     modal?.classList.add("hidden");
     pill?.classList.add("hidden");
@@ -606,7 +629,17 @@ body.yellow-flowers-open{overflow:hidden}
     return isEventDay() && appIsReady() && isEligibleProfile();
   }
 
+  function showModal() {
+    previousFocus = document.activeElement;
+    resetExperience();
+    pill?.classList.add("hidden");
+    modal?.classList.remove("hidden");
+    document.body.classList.add("yellow-flowers-open");
+    window.setTimeout(() => revealButton?.focus(), 60);
+  }
+
   function openYellowFlowers() {
+    memoryReplay = false;
     if (!canShowEvent()) {
       hideEventCompletely();
       return;
@@ -616,13 +649,18 @@ body.yellow-flowers-open{overflow:hidden}
       openTimer = window.setTimeout(openYellowFlowers, 600);
       return;
     }
+    showModal();
+  }
 
-    previousFocus = document.activeElement;
-    resetExperience();
-    pill?.classList.add("hidden");
-    modal?.classList.remove("hidden");
-    document.body.classList.add("yellow-flowers-open");
-    window.setTimeout(() => revealButton?.focus(), 60);
+  function openYellowFlowersMemory() {
+    if (!appIsReady()) return;
+    memoryReplay = true;
+    if (anotherModalIsOpen()) {
+      window.clearTimeout(openTimer);
+      openTimer = window.setTimeout(openYellowFlowersMemory, 250);
+      return;
+    }
+    showModal();
   }
 
   function revealYellowFlowers() {
@@ -638,11 +676,22 @@ body.yellow-flowers-open{overflow:hidden}
     rememberSeen();
     modal?.classList.add("hidden");
     document.body.classList.remove("yellow-flowers-open");
-    pill?.classList.toggle("hidden", !canShowEvent() || isPreviewMode());
+
+    const wasMemoryReplay = memoryReplay;
+    memoryReplay = false;
+    setCopyForMode();
+
+    if (wasMemoryReplay) {
+      pill?.classList.toggle("hidden", !canShowEvent() || isPreviewMode() || !hasSeenEvent());
+    } else {
+      pill?.classList.toggle("hidden", !canShowEvent() || isPreviewMode());
+    }
+
     previousFocus?.focus?.();
   }
 
   function maybeShowYellowFlowers() {
+    if (memoryReplay) return;
     if (!canShowEvent()) {
       hideEventCompletely();
       return;
@@ -675,16 +724,21 @@ body.yellow-flowers-open{overflow:hidden}
 
   window.addEventListener("pageshow", maybeShowYellowFlowers);
   window.addEventListener("focus", () => {
-    if (!isEventDay()) hideEventCompletely();
+    if (!isEventDay() && !memoryReplay) hideEventCompletely();
   });
 
   window.setInterval(() => {
+    if (memoryReplay) return;
     if (!isEventDay()) {
       hideEventCompletely();
       return;
     }
     if (appIsReady() && isEligibleProfile() && hasSeenEvent()) pill?.classList.remove("hidden");
   }, 30000);
+
+  window.JaviEatsYellowFlowers = {
+    openMemory: openYellowFlowersMemory
+  };
 
   maybeShowYellowFlowers();
 })();
