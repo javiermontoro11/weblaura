@@ -1,4 +1,4 @@
-# CONTEXTO MAESTRO — JAVIEATS 3.3.2
+# CONTEXTO MAESTRO — JAVIEATS 3.3.3
 
 > **Ámbito:** contexto funcional y técnico general de JaviEats.
 >
@@ -10,13 +10,13 @@
 >
 > **Rama:** `main`
 >
-> **Estado de referencia:** 19 de septiembre de 2026 · JaviEats 3.3.2 · estructura de minijuegos consolidada e integración de Entre tú y yo en `main`.
+> **Estado de referencia:** 21 de septiembre de 2026 · propuesta JaviEats 3.3.3 en `feat/flores-amarillas-21-septiembre` · microevento efímero de flores amarillas pendiente de merge a `main`.
 
 ---
 
 # PROMPT PARA CONTINUAR EN UN CHAT NUEVO
 
-Quiero que continúes el desarrollo y mantenimiento de **JaviEats 3.3.2** sin empezar de cero.
+Quiero que continúes el desarrollo y mantenimiento de **JaviEats 3.3.3** sin empezar de cero.
 
 La prioridad es:
 
@@ -99,6 +99,18 @@ En **3.3.2** queda consolidada además la nueva organización de minijuegos:
 - **Nuestra Vida** sigue siendo una aplicación independiente dentro de `/nuestra-vida/`;
 - **Entre tú y yo** queda integrado en `main` dentro de `minijuegos/entre-tu-y-yo/`;
 - el nuevo juego no requiere cambios de esquema en Supabase y persiste su estado localmente.
+
+En **3.3.3** se añade un microevento frontend-only para el 21/09/2026:
+
+- dirigido automáticamente solo a Laura;
+- activo únicamente cuando la fecha en `Europe/Madrid` es `2026-09-21`;
+- popup inicial con mensaje de flores amarillas;
+- CTA `🌼 Ver mis flores` que revela un ramo animado y pétalos;
+- persistencia de visto mediante `localStorage`;
+- acceso posterior discreto `🌼 Tus flores` durante el mismo día;
+- sin tablas, RPC, Storage ni cambios de Supabase;
+- encapsulado en `index.html`, reutilizando el antiguo bloque temporal del plan del 16/09;
+- modo de revisión `?preview=yellow-flowers` para comprobar la experiencia sin consumir el estado de visto.
 
 ---
 
@@ -274,18 +286,17 @@ Reglas permanentes:
 
 # ESTADO DE VERIFICACIÓN
 
-A 19/09/2026:
+A 21/09/2026, rama `feat/flores-amarillas-21-septiembre`:
 
-- lógica de Supabase 3.3.1 para compatibilidad/cambios: **aplicada y verificada**;
-- no repetición global de `¿Y si…?`: **verificada**;
-- reorganización de minijuegos: **integrada en `main`**;
-- Entre tú y yo: **integrado en `main`**;
-- merge principal: `6a57d128c87ba53a827664848f6c5e7fad64f177`;
-- estado Vercel asociado al merge: **success**;
-- prueba funcional real completa en navegador/iPhone/iPad: debe considerarse una verificación separada del deployment.
-
----
+- microevento de flores amarillas: **implementado en rama**;
+- activación por fecha Madrid y perfil Laura: **implementada**;
+- persistencia local de visto y acceso posterior: **implementada**;
+- código temporal del 16/09: **sustituido**;
+- Supabase/base de datos: **sin cambios**;
+- README y contexto maestro: **actualizados**;
+- merge a `main`: **pendiente**;
+- deployment y prueba real en iPhone/PWA: **pendientes de verificar tras el merge o preview correspondiente**.
 
 # RESUMEN
 
-**JaviEats 3.3.2 = JaviEats 3.3 + refinamientos de 3.3.1 + estructura de minijuegos ordenada bajo `/minijuegos/` + Entre tú y yo integrado en `main`, manteniendo Nuestra Vida independiente y sin cambios de esquema de Supabase para el nuevo juego.**
+**JaviEats 3.3.3 = JaviEats 3.3.2 + microevento efímero de flores amarillas del 21/09/2026 para Laura, totalmente frontend-only y sin cambios de esquema de Supabase.**
