@@ -10,7 +10,7 @@
 >
 > **Rama:** `main`
 >
-> **Estado de referencia:** 21 de septiembre de 2026 · propuesta JaviEats 3.3.3 en `feat/flores-amarillas-21-septiembre` · microevento efímero de flores amarillas pendiente de merge a `main`.
+> **Estado de referencia:** 21 de septiembre de 2026 · JaviEats 3.3.3 · microevento efímero de flores amarillas integrado en la línea principal.
 
 ---
 
@@ -286,7 +286,7 @@ Reglas permanentes:
 
 # ESTADO DE VERIFICACIÓN
 
-A 21/09/2026, rama `feat/flores-amarillas-21-septiembre`:
+A 21/09/2026:
 
 - microevento de flores amarillas: **implementado en rama**;
 - activación por fecha Madrid y perfil Laura: **implementada**;
@@ -294,8 +294,9 @@ A 21/09/2026, rama `feat/flores-amarillas-21-septiembre`:
 - código temporal del 16/09: **sustituido**;
 - Supabase/base de datos: **sin cambios**;
 - README y contexto maestro: **actualizados**;
-- merge a `main`: **pendiente**;
-- deployment y prueba real en iPhone/PWA: **pendientes de verificar tras el merge o preview correspondiente**.
+- integración prevista en `main` mediante PR #4;
+- deployment de la rama: **Vercel success**;
+- prueba real en iPhone/PWA: **verificación separada del deployment**.
 
 # RESUMEN
 
