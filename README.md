@@ -13,7 +13,7 @@ JaviEats 3.3.3 mantiene **Nuestra Vida 1.0** como experiencia principal independ
 
 ## 🚀 JaviEats 3.3.3
 
-La 3.2 mantiene la filosofía del proyecto:
+La 3.3 mantiene la filosofía del proyecto:
 
 **ESTABILIDAD > CAMBIOS GRANDES**
 
