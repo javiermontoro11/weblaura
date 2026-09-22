@@ -344,62 +344,6 @@ const SERVICES = [
   }
 ];
 
-const MEMORIES = [
-  {
-    id: "2026-04-24",
-    dateLabel: "24/04/2026",
-    title: "El día que empezó oficialmente lo nuestro",
-    description: "Las primeras flores y la carta con la que empezó todo.",
-    type: "letter",
-    cover: "recuerdos/ramo-2026-04-24.jpeg",
-    letterFile: "recuerdos/carta-2026-04-24.txt",
-    letterEyebrow: "24 de abril de 2026",
-    letterTitle: "La carta con la que te pedí salir",
-    actionLabel: "Leer carta"
-  },
-  {
-    id: "2026-05-31",
-    dateLabel: "31/05/2026",
-    title: "Las flores llegaron a la vuelta",
-    description: "El primer mes nos pilló con kilómetros de por medio. Este ramo llegó al volver de Alemania.",
-    type: "gallery",
-    cover: "recuerdos/ramo-2026-05-31.jpeg",
-    images: ["recuerdos/ramo-2026-05-31.jpeg"],
-    actionLabel: "Ver recuerdo"
-  },
-  {
-    id: "2026-07-13",
-    dateLabel: "13/07/2026",
-    title: "La primera entrega secreta de JaviEats",
-    description: "La carta de nuestros dos primeros meses, guardada para volver a leerla cuando quieras.",
-    type: "letter",
-    emoji: "💌",
-    letterFile: "recuerdos/carta-2026-07-13.txt",
-    letterEyebrow: "13 de julio de 2026",
-    letterTitle: "Nuestra carta de los dos primeros meses",
-    actionLabel: "Volver a leer"
-  },
-  {
-    id: "2026-07-24",
-    dateLabel: "24/07/2026",
-    title: "Nuestro tercer mes",
-    description: "El tercer ramo y la foto con la que quedó oficialmente entregado.",
-    type: "gallery",
-    cover: "recuerdos/ramo-2026-07-24.jpeg",
-    images: ["recuerdos/ramo-2026-07-24.jpeg", "recuerdos/laura-ramo-2026-07-24.jpeg"],
-    actionLabel: "Ver 2 fotos"
-  },
-  {
-    id: "2026-09-21-yellow-flowers",
-    dateLabel: "21/09/2026",
-    title: "Las flores amarillas de JaviEats",
-    description: "Un 21 de septiembre, JaviEats también encontró su propia forma de regalarte flores amarillas.",
-    type: "yellow-flowers",
-    emoji: "🌻",
-    actionLabel: "Volver a verlo"
-  }
-];
-
 const $ = id => document.getElementById(id);
 
 const bootScreen = $("boot-screen");
@@ -574,8 +518,6 @@ const galleryCounter = $("gallery-counter");
 
 const addMemoryBtn = $("add-memory-btn");
 const memoryStorageNote = $("memory-storage-note");
-const memoryMigrationAction = $("memory-migration-action");
-const memoryMigrationBtn = $("memory-migration-btn");
 const memoryEditorModal = $("memory-editor-modal");
 const memoryEditorForm = $("memory-editor-form");
 const memoryEditorEyebrow = $("memory-editor-eyebrow");
@@ -646,7 +588,6 @@ window.JaviEatsApp = {
   getUser: () => currentUser,
   getState: () => state,
   getServices: () => SERVICES,
-  getStaticMemories: () => MEMORIES,
   getClient: () => supabaseClient,
   showPage: page => showPage(page),
   showToast: message => showToast(message),
@@ -794,11 +735,6 @@ function bindEvents() {
 
 
   addMemoryBtn?.addEventListener("click", () => openMemoryEditor());
-  memoryMigrationBtn?.addEventListener("click", () => {
-    const url = new URL(window.location.href);
-    url.searchParams.set("migrate", "legacy-memories");
-    window.location.href = url.toString();
-  });
   memoryPhotoPicker?.addEventListener("click", () => memoryPhotoInput?.click());
   memoryPhotoInput?.addEventListener("change", handleMemoryPhotoSelection);
   memoryPhotoGrid?.addEventListener("click", handleMemoryPhotoGridClick);
@@ -2604,31 +2540,11 @@ function renderMemories() {
   memoryStorageNote?.classList.toggle("hidden", !canManage);
   if (memoryStorageNote && canManage) {
     memoryStorageNote.textContent = state.memoryLoadError
-      ? "Falta ejecutar una vez supabase-v3.0.sql para activar los recuerdos privados."
+      ? "No se han podido cargar los recuerdos privados."
       : "Los dos podéis añadir y editar recuerdos. Las fotos se optimizan en el dispositivo y se guardan de forma privada.";
   }
 
-  const migratedLegacyKeys = new Set(
-    state.remoteMemories.map(memory => memory?.legacy_key).filter(Boolean)
-  );
-  const pendingLegacyCount = MEMORIES.filter(memory => !migratedLegacyKeys.has(memory.id)).length;
-  memoryMigrationAction?.classList.toggle("hidden", currentRole !== "javi" || pendingLegacyCount === 0);
-  if (memoryMigrationBtn) {
-    memoryMigrationBtn.textContent = pendingLegacyCount
-      ? `Migrar recuerdos antiguos (${pendingLegacyCount})`
-      : "Recuerdos antiguos migrados";
-  }
-  const staticMemories = MEMORIES
-    .filter(memory => !migratedLegacyKeys.has(memory.id))
-    .map(memoryTemplate)
-    .join("");
-  const remoteMemories = state.remoteMemories.map(remoteMemoryTemplate).join("");
-  const dynamic = ""; // JaviEats 3.0: los antiguos mensajes de Laura ya no forman parte de Recuerdos.
-  memoriesList.innerHTML = staticMemories + remoteMemories + dynamic;
-}
-
-function memoryTemplate(memory) {
-  return `<article class="memory-card"><div class="timeline-dot"></div><div class="memory-date">${memory.dateLabel}</div>${memory.cover ? `<img class="memory-cover" src="${memory.cover}" alt="${escapeHTML(memory.title)}" loading="lazy" />` : `<div class="memory-placeholder">${memory.emoji || "💌"}</div>`}<div class="memory-body"><h3>${escapeHTML(memory.title)}</h3><p>${escapeHTML(memory.description)}</p><button class="btn btn-secondary memory-open-btn" type="button" data-memory-id="${memory.id}">${memory.actionLabel}</button></div></article>`;
+  memoriesList.innerHTML = state.remoteMemories.map(remoteMemoryTemplate).join("");
 }
 
 function parseRemoteMemoryContent(memory) {
@@ -2662,28 +2578,6 @@ function remoteMemoryTemplate(memory) {
     : "";
 
   return `<article class="memory-card is-remote"><div class="timeline-dot"></div><div class="memory-date">${formatDateCompact(memory.fecha)}</div>${media}<div class="memory-body"><p class="eyebrow">Guardado en JaviEats</p><h3>${escapeHTML(memory.titulo)}</h3><p>${escapeHTML(memory.descripcion || "")}</p><div class="memory-card-actions"><button class="btn btn-secondary memory-open-btn" type="button" data-remote-memory-id="${memory.id}">${actionLabel}</button>${edit}</div></div></article>`;
-}
-
-function openMemory(id) {
-  const memory = MEMORIES.find(item => item.id === id);
-  if (!memory) return;
-  if (memory.type === "letter") { letterEyebrow.textContent = memory.letterEyebrow; letterTitle.textContent = memory.letterTitle; showPage("letter"); loadLetter(memory.letterFile); return; }
-  if (memory.type === "yellow-flowers") {
-    if (window.JaviEatsYellowFlowers?.openMemory) {
-      window.JaviEatsYellowFlowers.openMemory();
-    } else {
-      showToast("No se ha podido abrir este recuerdo.");
-    }
-    return;
-  }
-  currentGallery = memory.images || [];
-  currentGalleryIndex = 0;
-  memoryModalDate.textContent = memory.dateLabel;
-  memoryModalTitle.textContent = memory.title;
-  memoryModalDescription.textContent = memory.description;
-  renderGalleryImage();
-  memoryModal.classList.remove("hidden");
-  document.body.style.overflow = "hidden";
 }
 
 function openRemoteMemory(id) {
@@ -3054,19 +2948,6 @@ function canvasToMemoryBlob(canvas, type, quality) {
   return new Promise(resolve => canvas.toBlob(resolve, type, quality));
 }
 
-async function loadLetter(file) {
-  if (loadedLetterFile === file && letterContent.dataset.loaded === "true") return;
-  letterContent.dataset.loaded = "false";
-  letterContent.innerHTML = "<p>Cargando carta...</p>";
-  try {
-    const response = await fetch(file, { cache: "no-store" });
-    if (!response.ok) throw new Error(`No se ha podido cargar ${file}`);
-    const text = await response.text();
-    letterContent.innerHTML = renderLetterText(text);
-    letterContent.dataset.loaded = "true";
-    loadedLetterFile = file;
-  } catch (error) { console.error(error); letterContent.innerHTML = `<p>No se ha podido cargar esta carta.</p><p>Revisa que el archivo <strong>${escapeHTML(file)}</strong> exista en GitHub.</p>`; }
-}
 function renderLetterText(text) {
   const clean = String(text || "").trim();
   if (!clean) return "<p>La carta está vacía.</p>";
@@ -3567,19 +3448,13 @@ function showToast(message) { toast.textContent = message; toast.classList.remov
 
   function allMemories() {
     const remote = Array.isArray(state().remoteMemories) ? state().remoteMemories : [];
-    const migratedLegacyKeys = new Set(remote.map(memory => memory?.legacy_key).filter(Boolean));
-    const legacy = (APP()?.getStaticMemories?.() || [])
-      .filter(memory => !migratedLegacyKeys.has(memory.id));
-
-    return [
-      ...legacy.map(x => ({ ...x, _legacy: true })),
-      ...remote.map(x => ({ ...x, _legacy: false }))
-    ].sort((a, b) => String(b.fecha || b.id || "").localeCompare(String(a.fecha || a.id || "")));
+    return remote
+      .map(memory => ({ ...memory, _legacy: false }))
+      .sort((a, b) => String(b.fecha || b.id || "").localeCompare(String(a.fecha || a.id || "")));
   }
 
-  function memoryImage(memory) {
+function memoryImage(memory) {
     if (!memory) return "";
-    if (memory._legacy) return memory.cover || "";
     const urls = Array.isArray(memory.signedUrls) ? memory.signedUrls : [];
     const idx = Number(memory.cover_index || 0);
     return urls[idx] || urls[0] || "";
