@@ -412,3 +412,16 @@ Pendientes de seguridad separados:
 - revisar movimiento de `pg_net` fuera de `public`;
 - activar leaked-password protection desde Auth;
 - decidir explícitamente el tratamiento de tablas internas con RLS sin policy.
+
+
+## Cierre técnico 3.3.6 · diagnóstico/QA
+
+- `app/js/debug.js` ampliado con sync, Push, módulos, contadores y errores recientes.
+- `app/js/sync.js` mantiene diagnóstico de última sync, duración, motivo y fallos.
+- `app/js/auth.js` recupera sesiones locales con refresh token obsoleto.
+- `index.html` usa cache-busting 3.3.6 también en minigames.
+- QA HTML: 283 IDs, 0 duplicados.
+- Todos los recursos JS/CSS locales enlazados por index existen.
+- Logs Supabase últimas 24 h: 0 errores sospechosos en Edge, Postgres, PostgREST, Storage y Functions.
+- Auth: solo warnings esperables por credenciales inválidas/sesiones antiguas; se añadió recuperación específica.
+- Vercel: builds recientes bloqueados por build-rate-limit; último deploy exitoso detectado en commit `ce1bae4`.
