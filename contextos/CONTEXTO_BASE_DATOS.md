@@ -88,22 +88,18 @@ Triggers relevantes:
 
 ## Migración de recuerdos históricos · 3.3.6
 
-Se ha preparado un migrador temporal frontend para trasladar los 5 recuerdos que todavía viven en `script.js` + `/recuerdos/` hacia la arquitectura actual de Supabase.
+Completada y verificada el 22/09/2026.
 
-Características:
+Estado final:
 
-- activación exclusiva mediante `?migrate=legacy-memories`;
-- exige perfil Javi autenticado;
-- reutiliza el bucket privado `recuerdos` y las políticas RLS/Storage ya existentes;
-- imágenes históricas comprimidas en navegador con el mismo criterio del editor actual;
-- cartas guardadas en `contenido`;
-- `legacy_key` UNIQUE usado como clave idempotente para evitar duplicados;
-- flores amarillas registradas sin introducir un nuevo valor en el CHECK de `tipo`: se almacenan como `letter` con metadato interno `kind=yellow-flowers`;
-- mientras exista una copia Supabase con el mismo `legacy_key`, el frontend deja de renderizar la copia estática equivalente.
-
-Estado: **migrador preparado; migración real pendiente de ejecución desde una sesión autenticada de Javi y posterior verificación visual.**
-
-No eliminar los archivos históricos del repositorio hasta validar que cada recuerdo, cada carta y la experiencia de flores amarillas funcionan correctamente desde Supabase.
+- 5 recuerdos históricos migrados a `public.recuerdos_app`;
+- imágenes históricas convertidas a WebP y almacenadas en el bucket privado `recuerdos`;
+- cartas almacenadas en `contenido`;
+- `legacy_key` UNIQUE conserva trazabilidad e impide duplicados;
+- flores amarillas registradas como recuerdo remoto con metadato interno `kind=yellow-flowers`;
+- no existen duplicados de `legacy_key`;
+- las copias locales históricas y el migrador temporal fueron retirados de GitHub;
+- Supabase es la única fuente de verdad para Recuerdos.
 
 ---
 
