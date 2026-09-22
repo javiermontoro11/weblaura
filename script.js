@@ -973,15 +973,6 @@ async function runDataSync({ silent = false, reason = "normal" } = {}) {
   refreshUI();
   maybeRevealYSiResult();
 
-  if (!failures.length) {
-    syncRetryIndex = 0;
-    cancelSyncRetry();
-    setSyncState("ok", `Sincronizado · ${currentTimeLabel()}`);
-  } else {
-    setSyncState("error", "Sincronización parcial · reintentando…");
-    scheduleSyncRetry("partial");
-  }
-
   return { ok: !failures.length, failures };
 }
 
