@@ -301,7 +301,7 @@ Mantiene su flujo diario y su puzle/vale.
 - La modularización del frontend empieza de forma incremental bajo `/app/`; no se llenará la raíz de archivos sueltos.
 - Modularización de Recuerdos completada: `app/js/memories.js` concentra datos, Storage, URLs firmadas, caché, compresión, render, galería, cartas, editor, alta, edición y borrado.
 - `script.js` mantiene solo los puntos de integración necesarios para la sincronización general y la API global.
-- Tras extraer Recuerdos, Notificaciones, Push, Sync, Auth, Planes, ¿Y si…? y Recompensas, `script.js` queda en torno a 71 KB.
+- Tras extraer Recuerdos, Notificaciones, Push, Sync, Auth, Planes, ¿Y si…?, Recompensas y la capa visual v3, `script.js` queda en torno a 21 KB.
 - `app/js/notifications.js` concentra fetch, badge, modal, render, leído/borrado/vaciado y navegación de avisos.
 - `app/js/push.js` concentra registro de Service Worker, VAPID, suscripción/desuscripción, persistencia en `push_subscriptions`, compatibilidad iOS/PWA y estado visual de Push.
 - `service-worker.js` permanece separado y no se ha modificado en este corte.
@@ -310,6 +310,7 @@ Mantiene su flujo diario y su puzle/vale.
 - `app/js/plans.js` concentra catálogo, operaciones Supabase sobre `propuestas`, formularios, calendario, render de reservas, acciones de estado, borrado y ticket PNG. `script.js` mantiene solo wrappers de integración y la presentación v3.
 - `app/js/ysi.js` concentra pregunta/historial, compatibilidad, responder, salto, render, reveal y filtros. Home/Perfil usan sus helpers públicos en vez de lógica duplicada.
 - `app/js/rewards.js` concentra Laura vs Máquina, reto diario, rondas, puzzle del masaje, piezas, contador diario, vales, canje y descarga. El dominio se mantiene unido porque comparte estado y recompensas.
+- `app/js/ui.js` contiene la capa visual v3 completa que antes vivía al final de `script.js`; se carga después del coordinador y consume `window.JaviEatsApp`.
 - `app/js/debug.js` es el primer módulo independiente y solo se activa con `?debug=1`.
 - El panel de diagnóstico muestra estado de sesión, perfil, red, PWA, Service Worker, Push y Cache Storage sin mostrar secretos.
 - La auditoría confirmó que el Service Worker principal gestiona Push pero no implementa caché propia de HTML/JS/CSS.
