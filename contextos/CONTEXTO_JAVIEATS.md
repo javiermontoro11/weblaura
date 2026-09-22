@@ -1,4 +1,4 @@
-# CONTEXTO MAESTRO — JAVIEATS 3.3.6
+# CONTEXTO MAESTRO — JAVIEATS 3.3.7
 
 > **Ámbito:** contexto funcional y técnico general de JaviEats.
 >
@@ -10,13 +10,13 @@
 >
 > **Rama:** `main`
 >
-> **Estado de referencia:** 22 de septiembre de 2026 · JaviEats 3.3.6 · inicio de fase de mantenimiento técnico; Nuestra Vida mantiene su core 1.0 y ya dispone de retorno explícito a JaviEats desde su menú principal.
+> **Estado de referencia:** 22 de septiembre de 2026 · JaviEats 3.3.7 · QA final posterior a la modularización; Planes, Puzle y Vales corregidos; Nuestra Vida mantiene su core 1.0 y su retorno explícito a JaviEats.
 
 ---
 
 # PROMPT PARA CONTINUAR EN UN CHAT NUEVO
 
-Quiero que continúes el desarrollo y mantenimiento de **JaviEats 3.3.6** sin empezar de cero.
+Quiero que continúes el desarrollo y mantenimiento de **JaviEats 3.3.7** sin empezar de cero.
 
 La prioridad es:
 
@@ -132,6 +132,39 @@ En **3.3.5** se corrige la reproducción móvil del recuerdo:
 - `resetRevealScroll()` fuerza el scroll interno del modal a 0 durante la transición;
 - se hace `blur()` del botón de revelado antes de ocultarlo para evitar scroll asociado al foco en Safari;
 - si el sistema solicita `prefers-reduced-motion`, no se fuerza el reinicio de animaciones.
+
+---
+
+# QA FINAL 3.3.7
+
+Objetivo: cerrar regresiones detectadas después de la modularización sin introducir features nuevas ni cambios de esquema.
+
+Correcciones aplicadas:
+
+- `app/js/plans.js` contiene ya los 10 servicios reales del catálogo.
+- Se elimina de `index.html` la mutación tardía de `SERVICES`, incompatible con el array congelado del módulo.
+- El arrastre horizontal del catálogo no captura el puntero en un clic simple; `Proponer` vuelve a abrir correctamente el modal en escritorio.
+- `app/css/interactions.css` corrige la ruta relativa de `assets/puzzle-masaje.svg` después de mover los estilos a `/app/css/`.
+- La UI v3 del puzle consume `puzzles_premio.total_piezas` y `puzzles_premio.premio` cuando existen.
+- La UI v3 de Vales vuelve a mostrar fecha de obtención, descripción, código y acciones.
+- Las acciones de descarga, propuesta de canje y marcado como canjeado reutilizan `app/js/rewards.js`.
+- Para el vale vinculado al puzle, la fecha mostrada prioriza `puzzles_premio.completed_at`; el fallback es `vales.created_at`.
+- No se modifica el esquema de Supabase.
+
+Estado de datos verificado tras la limpieza manual del vale histórico:
+
+- 1 vale;
+- 1 puzle;
+- 6 piezas;
+- puzle completado coherente con su `vale_id`;
+- 0 referencias rotas entre puzle, piezas y vale.
+
+QA adicional:
+
+- 283 IDs HTML, 0 duplicados;
+- sintaxis correcta en `plans.js`, `rewards.js`, `ui.js`, `script.js` y `minijuegos.js`;
+- deployments preview de la rama de QA en estado READY;
+- sin errores 5xx recientes en Supabase ligados a estos dominios.
 
 ---
 
@@ -362,7 +395,7 @@ A 22/09/2026:
 
 # RESUMEN
 
-**JaviEats 3.3.6 = JaviEats 3.3.5 + retorno desde Nuestra Vida + arquitectura modular inicial + diagnóstico técnico + versionado de migraciones + centralización completa de Recuerdos en Supabase.**
+**JaviEats 3.3.7 = JaviEats 3.3.6 + cierre de regresiones post-modularización en Planes, Puzle y Vales + QA de integración frontend ↔ Supabase.**
 
 ## CSS modular · 3.3.6
 
