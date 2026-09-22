@@ -2,7 +2,7 @@
    JaviEats 3.1 · interfaz unificada
    ========================================================= */
 /* Capa de presentación mobile-first integrada en el core.
-   Navegación final: Inicio · Planes · acceso especial · Minijuegos · Recuerdos.
+   Navegación final: Inicio · Planes · Nuestra Vida · Minijuegos · Recuerdos.
    Perfil/Nosotros vive en la cabecera.
 */
 
@@ -18,13 +18,8 @@
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;");
 
-  const REVEAL_AT = Date.parse("2026-09-12T12:00:00Z"); // 14:00 Europe/Madrid
-  const SECRET_NAME_CODES = [78, 117, 101, 115, 116, 114, 97, 32, 86, 105, 100, 97];
-  const secretName = () => SECRET_NAME_CODES.map(code => String.fromCharCode(code)).join("");
-
   let mounted = false;
   let editPlanId = null;
-  let revealTimer = null;
 
   function icon(name, className = "v3-icon") {
     const paths = {
@@ -190,12 +185,8 @@ function memoryImage(memory) {
     buildMemories();
     buildUs();
     buildNav();
-    buildMysteryModal();
     buildEditModal();
     bindGlobalEvents();
-    bindRevealEvents();
-    updateRevealState();
-    revealTimer = window.setInterval(updateRevealState, 1000);
     renderAll();
   }
 
@@ -426,179 +417,24 @@ function memoryImage(memory) {
       logoutSlot.appendChild(logout);
     }
   }
-  function ensureMainGameNavStyles() {
-    if ($("v3-main-game-nav-styles")) return;
-    const style = document.createElement("style");
-    style.id = "v3-main-game-nav-styles";
-    style.textContent = `
-      .javieats-v3 .v3-mystery-nav.is-revealed {
-        isolation: auto;
-        color: #857d75;
-      }
-      .javieats-v3 .v3-mystery-nav.is-revealed::before,
-      .javieats-v3 .v3-mystery-nav.is-revealed::after {
-        content: none !important;
-        display: none !important;
-        animation: none !important;
-      }
-      .javieats-v3 .v3-mystery-nav.is-revealed .v3-main-game-icon {
-        width: 20px;
-        height: 20px;
-        color: var(--v3-accent, #ef6d60);
-        fill: currentColor;
-        filter: none;
-        transform: none;
-      }
-      .javieats-v3 .v3-mystery-nav.is-revealed > span {
-        margin-top: 0;
-        color: #857d75;
-        font-size: .56rem;
-        font-weight: 850;
-        letter-spacing: -.015em;
-        white-space: nowrap;
-      }
-    `;
-    document.head.appendChild(style);
-  }
-
-  function updateMainGameNavIcon(revealed) {
-    const nav = $("v3-mystery-nav");
-    if (!nav) return;
-    const wantedClass = revealed ? "v3-main-game-icon" : "v3-mystery-spark";
-    if (nav.querySelector(`.${wantedClass}`)) return;
-    const currentIcon = nav.querySelector("svg");
-    const markup = revealed ? icon("life", wantedClass) : icon("spark", wantedClass);
-    if (currentIcon) currentIcon.outerHTML = markup;
-    else nav.insertAdjacentHTML("afterbegin", markup);
-  }
-
   function buildNav() {
     const nav = document.querySelector(".bottom-nav");
     if (!nav) return;
+
     nav.classList.add("v3-bottom-nav");
-    ensureMainGameNavStyles();
     nav.innerHTML = `
       <button class="nav-btn active" data-page="home" type="button">${icon("home")}<span>Inicio</span></button>
       <button class="nav-btn" data-page="calendar" type="button">${icon("calendar")}<span>Planes</span></button>
-      <button class="nav-btn v3-mystery-nav" id="v3-mystery-nav" type="button" aria-label="Descubrir próxima novedad">${icon("spark", "v3-mystery-spark")}<span id="v3-mystery-nav-label">12·09</span></button>
+      <button class="nav-btn v3-life-nav" id="v3-life-nav" type="button" aria-label="Abrir Nuestra Vida">${icon("life")}<span>Nuestra Vida</span></button>
       <button class="nav-btn" data-page="minigames" type="button">${icon("game")}<span>Minijuegos</span></button>
-      <button class="nav-btn" data-page="memories" type="button">${icon("memory")}<span>Recuerdos</span></button>`;
+      <button class="nav-btn" data-page="memories" type="button">${icon("memory")}<span>Recuerdos</span></button>
+    `;
 
-    nav.querySelectorAll("[data-page]").forEach(btn => {
-      btn.addEventListener("click", () => APP()?.showPage?.(btn.dataset.page));
-    });
-    $("v3-mystery-nav")?.addEventListener("click", handleMysteryClick);
-  }
-
-  function buildMysteryModal() {
-    if ($("v3-mystery-modal")) return;
-    document.body.insertAdjacentHTML("beforeend", `
-      <section class="v3-mystery-modal hidden" id="v3-mystery-modal" role="dialog" aria-modal="true" aria-labelledby="v3-mystery-title">
-        <button class="v3-mystery-backdrop" type="button" data-mystery-close aria-label="Cerrar"></button>
-        <div class="v3-mystery-sheet">
-          <button class="v3-mystery-sheet-close" type="button" data-mystery-close aria-label="Cerrar">×</button>
-          <div class="v3-mystery-mark">${icon("spark", "v3-mystery-spark")}</div>
-          <p class="v3-mystery-kicker" id="v3-mystery-kicker">Algo se está preparando</p>
-          <h2 id="v3-mystery-title">Todavía no 👀</h2>
-          <p class="v3-mystery-sheet-copy" id="v3-mystery-copy">Ese nuevo hueco de JaviEats no está ahí por casualidad. El sábado descubrirás qué es.</p>
-          <div class="v3-mystery-countdown" id="v3-mystery-countdown" aria-label="Cuenta atrás">
-            <span><strong id="v3-mystery-days">00</strong><small>días</small></span>
-            <span><strong id="v3-mystery-hours">00</strong><small>horas</small></span>
-            <span><strong id="v3-mystery-minutes">00</strong><small>min</small></span>
-            <span><strong id="v3-mystery-seconds">00</strong><small>seg</small></span>
-          </div>
-          <p class="v3-mystery-release" id="v3-mystery-release">Se desbloquea el sábado a las 14:00.</p>
-        </div>
-      </section>`);
-
-    document.querySelectorAll("[data-mystery-close]").forEach(button => {
-      button.addEventListener("click", closeMysteryModal);
+    nav.querySelectorAll("[data-page]").forEach(button => {
+      button.addEventListener("click", () => APP()?.showPage?.(button.dataset.page));
     });
   }
 
-  function handleMysteryClick() {
-    if (Date.now() >= REVEAL_AT && window.JAVIEATS_MAIN_GAME_URL) {
-      window.location.href = window.JAVIEATS_MAIN_GAME_URL;
-      return;
-    }
-    openMysteryModal();
-  }
-
-  function openMysteryModal() {
-    const modal = $("v3-mystery-modal");
-    if (!modal) return;
-    updateRevealState();
-    modal.classList.remove("hidden");
-    document.body.style.overflow = "hidden";
-  }
-
-  function closeMysteryModal() {
-    $("v3-mystery-modal")?.classList.add("hidden");
-    document.body.style.overflow = "";
-  }
-
-  function updateCountdown(diff) {
-    const total = Math.max(0, Math.floor(diff / 1000));
-    const days = Math.floor(total / 86400);
-    const hours = Math.floor((total % 86400) / 3600);
-    const minutes = Math.floor((total % 3600) / 60);
-    const seconds = total % 60;
-
-    if ($("v3-mystery-days")) $("v3-mystery-days").textContent = String(days).padStart(2, "0");
-    if ($("v3-mystery-hours")) $("v3-mystery-hours").textContent = String(hours).padStart(2, "0");
-    if ($("v3-mystery-minutes")) $("v3-mystery-minutes").textContent = String(minutes).padStart(2, "0");
-    if ($("v3-mystery-seconds")) $("v3-mystery-seconds").textContent = String(seconds).padStart(2, "0");
-  }
-
-  function updateRevealState() {
-    const now = Date.now();
-    const previewForJavi = role() === "javi" && now < REVEAL_AT;
-    const revealed = now >= REVEAL_AT || previewForJavi;
-    const nav = $("v3-mystery-nav");
-    const label = $("v3-mystery-nav-label");
-    if (!nav || !label) return;
-
-    nav.classList.toggle("is-revealed", revealed);
-    updateMainGameNavIcon(revealed);
-
-    if (!revealed) {
-      label.textContent = "12·09";
-      nav.setAttribute("aria-label", "Descubrir próxima novedad");
-      updateCountdown(REVEAL_AT - now);
-      if ($("v3-mystery-kicker")) $("v3-mystery-kicker").textContent = "Algo se está preparando";
-      if ($("v3-mystery-title")) $("v3-mystery-title").textContent = "Todavía no 👀";
-      if ($("v3-mystery-copy")) $("v3-mystery-copy").textContent = "Ese nuevo hueco de JaviEats no está ahí por casualidad. El sábado descubrirás qué es.";
-      $("v3-mystery-countdown")?.classList.remove("hidden");
-      if ($("v3-mystery-release")) $("v3-mystery-release").textContent = "Se desbloquea el sábado a las 14:00.";
-      return;
-    }
-
-    const name = secretName();
-    label.textContent = name;
-    nav.setAttribute("aria-label", `Abrir ${name}`);
-    if ($("v3-mystery-kicker")) $("v3-mystery-kicker").textContent = "Ya está aquí";
-    if ($("v3-mystery-title")) $("v3-mystery-title").textContent = name;
-    if ($("v3-mystery-copy")) $("v3-mystery-copy").textContent = window.JAVIEATS_MAIN_GAME_URL
-      ? "El nuevo juego principal de JaviEats ya está disponible."
-      : "El nuevo juego principal de JaviEats ya se ha desvelado.";
-    $("v3-mystery-countdown")?.classList.add("hidden");
-    if ($("v3-mystery-release")) $("v3-mystery-release").textContent = window.JAVIEATS_MAIN_GAME_URL
-      ? "Toca su pestaña para entrar."
-      : "La entrada al juego se conectará desde esta misma pestaña.";
-  }
-
-  function bindRevealEvents() {
-    document.addEventListener("visibilitychange", () => {
-      if (!document.hidden) updateRevealState();
-    });
-    window.addEventListener("pageshow", updateRevealState);
-    document.addEventListener("keydown", event => {
-      if (event.key === "Escape" && !$("v3-mystery-modal")?.classList.contains("hidden")) closeMysteryModal();
-    });
-    window.addEventListener("beforeunload", () => {
-      if (revealTimer) window.clearInterval(revealTimer);
-    });
-  }
   function buildEditModal() {
     if ($("v3-edit-plan-modal")) return;
     document.body.insertAdjacentHTML("beforeend", `
