@@ -364,3 +364,29 @@ Verificación posterior:
 - desaparecen los 11 avisos de ejecución anónima de funciones internas `SECURITY DEFINER`;
 - desaparecen los 16 avisos `auth_rls_initplan`;
 - los índices FK recién creados pueden aparecer temporalmente como `unused_index` hasta acumular uso real.
+
+
+## Migración adicional · 3.3.6
+
+Aplicada en producción:
+
+- `harden_legacy_message_rpcs`
+
+Revoca ejecución directa a `PUBLIC/anon/authenticated` de:
+- `guardar_mensaje_dia(text)`
+- `marcar_mensaje_dia_leido(uuid)`
+
+Ambos RPC ya no aparecen en el frontend actual ni son llamados por otras funciones del backend. Se conservan únicamente por compatibilidad/histórico y quedan disponibles para `service_role`.
+
+Resultado del advisor: warnings `authenticated_security_definer_function_executable` reducidos de 13 a 11, correspondientes a RPC de negocio que sí consume el frontend actual.
+
+QA de integridad:
+- 0 recuerdos duplicados por `legacy_key`.
+- 0 cover_index inválidos.
+- 0 estados inválidos en `propuestas`.
+- 0 endpoints Push duplicados.
+- 0 respuestas duplicadas en `y_si_respuestas`.
+- 0 preguntas abiertas de más hoy.
+- 0 `y_si_notificaciones` en error.
+- 0 `mensajes_dia.email_estado='error'`.
+- 0 piezas de puzzle duplicadas por puzzle/número.
