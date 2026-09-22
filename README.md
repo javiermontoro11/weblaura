@@ -824,3 +824,12 @@ Tras aplicar las migraciones:
 - desaparece el aviso de funciones internas ejecutables por `anon`;
 - desaparece el aviso `auth_rls_initplan`;
 - permanecen como asuntos separados `pg_net` en `public`, leaked-password protection desactivado y algunas tablas internas con RLS sin policy deliberada.
+
+
+### Service Worker y caché · 3.3.6
+
+- El `service-worker.js` principal de JaviEats no cachea HTML/JS/CSS; se usa para Web Push y control de notificaciones.
+- Nuestra Vida mantiene su SW independiente y sí cachea assets.
+- El namespace de cache de Nuestra Vida se actualiza a `nuestra-vida-1.0.2-maintenance`.
+- Al activar el nuevo SW se eliminan automáticamente caches antiguas cuyo nombre empieza por `nuestra-vida-`.
+- El launcher navega a `./nuestra-vida/?v=1.0.2` para evitar reutilización de wrappers antiguos en Safari/PWA.
