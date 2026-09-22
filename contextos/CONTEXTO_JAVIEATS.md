@@ -398,3 +398,17 @@ Limpieza legacy adicional:
 - eliminado el modal “misterio” y sus estilos;
 - Nuestra Vida queda como acceso estable;
 - el launcher ya no tiene release gate ni polling de desbloqueo.
+
+
+## Service Worker/cache · mantenimiento 3.3.6
+
+- SW principal: Push únicamente; no cachea HTML/JS/CSS.
+- Nuestra Vida: SW propio con navegación network-first y assets cache-first.
+- Cache actual: `nuestra-vida-1.0.2-maintenance`.
+- El activate elimina caches `nuestra-vida-*` anteriores.
+- Launcher actual: `./nuestra-vida/?v=1.0.2`.
+
+Pendientes de seguridad separados:
+- revisar movimiento de `pg_net` fuera de `public`;
+- activar leaked-password protection desde Auth;
+- decidir explícitamente el tratamiento de tablas internas con RLS sin policy.
