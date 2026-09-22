@@ -6,181 +6,6 @@ const CONFIG = {
 
 
 
-// -----------------------------------------------------------------------------
-// PUSH NOTIFICATIONS (PWA / Web Push)
-// -----------------------------------------------------------------------------
-const PUSH_SW_URL = "./service-worker.js";
-
-function pushIsIOS() {
-  return /iphone|ipad|ipod/i.test(navigator.userAgent || "") || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
-}
-
-function pushIsStandalone() {
-  return window.matchMedia?.("(display-mode: standalone)")?.matches || navigator.standalone === true;
-}
-
-function pushSupported() {
-  return "serviceWorker" in navigator && "PushManager" in window && "Notification" in window;
-}
-
-function vapidKeyToUint8Array(base64String) {
-  const padding = "=".repeat((4 - base64String.length % 4) % 4);
-  const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
-  const rawData = atob(base64);
-  return Uint8Array.from([...rawData].map(char => char.charCodeAt(0)));
-}
-
-async function registerPushServiceWorker() {
-  if (!("serviceWorker" in navigator)) return null;
-  try {
-    await navigator.serviceWorker.register(PUSH_SW_URL, { scope: "./" });
-    return await navigator.serviceWorker.ready;
-  } catch (error) {
-    console.error("No se ha podido registrar el Service Worker de JaviEats:", error);
-    return null;
-  }
-}
-
-async function currentPushSubscription() {
-  const registration = await registerPushServiceWorker();
-  return registration ? registration.pushManager.getSubscription() : null;
-}
-
-async function savePushSubscription(subscription) {
-  if (!subscription || !currentUser || !supabaseClient) throw new Error("No hay sesión válida para guardar Push.");
-  const json = subscription.toJSON();
-  const p256dh = json?.keys?.p256dh;
-  const auth = json?.keys?.auth;
-  if (!json.endpoint || !p256dh || !auth) throw new Error("La suscripción Push está incompleta.");
-
-  const payload = {
-    user_id: currentUser.id,
-    endpoint: json.endpoint,
-    p256dh,
-    auth,
-    updated_at: new Date().toISOString()
-  };
-
-  const { error } = await supabaseClient
-    .from("push_subscriptions")
-    .upsert(payload, { onConflict: "endpoint" });
-  if (error) throw error;
-}
-
-async function deletePushSubscription(endpoint) {
-  if (!endpoint || !currentUser || !supabaseClient) return;
-  const { error } = await supabaseClient
-    .from("push_subscriptions")
-    .delete()
-    .eq("endpoint", endpoint)
-    .eq("user_id", currentUser.id);
-  if (error) throw error;
-}
-
-async function enablePushNotifications() {
-  if (!pushSupported()) throw new Error("Este dispositivo no soporta notificaciones Push web.");
-  if (pushIsIOS() && !pushIsStandalone()) {
-    throw new Error("En iPhone/iPad, añade primero JaviEats a la pantalla de inicio y ábrela desde su icono.");
-  }
-
-  let permission = Notification.permission;
-  if (permission !== "granted") permission = await Notification.requestPermission();
-  if (permission !== "granted") throw new Error(permission === "denied" ? "Has bloqueado las notificaciones para JaviEats." : "No se ha concedido permiso para notificaciones.");
-
-  const registration = await registerPushServiceWorker();
-  if (!registration) throw new Error("No se ha podido preparar JaviEats para recibir notificaciones.");
-
-  let subscription = await registration.pushManager.getSubscription();
-  if (!subscription) {
-    subscription = await registration.pushManager.subscribe({
-      userVisibleOnly: true,
-      applicationServerKey: vapidKeyToUint8Array(CONFIG.vapidPublicKey)
-    });
-  }
-
-  await savePushSubscription(subscription);
-  await renderPushSettings();
-  return subscription;
-}
-
-async function disablePushNotifications() {
-  const subscription = await currentPushSubscription();
-  if (!subscription) {
-    await renderPushSettings();
-    return;
-  }
-  const endpoint = subscription.endpoint;
-  try { await deletePushSubscription(endpoint); } catch (error) { console.error(error); }
-  await subscription.unsubscribe();
-  await renderPushSettings();
-}
-
-async function renderPushSettings() {
-  const holder = document.getElementById("push-settings");
-  const status = document.getElementById("push-status");
-  const button = document.getElementById("push-toggle");
-  if (!holder || !status || !button) return;
-
-  if (!pushSupported()) {
-    holder.dataset.state = "unsupported";
-    status.textContent = "Este navegador no permite notificaciones Push.";
-    button.textContent = "No disponible";
-    button.disabled = true;
-    return;
-  }
-
-  if (pushIsIOS() && !pushIsStandalone()) {
-    holder.dataset.state = "install";
-    status.textContent = "Para activarlas en iPhone o iPad, añade JaviEats a la pantalla de inicio y ábrela desde su icono.";
-    button.textContent = "Instálala primero";
-    button.disabled = true;
-    return;
-  }
-
-  if (Notification.permission === "denied") {
-    holder.dataset.state = "denied";
-    status.textContent = "Las notificaciones están bloqueadas en los ajustes del dispositivo.";
-    button.textContent = "Bloqueadas";
-    button.disabled = true;
-    return;
-  }
-
-  const subscription = await currentPushSubscription();
-  if (subscription) {
-    holder.dataset.state = "enabled";
-    status.textContent = "Este dispositivo recibirá avisos importantes de JaviEats.";
-    button.textContent = "Desactivar";
-    button.disabled = false;
-  } else {
-    holder.dataset.state = "disabled";
-    status.textContent = "Actívalas para recibir avisos importantes aunque JaviEats esté cerrada.";
-    button.textContent = "Activar notificaciones";
-    button.disabled = false;
-  }
-}
-
-async function handlePushToggle() {
-  const button = document.getElementById("push-toggle");
-  if (!button || button.disabled) return;
-  button.disabled = true;
-  try {
-    const subscription = await currentPushSubscription();
-    if (subscription) {
-      await disablePushNotifications();
-      showToast("Notificaciones desactivadas en este dispositivo.");
-    } else {
-      await enablePushNotifications();
-      showToast("Notificaciones activadas en este dispositivo.");
-    }
-  } catch (error) {
-    console.error(error);
-    showToast(error?.message || "No se han podido configurar las notificaciones.");
-    await renderPushSettings();
-  } finally {
-    if (button) button.disabled = false;
-  }
-}
-
 const USER_IDS = {
   JAVI: "ed529e36-5f68-4326-a658-00cfe22d4f01",
   LAURA: "ef4258bf-5897-4594-86ac-a134fcd1feec"
@@ -547,12 +372,18 @@ function notificationsModule() {
   return window.JaviEatsNotifications;
 }
 
+function pushModule() {
+  if (!window.JaviEatsPush) throw new Error("JaviEatsPush no está cargado.");
+  return window.JaviEatsPush;
+}
+
 window.JaviEatsApp = {
   getRole: () => currentRole,
   getUser: () => currentUser,
   getState: () => state,
   getServices: () => SERVICES,
   getClient: () => supabaseClient,
+  getVapidPublicKey: () => CONFIG.vapidPublicKey,
   showPage: page => showPage(page),
   showToast: message => showToast(message),
   openGameModal: () => openGameModal(),
@@ -571,6 +402,7 @@ async function init() {
   bindEvents();
   memoriesModule().bindUI();
   notificationsModule().bindUI();
+  pushModule().bindUI();
   renderServices();
   renderMemories();
   renderVouchers();
@@ -637,7 +469,6 @@ function bindEvents() {
   turnProfileSwitchBtn?.addEventListener("click", handleTurnProfileSwitch);
   turnProfileContinueBtn?.addEventListener("click", handleTurnProfileContinue);
   logoutBtn.addEventListener("click", logout);
-  document.getElementById("push-toggle")?.addEventListener("click", handlePushToggle);
 
   document.querySelectorAll(".nav-btn").forEach(button => {
     button.addEventListener("click", () => showPage(button.dataset.page));
@@ -909,8 +740,8 @@ async function showApp() {
 
   welcomeScreen?.classList.add("hidden");
   appScreen.classList.remove("hidden");
-  registerPushServiceWorker();
-  renderPushSettings();
+  pushModule().register();
+  pushModule().render();
 
   const params = new URLSearchParams(window.location.search);
   const requestedOpen = params.get("open");
