@@ -1,0 +1,227 @@
+/* =========================================================
+   Centro de actividad y notificaciones
+   ========================================================= */
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.notification-bell {
+  position: relative;
+  display: grid;
+  place-items: center;
+  font-size: 1.05rem;
+}
+
+.notification-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  border: 2px solid #f4f0ea;
+  background: #d93f51;
+  color: #fff;
+  font-size: .66rem;
+  line-height: 1;
+  font-weight: 950;
+  box-shadow: 0 4px 12px rgba(118, 24, 42, .22);
+}
+
+.notifications-heading h2 {
+  margin-bottom: 5px;
+}
+
+.notifications-panel {
+  width: min(100%, 590px);
+  max-height: min(88vh, 760px);
+}
+
+.notifications-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 14px;
+  padding-right: 42px;
+  margin-bottom: 16px;
+}
+
+.notifications-heading .link-btn {
+  white-space: nowrap;
+}
+
+.notifications-list {
+  display: grid;
+  gap: 9px;
+}
+
+.notification-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 40px;
+  gap: 7px;
+  align-items: stretch;
+}
+
+.notification-row .notification-item {
+  min-width: 0;
+}
+
+.notification-delete-btn {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  min-width: 40px;
+  border: 0;
+  border-radius: 14px;
+  background: transparent;
+  color: #aaa39d;
+  font-size: 1.35rem;
+  font-weight: 600;
+  line-height: 1;
+  padding: 0;
+  transition: background .15s ease, color .15s ease, transform .15s ease;
+}
+
+.notification-delete-btn:active {
+  transform: scale(.92);
+  background: rgba(180, 35, 24, .08);
+  color: #b42318;
+}
+
+.javieats-v3 .notifications-heading .link-btn.is-danger {
+  color: #b42318;
+}
+
+@media (hover: hover) {
+  .notification-delete-btn:hover {
+    background: rgba(180, 35, 24, .07);
+    color: #b42318;
+  }
+}
+
+@media (max-width: 620px) {
+  .notification-row {
+    grid-template-columns: minmax(0, 1fr) 38px;
+    gap: 5px;
+  }
+
+  .notification-delete-btn {
+    width: 38px;
+    min-width: 38px;
+  }
+}
+
+.notification-empty {
+  padding: 30px 18px;
+  border-radius: 18px;
+  background: #faf6f2;
+  color: var(--muted);
+  text-align: center;
+  line-height: 1.5;
+}
+
+.notification-item {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) auto;
+  gap: 11px;
+  align-items: center;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: #fff;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.notification-item.is-unread {
+  background: #fff8f5;
+  border-color: #ecd4cd;
+  box-shadow: 0 8px 22px rgba(96, 51, 44, .07);
+}
+
+.notification-item-icon {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: 15px;
+  background: #f7efea;
+  font-size: 1.2rem;
+}
+
+.notification-item-copy {
+  min-width: 0;
+}
+
+.notification-item-copy strong {
+  display: block;
+  margin-bottom: 3px;
+  font-size: .91rem;
+}
+
+.notification-item-copy p {
+  margin: 0;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: .78rem;
+  line-height: 1.4;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.notification-item-time {
+  color: #9c918a;
+  font-size: .68rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.notification-unread-dot {
+  width: 8px;
+  height: 8px;
+  margin-left: auto;
+  border-radius: 999px;
+  background: #dc4b5b;
+}
+
+@media (max-width: 520px) {
+  .app-header {
+    gap: 8px;
+  }
+
+  .header-actions {
+    gap: 7px;
+  }
+
+  .header-actions .icon-btn {
+    width: 40px;
+    height: 40px;
+  }
+
+
+  .notifications-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .notification-item {
+    grid-template-columns: 42px minmax(0, 1fr);
+  }
+
+  .notification-item-time {
+    grid-column: 2;
+  }
+
+  .notification-item-copy p {
+    white-space: normal;
+  }
+}
+
+
