@@ -194,6 +194,7 @@ window.JaviEatsApp = {
   getVapidPublicKey: () => CONFIG.vapidPublicKey,
   isReady: () => appReady,
   runDataSync: (options = {}) => runDataSync(options),
+  refreshUI: () => refreshUI(),
   acceptAuthenticatedSession: async (session, role) => {
     currentUser = session?.user || null;
     currentRole = role || "unknown";
