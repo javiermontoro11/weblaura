@@ -148,8 +148,8 @@ async function init() {
   rewardsModule().bindUI();
   renderServices();
   renderMemories();
-  rewardsModule().rewardsModule().renderVouchers();
-  rewardsModule().rewardsModule().renderPuzzleProgress();
+  rewardsModule().renderVouchers();
+  rewardsModule().renderPuzzleProgress();
   rewardsModule().startClock();
 
   if (!window.supabase?.createClient) {
@@ -319,7 +319,7 @@ function applyRoleUI() {
   plansModule().renderRoleControls();
   renderServices();
   renderYSi();
-  rewardsModule().rewardsModule().updateDailyGameCard();
+  rewardsModule().updateDailyGameCard();
   window.JaviEatsMinigames?.refreshAccess?.();
 }
 
@@ -364,7 +364,7 @@ function showPage(page) {
   }
   if (page === "memories") {
     renderMemories();
-    rewardsModule().rewardsModule().renderVouchers();
+    rewardsModule().renderVouchers();
   }
   if (page === "minigames") {
     window.JaviEatsMinigames?.showHub?.();
@@ -486,10 +486,10 @@ function refreshUI() {
   renderCalendar();
   renderYSi();
   renderMemories();
-  rewardsModule().rewardsModule().renderVouchers();
-  rewardsModule().rewardsModule().renderPuzzleProgress();
+  rewardsModule().renderVouchers();
+  rewardsModule().renderPuzzleProgress();
   renderNotifications();
-  rewardsModule().rewardsModule().updateDailyGameCard();
+  rewardsModule().updateDailyGameCard();
   window.dispatchEvent(new CustomEvent("javieats:data"));
 }
 
