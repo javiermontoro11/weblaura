@@ -833,3 +833,26 @@ Tras aplicar las migraciones:
 - El namespace de cache de Nuestra Vida se actualiza a `nuestra-vida-1.0.2-maintenance`.
 - Al activar el nuevo SW se eliminan automáticamente caches antiguas cuyo nombre empieza por `nuestra-vida-`.
 - El launcher navega a `./nuestra-vida/?v=1.0.2` para evitar reutilización de wrappers antiguos en Safari/PWA.
+
+
+### Diagnóstico y QA técnico · 3.3.6
+
+- `?debug=1` muestra ahora sesión, perfil, red, PWA, Service Worker, Push, última sincronización, duración, motivo, fallos, módulos cargados, contadores de datos y errores recientes.
+- `sync.js` expone métricas de diagnóstico sin alterar la lógica funcional.
+- Auth recupera de forma explícita sesiones locales obsoletas con `refresh_token_not_found` y devuelve al selector de perfiles.
+- QA estructural: todos los JS/CSS locales enlazados por `index.html` existen; 283 IDs HTML revisados y 0 duplicados.
+- Cache-busting unificado a `?v=3.3.6` también para `minigames-data.js` y `minigames.js`.
+
+QA de integridad de datos verificado en Supabase:
+- 6 recuerdos; 0 legacy_key duplicados; 0 cover_index inválidos.
+- 0 estados inválidos en Planes.
+- 0 endpoints Push duplicados.
+- 0 respuestas duplicadas en ¿Y si…? y 0 preguntas abiertas de más hoy.
+- 0 notificaciones ¿Y si…? en error.
+- 0 emails de Mensaje del día en error.
+- 0 piezas de puzzle duplicadas.
+
+### Estado de despliegue Vercel
+
+GitHub y Supabase están actualizados, pero Vercel está bloqueando temporalmente nuevos builds por `build-rate-limit`.
+El último commit con check Vercel correcto detectado es `ce1bae4`. Los commits posteriores permanecen en GitHub pendientes de un nuevo build cuando se libere la cuota.
