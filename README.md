@@ -347,7 +347,7 @@ Los tres contextos maestros viven juntos dentro de `/contextos/`. **Nuestra Vida
 
 `app/js/auth.js` concentra perfiles autorizados, selector Javi/Laura, login, restauración de sesión, validación de rol, cambio de perfil en enlaces dirigidos, logout y errores de autenticación. El core recibe únicamente una sesión ya validada.
 
-`app/js/plans.js` inicia la modularización del dominio Planes: contiene el catálogo de servicios y centraliza todas las operaciones Supabase sobre `propuestas` (listar, crear, actualizar, borrar y vaciar). La UI de calendario/editor todavía permanece en `script.js` en esta fase.
+`app/js/plans.js` concentra ya el dominio clásico de Planes: catálogo de servicios, acceso Supabase a `propuestas`, formularios de propuesta y plan libre, calendario compartido, render de reservas/día, aceptar/rechazar/cancelar/completar, editar/borrar y ticket PNG. La capa v3 sigue presentando Planes visualmente, pero consume la API del módulo.
 
 /supabase/ contiene desde 3.3.6 el historial SQL reproducible. Las migraciones creadas en GitHub no deben confundirse con cambios ya aplicados a producción: su estado debe verificarse explícitamente.
 
