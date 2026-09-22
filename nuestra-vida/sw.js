@@ -1,4 +1,4 @@
-const CACHE='nuestra-vida-1.0.1-release';
+const CACHE='nuestra-vida-1.0.2-maintenance';
 const CORE=[
   './','./index.html','./manifest.webmanifest',
   './icons/icon-180.png','./icons/icon-192.png','./icons/icon-512.png',
