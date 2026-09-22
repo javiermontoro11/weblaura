@@ -295,7 +295,8 @@ JaviEats/
 │       ├── auth.js
 │       ├── plans.js
 │       ├── ysi.js
-│       └── rewards.js\n├── assets/
+│       ├── rewards.js
+│       └── ui.js\n├── assets/
 │   ├── apple-touch-icon.png
 │   ├── icon-192.png
 │   ├── icon-512.png
@@ -354,6 +355,8 @@ Los tres contextos maestros viven juntos dentro de `/contextos/`. **Nuestra Vida
 `app/js/ysi.js` concentra todo el flujo de ¿Y si…?: carga de pregunta e historial, estadísticas de compatibilidad, respuestas, cambio de pregunta, render, resultado/reveal, filtros e historial. Home/Perfil consumen únicamente sus helpers públicos de estadísticas y último resultado.
 
 `app/js/rewards.js` concentra Laura vs Máquina, reto diario, rondas, puzzle del masaje, progreso/piezas, modales, contador diario, vales, canje y descarga del vale. Este dominio comparte ciclo de vida y recompensas, por lo que se mantiene unido en un solo módulo.
+
+`app/js/ui.js` contiene la capa de presentación v3 mobile-first que antes ocupaba el tramo final de `script.js`: navegación, composición visual de Inicio/Planes/Minijuegos/Recuerdos/Perfil-Nosotros, edición visual de planes y adaptadores de presentación. Se carga después de `script.js` y consume `window.JaviEatsApp`.
 
 /supabase/ contiene desde 3.3.6 el historial SQL reproducible. Las migraciones creadas en GitHub no deben confundirse con cambios ya aplicados a producción: su estado debe verificarse explícitamente.
 
