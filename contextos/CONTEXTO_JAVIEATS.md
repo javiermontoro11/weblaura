@@ -299,8 +299,9 @@ Mantiene su flujo diario y su puzle/vale.
 # MANTENIMIENTO TÉCNICO 3.3.6
 
 - La modularización del frontend empieza de forma incremental bajo `/app/`; no se llenará la raíz de archivos sueltos.
-- Primer corte completado: `app/js/memories.js` concentra acceso a Supabase/Storage, URLs firmadas, caché de URLs y compresión de imágenes de Recuerdos.
-- `script.js` conserva temporalmente el editor/render de Recuerdos; se extraerán en una segunda fase tras verificar estabilidad.
+- Modularización de Recuerdos completada: `app/js/memories.js` concentra datos, Storage, URLs firmadas, caché, compresión, render, galería, cartas, editor, alta, edición y borrado.
+- `script.js` mantiene solo los puntos de integración necesarios para la sincronización general y la API global.
+- Tras este corte `script.js` queda en torno a 164 KB y `app/js/memories.js` en torno a 25 KB.
 - `app/js/debug.js` es el primer módulo independiente y solo se activa con `?debug=1`.
 - El panel de diagnóstico muestra estado de sesión, perfil, red, PWA, Service Worker, Push y Cache Storage sin mostrar secretos.
 - La auditoría confirmó que el Service Worker principal gestiona Push pero no implementa caché propia de HTML/JS/CSS.
