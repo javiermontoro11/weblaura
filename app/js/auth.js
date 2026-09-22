@@ -40,6 +40,25 @@
     return "unknown";
   }
 
+  function isStaleSessionError(error) {
+    const message = String(error?.message || error?.error_description || "").toLowerCase();
+    const code = String(error?.code || "").toLowerCase();
+    return code === "refresh_token_not_found"
+      || message.includes("refresh token not found")
+      || message.includes("invalid refresh token");
+  }
+
+  async function clearStaleLocalSession() {
+    pendingSession = null;
+    selectedProfile = null;
+    try {
+      await client?.auth?.signOut({ scope: "local" });
+    } catch (_) {
+      // La sesión remota ya puede estar invalidada; basta con limpiar el estado local.
+    }
+    app()?.handleSignedOut?.();
+  }
+
   function friendlyError(error) {
     const message = String(error?.message || "").toLowerCase();
     if (message.includes("invalid login credentials")) return "Contraseña incorrecta para este perfil.";
@@ -297,6 +316,14 @@
       }
     } catch (error) {
       console.error(error);
+      if (isStaleSessionError(error)) {
+        await clearStaleLocalSession();
+        showAuthScreen({ resetProfile: true });
+        if ($("auth-global-status")) {
+          $("auth-global-status").textContent = "La sesión anterior había caducado. Vuelve a entrar con tu perfil.";
+        }
+        return;
+      }
       showAuthScreen({ resetProfile: true });
     }
   }
