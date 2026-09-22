@@ -3,7 +3,7 @@
 
   // 1.0.1 fuerza una navegación nueva para no reutilizar el wrapper de estreno
   // que pudo quedar cacheado en Safari/PWA antes de las 14:00.
-  const GAME_URL = "./nuestra-vida/?v=1.0.1";
+  const GAME_URL = "./nuestra-vida/?v=1.0.2";
   const MINILAB_URL = "./nuestra-vida/minijuegos.html?v=1.0.2";
   window.JAVIEATS_MAIN_GAME_URL = GAME_URL;
 
