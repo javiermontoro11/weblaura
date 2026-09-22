@@ -302,6 +302,7 @@ Mantiene su flujo diario y su puzle/vale.
 - Modularización de Recuerdos completada: `app/js/memories.js` concentra datos, Storage, URLs firmadas, caché, compresión, render, galería, cartas, editor, alta, edición y borrado.
 - `script.js` mantiene solo los puntos de integración necesarios para la sincronización general y la API global.
 - Tras extraer Recuerdos, Notificaciones, Push, Sync, Auth, Planes, ¿Y si…?, Recompensas y la capa visual v3, `script.js` queda en torno a 21 KB.
+- El antiguo `style.css` (~130 KB) se divide en seis hojas bajo `app/css/`, preservando exactamente contenido y orden de cascada; `style.css` se elimina de la raíz.
 - `app/js/notifications.js` concentra fetch, badge, modal, render, leído/borrado/vaciado y navegación de avisos.
 - `app/js/push.js` concentra registro de Service Worker, VAPID, suscripción/desuscripción, persistencia en `push_subscriptions`, compatibilidad iOS/PWA y estado visual de Push.
 - `service-worker.js` permanece separado y no se ha modificado en este corte.
@@ -362,3 +363,16 @@ A 22/09/2026:
 # RESUMEN
 
 **JaviEats 3.3.6 = JaviEats 3.3.5 + retorno desde Nuestra Vida + arquitectura modular inicial + diagnóstico técnico + versionado de migraciones + centralización completa de Recuerdos en Supabase.**
+
+## CSS modular · 3.3.6
+
+Estructura actual:
+
+- `app/css/base.css`
+- `app/css/interactions.css`
+- `app/css/minigames.css`
+- `app/css/memories.css`
+- `app/css/notifications.css`
+- `app/css/ui.css`
+
+La concatenación de estas seis hojas en ese orden es exactamente equivalente al antiguo `style.css`. `index.html` las carga en ese mismo orden con `?v=3.3.6`.
