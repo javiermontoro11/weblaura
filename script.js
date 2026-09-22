@@ -206,13 +206,8 @@ const Y_SI_REVEAL_MS = 900;
 const WELCOME_MIN_LOAD_MS = 650;
 const WELCOME_SUMMARY_MS = 850;
 
-const MEMORY_STORAGE_BUCKET = "recuerdos";
-const MEMORY_MAX_PHOTOS = 8;
-const MEMORY_MAX_SOURCE_BYTES = 25 * 1024 * 1024;
-const MEMORY_MAX_DIMENSION = 1600;
-const MEMORY_TARGET_BYTES = 700 * 1024;
-const MEMORY_SIGNED_URL_SECONDS = 60 * 60;
-const MEMORY_SIGNED_URL_REFRESH_MARGIN_MS = 5 * 60 * 1000;
+const MEMORY_MAX_PHOTOS = window.JaviEatsMemories?.maxPhotos || 8;
+const MEMORY_MAX_SOURCE_BYTES = window.JaviEatsMemories?.maxSourceBytes || (25 * 1024 * 1024);
 
 const CHOICES = {
   piedra: { label: "Piedra", emoji: "✊" },
@@ -546,7 +541,6 @@ let currentGallery = [];
 let currentGalleryIndex = 0;
 let memoryEditorBusy = false;
 let memoryEditorState = createEmptyMemoryEditorState();
-const memorySignedUrlCache = new Map();
 let loadedLetterFile = "";
 let lastProposalTicket = null;
 let dailyGame = null;
@@ -582,6 +576,11 @@ const state = {
   notifications: [],
   notificationLoadError: false
 };
+
+function memoriesModule() {
+  if (!window.JaviEatsMemories) throw new Error("JaviEatsMemories no está cargado.");
+  return window.JaviEatsMemories;
+}
 
 window.JaviEatsApp = {
   getRole: () => currentRole,
@@ -1116,7 +1115,7 @@ function resetAppSession() {
   state.memoryLoadError = false;
   state.notifications = [];
   state.notificationLoadError = false;
-  memorySignedUrlCache.clear();
+  memoriesModule().clearCache();
   resetMemoryEditorState();
   ySiSelectedOption = null;
   ySiSelectedDayId = null;
@@ -1352,47 +1351,7 @@ async function fetchNotifications() {
 
 
 async function fetchRemoteMemories() {
-  const { data, error } = await supabaseClient
-    .from("recuerdos_app")
-    .select("*")
-    .order("fecha", { ascending: true })
-    .order("created_at", { ascending: true });
-  if (error) throw error;
-
-  const rows = Array.isArray(data) ? data : [];
-  const allPaths = [...new Set(rows.flatMap(memory => Array.isArray(memory.image_paths) ? memory.image_paths : []).filter(Boolean))];
-  await ensureMemorySignedUrls(allPaths);
-
-  return {
-    memories: rows.map(memory => ({
-      ...memory,
-      signedUrls: (Array.isArray(memory.image_paths) ? memory.image_paths : []).map(path => memorySignedUrlCache.get(path)?.url || "")
-    })),
-    loadError: false
-  };
-}
-
-async function ensureMemorySignedUrls(paths) {
-  const now = Date.now();
-  const missing = paths.filter(path => {
-    const cached = memorySignedUrlCache.get(path);
-    return !cached || cached.expiresAt - now <= MEMORY_SIGNED_URL_REFRESH_MARGIN_MS;
-  });
-  if (!missing.length) return;
-
-  const { data, error } = await supabaseClient.storage
-    .from(MEMORY_STORAGE_BUCKET)
-    .createSignedUrls(missing, MEMORY_SIGNED_URL_SECONDS);
-  if (error) throw error;
-
-  (data || []).forEach((item, index) => {
-    const path = item?.path || missing[index];
-    if (!path || !item?.signedUrl) return;
-    memorySignedUrlCache.set(path, {
-      url: item.signedUrl,
-      expiresAt: now + (MEMORY_SIGNED_URL_SECONDS * 1000)
-    });
-  });
+  return memoriesModule().fetchAll(supabaseClient);
 }
 
 async function refreshRemoteMemories() {
@@ -2679,7 +2638,7 @@ function renderMemoryPhotoGrid() {
   if (!memoryPhotoGrid) return;
   const retained = getRetainedMemoryPaths();
   const existingHtml = retained.map((path, index) => {
-    const url = memorySignedUrlCache.get(path)?.url || "";
+    const url = memoriesModule().getSignedUrl(path);
     return `<div class="memory-photo-item">${url ? `<img src="${url}" alt="Foto guardada ${index + 1}" />` : `<div class="memory-placeholder">📷</div>`}<span class="memory-photo-badge">Guardada</span><button class="memory-photo-remove" type="button" data-remove-existing-photo="${escapeHTML(path)}" aria-label="Quitar foto">×</button></div>`;
   }).join("");
   const newHtml = memoryEditorState.newFiles.map((item, index) => `<div class="memory-photo-item"><img src="${item.previewUrl}" alt="Nueva foto ${index + 1}"/><span class="memory-photo-badge">Nueva</span><button class="memory-photo-remove" type="button" data-remove-new-photo="${item.id}" aria-label="Quitar foto">×</button></div>`).join("");
@@ -2784,7 +2743,7 @@ async function saveRemoteMemory(event) {
       const path = `${memoryId}/${Date.now()}-${String(i + 1).padStart(2, "0")}-${crypto.randomUUID().slice(0, 8)}.${extension}`;
       setMemoryUploadStatus(`Subiendo foto ${i + 1} de ${memoryEditorState.newFiles.length}…`);
       const { error: uploadError } = await supabaseClient.storage
-        .from(MEMORY_STORAGE_BUCKET)
+        .from(memoriesModule().storageBucket)
         .upload(path, optimized, {
           cacheControl: "31536000",
           contentType: optimized.type,
@@ -2818,9 +2777,9 @@ async function saveRemoteMemory(event) {
 
     const pathsToRemove = [...memoryEditorState.removedPaths].filter(Boolean);
     if (pathsToRemove.length) {
-      const { error: removeError } = await supabaseClient.storage.from(MEMORY_STORAGE_BUCKET).remove(pathsToRemove);
+      const { error: removeError } = await supabaseClient.storage.from(memoriesModule().storageBucket).remove(pathsToRemove);
       if (removeError) console.warn("El recuerdo se guardó, pero no se pudieron limpiar algunas fotos antiguas:", removeError);
-      pathsToRemove.forEach(path => memorySignedUrlCache.delete(path));
+      pathsToRemove.forEach(path => memoriesModule().deleteCached(path));
     }
 
     memoryEditorState.newFiles.forEach(item => item.previewUrl && URL.revokeObjectURL(item.previewUrl));
@@ -2839,7 +2798,7 @@ async function saveRemoteMemory(event) {
   } catch (error) {
     console.error("Error guardando recuerdo v2.8:", error);
     if (!persisted && uploadedPaths.length) {
-      try { await supabaseClient.storage.from(MEMORY_STORAGE_BUCKET).remove(uploadedPaths); } catch (cleanupError) { console.warn(cleanupError); }
+      try { await supabaseClient.storage.from(memoriesModule().storageBucket).remove(uploadedPaths); } catch (cleanupError) { console.warn(cleanupError); }
     }
     setMemoryUploadStatus(memoryUploadErrorMessage(error), "error");
   } finally {
@@ -2861,9 +2820,9 @@ async function deleteRemoteMemory() {
     if (error) throw error;
     const paths = Array.isArray(memory.image_paths) ? memory.image_paths.filter(Boolean) : [];
     if (paths.length) {
-      const { error: removeError } = await supabaseClient.storage.from(MEMORY_STORAGE_BUCKET).remove(paths);
+      const { error: removeError } = await supabaseClient.storage.from(memoriesModule().storageBucket).remove(paths);
       if (removeError) console.warn("Se eliminó el recuerdo, pero quedaron archivos huérfanos:", removeError);
-      paths.forEach(path => memorySignedUrlCache.delete(path));
+      paths.forEach(path => memoriesModule().deleteCached(path));
     }
     memoryEditorModal.classList.add("hidden");
     document.body.style.overflow = "";
@@ -2893,59 +2852,7 @@ function memoryUploadErrorMessage(error) {
 }
 
 async function compressMemoryImage(file) {
-  const image = await loadMemoryImage(file);
-  let width = image.naturalWidth || image.width;
-  let height = image.naturalHeight || image.height;
-  if (!width || !height) throw new Error("decode image failed");
-
-  const initialScale = Math.min(1, MEMORY_MAX_DIMENSION / Math.max(width, height));
-  width = Math.max(1, Math.round(width * initialScale));
-  height = Math.max(1, Math.round(height * initialScale));
-
-  let canvas = drawMemoryImageToCanvas(image, width, height);
-  let quality = 0.84;
-  let blob = await canvasToMemoryBlob(canvas, "image/webp", quality);
-  if (!blob) blob = await canvasToMemoryBlob(canvas, "image/jpeg", 0.84);
-  if (!blob) throw new Error("image format unsupported");
-
-  while (blob.size > MEMORY_TARGET_BYTES && quality > 0.56) {
-    quality -= 0.07;
-    blob = await canvasToMemoryBlob(canvas, blob.type === "image/jpeg" ? "image/jpeg" : "image/webp", quality);
-  }
-
-  if (blob.size > MEMORY_TARGET_BYTES * 1.35) {
-    const scale = 0.82;
-    canvas = drawMemoryImageToCanvas(image, Math.max(1, Math.round(width * scale)), Math.max(1, Math.round(height * scale)));
-    blob = await canvasToMemoryBlob(canvas, blob.type === "image/jpeg" ? "image/jpeg" : "image/webp", Math.max(0.58, quality - 0.04));
-  }
-
-  return blob;
-}
-
-function loadMemoryImage(file) {
-  return new Promise((resolve, reject) => {
-    const url = URL.createObjectURL(file);
-    const image = new Image();
-    image.onload = () => { URL.revokeObjectURL(url); resolve(image); };
-    image.onerror = () => { URL.revokeObjectURL(url); reject(new Error("decode image failed")); };
-    image.src = url;
-  });
-}
-
-function drawMemoryImageToCanvas(image, width, height) {
-  const canvas = document.createElement("canvas");
-  canvas.width = width;
-  canvas.height = height;
-  const context = canvas.getContext("2d", { alpha: false });
-  if (!context) throw new Error("canvas unavailable");
-  context.fillStyle = "#ffffff";
-  context.fillRect(0, 0, width, height);
-  context.drawImage(image, 0, 0, width, height);
-  return canvas;
-}
-
-function canvasToMemoryBlob(canvas, type, quality) {
-  return new Promise(resolve => canvas.toBlob(resolve, type, quality));
+  return memoriesModule().compressImage(file);
 }
 
 function renderLetterText(text) {
