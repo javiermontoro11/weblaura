@@ -338,7 +338,7 @@ El microevento de flores amarillas no crea archivos nuevos: estilos, marcado y a
 
 Los tres contextos maestros viven juntos dentro de `/contextos/`. **Nuestra Vida** conserva su aplicación y recursos dentro de `/nuestra-vida/`; únicamente su launcher de integración con JaviEats vive en `/minijuegos/`.
 
-`/app/` se reserva para módulos del frontend principal extraídos de forma incremental. En 3.3.6 contiene `app/js/debug.js` y `app/js/memories.js`; no se crearán decenas de archivos pequeños sin una responsabilidad clara.
+`/app/` concentra el frontend modular de JaviEats. En 3.3.6 se divide en `app/js/` para lógica funcional y `app/css/` para estilos por responsabilidad. Se evita crear archivos pequeños sin una responsabilidad clara.
 
 `app/js/memories.js` concentra todo el dominio de Recuerdos: acceso a `recuerdos_app`, Storage privado, URLs firmadas, caché temporal, compresión, render, galerías, cartas, editor, alta, edición y borrado.
 
@@ -798,3 +798,16 @@ Nuestra Vida conserva su propio versionado. Los bugs o ajustes internos del jueg
 ---
 
 Hecho con cariño para Laura y Javi. ❤️
+
+### CSS modular · 3.3.6
+
+El antiguo `style.css` de ~130 KB se dividió preservando exactamente el mismo contenido y orden:
+
+- `app/css/base.css` — base histórica y estilos generales.
+- `app/css/interactions.css` — puzzle, ¿Y si…? y autenticación/interacciones previas.
+- `app/css/minigames.css` — Dibuja, No lo digas y hub de minijuegos.
+- `app/css/memories.css` — Recuerdos y editor.
+- `app/css/notifications.css` — centro de actividad/notificaciones.
+- `app/css/ui.css` — interfaz v3, navegación, Inicio, Planes, Recuerdos, Nosotros y Push.
+
+La concatenación de estas seis hojas, en ese orden, es idéntica al `style.css` anterior.
