@@ -372,6 +372,20 @@ function showPage(page) {
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
+function settledSyncValue(results, jobs, key) {
+  const index = jobs.findIndex(job => job.key === key);
+  if (index < 0) return { ok: false, value: null, error: new Error(`Sync job no encontrado: ${key}`) };
+
+  const result = results[index];
+  if (!result) return { ok: false, value: null, error: new Error(`Sync result no encontrado: ${key}`) };
+
+  if (result.status === "fulfilled") {
+    return { ok: true, value: result.value, error: null };
+  }
+
+  return { ok: false, value: null, error: result.reason };
+}
+
 async function runDataSync({ silent = false, reason = "normal" } = {}) {
   if (!currentUser || !supabaseClient) return { ok: false, failures: ["session"] };
 
