@@ -159,13 +159,14 @@
 
   function voucherCode(voucher) {
     if (!voucher?.id || !voucher?.created_at) return "";
-    const date = new Intl.DateTimeFormat("en-CA", {
+    const parts = new Intl.DateTimeFormat("en-GB", {
       timeZone: "Europe/Madrid",
       year: "numeric",
       month: "2-digit",
       day: "2-digit"
-    }).format(new Date(voucher.created_at)).replaceAll("-", "");
-    return `JE-${date}-${String(voucher.id).slice(0, 6).toUpperCase()}`;
+    }).formatToParts(new Date(voucher.created_at));
+    const values = Object.fromEntries(parts.filter(part => part.type !== "literal").map(part => [part.type, part.value]));
+    return `JE-${values.year}${values.month}${values.day}-${String(voucher.id).slice(0, 6).toUpperCase()}`;
   }
 
   function puzzlePiecesSet() {
