@@ -133,8 +133,67 @@
     return services.find(service => service.id === id) || null;
   }
 
+  async function fetchAll(client) {
+    if (!client) throw new Error("Supabase client unavailable");
+    const { data, error } = await client
+      .from("propuestas")
+      .select("*")
+      .order("plan_date", { ascending: true })
+      .order("plan_time", { ascending: true });
+    if (error) throw error;
+    return data || [];
+  }
+
+  async function create(client, payload) {
+    if (!client) throw new Error("Supabase client unavailable");
+    const { data, error } = await client
+      .from("propuestas")
+      .insert(payload)
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
+  }
+
+  async function update(client, id, payload) {
+    if (!client || !id) throw new Error("Plan update unavailable");
+    const { data, error } = await client
+      .from("propuestas")
+      .update(payload)
+      .eq("id", id)
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
+  }
+
+  async function remove(client, id) {
+    if (!client || !id) throw new Error("Plan delete unavailable");
+    const { error } = await client
+      .from("propuestas")
+      .delete()
+      .eq("id", id);
+    if (error) throw error;
+    return true;
+  }
+
+  async function clear(client) {
+    if (!client) throw new Error("Supabase client unavailable");
+    const { error } = await client
+      .from("propuestas")
+      .delete()
+      .neq("id", "00000000-0000-0000-0000-000000000000");
+    if (error) throw error;
+    return true;
+  }
+
   window.JaviEatsPlans = Object.freeze({
     services,
-    getService
+    getService,
+    fetchAll,
+    create,
+    update,
+    remove,
+    clear
   });
 })();
