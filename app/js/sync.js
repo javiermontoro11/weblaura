@@ -9,6 +9,12 @@
   let retryTimer = null;
   let retryIndex = 0;
   let bound = false;
+  let lastStartedAt = null;
+  let lastFinishedAt = null;
+  let lastDurationMs = null;
+  let lastReason = null;
+  let lastOk = null;
+  let lastFailures = [];
 
   const app = () => window.JaviEatsApp;
   const $ = id => document.getElementById(id);
@@ -56,7 +62,15 @@
     if (!ready()) return;
     if (inFlight) return inFlight;
 
+    const startedAtMs = Date.now();
+    lastStartedAt = new Date(startedAtMs).toISOString();
+    lastReason = reason;
+
     if (navigator.onLine === false) {
+      lastFinishedAt = new Date().toISOString();
+      lastDurationMs = Date.now() - startedAtMs;
+      lastOk = false;
+      lastFailures = ["offline"];
       setStatus("error", "Sin conexión · reintentando…");
       return { ok: false, failures: ["offline"] };
     }
@@ -74,10 +88,14 @@
         if (!failures.length && normalized.ok !== false) {
           retryIndex = 0;
           cancelRetry();
+          lastOk = true;
+          lastFailures = [];
           setStatus("ok", `Sincronizado · ${currentTimeLabel()}`);
           return { ...normalized, ok: true, failures: [] };
         }
 
+        lastOk = false;
+        lastFailures = [...failures];
         setStatus("error", "Sincronización parcial · reintentando…");
         scheduleRetry("partial");
         return { ...normalized, ok: false, failures };
@@ -90,6 +108,8 @@
             ? "Sin conexión · reintentando…"
             : "Error de sincronización · reintentando…"
         );
+        lastOk = false;
+        lastFailures = ["sync"];
         scheduleRetry("error");
         if (!silent) {
           app()?.showToast?.("No se han podido cargar todos los datos. JaviEats volverá a intentarlo.");
@@ -97,7 +117,10 @@
         return { ok: false, failures: ["sync"] };
       })
       .finally(() => {
+        lastFinishedAt = new Date().toISOString();
+        lastDurationMs = Date.now() - startedAtMs;
         inFlight = null;
+        window.dispatchEvent(new CustomEvent("javieats:sync-diagnostics"));
       });
 
     return inFlight;
@@ -120,6 +143,12 @@
     cancelRetry();
     retryIndex = 0;
     inFlight = null;
+    lastStartedAt = null;
+    lastFinishedAt = null;
+    lastDurationMs = null;
+    lastReason = null;
+    lastOk = null;
+    lastFailures = [];
     setStatus("", "");
   }
 
@@ -169,11 +198,26 @@
     });
   }
 
+  function getDiagnostics() {
+    return {
+      lastStartedAt,
+      lastFinishedAt,
+      lastDurationMs,
+      lastReason,
+      lastOk,
+      lastFailures: [...lastFailures],
+      inFlight: Boolean(inFlight),
+      retryIndex,
+      retryScheduled: Boolean(retryTimer)
+    };
+  }
+
   window.JaviEatsSync = Object.freeze({
     bindUI,
     run,
     start,
     reset,
-    setStatus
+    setStatus,
+    getDiagnostics
   });
 })();
