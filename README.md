@@ -1,17 +1,17 @@
 # JaviEats 💌
 
 **Versión de producto: 3.3 — ESTABLE**  
-**Mantenimiento actual: 3.3.5**
+**Mantenimiento actual: 3.3.6**
 
 JaviEats es una aplicación web privada creada para Laura y Javi. Reúne planes compartidos, recuerdos, minijuegos, actividad, notificaciones y un espacio común pensado para funcionar como una PWA en móvil, tablet y escritorio.
 
-JaviEats 3.3.5 mantiene **Nuestra Vida 1.0** como experiencia principal independiente y consolida las mejoras de 3.3. Esta revisión corrige la reproducción móvil del recuerdo de flores amarillas y garantiza que sus animaciones se reinicien cada vez que se vuelve a abrir.
+JaviEats 3.3.6 mantiene **Nuestra Vida 1.0** como experiencia principal independiente y abre una fase de mantenimiento técnico. Como primer ajuste, completa la navegación de Nuestra Vida con un retorno explícito a JaviEats desde su menú principal, sin modificar el core del juego.
 
-> **Estado actual:** `main` es la fuente de verdad. JaviEats 3.3.5 conserva el recuerdo permanente de flores amarillas y corrige su composición y reinicio de animaciones en móvil. El código y el deployment deben verificarse por separado de la prueba funcional real en iPhone/PWA.
+> **Estado actual:** `main` es la fuente de verdad. JaviEats 3.3.6 inicia una fase centrada en mantenimiento, seguridad, arquitectura y estabilidad. Nuestra Vida conserva su core 1.0 y añade el retorno a JaviEats desde la capa de integración `access-gate.js`.
 
 ---
 
-## 🚀 JaviEats 3.3.5
+## 🚀 JaviEats 3.3.6
 
 La 3.3 mantiene la filosofía del proyecto:
 
@@ -19,7 +19,7 @@ La 3.3 mantiene la filosofía del proyecto:
 
 Cuando una función ya está validada, los cambios deben ser pequeños, incrementales y compatibles con lo que ya funciona.
 
-### Estado actual de la 3.3.5
+### Estado actual de la 3.3.6
 
 - base funcional de JaviEats 3.1 conservada;
 - navegación final `Inicio · Planes · Nuestra Vida · Minijuegos · Recuerdos`;
@@ -81,7 +81,8 @@ Nuestra Vida se mantiene como módulo independiente dentro del repositorio para 
 - el launcher sincroniza el perfil activo de JaviEats antes de entrar;
 - `/nuestra-vida/` contiene la release y sus recursos;
 - `nuestra-vida/nv-core-1-0-8c6f2a.html` se conserva como core/master de referencia de Nuestra Vida 1.0;
-- `nuestra-vida/minijuegos.html` permite abrir una zona de pruebas de los minijuegos del juego principal.
+- `nuestra-vida/minijuegos.html` permite abrir una zona de pruebas de los minijuegos del juego principal;
+- `nuestra-vida/access-gate.js` mantiene la validación de acceso y añade la integración de salida `← Volver a JaviEats` en el menú principal de Nuestra Vida, sin alterar su gameplay.
 
 Durante el estreno se utilizó una puerta de acceso específica para controlar la revelación por fecha y perfil. Después del lanzamiento se aplicaron hotfixes 3.2.1 para restaurar el acceso jugable y evitar que Safari/PWA reutilizara una versión antigua cacheada.
 
@@ -331,7 +332,7 @@ Los tres contextos maestros viven juntos dentro de `/contextos/`. **Nuestra Vida
 
 ---
 
-## 🧪 QA y mantenimiento 3.3.5
+## 🧪 QA y mantenimiento 3.3.6
 
 La integración de Nuestra Vida no elimina la necesidad de comprobar las funciones ya estables de JaviEats.
 
@@ -481,9 +482,10 @@ La línea actual es:
 3.3.3 → microevento efímero de flores amarillas del 21/09/2026
 3.3.4 → recuerdo permanente de las flores amarillas con reproducción de la experiencia
 3.3.5 → ajuste móvil y reinicio fiable de animaciones del recuerdo de flores amarillas
+3.3.6 → inicio de mantenimiento técnico y navegación de retorno desde Nuestra Vida
 ```
 
-`3.3.5` es la referencia actual de mantenimiento: conserva el recuerdo de flores amarillas y corrige su reproducción móvil y sus animaciones repetidas. Los siguientes cambios deben seguir siendo incrementales y quedar reflejados tanto aquí como en `contextos/CONTEXTO_JAVIEATS.md`.
+`3.3.6` es la referencia actual de mantenimiento: inicia la fase de hardening/orden técnico y completa la navegación de Nuestra Vida con un retorno explícito a JaviEats desde su menú principal. Los siguientes cambios deben seguir siendo incrementales y quedar reflejados tanto aquí como en `contextos/CONTEXTO_JAVIEATS.md`.
 
 ## Nuestra Vida
 
@@ -492,6 +494,14 @@ Nuestra Vida conserva su propio versionado. Los bugs o ajustes internos del jueg
 ---
 
 # Historial de versiones
+
+## v3.3.6 — Mantenimiento técnico y retorno desde Nuestra Vida
+
+- Añadido `← Volver a JaviEats` en el menú principal de Nuestra Vida.
+- El botón se inyecta desde `nuestra-vida/access-gate.js`, manteniendo intacto el core de Nuestra Vida 1.0.
+- El retorno también queda disponible cuando una partida termina y se vuelve al menú principal.
+- No cambia gameplay, persistencia ni esquema de guardado de Nuestra Vida.
+- Se inicia una fase centrada en seguridad, limpieza de código, estructura y estabilidad, sin nuevas features de producto.
 
 ## v3.3.5 — Ajuste móvil del recuerdo de flores amarillas
 
