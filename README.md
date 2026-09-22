@@ -292,7 +292,8 @@ JaviEats/
 │       ├── notifications.js
 │       ├── push.js
 │       ├── sync.js
-│       └── auth.js\n├── assets/
+│       ├── auth.js
+│       └── plans.js\n├── assets/
 │   ├── apple-touch-icon.png
 │   ├── icon-192.png
 │   ├── icon-512.png
@@ -345,6 +346,8 @@ Los tres contextos maestros viven juntos dentro de `/contextos/`. **Nuestra Vida
 `app/js/sync.js` concentra el motor de sincronización: intervalo periódico, single-flight, reintentos 2/5/10 s, estado online/offline, actualización manual y reanudación por visibility/pageshow. `script.js` conserva `runDataSync()` como coordinador de los dominios todavía no extraídos.
 
 `app/js/auth.js` concentra perfiles autorizados, selector Javi/Laura, login, restauración de sesión, validación de rol, cambio de perfil en enlaces dirigidos, logout y errores de autenticación. El core recibe únicamente una sesión ya validada.
+
+`app/js/plans.js` inicia la modularización del dominio Planes: contiene el catálogo de servicios y centraliza todas las operaciones Supabase sobre `propuestas` (listar, crear, actualizar, borrar y vaciar). La UI de calendario/editor todavía permanece en `script.js` en esta fase.
 
 /supabase/ contiene desde 3.3.6 el historial SQL reproducible. Las migraciones creadas en GitHub no deben confundirse con cambios ya aplicados a producción: su estado debe verificarse explícitamente.
 
