@@ -13,7 +13,6 @@ const USER_IDS = {
 
 const REGULAR_GAME_ROUNDS = 5;
 const PUZZLE_TOTAL_PIECES = 6;
-const Y_SI_REVEAL_MS = 900;
 const WELCOME_MIN_LOAD_MS = 650;
 const WELCOME_SUMMARY_MS = 850;
 
@@ -85,37 +84,6 @@ const puzzleModalPrimary = $("puzzle-modal-primary");
 
 
 
-const ySiStatusBadge = $("y-si-status-badge");
-const ySiCompatibility = $("y-si-compatibility");
-const ySiCompatibilityTitle = $("y-si-compatibility-title");
-const ySiCompatibilityText = $("y-si-compatibility-text");
-const ySiHeartFill = $("y-si-heart-fill");
-const ySiSharedCount = $("y-si-shared-count");
-const ySiMatchCount = $("y-si-match-count");
-const ySiBestStreak = $("y-si-best-streak");
-const ySiTodayTitle = $("y-si-today-title");
-const ySiTodayText = $("y-si-today-text");
-const ySiDailyDots = $("y-si-daily-dots");
-const ySiQuestionDate = $("y-si-question-date");
-const ySiQuestionText = $("y-si-question-text");
-const ySiOptions = $("y-si-options");
-const ySiSubmit = $("y-si-submit");
-const ySiSkip = $("y-si-skip");
-const ySiStatusNote = $("y-si-status-note");
-const ySiResult = $("y-si-result");
-const ySiResultLoading = $("y-si-result-loading");
-const ySiResultContent = $("y-si-result-content");
-const ySiResultMeta = $("y-si-result-meta");
-const ySiResultIcon = $("y-si-result-icon");
-const ySiResultTitle = $("y-si-result-title");
-const ySiResultCopy = $("y-si-result-copy");
-const ySiJaviAnswer = $("y-si-javi-answer");
-const ySiLauraAnswer = $("y-si-laura-answer");
-const ySiSpecial = $("y-si-special");
-const ySiHistoryBtn = $("y-si-history-btn");
-const ySiHistoryModal = $("y-si-history-modal");
-const ySiHistorySummary = $("y-si-history-summary");
-const ySiHistoryList = $("y-si-history-list");
 
 const voucherList = $("voucher-list");
 
@@ -133,11 +101,6 @@ let appReady = false;
 let puzzleWelcomeShown = false;
 let recentPuzzlePieceNumber = null;
 let puzzlePieceAnimationTimer = null;
-let ySiSelectedOption = null;
-let ySiSelectedDayId = null;
-let ySiHistoryFilter = "all";
-let ySiRevealTimer = null;
-let ySiRevealInProgress = false;
 
 const state = {
   proposals: [],
@@ -185,6 +148,11 @@ function plansModule() {
   return window.JaviEatsPlans;
 }
 
+function ysiModule() {
+  if (!window.JaviEatsYSi) throw new Error("JaviEatsYSi no está cargado.");
+  return window.JaviEatsYSi;
+}
+
 window.JaviEatsApp = {
   getRole: () => currentRole,
   getUser: () => currentUser,
@@ -225,6 +193,7 @@ async function init() {
   pushModule().bindUI();
   syncModule().bindUI();
   plansModule().bindUI();
+  ysiModule().bindUI();
   renderServices();
   renderMemories();
   renderVouchers();
@@ -255,18 +224,10 @@ function bindEvents() {
   });
   document.querySelectorAll("[data-game-close]").forEach(el => el.addEventListener("click", closeGameModal));
   document.querySelectorAll("[data-puzzle-close]").forEach(el => el.addEventListener("click", closePuzzleModal));
-  document.querySelectorAll("[data-y-si-history-close]").forEach(el => el.addEventListener("click", closeYSiHistoryModal));
 
   gameHomeButton.addEventListener("click", openGameModal);
   openPuzzleBtn.addEventListener("click", () => openPuzzleModal());
   puzzleModalPrimary.addEventListener("click", handlePuzzlePrimaryAction);
-  ySiOptions.addEventListener("click", handleYSiOptionClick);
-  ySiSubmit.addEventListener("click", handleYSiAnswer);
-  ySiSkip.addEventListener("click", handleYSiSkip);
-  ySiHistoryBtn.addEventListener("click", openYSiHistoryModal);
-  document.querySelectorAll("[data-y-si-filter]").forEach(button => {
-    button.addEventListener("click", () => setYSiHistoryFilter(button.dataset.ySiFilter));
-  });
   document.querySelectorAll("[data-choice]").forEach(button => {
     button.addEventListener("click", () => playGameRound(button.dataset.choice));
   });
@@ -450,12 +411,7 @@ function resetAppSession() {
   memoriesModule().reset();
   notificationsModule().reset();
   plansModule().reset();
-  ySiSelectedOption = null;
-  ySiSelectedDayId = null;
-  ySiHistoryFilter = "all";
-  ySiRevealInProgress = false;
-  if (ySiRevealTimer) clearTimeout(ySiRevealTimer);
-  ySiRevealTimer = null;
+  ysiModule().reset();
   puzzleWelcomeShown = false;
   recentPuzzlePieceNumber = null;
   if (puzzlePieceAnimationTimer) clearTimeout(puzzlePieceAnimationTimer);
@@ -578,14 +534,10 @@ async function fetchProposals() {
   return plansModule().fetchAll(supabaseClient);
 }
 async function fetchYSiCurrent() {
-  const { data, error } = await supabaseClient.rpc("obtener_y_si_actual");
-  if (error) throw error;
-  return data || null;
+  return ysiModule().fetchCurrent(supabaseClient);
 }
 async function fetchYSiHistory() {
-  const { data, error } = await supabaseClient.rpc("obtener_y_si_historial");
-  if (error) throw error;
-  return Array.isArray(data) ? data : [];
+  return ysiModule().fetchHistory(supabaseClient);
 }
 async function fetchVouchers() {
   const { data, error } = await supabaseClient.from("vales").select("*").order("created_at", { ascending: false });
@@ -671,340 +623,21 @@ async function deleteProposal(id) {
   return plansModule().deleteProposal(id);
 }
 
-function ySiOptionLabel(current, optionNumber) {
-  const options = Array.isArray(current?.opciones) ? current.opciones : [];
-  const index = Number(optionNumber) - 1;
-  return index >= 0 && index < options.length ? String(options[index]) : "—";
-}
-
 function calculateYSiStats() {
-  const history = Array.isArray(state.ySiHistory) ? [...state.ySiHistory] : [];
-  history.sort((a, b) => {
-    const aKey = String(a.cerrada_at || `${a.fecha}T00:00:00`);
-    const bKey = String(b.cerrada_at || `${b.fecha}T00:00:00`);
-    return aKey.localeCompare(bKey);
-  });
-  const total = history.length;
-  const matches = history.filter(item => Boolean(item.coincide)).length;
-  const compatibility = total ? Math.round((matches / total) * 100) : 0;
-  let streak = 0;
-  let bestStreak = 0;
-  for (const item of history) {
-    if (item.coincide) {
-      streak += 1;
-      bestStreak = Math.max(bestStreak, streak);
-    } else {
-      streak = 0;
-    }
-  }
-  return { total, matches, compatibility, bestStreak };
-}
-
-function updateYSiCompatibility() {
-  const stats = calculateYSiStats();
-  const percent = Math.min(100, Math.max(0, stats.compatibility));
-  ySiCompatibility.textContent = `${percent}%`;
-  ySiSharedCount.textContent = String(stats.total);
-  ySiMatchCount.textContent = String(stats.matches);
-  ySiBestStreak.textContent = String(stats.bestStreak);
-
-  const heartHeight = 92 * (percent / 100);
-  ySiHeartFill.setAttribute("y", String(92 - heartHeight));
-  ySiHeartFill.setAttribute("height", String(heartHeight));
-
-  if (!stats.total) {
-    ySiCompatibilityTitle.textContent = "Aún está por descubrir";
-    ySiCompatibilityText.textContent = "Responded vuestra primera pregunta para empezar a llenar el corazón.";
-  } else if (percent >= 80) {
-    ySiCompatibilityTitle.textContent = "Muchas coincidencias";
-    ySiCompatibilityText.textContent = `Coincidís en ${stats.matches} de ${stats.total} preguntas compartidas.`;
-  } else if (percent >= 60) {
-    ySiCompatibilityTitle.textContent = "Bastantes puntos en común";
-    ySiCompatibilityText.textContent = `Coincidís en ${stats.matches} de ${stats.total} preguntas compartidas.`;
-  } else if (percent >= 40) {
-    ySiCompatibilityTitle.textContent = "Una mezcla interesante";
-    ySiCompatibilityText.textContent = `Coincidís en ${stats.matches} de ${stats.total} preguntas compartidas.`;
-  } else {
-    ySiCompatibilityTitle.textContent = "Muchas respuestas distintas";
-    ySiCompatibilityText.textContent = `Coincidís en ${stats.matches} de ${stats.total} preguntas compartidas.`;
-  }
+  return ysiModule().stats();
 }
 
 function getTodayLatestYSiResult(history = state.ySiHistory) {
-  const today = toDateKeyMadrid(new Date());
-  return (Array.isArray(history) ? history : []).find(item => item?.fecha === today) || null;
-}
-
-function renderYSiDailySummary(current) {
-  const completed = Math.min(5, Math.max(0, Number(current?.completadas_hoy) || 0));
-  const matches = Math.min(completed, Math.max(0, Number(current?.coincidencias_hoy) || 0));
-  ySiTodayTitle.textContent = `${completed} de 5 completadas`;
-  ySiTodayText.textContent = completed
-    ? `${matches} ${matches === 1 ? "coincidencia" : "coincidencias"} hoy · cada resultado cuenta para vuestra compatibilidad.`
-    : "Podéis completar hasta cinco situaciones juntos hoy.";
-
-  ySiDailyDots.innerHTML = Array.from({ length: 5 }, (_, index) => {
-    const done = index < completed;
-    return `<span class="y-si-daily-dot${done ? " is-done" : ""}" aria-hidden="true">${done ? "♥" : ""}</span>`;
-  }).join("");
-}
-
-function renderYSiOptions(current) {
-  if (!current || current.limite_alcanzado || !Array.isArray(current.opciones)) {
-    ySiOptions.innerHTML = "";
-    ySiSubmit.classList.add("hidden");
-    ySiSkip.classList.add("hidden");
-    return;
-  }
-  const ownAnswer = Number(current.mi_respuesta) || null;
-  const locked = Boolean(ownAnswer || current.ambos_respondieron);
-  ySiOptions.innerHTML = current.opciones.map((option, index) => {
-    const number = index + 1;
-    const selected = number === (ownAnswer || ySiSelectedOption);
-    return `<button class="y-si-option${selected ? " is-selected" : ""}" type="button" role="radio" aria-checked="${selected ? "true" : "false"}" data-y-si-option="${number}" ${locked ? "disabled" : ""}><span class="y-si-option-letter">${String.fromCharCode(65 + index)}</span><span>${escapeHTML(String(option))}</span></button>`;
-  }).join("");
-
-  ySiSubmit.disabled = locked || !ySiSelectedOption;
-  ySiSubmit.classList.toggle("hidden", locked);
-  ySiSkip.classList.toggle("hidden", locked || !current.salto_disponible);
-  ySiSkip.disabled = !current.salto_disponible;
-}
-
-function renderYSiResult() {
-  const result = state.ySiLastResult;
-  if (!result?.id) {
-    ySiResult.classList.add("hidden");
-    ySiResultLoading.classList.add("hidden");
-    ySiResultContent.classList.remove("hidden");
-    return;
-  }
-
-  const match = Boolean(result.coincide);
-  ySiResult.classList.remove("hidden");
-  ySiResultMeta.textContent = `Último resultado · pregunta ${Number(result.posicion_dia) || "—"} de 5`;
-  ySiResultIcon.textContent = match ? "💞" : "👀";
-  ySiResultTitle.textContent = match ? "¡Coincidencia!" : "Esta vez pensáis diferente";
-  ySiResultCopy.textContent = match
-    ? "Habéis elegido exactamente la misma opción."
-    : "Dos respuestas distintas para la misma situación.";
-  ySiJaviAnswer.textContent = ySiOptionLabel(result, result.javi_respuesta);
-  ySiLauraAnswer.textContent = ySiOptionLabel(result, result.laura_respuesta);
-  ySiSpecial.classList.toggle("hidden", !(match && result.destacada));
-
-  if (ySiRevealInProgress) {
-    ySiResultLoading.classList.remove("hidden");
-    ySiResultContent.classList.add("hidden");
-  } else {
-    ySiResultLoading.classList.add("hidden");
-    ySiResultContent.classList.remove("hidden");
-  }
+  return ysiModule().latestResult(history);
 }
 
 function renderYSi() {
-  updateYSiCompatibility();
-  const current = state.ySiCurrent;
-
-  if (!current) {
-    ySiQuestionDate.textContent = "¿Y si…?";
-    ySiOptions.innerHTML = "";
-    ySiSubmit.classList.add("hidden");
-    ySiSkip.classList.add("hidden");
-    ySiResult.classList.add("hidden");
-    renderYSiDailySummary(null);
-    if (state.ySiLoadError) {
-      ySiStatusBadge.textContent = "No disponible";
-      ySiQuestionText.textContent = "No se ha podido cargar la pregunta compartida.";
-      ySiStatusNote.textContent = "Aplica la migración v2.5.1 de Supabase y vuelve a intentarlo.";
-    } else {
-      ySiStatusBadge.textContent = "Preparando…";
-      ySiQuestionText.textContent = "Cargando pregunta…";
-      ySiStatusNote.textContent = "";
-    }
-    renderYSiHistory();
-    return;
-  }
-
-  renderYSiDailySummary(current);
-  renderYSiResult();
-
-  if (current.limite_alcanzado) {
-    ySiSelectedDayId = null;
-    ySiSelectedOption = null;
-    ySiStatusBadge.textContent = "5/5 completadas";
-    ySiQuestionDate.textContent = "Ronda de hoy terminada";
-    ySiQuestionText.textContent = "Ya habéis completado las cinco preguntas de hoy ❤️";
-    ySiStatusNote.textContent = `Habéis coincidido ${Number(current.coincidencias_hoy) || 0} de 5 veces. Mañana el contador vuelve a 0/5 con una pregunta nueva.`;
-    ySiOptions.innerHTML = "";
-    ySiSubmit.classList.add("hidden");
-    ySiSkip.classList.add("hidden");
-    renderYSiHistory();
-    return;
-  }
-
-  if (ySiSelectedDayId !== current.id) {
-    ySiSelectedDayId = current.id;
-    ySiSelectedOption = null;
-  }
-
-  const position = Number(current.posicion_dia) || Math.min(5, (Number(current.completadas_hoy) || 0) + 1);
-  ySiQuestionDate.textContent = `Pregunta ${position} de 5 de hoy · ${current.categoria || "General"}`;
-  ySiQuestionText.textContent = current.pregunta;
-
-  const iAmJavi = currentRole === "javi";
-  const otherName = iAmJavi ? "Laura" : "Javi";
-  const otherAnswered = iAmJavi ? current.laura_ha_respondido : current.javi_ha_respondido;
-
-  if (current.mi_respuesta) {
-    ySiStatusBadge.textContent = `Esperando a ${otherName}`;
-    ySiStatusNote.textContent = `Tu respuesta está guardada. JaviEats avisará a ${otherName} por Push si lo tiene activo; si no, usará el correo de turno.`;
-  } else if (otherAnswered) {
-    ySiStatusBadge.textContent = "Te toca";
-    ySiStatusNote.textContent = `${otherName} ya ha respondido. Su elección permanece oculta hasta que tú contestes.`;
-  } else {
-    ySiStatusBadge.textContent = "Nueva pregunta";
-    ySiStatusNote.textContent = current.salto_disponible
-      ? "Elige una opción. También tenéis un cambio de pregunta disponible hoy."
-      : "Elige una opción. Tu respuesta no se enseñará hasta que ambos hayáis contestado.";
-  }
-
-  renderYSiOptions(current);
-  renderYSiHistory();
+  ysiModule().render();
 }
 
-function handleYSiOptionClick(event) {
-  const button = event.target.closest("[data-y-si-option]");
-  if (!button || button.disabled || state.ySiCurrent?.mi_respuesta) return;
-  ySiSelectedOption = Number(button.dataset.ySiOption);
-  renderYSiOptions(state.ySiCurrent);
+function maybeRevealYSiResult(options = {}) {
+  ysiModule().maybeReveal(options);
 }
-
-async function handleYSiAnswer() {
-  if (!currentUser || !state.ySiCurrent || state.ySiCurrent.limite_alcanzado || !ySiSelectedOption || state.ySiCurrent.mi_respuesta) return;
-  ySiSubmit.disabled = true;
-  ySiSkip.disabled = true;
-  ySiStatusNote.textContent = "Guardando tu respuesta…";
-  try {
-    const { data, error } = await supabaseClient.rpc("responder_y_si", { p_opcion: ySiSelectedOption });
-    if (error) throw error;
-
-    state.ySiCurrent = data?.actual || state.ySiCurrent;
-    if (data?.resultado?.id) state.ySiLastResult = data.resultado;
-    state.ySiHistory = await fetchYSiHistory();
-    if (!data?.resultado?.id) state.ySiLastResult = getTodayLatestYSiResult(state.ySiHistory);
-    ySiSelectedOption = null;
-    renderYSi();
-    showToast(data?.resultado?.id ? "¡Los dos habéis respondido! Ya tenéis otra pregunta." : "Respuesta guardada. Ahora le toca a la otra persona.");
-    if (data?.resultado?.id) maybeRevealYSiResult({ force: true });
-  } catch (error) {
-    console.error(error);
-    ySiStatusNote.textContent = friendlyYSiError(error);
-    ySiSubmit.disabled = false;
-    ySiSkip.disabled = false;
-  }
-}
-
-async function handleYSiSkip() {
-  if (!currentUser || !state.ySiCurrent?.id || !state.ySiCurrent.salto_disponible) return;
-  ySiSkip.disabled = true;
-  ySiSubmit.disabled = true;
-  ySiStatusNote.textContent = "Buscando otra pregunta…";
-  try {
-    const { data, error } = await supabaseClient.rpc("saltar_y_si_actual");
-    if (error) throw error;
-    state.ySiCurrent = data;
-    ySiSelectedOption = null;
-    ySiSelectedDayId = data?.id || null;
-    renderYSi();
-    showToast("Pregunta cambiada. Este era el cambio disponible de hoy.");
-  } catch (error) {
-    console.error(error);
-    ySiStatusNote.textContent = friendlyYSiError(error);
-    renderYSiOptions(state.ySiCurrent);
-  }
-}
-
-function maybeRevealYSiResult({ force = false } = {}) {
-  const result = state.ySiLastResult;
-  if (!result?.id) return;
-  const key = `javieats_y_si_revealed_${result.id}`;
-  if (!force && sessionStorage.getItem(key) === "true") return;
-  if (ySiRevealTimer) clearTimeout(ySiRevealTimer);
-  ySiRevealInProgress = true;
-  renderYSiResult();
-  ySiRevealTimer = setTimeout(() => {
-    ySiRevealInProgress = false;
-    ySiResultLoading.classList.add("hidden");
-    ySiResultContent.classList.remove("hidden");
-    ySiResultContent.classList.remove("is-revealed");
-    void ySiResultContent.offsetWidth;
-    ySiResultContent.classList.add("is-revealed");
-    sessionStorage.setItem(key, "true");
-    ySiRevealTimer = null;
-  }, Y_SI_REVEAL_MS);
-}
-
-function openYSiHistoryModal() {
-  renderYSiHistory();
-  ySiHistoryModal.classList.remove("hidden");
-  document.body.style.overflow = "hidden";
-}
-
-function closeYSiHistoryModal() {
-  ySiHistoryModal.classList.add("hidden");
-  document.body.style.overflow = "";
-}
-
-function setYSiHistoryFilter(filter) {
-  ySiHistoryFilter = ["all", "match", "different"].includes(filter) ? filter : "all";
-  document.querySelectorAll("[data-y-si-filter]").forEach(button => {
-    button.classList.toggle("is-active", button.dataset.ySiFilter === ySiHistoryFilter);
-  });
-  renderYSiHistory();
-}
-
-function renderYSiHistory() {
-  if (!ySiHistoryList || !ySiHistorySummary) return;
-  const history = Array.isArray(state.ySiHistory) ? state.ySiHistory : [];
-  const stats = calculateYSiStats();
-  ySiHistorySummary.textContent = stats.total
-    ? `${stats.matches} coincidencias en ${stats.total} preguntas compartidas · ${stats.compatibility}% de compatibilidad JaviEats.`
-    : "Aquí aparecerán las preguntas que ya habéis respondido los dos.";
-
-  const filtered = history.filter(item => {
-    if (ySiHistoryFilter === "match") return Boolean(item.coincide);
-    if (ySiHistoryFilter === "different") return !item.coincide;
-    return true;
-  });
-
-  if (!filtered.length) {
-    ySiHistoryList.innerHTML = `<div class="empty">${history.length ? "No hay resultados con este filtro." : "Todavía no habéis completado ninguna pregunta entre los dos."}</div>`;
-    return;
-  }
-
-  ySiHistoryList.innerHTML = filtered.map(item => {
-    const javi = ySiOptionLabel(item, item.javi_respuesta);
-    const laura = ySiOptionLabel(item, item.laura_respuesta);
-    const position = Number(item.posicion_dia) || 1;
-    return `<article class="y-si-history-item ${item.coincide ? "is-match" : "is-different"}">
-      <div class="y-si-history-item-top"><span>${item.coincide ? "💞 Coincidencia" : "👀 Diferentes"}</span><time>${escapeHTML(formatDateCompact(item.fecha))} · ${position}/5</time></div>
-      <h3>${escapeHTML(item.pregunta)}</h3>
-      <div class="y-si-history-answers"><span><b>Javi</b>${escapeHTML(javi)}</span><span><b>Laura</b>${escapeHTML(laura)}</span></div>
-      ${item.coincide && item.destacada ? '<p class="y-si-history-special">Coincidencia destacada 👀</p>' : ""}
-    </article>`;
-  }).join("");
-}
-
-function friendlyYSiError(error) {
-  const message = String(error?.message || "").toLowerCase();
-  if (message.includes("ya has respondido")) return "Ya has respondido esta pregunta.";
-  if (message.includes("5 preguntas")) return "Ya habéis completado las cinco preguntas de hoy.";
-  if (message.includes("cambiar") || message.includes("salto")) return "El cambio de pregunta de hoy ya no está disponible.";
-  if (message.includes("no esta disponible") || message.includes("no está disponible")) return "Esta pregunta ya ha caducado. Cargando una nueva…";
-  if (message.includes("opcion") || message.includes("opción")) return "Esa opción no es válida.";
-  if (message.includes("acceso")) return "Esta cuenta no puede participar en ¿Y si…?.";
-  return "No se ha podido guardar la respuesta. Revisa la conexión.";
-}
-
 
 async function openGameModal() {
   if (currentRole === "laura") {
