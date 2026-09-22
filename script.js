@@ -3567,9 +3567,14 @@ function showToast(message) { toast.textContent = message; toast.classList.remov
 
   function allMemories() {
     const remote = Array.isArray(state().remoteMemories) ? state().remoteMemories : [];
-    const legacy = APP()?.getStaticMemories?.() || [];
-    return [...legacy.map(x => ({ ...x, _legacy: true })), ...remote.map(x => ({ ...x, _legacy: false }))]
-      .sort((a, b) => String(b.fecha || b.id || "").localeCompare(String(a.fecha || a.id || "")));
+    const migratedLegacyKeys = new Set(remote.map(memory => memory?.legacy_key).filter(Boolean));
+    const legacy = (APP()?.getStaticMemories?.() || [])
+      .filter(memory => !migratedLegacyKeys.has(memory.id));
+
+    return [
+      ...legacy.map(x => ({ ...x, _legacy: true })),
+      ...remote.map(x => ({ ...x, _legacy: false }))
+    ].sort((a, b) => String(b.fecha || b.id || "").localeCompare(String(a.fecha || a.id || "")));
   }
 
   function memoryImage(memory) {
