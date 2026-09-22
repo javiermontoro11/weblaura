@@ -305,6 +305,12 @@ Mantiene su flujo diario y su puzle/vale.
 - La auditoría confirmó que el Service Worker principal gestiona Push pero no implementa caché propia de HTML/JS/CSS.
 - Se crea `/supabase/migrations/` como historial SQL reproducible.
 - Hay dos migraciones 3.3.6 preparadas: hardening de permisos internos e índices de FKs.
+- Se ha preparado además la migración de los 5 recuerdos históricos hacia Supabase mediante `app/js/migrate-legacy-memories.js`.
+- El migrador solo se activa con `?migrate=legacy-memories` y solo permite ejecutar con el perfil Javi autenticado.
+- Las fotos históricas se comprimen con el mismo criterio del editor actual (máx. 1600 px, WebP/JPEG fallback, objetivo ~700 KB) antes de subirlas al bucket privado `recuerdos`.
+- Las cartas se guardan en `recuerdos_app.contenido` con metadatos de lectura; las flores amarillas se registran como recuerdo especial pero mantienen su experiencia visual frontend.
+- La transición evita duplicados usando `legacy_key`: cuando existe la versión Supabase, se oculta la copia hardcodeada equivalente.
+- No borrar `/recuerdos/` ni `MEMORIES` hasta validar visualmente los 5 recuerdos migrados.
 - Esas migraciones no deben darse por aplicadas en producción hasta comprobar su ejecución real en Supabase.
 
 ---
@@ -345,4 +351,4 @@ A 22/09/2026:
 
 # RESUMEN
 
-**JaviEats 3.3.6 = JaviEats 3.3.5 + retorno desde Nuestra Vida + inicio de arquitectura modular + diagnóstico técnico + versionado de migraciones de seguridad/índices. Las migraciones SQL están preparadas pero todavía no se consideran aplicadas en producción.**
+**JaviEats 3.3.6 = JaviEats 3.3.5 + retorno desde Nuestra Vida + arquitectura modular inicial + diagnóstico técnico + versionado de migraciones + migración preparada de recuerdos históricos a Supabase. Los recuerdos antiguos no se eliminarán del repositorio hasta comprobar visualmente que la migración ha quedado correcta.**
