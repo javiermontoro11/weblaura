@@ -811,3 +811,16 @@ El antiguo `style.css` de ~130 KB se dividió preservando exactamente el mismo c
 - `app/css/ui.css` — interfaz v3, navegación, Inicio, Planes, Recuerdos, Nosotros y Push.
 
 La concatenación de estas seis hojas, en ese orden, es idéntica al `style.css` anterior.
+
+### Seguridad y rendimiento Supabase · 3.3.6
+
+Aplicado en producción el 22/09/2026:
+
+- `harden_internal_function_permissions`: revoca `EXECUTE` a `PUBLIC/anon/authenticated` sobre 11 funciones internas `SECURITY DEFINER`.
+- `add_missing_fk_indexes`: añade 10 índices para claves foráneas sin índice como prefijo.
+- `optimize_rls_auth_uid`: mantiene exactamente la misma lógica RLS, sustituyendo `auth.uid()` por `(select auth.uid())` en 16 políticas para evitar reevaluación por fila.
+
+Tras aplicar las migraciones:
+- desaparece el aviso de funciones internas ejecutables por `anon`;
+- desaparece el aviso `auth_rls_initplan`;
+- permanecen como asuntos separados `pg_net` en `public`, leaked-password protection desactivado y algunas tablas internas con RLS sin policy deliberada.
