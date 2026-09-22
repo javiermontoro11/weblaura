@@ -301,11 +301,12 @@ Mantiene su flujo diario y su puzle/vale.
 - La modularización del frontend empieza de forma incremental bajo `/app/`; no se llenará la raíz de archivos sueltos.
 - Modularización de Recuerdos completada: `app/js/memories.js` concentra datos, Storage, URLs firmadas, caché, compresión, render, galería, cartas, editor, alta, edición y borrado.
 - `script.js` mantiene solo los puntos de integración necesarios para la sincronización general y la API global.
-- Tras extraer Recuerdos, Notificaciones, Push y el motor Sync, `script.js` queda en torno a 145 KB.
+- Tras extraer Recuerdos, Notificaciones, Push, Sync y Auth, `script.js` queda en torno a 136 KB.
 - `app/js/notifications.js` concentra fetch, badge, modal, render, leído/borrado/vaciado y navegación de avisos.
 - `app/js/push.js` concentra registro de Service Worker, VAPID, suscripción/desuscripción, persistencia en `push_subscriptions`, compatibilidad iOS/PWA y estado visual de Push.
 - `service-worker.js` permanece separado y no se ha modificado en este corte.
 - `app/js/sync.js` concentra intervalo, single-flight, reintentos, red, refresh manual y reanudación; `script.js` mantiene `runDataSync()` como coordinador de dominios pendientes de modularizar.
+- `app/js/auth.js` concentra perfiles, login, restauración de sesión, validación de rol, cambio de perfil dirigido y logout. El core recibe únicamente sesiones ya validadas.
 - `app/js/debug.js` es el primer módulo independiente y solo se activa con `?debug=1`.
 - El panel de diagnóstico muestra estado de sesión, perfil, red, PWA, Service Worker, Push y Cache Storage sin mostrar secretos.
 - La auditoría confirmó que el Service Worker principal gestiona Push pero no implementa caché propia de HTML/JS/CSS.
