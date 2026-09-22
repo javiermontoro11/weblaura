@@ -293,7 +293,8 @@ JaviEats/
 │       ├── push.js
 │       ├── sync.js
 │       ├── auth.js
-│       └── plans.js\n├── assets/
+│       ├── plans.js
+│       └── ysi.js\n├── assets/
 │   ├── apple-touch-icon.png
 │   ├── icon-192.png
 │   ├── icon-512.png
@@ -348,6 +349,8 @@ Los tres contextos maestros viven juntos dentro de `/contextos/`. **Nuestra Vida
 `app/js/auth.js` concentra perfiles autorizados, selector Javi/Laura, login, restauración de sesión, validación de rol, cambio de perfil en enlaces dirigidos, logout y errores de autenticación. El core recibe únicamente una sesión ya validada.
 
 `app/js/plans.js` concentra ya el dominio clásico de Planes: catálogo de servicios, acceso Supabase a `propuestas`, formularios de propuesta y plan libre, calendario compartido, render de reservas/día, aceptar/rechazar/cancelar/completar, editar/borrar y ticket PNG. La capa v3 sigue presentando Planes visualmente, pero consume la API del módulo.
+
+`app/js/ysi.js` concentra todo el flujo de ¿Y si…?: carga de pregunta e historial, estadísticas de compatibilidad, respuestas, cambio de pregunta, render, resultado/reveal, filtros e historial. Home/Perfil consumen únicamente sus helpers públicos de estadísticas y último resultado.
 
 /supabase/ contiene desde 3.3.6 el historial SQL reproducible. Las migraciones creadas en GitHub no deben confundirse con cambios ya aplicados a producción: su estado debe verificarse explícitamente.
 
