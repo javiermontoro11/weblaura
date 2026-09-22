@@ -574,6 +574,8 @@ const galleryCounter = $("gallery-counter");
 
 const addMemoryBtn = $("add-memory-btn");
 const memoryStorageNote = $("memory-storage-note");
+const memoryMigrationAction = $("memory-migration-action");
+const memoryMigrationBtn = $("memory-migration-btn");
 const memoryEditorModal = $("memory-editor-modal");
 const memoryEditorForm = $("memory-editor-form");
 const memoryEditorEyebrow = $("memory-editor-eyebrow");
@@ -792,6 +794,11 @@ function bindEvents() {
 
 
   addMemoryBtn?.addEventListener("click", () => openMemoryEditor());
+  memoryMigrationBtn?.addEventListener("click", () => {
+    const url = new URL(window.location.href);
+    url.searchParams.set("migrate", "legacy-memories");
+    window.location.href = url.toString();
+  });
   memoryPhotoPicker?.addEventListener("click", () => memoryPhotoInput?.click());
   memoryPhotoInput?.addEventListener("change", handleMemoryPhotoSelection);
   memoryPhotoGrid?.addEventListener("click", handleMemoryPhotoGridClick);
@@ -2604,6 +2611,13 @@ function renderMemories() {
   const migratedLegacyKeys = new Set(
     state.remoteMemories.map(memory => memory?.legacy_key).filter(Boolean)
   );
+  const pendingLegacyCount = MEMORIES.filter(memory => !migratedLegacyKeys.has(memory.id)).length;
+  memoryMigrationAction?.classList.toggle("hidden", currentRole !== "javi" || pendingLegacyCount === 0);
+  if (memoryMigrationBtn) {
+    memoryMigrationBtn.textContent = pendingLegacyCount
+      ? `Migrar recuerdos antiguos (${pendingLegacyCount})`
+      : "Recuerdos antiguos migrados";
+  }
   const staticMemories = MEMORIES
     .filter(memory => !migratedLegacyKeys.has(memory.id))
     .map(memoryTemplate)
