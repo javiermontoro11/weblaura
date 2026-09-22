@@ -225,17 +225,18 @@ La carga se realiza desde `minijuegos/minigames.js`: primero se cargan los datos
 
 ## 📸 Recuerdos
 
-Recuerdos mantiene:
+Recuerdos utiliza ahora una única fuente de verdad en Supabase:
 
-- creación;
-- edición;
-- eliminación;
-- varias fotografías;
+- metadatos y contenido en `public.recuerdos_app`;
+- fotografías en el bucket privado `recuerdos`;
+- creación, edición y eliminación compartida para Javi y Laura;
+- varias fotografías por recuerdo;
 - compresión en dispositivo;
-- bucket privado `recuerdos`;
-- URLs firmadas temporales.
+- URLs firmadas temporales;
+- cartas almacenadas en `contenido`;
+- flores amarillas registradas en Supabase pero con experiencia visual especial en frontend.
 
-Los recuerdos históricos del repositorio permanecen intactos.
+Los cinco recuerdos históricos que antes vivían en `script.js` + `/recuerdos/` fueron migrados y sus copias locales se retiraron del repositorio.
 
 ---
 
@@ -306,7 +307,6 @@ JaviEats/
 │       ├── entre-tu-y-yo.css
 │       └── assets/
 │           └── illustrations.png
-├── recuerdos/
 └── nuestra-vida/
     ├── README_1.0.txt
     ├── QA_1.0.json
@@ -331,7 +331,7 @@ Los tres contextos maestros viven juntos dentro de `/contextos/`. **Nuestra Vida
 
 `/app/` se reserva para módulos del frontend principal extraídos de forma incremental. En 3.3.6 se estrena con `app/js/debug.js`; no se crearán decenas de archivos pequeños sin una responsabilidad clara.
 
-`/supabase/` contiene desde 3.3.6 el historial SQL reproducible. Las migraciones creadas en GitHub no deben confundirse con cambios ya aplicados a producción: su estado debe verificarse explícitamente.
+/supabase/ contiene desde 3.3.6 el historial SQL reproducible. Las migraciones creadas en GitHub no deben confundirse con cambios ya aplicados a producción: su estado debe verificarse explícitamente.
 
 
 ---
@@ -340,7 +340,6 @@ Los tres contextos maestros viven juntos dentro de `/contextos/`. **Nuestra Vida
 
 JaviEats dispone de un panel técnico oculto cargado desde `app/js/debug.js`.
 
-Además, 3.3.6 incorpora un migrador temporal de recuerdos históricos en `app/js/migrate-legacy-memories.js`. Solo se activa con `?migrate=legacy-memories` y exige una sesión autenticada como Javi.
 
 Se activa únicamente añadiendo:
 
@@ -522,9 +521,11 @@ Nuestra Vida conserva su propio versionado. Los bugs o ajustes internos del jueg
 - Preparada una migración con índices para las claves foráneas que carecen de un índice útil como prefijo.
 - Estas migraciones están versionadas en GitHub y **no deben considerarse aplicadas a producción hasta verificar su ejecución en Supabase**.
 - Añadido `app/js/debug.js`, activable solo con `?debug=1`, para diagnosticar sesión, PWA, Service Worker, Push, red y Cache Storage.
-- Preparado el migrador `app/js/migrate-legacy-memories.js` para trasladar los 5 recuerdos históricos a `recuerdos_app` + Storage privado, reutilizando compresión WebP, `legacy_key` único y las políticas actuales del bucket.
-- Durante la transición, si un recuerdo histórico ya existe en Supabase con su `legacy_key`, JaviEats deja de renderizar la copia hardcodeada para evitar duplicados.
-- El lector remoto soporta ahora galerías, cartas almacenadas en `contenido` y la experiencia especial de flores amarillas sin perder su comportamiento actual.
+- Migrados los 5 recuerdos históricos a `recuerdos_app` + Storage privado.
+- Las imágenes históricas se guardan en WebP comprimido dentro del bucket privado `recuerdos`.
+- Las cartas viven ahora en `recuerdos_app.contenido`.
+- La experiencia de flores amarillas sigue abriéndose desde su registro remoto sin perder su comportamiento especial.
+- Eliminados `MEMORIES`, las fotos/cartas históricas de GitHub y el migrador temporal: Supabase es ya la única fuente de Recuerdos.
 - Confirmado que el Service Worker principal no cachea actualmente HTML/JS/CSS.
 - Añadido `← Volver a JaviEats` en el menú principal de Nuestra Vida.
 - El botón se inyecta desde `nuestra-vida/access-gate.js`, manteniendo intacto el core de Nuestra Vida 1.0.
