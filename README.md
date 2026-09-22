@@ -102,7 +102,7 @@ Esta separación es deliberada. No se debe volver a fusionar todo dentro de `min
 JaviEats y Nuestra Vida mantienen versionados distintos:
 
 ```text
-JaviEats 3.3 / mantenimiento 3.3.5
+JaviEats 3.3 / mantenimiento 3.3.6
 Nuestra Vida 1.0 / patches propios cuando sean necesarios
 ```
 
@@ -267,7 +267,7 @@ JaviEats mantiene:
 - Web Push;
 - iconos de 192 px, 512 px y Apple Touch Icon.
 
-El Service Worker principal gestiona la recepción de Push y la apertura de los destinos correspondientes dentro de JaviEats.
+El Service Worker principal gestiona la recepción de Push y la apertura de los destinos correspondientes dentro de JaviEats. En la auditoría 3.3.6 se confirmó que el Service Worker principal **no implementa actualmente una caché propia de HTML/JS/CSS**.
 
 Algunas referencias de assets continúan utilizando query strings `?v=3.1`. Esto no significa que la aplicación siga en 3.1: esas referencias se mantienen mientras no exista una razón técnica para invalidarlas.
 
@@ -286,7 +286,7 @@ JaviEats/
 ├── manifest.webmanifest
 ├── service-worker.js
 ├── favicon.ico
-├── assets/
+├── app/\n│   └── js/\n│       └── debug.js\n├── assets/
 │   ├── apple-touch-icon.png
 │   ├── icon-192.png
 │   ├── icon-512.png
@@ -329,6 +329,24 @@ El microevento de flores amarillas no crea archivos nuevos: estilos, marcado y a
 
 Los tres contextos maestros viven juntos dentro de `/contextos/`. **Nuestra Vida** conserva su aplicación y recursos dentro de `/nuestra-vida/`; únicamente su launcher de integración con JaviEats vive en `/minijuegos/`.
 
+`/app/` se reserva para módulos del frontend principal extraídos de forma incremental. En 3.3.6 se estrena con `app/js/debug.js`; no se crearán decenas de archivos pequeños sin una responsabilidad clara.
+
+`/supabase/` contiene desde 3.3.6 el historial SQL reproducible. Las migraciones creadas en GitHub no deben confundirse con cambios ya aplicados a producción: su estado debe verificarse explícitamente.
+
+
+---
+
+## 🛠️ Diagnóstico técnico 3.3.6
+
+JaviEats dispone de un panel técnico oculto cargado desde `app/js/debug.js`.
+
+Se activa únicamente añadiendo:
+
+```text
+?debug=1
+```
+
+Muestra versión, sesión, perfil, estado de red, modo PWA, Service Worker, permiso Push y Cache Storage. No muestra tokens, credenciales ni secretos.
 
 ---
 
@@ -497,6 +515,12 @@ Nuestra Vida conserva su propio versionado. Los bugs o ajustes internos del jueg
 
 ## v3.3.6 — Mantenimiento técnico y retorno desde Nuestra Vida
 
+- Creada la estructura `/supabase/migrations/` para empezar a versionar cambios de base de datos.
+- Preparada una migración de hardening para retirar `EXECUTE` público/anon de funciones internas y triggers que no usa directamente el frontend.
+- Preparada una migración con índices para las claves foráneas que carecen de un índice útil como prefijo.
+- Estas migraciones están versionadas en GitHub y **no deben considerarse aplicadas a producción hasta verificar su ejecución en Supabase**.
+- Añadido `app/js/debug.js`, activable solo con `?debug=1`, para diagnosticar sesión, PWA, Service Worker, Push, red y Cache Storage.
+- Confirmado que el Service Worker principal no cachea actualmente HTML/JS/CSS.
 - Añadido `← Volver a JaviEats` en el menú principal de Nuestra Vida.
 - El botón se inyecta desde `nuestra-vida/access-gate.js`, manteniendo intacto el core de Nuestra Vida 1.0.
 - El retorno también queda disponible cuando una partida termina y se vuelve al menú principal.
