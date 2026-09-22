@@ -6,7 +6,7 @@
 >
 > Para Nuestra Vida usar `contextos/CONTEXTO_NUESTRA_VIDA.md`.
 >
-> **Estado de referencia:** 14 de septiembre de 2026 · JaviEats 3.3.1.
+> **Estado de referencia:** 22 de septiembre de 2026 · JaviEats 3.3.6 · auditoría de permisos/RLS realizada y primeras migraciones SQL versionadas en GitHub, pendientes de aplicación explícita en producción.
 
 ---
 
@@ -19,6 +19,8 @@ Prioridad:
 Antes de modificar BD, inspeccionar siempre el estado real. No inventar tablas, columnas, RPC, policies o triggers. No documentar secretos, tokens, `service_role`, valores de Vault ni credenciales. Para perfiles usar `JAVI_USER_ID` y `LAURA_USER_ID`.
 
 Cada cambio relevante de BD obliga a actualizar este archivo y, si cambia comportamiento de producto, también `contextos/CONTEXTO_JAVIEATS.md`.
+
+Desde 3.3.6, todo cambio SQL nuevo debe quedar además versionado bajo `supabase/migrations/`. La existencia de un archivo de migración en GitHub **no implica que ya se haya ejecutado en Supabase**.
 
 ---
 
@@ -288,6 +290,33 @@ Reglas funcionales:
 - `plpgsql` 1.0
 - `supabase_vault` 0.3.1
 - `uuid-ossp` 1.1
+
+---
+
+# HARDENING 3.3.6
+
+Auditoría realizada el 22/09/2026:
+
+- las RPC usadas directamente por el frontend son las funcionales esperadas: `canjear_vale`, `eliminar_notificacion`, `iniciar_reto_diario`, `jugar_ronda_reto`, `marcar_notificacion_leida`, `marcar_todas_notificaciones_leidas`, `obtener_y_si_actual`, `obtener_y_si_historial`, `responder_y_si`, `saltar_y_si_actual` y `vaciar_notificaciones`;
+- varias funciones internas/trigger `SECURITY DEFINER` conservan permisos heredados para `anon`/PUBLIC aunque no se invocan desde el frontend;
+- se ha preparado `supabase/migrations/20260922_01_harden_internal_function_permissions.sql` para retirar esos permisos sin tocar las RPC públicas necesarias;
+- se han verificado claves foráneas sin índice útil como prefijo y se ha preparado `supabase/migrations/20260922_02_add_missing_fk_indexes.sql`;
+- las migraciones están **preparadas y versionadas, no aplicadas todavía a producción**;
+- no se ha cambiado `verify_jwt=false` de las Edge Functions porque las funciones webhook auditadas disponen de su propio control por secreto y cambiar JWT a ciegas podría romper los flujos;
+- `pg_net` en `public`, optimización de políticas RLS y protección de contraseñas filtradas quedan como revisiones posteriores, no como cambios automáticos.
+
+Índices preparados para:
+
+- `marcas_mensajes_javi(marked_by)`;
+- `mensajes_dia(autor_id)`;
+- `mensajes_laura(author_id)`;
+- `notificaciones(actor_id)`;
+- `propuestas(created_by)`;
+- `recuerdos_app(created_by)`;
+- `respuestas_diarias(pregunta_id)`;
+- `y_si_notificaciones(destinatario_id)`;
+- `y_si_notificaciones(remitente_id)`;
+- `y_si_respuestas(user_id)`.
 
 ---
 
