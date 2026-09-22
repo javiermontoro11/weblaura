@@ -1,4 +1,4 @@
-# CONTEXTO MAESTRO — JAVIEATS 3.3.5
+# CONTEXTO MAESTRO — JAVIEATS 3.3.6
 
 > **Ámbito:** contexto funcional y técnico general de JaviEats.
 >
@@ -10,13 +10,13 @@
 >
 > **Rama:** `main`
 >
-> **Estado de referencia:** 22 de septiembre de 2026 · JaviEats 3.3.5 · reproducción móvil del recuerdo de flores amarillas corregida y animaciones reiniciables en cada apertura.
+> **Estado de referencia:** 22 de septiembre de 2026 · JaviEats 3.3.6 · inicio de fase de mantenimiento técnico; Nuestra Vida mantiene su core 1.0 y ya dispone de retorno explícito a JaviEats desde su menú principal.
 
 ---
 
 # PROMPT PARA CONTINUAR EN UN CHAT NUEVO
 
-Quiero que continúes el desarrollo y mantenimiento de **JaviEats 3.3.5** sin empezar de cero.
+Quiero que continúes el desarrollo y mantenimiento de **JaviEats 3.3.6** sin empezar de cero.
 
 La prioridad es:
 
@@ -231,6 +231,12 @@ Puntos importantes:
 
 La 3.3.1 solo aumenta su protagonismo visual dentro de JaviEats.
 
+En **3.3.6** se completa la navegación de integración:
+- `nuestra-vida/access-gate.js` sigue validando que el acceso proceda de un perfil autorizado;
+- esa misma capa añade `← Volver a JaviEats` al `screenLanding`;
+- el botón no se integra dentro del core del juego y no modifica gameplay ni partidas;
+- al terminar una partida y volver al landing, el retorno sigue disponible.
+
 ---
 
 # PLANES / SERVICIOS
@@ -327,4 +333,4 @@ A 22/09/2026:
 
 # RESUMEN
 
-**JaviEats 3.3.5 = JaviEats 3.3.4 + corrección responsive y reinicio fiable de las animaciones del recuerdo de flores amarillas, sin cambios de Supabase.**
+**JaviEats 3.3.6 = JaviEats 3.3.5 + inicio de mantenimiento técnico y retorno explícito desde el menú de Nuestra Vida a JaviEats, sin cambios de gameplay ni Supabase.**
