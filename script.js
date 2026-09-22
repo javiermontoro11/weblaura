@@ -2601,7 +2601,13 @@ function renderMemories() {
       : "Los dos podéis añadir y editar recuerdos. Las fotos se optimizan en el dispositivo y se guardan de forma privada.";
   }
 
-  const staticMemories = MEMORIES.map(memoryTemplate).join("");
+  const migratedLegacyKeys = new Set(
+    state.remoteMemories.map(memory => memory?.legacy_key).filter(Boolean)
+  );
+  const staticMemories = MEMORIES
+    .filter(memory => !migratedLegacyKeys.has(memory.id))
+    .map(memoryTemplate)
+    .join("");
   const remoteMemories = state.remoteMemories.map(remoteMemoryTemplate).join("");
   const dynamic = ""; // JaviEats 3.0: los antiguos mensajes de Laura ya no forman parte de Recuerdos.
   memoriesList.innerHTML = staticMemories + remoteMemories + dynamic;
@@ -2611,16 +2617,33 @@ function memoryTemplate(memory) {
   return `<article class="memory-card"><div class="timeline-dot"></div><div class="memory-date">${memory.dateLabel}</div>${memory.cover ? `<img class="memory-cover" src="${memory.cover}" alt="${escapeHTML(memory.title)}" loading="lazy" />` : `<div class="memory-placeholder">${memory.emoji || "💌"}</div>`}<div class="memory-body"><h3>${escapeHTML(memory.title)}</h3><p>${escapeHTML(memory.description)}</p><button class="btn btn-secondary memory-open-btn" type="button" data-memory-id="${memory.id}">${memory.actionLabel}</button></div></article>`;
 }
 
+function parseRemoteMemoryContent(memory) {
+  const raw = String(memory?.contenido || "").trim();
+  if (!raw) return { kind: memory?.tipo === "letter" ? "letter" : "gallery", text: "" };
+  try {
+    const parsed = JSON.parse(raw);
+    if (parsed && parsed.schema === "javieats-memory-v1") return parsed;
+  } catch (_) {}
+  return { kind: memory?.tipo === "letter" ? "letter" : "gallery", text: raw };
+}
+
 function remoteMemoryTemplate(memory) {
   const urls = Array.isArray(memory.signedUrls) ? memory.signedUrls.filter(Boolean) : [];
   const requestedIndex = Number.isInteger(memory.cover_index) ? memory.cover_index : Number(memory.cover_index || 0);
   const cover = urls[requestedIndex] || urls[0] || "";
   const photoCount = Array.isArray(memory.image_paths) ? memory.image_paths.length : urls.length;
-  const actionLabel = photoCount > 1 ? `Ver ${photoCount} fotos` : "Ver recuerdo";
+  const content = parseRemoteMemoryContent(memory);
+  const kind = content.kind || (memory.tipo === "letter" ? "letter" : "gallery");
+  const actionLabel = content.actionLabel
+    || (kind === "yellow-flowers" ? "Volver a verlo"
+      : kind === "letter" ? "Leer carta"
+      : photoCount > 1 ? `Ver ${photoCount} fotos`
+      : "Ver recuerdo");
+  const placeholder = kind === "yellow-flowers" ? "🌻" : kind === "letter" ? "💌" : "📸";
   const media = cover
     ? `<img class="memory-cover" src="${cover}" alt="${escapeHTML(memory.titulo)}" loading="lazy" referrerpolicy="no-referrer" />`
-    : `<div class="memory-placeholder">📸</div>`;
-  const edit = (currentRole === "javi" || currentRole === "laura")
+    : `<div class="memory-placeholder">${placeholder}</div>`;
+  const edit = (currentRole === "javi" || currentRole === "laura") && kind === "gallery"
     ? `<button class="btn btn-secondary memory-edit-btn" type="button" data-edit-remote-memory="${memory.id}" aria-label="Editar ${escapeHTML(memory.titulo)}">✎</button>`
     : "";
 
@@ -2652,6 +2675,29 @@ function openMemory(id) {
 function openRemoteMemory(id) {
   const memory = state.remoteMemories.find(item => item.id === id);
   if (!memory) return;
+
+  const content = parseRemoteMemoryContent(memory);
+  const kind = content.kind || (memory.tipo === "letter" ? "letter" : "gallery");
+
+  if (kind === "yellow-flowers") {
+    if (window.JaviEatsYellowFlowers?.openMemory) {
+      window.JaviEatsYellowFlowers.openMemory();
+    } else {
+      showToast("No se ha podido abrir este recuerdo.");
+    }
+    return;
+  }
+
+  if (kind === "letter") {
+    letterEyebrow.textContent = content.letterEyebrow || formatDateCompact(memory.fecha);
+    letterTitle.textContent = content.letterTitle || memory.titulo;
+    showPage("letter");
+    letterContent.innerHTML = renderLetterText(content.text || "");
+    letterContent.dataset.loaded = "true";
+    loadedLetterFile = null;
+    return;
+  }
+
   currentGallery = (memory.signedUrls || []).filter(Boolean);
   if (!currentGallery.length) {
     showToast("No se ha podido cargar la foto de este recuerdo.");
