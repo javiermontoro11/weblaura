@@ -683,7 +683,9 @@ async function markVoucherAsUsed(id) {
     const { data, error } = await client().rpc("canjear_vale", { p_vale_id: id });
     if (error) throw error;
     shared().vouchers = shared().vouchers.map(item => item.id === id ? data : item);
-    renderVouchers(); app()?.showToast?.("Vale marcado como canjeado.");
+    renderVouchers();
+    app()?.refreshUI?.();
+    app()?.showToast?.("Vale marcado como canjeado.");
   } catch (error) { console.error(error); app()?.showToast?.("No se ha podido canjear el vale."); }
 }
 
@@ -787,6 +789,9 @@ function downloadVoucher(voucher) {
     openPuzzleModal,
     maybeShowPuzzleWelcome,
     getPuzzlePieceCount,
-    getVoucherForCurrentGame
+    getVoucherForCurrentGame,
+    downloadVoucher,
+    proposeVoucherRedemption,
+    markVoucherAsUsed
   });
 })();
