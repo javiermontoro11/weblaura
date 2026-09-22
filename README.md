@@ -288,7 +288,8 @@ JaviEats/
 ├── service-worker.js
 ├── favicon.ico
 ├── app/\n│   └── js/\n│       ├── debug.js
-│       └── memories.js\n├── assets/
+│       ├── memories.js
+│       └── notifications.js\n├── assets/
 │   ├── apple-touch-icon.png
 │   ├── icon-192.png
 │   ├── icon-512.png
@@ -332,7 +333,9 @@ Los tres contextos maestros viven juntos dentro de `/contextos/`. **Nuestra Vida
 
 `/app/` se reserva para módulos del frontend principal extraídos de forma incremental. En 3.3.6 contiene `app/js/debug.js` y `app/js/memories.js`; no se crearán decenas de archivos pequeños sin una responsabilidad clara.
 
-`app/js/memories.js` es el primer módulo funcional extraído de `script.js` y ya concentra todo el dominio de Recuerdos: acceso a `recuerdos_app`, Storage privado, URLs firmadas, caché temporal, compresión, render, galerías, cartas, editor, alta, edición y borrado. `script.js` conserva únicamente los puntos de integración con la sincronización y la API global.
+`app/js/memories.js` concentra todo el dominio de Recuerdos: acceso a `recuerdos_app`, Storage privado, URLs firmadas, caché temporal, compresión, render, galerías, cartas, editor, alta, edición y borrado.
+
+`app/js/notifications.js` concentra el centro de actividad: carga, badge, modal, render, marcar leído, borrar, vaciar y navegación al destino del aviso. `script.js` conserva únicamente los wrappers necesarios para la sincronización global.
 
 /supabase/ contiene desde 3.3.6 el historial SQL reproducible. Las migraciones creadas en GitHub no deben confundirse con cambios ya aplicados a producción: su estado debe verificarse explícitamente.
 
