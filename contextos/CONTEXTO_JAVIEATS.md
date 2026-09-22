@@ -376,3 +376,25 @@ Estructura actual:
 - `app/css/ui.css`
 
 La concatenación de estas seis hojas en ese orden es exactamente equivalente al antiguo `style.css`. `index.html` las carga en ese mismo orden con `?v=3.3.6`.
+
+## Mantenimiento 3.3.6 · seguridad aplicada
+
+Migraciones aplicadas en producción:
+
+1. `harden_internal_function_permissions`
+2. `add_missing_fk_indexes`
+3. `optimize_rls_auth_uid`
+
+Resultado verificado con Supabase Advisors:
+
+- 0 avisos de funciones internas `SECURITY DEFINER` ejecutables por `anon`;
+- 0 avisos `auth_rls_initplan`;
+- los RPC de negocio autenticados siguen ejecutables intencionadamente;
+- `pg_net` en `public` y leaked-password protection quedan pendientes de revisión separada.
+
+Limpieza legacy adicional:
+
+- eliminado el sistema de estreno/contador del 12/09 para Nuestra Vida;
+- eliminado el modal “misterio” y sus estilos;
+- Nuestra Vida queda como acceso estable;
+- el launcher ya no tiene release gate ni polling de desbloqueo.
