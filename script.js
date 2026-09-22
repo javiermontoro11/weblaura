@@ -25,7 +25,6 @@ const AUTH_PROFILES = {
 };
 
 const REGULAR_GAME_ROUNDS = 5;
-const SYNC_INTERVAL_MS = 60_000;
 const PUZZLE_TOTAL_PIECES = 6;
 const Y_SI_REVEAL_MS = 900;
 const WELCOME_MIN_LOAD_MS = 650;
@@ -194,7 +193,6 @@ const welcomeSummarySecondary = $("welcome-summary-secondary");
 const appScreen = $("app-screen");
 const logoutBtn = $("logout-btn");
 const sessionUserName = $("session-user-name");
-const syncStatus = $("sync-status");
 const homeGreeting = $("home-greeting");
 const featuredServices = $("featured-services");
 const allServices = $("all-services");
@@ -331,10 +329,6 @@ let lastProposalTicket = null;
 let dailyGame = null;
 let dailyRounds = [];
 let roundLocked = false;
-let syncTimer = null;
-let syncInFlight = null;
-let syncRetryTimer = null;
-let syncRetryIndex = 0;
 let clockTimer = null;
 let appReady = false;
 let puzzleWelcomeShown = false;
@@ -377,6 +371,11 @@ function pushModule() {
   return window.JaviEatsPush;
 }
 
+function syncModule() {
+  if (!window.JaviEatsSync) throw new Error("JaviEatsSync no está cargado.");
+  return window.JaviEatsSync;
+}
+
 window.JaviEatsApp = {
   getRole: () => currentRole,
   getUser: () => currentUser,
@@ -384,6 +383,8 @@ window.JaviEatsApp = {
   getServices: () => SERVICES,
   getClient: () => supabaseClient,
   getVapidPublicKey: () => CONFIG.vapidPublicKey,
+  isReady: () => appReady,
+  runDataSync: (options = {}) => runDataSync(options),
   showPage: page => showPage(page),
   showToast: message => showToast(message),
   openGameModal: () => openGameModal(),
@@ -391,7 +392,7 @@ window.JaviEatsApp = {
   openPuzzle: () => openPuzzleModal(),
   openMemoryEditor: (id = null) => memoriesModule().openEditor(id),
   openRemoteMemory: id => memoriesModule().open(id),
-  refresh: (options = {}) => loadAllData(options),
+  refresh: (options = {}) => syncModule().run(options),
   updateProposalStatus: (id, status) => updateProposalStatus(id, status),
   deleteProposal: id => deleteProposal(id)
 };
@@ -403,6 +404,7 @@ async function init() {
   memoriesModule().bindUI();
   notificationsModule().bindUI();
   pushModule().bindUI();
+  syncModule().bindUI();
   renderServices();
   renderMemories();
   renderVouchers();
@@ -527,46 +529,7 @@ function bindEvents() {
 
   voucherList.addEventListener("click", handleVoucherAction);
 
-  if (syncStatus) {
-    syncStatus.setAttribute("role", "button");
-    syncStatus.setAttribute("tabindex", "0");
-    syncStatus.setAttribute("title", "Actualizar ahora");
-    syncStatus.setAttribute("aria-label", "Estado de sincronización. Pulsa para actualizar ahora.");
-    const refreshNow = () => loadAllData({ silent: false, reason: "manual" });
-    syncStatus.addEventListener("click", refreshNow);
-    syncStatus.addEventListener("keydown", event => {
-      if (event.key === "Enter" || event.key === " ") {
-        event.preventDefault();
-        refreshNow();
-      }
-    });
-  }
-
-  window.addEventListener("online", () => {
-    syncRetryIndex = 0;
-    cancelSyncRetry();
-    if (appReady && currentUser) {
-      window.setTimeout(() => loadAllData({ silent: false, reason: "online" }), 250);
-    }
-  });
-
-  window.addEventListener("offline", () => {
-    if (appReady && currentUser) setSyncState("error", "Sin conexión · reintentando…");
-  });
-
-  document.addEventListener("visibilitychange", () => {
-    if (!document.hidden && appReady && currentUser) {
-      window.setTimeout(() => loadAllData({ silent: true, reason: "resume" }), 450);
-    }
-  });
-
-  window.addEventListener("pageshow", event => {
-    if (event.persisted && appReady && currentUser) {
-      window.setTimeout(() => loadAllData({ silent: true, reason: "pageshow" }), 250);
-    }
-  });
 }
-
 
 function getRequestedTurnRole() {
   const params = new URLSearchParams(window.location.search);
@@ -728,10 +691,10 @@ async function showApp() {
   showWelcomeScreen();
   applyRoleUI();
   appReady = true;
-  startSyncTimer();
+  syncModule().start();
 
   const startedAt = Date.now();
-  await loadAllData();
+  await syncModule().run();
   const remainingLoadTime = Math.max(0, WELCOME_MIN_LOAD_MS - (Date.now() - startedAt));
   if (remainingLoadTime) await delay(remainingLoadTime);
 
@@ -868,10 +831,7 @@ async function logout() {
 }
 
 function resetAppSession() {
-  stopSyncTimer();
-  cancelSyncRetry();
-  syncInFlight = null;
-  syncRetryIndex = 0;
+  syncModule().reset();
   currentUser = null;
   currentRole = "unknown";
   dailyGame = null;
@@ -928,16 +888,6 @@ function showPage(page) {
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
-function startSyncTimer() {
-  stopSyncTimer();
-  syncTimer = setInterval(() => {
-    if (!document.hidden && appReady && currentUser) loadAllData({ silent: true });
-  }, SYNC_INTERVAL_MS);
-}
-function stopSyncTimer() {
-  if (syncTimer) clearInterval(syncTimer);
-  syncTimer = null;
-}
 function startClock() {
   updateDailyGameCard();
   clockTimer = setInterval(() => {
@@ -946,151 +896,93 @@ function startClock() {
   }, 1000);
 }
 
-const SYNC_RETRY_DELAYS = [2000, 5000, 10000];
+async function runDataSync({ silent = false, reason = "normal" } = {}) {
+  if (!currentUser || !supabaseClient) return { ok: false, failures: ["session"] };
 
-function cancelSyncRetry() {
-  if (syncRetryTimer) window.clearTimeout(syncRetryTimer);
-  syncRetryTimer = null;
-}
+  const today = toDateKeyMadrid(new Date());
+  const jobs = [
+    { key: "proposals", run: () => fetchProposals() },
+    { key: "vouchers", run: () => fetchVouchers() },
+    { key: "game", run: () => fetchTodayGame(today) },
+    { key: "puzzle", run: () => fetchPuzzleProgress() },
+    { key: "ysiCurrent", run: () => fetchYSiCurrent() },
+    { key: "ysiHistory", run: () => fetchYSiHistory() },
+    { key: "memories", run: () => fetchRemoteMemories() },
+    { key: "notifications", run: () => fetchNotifications() }
+  ];
 
-function scheduleSyncRetry(reason = "retry") {
-  cancelSyncRetry();
-  if (!appReady || !currentUser || syncRetryIndex >= SYNC_RETRY_DELAYS.length) return;
+  const results = await Promise.allSettled(jobs.map(job => job.run()));
+  const failures = [];
 
-  const delayMs = SYNC_RETRY_DELAYS[syncRetryIndex];
-  syncRetryIndex += 1;
-  syncRetryTimer = window.setTimeout(() => {
-    syncRetryTimer = null;
-    if (!appReady || !currentUser || document.hidden) return;
-    loadAllData({ silent: true, reason });
-  }, delayMs);
-}
+  results.forEach((result, index) => {
+    if (result.status === "rejected") {
+      failures.push(jobs[index].key);
+      console.error(`JaviEats 3.1: fallo parcial en ${jobs[index].key}`, result.reason);
+    }
+  });
 
-function settledSyncValue(results, jobs, key) {
-  const index = jobs.findIndex(job => job.key === key);
-  if (index < 0) return { ok: false, value: undefined };
-  const result = results[index];
-  return result?.status === "fulfilled"
-    ? { ok: true, value: result.value }
-    : { ok: false, value: undefined, error: result?.reason };
-}
+  const proposals = settledSyncValue(results, jobs, "proposals");
+  if (proposals.ok && Array.isArray(proposals.value)) state.proposals = proposals.value;
 
-async function loadAllData({ silent = false, reason = "normal" } = {}) {
-  if (!currentUser || !supabaseClient) return;
-  if (syncInFlight) return syncInFlight;
+  const vouchers = settledSyncValue(results, jobs, "vouchers");
+  if (vouchers.ok && Array.isArray(vouchers.value)) state.vouchers = vouchers.value;
 
-  if (navigator.onLine === false) {
-    setSyncState("error", "Sin conexión · reintentando…");
-    return { ok: false, failures: ["offline"] };
+  const game = settledSyncValue(results, jobs, "game");
+  if (game.ok && game.value) {
+    dailyGame = game.value.game || null;
+    dailyRounds = Array.isArray(game.value.rounds) ? game.value.rounds : [];
   }
 
-  syncInFlight = (async () => {
-    if (!silent || reason === "manual" || reason === "online") {
-      setSyncState("loading", "Sincronizando…");
-    }
+  const puzzle = settledSyncValue(results, jobs, "puzzle");
+  if (puzzle.ok && puzzle.value) {
+    state.puzzle = puzzle.value.puzzle || null;
+    state.puzzlePieces = Array.isArray(puzzle.value.pieces) ? puzzle.value.pieces : [];
+    state.puzzleLoadError = false;
+  } else if (failures.includes("puzzle")) {
+    state.puzzleLoadError = true;
+  }
 
-    const today = toDateKeyMadrid(new Date());
-    const jobs = [
-      { key: "proposals", run: () => fetchProposals() },
-      { key: "vouchers", run: () => fetchVouchers() },
-      { key: "game", run: () => fetchTodayGame(today) },
-      { key: "puzzle", run: () => fetchPuzzleProgress() },
-      { key: "ysiCurrent", run: () => fetchYSiCurrent() },
-      { key: "ysiHistory", run: () => fetchYSiHistory() },
-      { key: "memories", run: () => fetchRemoteMemories() },
-      { key: "notifications", run: () => fetchNotifications() }
-    ];
+  const ysiCurrent = settledSyncValue(results, jobs, "ysiCurrent");
+  if (ysiCurrent.ok) state.ySiCurrent = ysiCurrent.value || null;
 
-    const results = await Promise.allSettled(jobs.map(job => job.run()));
-    const failures = [];
+  const ysiHistory = settledSyncValue(results, jobs, "ysiHistory");
+  if (ysiHistory.ok && Array.isArray(ysiHistory.value)) state.ySiHistory = ysiHistory.value;
+  state.ySiLoadError = failures.includes("ysiCurrent") || failures.includes("ysiHistory");
+  state.ySiLastResult = getTodayLatestYSiResult(state.ySiHistory);
 
-    results.forEach((result, index) => {
-      if (result.status === "rejected") {
-        failures.push(jobs[index].key);
-        console.error(`JaviEats 3.1: fallo parcial en ${jobs[index].key}`, result.reason);
-      }
-    });
+  const memories = settledSyncValue(results, jobs, "memories");
+  if (memories.ok && memories.value) {
+    state.remoteMemories = Array.isArray(memories.value.memories)
+      ? memories.value.memories
+      : state.remoteMemories;
+    state.memoryLoadError = Boolean(memories.value.loadError);
+  } else if (failures.includes("memories")) {
+    state.memoryLoadError = true;
+  }
 
-    const proposals = settledSyncValue(results, jobs, "proposals");
-    if (proposals.ok && Array.isArray(proposals.value)) state.proposals = proposals.value;
+  const notifications = settledSyncValue(results, jobs, "notifications");
+  if (notifications.ok && notifications.value) {
+    state.notifications = Array.isArray(notifications.value.notifications)
+      ? notifications.value.notifications
+      : state.notifications;
+    state.notificationLoadError = Boolean(notifications.value.loadError);
+  } else if (failures.includes("notifications")) {
+    state.notificationLoadError = true;
+  }
 
-    const vouchers = settledSyncValue(results, jobs, "vouchers");
-    if (vouchers.ok && Array.isArray(vouchers.value)) state.vouchers = vouchers.value;
+  refreshUI();
+  maybeRevealYSiResult();
 
-    const game = settledSyncValue(results, jobs, "game");
-    if (game.ok && game.value) {
-      dailyGame = game.value.game || null;
-      dailyRounds = Array.isArray(game.value.rounds) ? game.value.rounds : [];
-    }
+  if (!failures.length) {
+    syncRetryIndex = 0;
+    cancelSyncRetry();
+    setSyncState("ok", `Sincronizado · ${currentTimeLabel()}`);
+  } else {
+    setSyncState("error", "Sincronización parcial · reintentando…");
+    scheduleSyncRetry("partial");
+  }
 
-    const puzzle = settledSyncValue(results, jobs, "puzzle");
-    if (puzzle.ok && puzzle.value) {
-      state.puzzle = puzzle.value.puzzle || null;
-      state.puzzlePieces = Array.isArray(puzzle.value.pieces) ? puzzle.value.pieces : [];
-      state.puzzleLoadError = false;
-    } else if (failures.includes("puzzle")) {
-      state.puzzleLoadError = true;
-    }
-
-    const ysiCurrent = settledSyncValue(results, jobs, "ysiCurrent");
-    if (ysiCurrent.ok) state.ySiCurrent = ysiCurrent.value || null;
-
-    const ysiHistory = settledSyncValue(results, jobs, "ysiHistory");
-    if (ysiHistory.ok && Array.isArray(ysiHistory.value)) state.ySiHistory = ysiHistory.value;
-    state.ySiLoadError = failures.includes("ysiCurrent") || failures.includes("ysiHistory");
-    state.ySiLastResult = getTodayLatestYSiResult(state.ySiHistory);
-
-    const memories = settledSyncValue(results, jobs, "memories");
-    if (memories.ok && memories.value) {
-      state.remoteMemories = Array.isArray(memories.value.memories)
-        ? memories.value.memories
-        : state.remoteMemories;
-      state.memoryLoadError = Boolean(memories.value.loadError);
-    } else if (failures.includes("memories")) {
-      state.memoryLoadError = true;
-    }
-
-    const notifications = settledSyncValue(results, jobs, "notifications");
-    if (notifications.ok && notifications.value) {
-      state.notifications = Array.isArray(notifications.value.notifications)
-        ? notifications.value.notifications
-        : state.notifications;
-      state.notificationLoadError = Boolean(notifications.value.loadError);
-    } else if (failures.includes("notifications")) {
-      state.notificationLoadError = true;
-    }
-
-    refreshUI();
-    maybeRevealYSiResult();
-
-    if (!failures.length) {
-      syncRetryIndex = 0;
-      cancelSyncRetry();
-      setSyncState("ok", `Sincronizado · ${currentTimeLabel()}`);
-    } else {
-      setSyncState("error", "Sincronización parcial · reintentando…");
-      scheduleSyncRetry("partial");
-    }
-
-    return { ok: !failures.length, failures };
-  })()
-    .catch(error => {
-      console.error("JaviEats 3.1: error de sincronización", error);
-      setSyncState(
-        "error",
-        navigator.onLine === false
-          ? "Sin conexión · reintentando…"
-          : "Error de sincronización · reintentando…"
-      );
-      scheduleSyncRetry("error");
-      if (!silent) showToast("No se han podido cargar todos los datos. JaviEats volverá a intentarlo.");
-      return { ok: false, failures: ["sync"] };
-    })
-    .finally(() => {
-      syncInFlight = null;
-    });
-
-  return syncInFlight;
+  return { ok: !failures.length, failures };
 }
 
 async function fetchProposals() {
@@ -1151,11 +1043,6 @@ async function fetchTodayGame(dateKey) {
   return { game, rounds: rounds || [] };
 }
 
-function setSyncState(type, text) {
-  syncStatus.textContent = text;
-  syncStatus.classList.toggle("is-loading", type === "loading");
-  syncStatus.classList.toggle("is-error", type === "error");
-}
 function refreshUI() {
   renderStats();
   renderBookings();
