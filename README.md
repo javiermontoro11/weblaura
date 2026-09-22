@@ -856,3 +856,17 @@ QA de integridad de datos verificado en Supabase:
 
 GitHub y Supabase están actualizados, pero Vercel está bloqueando temporalmente nuevos builds por `build-rate-limit`.
 El último commit con check Vercel correcto detectado es `ce1bae4`. Los commits posteriores permanecen en GitHub pendientes de un nuevo build cuando se libere la cuota.
+
+
+### QA integral de runtime · 3.3.6
+
+Revisión de regresión posterior a la modularización:
+
+- Nuestra Vida carga de forma explícita `access-gate.js?v=1.0.3` y solo admite sesiones Supabase de Javi/Laura.
+- El landing contiene un enlace HTML real `← Volver a JaviEats`; no depende de JavaScript para salir.
+- El MiniLab usa el mismo gate de acceso.
+- El snapshot `nuestra-vida/nv-core-1-0-8c6f2a.html` permanece congelado como fuente del laboratorio y no se modifica.
+- Cache PWA de Nuestra Vida: `nuestra-vida-1.0.3-maintenance`, incluyendo `access-gate.js`.
+- Se elimina el gate caducado del 30/08 y su polling de 1 segundo en los minijuegos.
+- La UI de bienvenida de Laura obtiene el total del puzzle desde `JaviEatsRewards`, evitando una constante global eliminada durante la modularización.
+- Los módulos dinámicos de minijuegos usan cache-busting de mantenimiento 3.3.6 / Nuestra Vida 1.0.3.

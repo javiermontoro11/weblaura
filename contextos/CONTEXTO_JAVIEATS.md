@@ -425,3 +425,16 @@ Pendientes de seguridad separados:
 - Logs Supabase últimas 24 h: 0 errores sospechosos en Edge, Postgres, PostgREST, Storage y Functions.
 - Auth: solo warnings esperables por credenciales inválidas/sesiones antiguas; se añadió recuperación específica.
 - Vercel: builds recientes bloqueados por build-rate-limit; último deploy exitoso detectado en commit `ce1bae4`.
+
+
+## QA integral post-modularización · 3.3.6
+
+Hallazgos y correcciones verificadas:
+
+- restaurado el helper `settledSyncValue()` del coordinador de sincronización;
+- eliminadas referencias duplicadas `rewardsModule().rewardsModule()`;
+- corregida la bienvenida de Laura para leer el total del puzzle desde `JaviEatsRewards`;
+- eliminado código auxiliar muerto del antiguo monolito;
+- eliminado el gate temporal del 30/08 de Dibuja/No lo digas y su polling de 1 s;
+- cache-busting dinámico de minijuegos alineado con 3.3.6;
+- Nuestra Vida y su MiniLab vuelven a estar realmente protegidos por sesión y tienen ruta explícita de salida a JaviEats.

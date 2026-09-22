@@ -770,6 +770,7 @@ function downloadVoucher(voucher) {
   }
 
   window.JaviEatsRewards = Object.freeze({
+    puzzleTotalPieces: PUZZLE_TOTAL_PIECES,
     bindUI,
     reset,
     startClock,

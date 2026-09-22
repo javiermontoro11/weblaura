@@ -605,7 +605,7 @@ JaviEats usa:
 
 Nuestra Vida estuvo oculto durante el desarrollo para que Laura no lo viera antes de tiempo.
 
-La integración actual incluye una salida explícita desde el menú principal hacia JaviEats mediante `nuestra-vida/access-gate.js`. Este botón se mantiene fuera del core del juego para preservar Nuestra Vida 1.0.
+La integración actual carga `nuestra-vida/access-gate.js` desde el runtime para validar que existe una sesión Supabase real de Javi o Laura. El landing incluye además un enlace HTML real `← Volver a JaviEats`, independiente del JavaScript del juego. El MiniLab usa el mismo gate. La antigua fecha de estreno ya no forma parte del control de acceso.
 
 En cualquier ajuste de integración:
 
@@ -862,3 +862,13 @@ Antes de proponer cualquier cambio, dime brevemente que has entendido:
 - y que el viewport prioritario es 1180×820.
 
 Después seguimos desde ahí.
+
+
+### Mantenimiento de integración · 1.0.3 / JaviEats 3.3.6
+
+- `index.html` carga `access-gate.js?v=1.0.3`.
+- `minijuegos.html` carga el mismo gate.
+- El gate autoriza exclusivamente IDs Supabase de Javi/Laura; ya no confía en marcadores de localStorage ni en fechas de estreno.
+- El landing tiene un enlace real de retorno a JaviEats.
+- `sw.js` usa `nuestra-vida-1.0.3-maintenance` e incluye el gate en CORE.
+- `nv-core-1-0-8c6f2a.html` permanece congelado como snapshot/fuente del MiniLab.

@@ -137,7 +137,6 @@
   Object.entries(DRAW_33_EXTRA).forEach(([id, cards]) => addUniqueCards(DRAW_SECTIONS, id, cards));
   Object.entries(TABOO_33_EXTRA).forEach(([id, cards]) => addUniqueCards(TABOO_SECTIONS, id, cards));
 
-  const UNLOCK_AT = new Date('2026-08-30T22:00:00+02:00').getTime();
   const PLAYERS = { javi: 'Javi', laura: 'Laura' };
   const $ = id => document.getElementById(id);
   const other = player => player === 'javi' ? 'laura' : 'javi';
@@ -152,32 +151,6 @@
     return copy;
   }
 
-  function currentRole() {
-    return window.JaviEatsApp?.getRole?.() || 'unknown';
-  }
-
-  function isLockedForLaura(gameId) {
-    return currentRole() === 'laura' && ['draw', 'taboo'].includes(gameId) && Date.now() < UNLOCK_AT;
-  }
-
-  function countdownParts() {
-    const diff = Math.max(0, UNLOCK_AT - Date.now());
-    const total = Math.floor(diff / 1000);
-    return {
-      diff,
-      days: Math.floor(total / 86400),
-      hours: Math.floor((total % 86400) / 3600),
-      minutes: Math.floor((total % 3600) / 60),
-      seconds: total % 60
-    };
-  }
-
-  function countdownText() {
-    const { diff, days, hours, minutes, seconds } = countdownParts();
-    if (!diff) return 'Ya disponible';
-    return `${String(days).padStart(2, '0')}d ${String(hours).padStart(2, '0')}h ${String(minutes).padStart(2, '0')}m ${String(seconds).padStart(2, '0')}s`;
-  }
-
   /* ------------------------------------------------------------------
      HUB
      ------------------------------------------------------------------ */
@@ -186,20 +159,18 @@
   const launchers = [...document.querySelectorAll('[data-minigame-open]')];
 
   function refreshAccess() {
-    const role = currentRole();
     document.querySelectorAll('[data-minigame-lock]').forEach(card => {
       const gameId = card.dataset.minigameLock;
-      const locked = role === 'laura' && Date.now() < UNLOCK_AT;
-      card.classList.toggle('is-locked', locked);
-      card.setAttribute('aria-disabled', locked ? 'true' : 'false');
+      card.classList.remove('is-locked');
+      card.setAttribute('aria-disabled', 'false');
       const state = card.querySelector('[data-minigame-lock-state]');
       const counter = card.querySelector('[data-minigame-countdown]');
-      if (state) state.textContent = locked ? '🔒 Se desbloquea el 30 de agosto a las 22:00' : 'Disponible';
+      if (state) state.textContent = 'Disponible';
       if (counter) {
-        counter.textContent = locked ? countdownText() : '¡Ya disponible!';
-        counter.classList.toggle('hidden', !locked);
+        counter.textContent = '¡Ya disponible!';
+        counter.classList.add('hidden');
       }
-      card.classList.toggle('is-unlocked', !locked && Boolean(gameId));
+      card.classList.toggle('is-unlocked', Boolean(gameId));
     });
   }
 
@@ -210,12 +181,7 @@
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  function open(gameId, { force = false } = {}) {
-    if (!force && isLockedForLaura(gameId)) {
-      window.JaviEatsApp?.showToast?.(`Se desbloquea en ${countdownText()} 🔒`);
-      showHub();
-      return false;
-    }
+  function open(gameId) {
     const panel = document.querySelector(`[data-minigame-panel="${gameId}"]`);
     if (!panel) return false;
     hub?.classList.add('hidden');
@@ -1110,9 +1076,6 @@
     resetTabooGame();
   }
 
-  const accessTimer = setInterval(refreshAccess, 1000);
-  window.addEventListener('beforeunload', () => clearInterval(accessTimer));
-
-  window.JaviEatsMinigames = { open, showHub, refreshAccess, unlockAt: UNLOCK_AT };
+  window.JaviEatsMinigames = { open, showHub, refreshAccess };
   refreshAccess();
 })();

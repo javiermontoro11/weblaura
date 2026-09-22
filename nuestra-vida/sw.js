@@ -1,6 +1,6 @@
-const CACHE='nuestra-vida-1.0.2-maintenance';
+const CACHE='nuestra-vida-1.0.3-maintenance';
 const CORE=[
-  './','./index.html','./manifest.webmanifest',
+  './','./index.html','./access-gate.js','./manifest.webmanifest',
   './icons/icon-180.png','./icons/icon-192.png','./icons/icon-512.png',
   './assets23/javi_headcut.png','./assets23/laura_headcut.png',
   './assets25/javi_portrait.webp','./assets25/javi_full_arms.webp','./assets25/javi_full_relaxed.webp',

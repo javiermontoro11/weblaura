@@ -2,7 +2,7 @@
   "use strict";
 
   const THRESHOLD = 75;
-  const RELEASE = "3.3.2";
+  const RELEASE = "3.3.6";
   const $ = id => document.getElementById(id);
   const app = () => window.JaviEatsApp || null;
   const state = () => app()?.getState?.() || {};
@@ -236,8 +236,8 @@
         grid.appendChild(retry);
       }
     })
-    .then(() => loadScript("minijuegos/minigames-core.js?v=3.3.2"))
-    .then(() => loadScript("minijuegos/nuestra-vida-launcher.js?v=1.0.2"))
+    .then(() => loadScript("minijuegos/minigames-core.js?v=3.3.6"))
+    .then(() => loadScript("minijuegos/nuestra-vida-launcher.js?v=1.0.3"))
     .then(start)
     .catch(error => console.error("JaviEats: no se ha podido cargar un modulo", error));
 })();

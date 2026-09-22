@@ -45,7 +45,6 @@ const toast = $("toast");
 let supabaseClient = null;
 let currentUser = null;
 let currentRole = "unknown";
-let clockTimer = null;
 let appReady = false;
 
 const state = {
@@ -273,7 +272,7 @@ function updateWelcomeSummary() {
     : "❤️ Compatibilidad por descubrir";
 
   if (isLaura) {
-    welcomeSummarySecondary.textContent = `🧩 Puzle ${rewardsModule().getPuzzlePieceCount()}/${PUZZLE_TOTAL_PIECES}`;
+    welcomeSummarySecondary.textContent = `🧩 Puzle ${rewardsModule().getPuzzlePieceCount()}/${rewardsModule().puzzleTotalPieces}`;
   } else if (current && !current.limite_alcanzado) {
     const position = Number(current.posicion_dia) || Math.min(5, (Number(current.completadas_hoy) || 0) + 1);
     welcomeSummarySecondary.textContent = `💭 ¿Y si…? ${position}/5`;
@@ -407,7 +406,7 @@ async function runDataSync({ silent = false, reason = "normal" } = {}) {
   results.forEach((result, index) => {
     if (result.status === "rejected") {
       failures.push(jobs[index].key);
-      console.error(`JaviEats 3.1: fallo parcial en ${jobs[index].key}`, result.reason);
+      console.error(`JaviEats 3.3.6: fallo parcial en ${jobs[index].key}`, result.reason);
     }
   });
 
@@ -571,27 +570,9 @@ function renderNotifications() {
   notificationsModule().render();
 }
 
-function normalizeTimeForDate(time) { const clean = String(time || "00:00").slice(0, 8); return clean.length === 5 ? `${clean}:00` : clean; }
 function toDateKeyMadrid(date) {
   const parts = new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/Madrid", year: "numeric", month: "2-digit", day: "2-digit" }).formatToParts(new Date(date));
   const values = Object.fromEntries(parts.filter(p => p.type !== "literal").map(p => [p.type, p.value]));
   return `${values.year}-${values.month}-${values.day}`;
 }
-function dateFromTimestamp(timestamp) { return toDateKeyMadrid(new Date(timestamp)); }
-function formatDate(dateKey) { const [y, m, d] = dateKey.split("-").map(Number); return new Intl.DateTimeFormat("es-ES", { weekday: "long", day: "2-digit", month: "long", year: "numeric" }).format(new Date(y, m - 1, d)); }
-function formatDateCompact(dateKey) { const [y, m, d] = dateKey.split("-").map(Number); return new Intl.DateTimeFormat("es-ES", { day: "2-digit", month: "long", year: "numeric" }).format(new Date(y, m - 1, d)); }
-function shortDate(dateKey) { const [y, m, d] = dateKey.split("-").map(Number); return new Intl.DateTimeFormat("es-ES", { day: "2-digit", month: "short" }).format(new Date(y, m - 1, d)); }
-function formatTime(time) { return String(time || "").slice(0, 5); }
-function formatDateTime(timestamp) { return new Intl.DateTimeFormat("es-ES", { timeZone: "Europe/Madrid", day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" }).format(new Date(timestamp)); }
-function currentTimeLabel() { return new Intl.DateTimeFormat("es-ES", { timeZone: "Europe/Madrid", hour: "2-digit", minute: "2-digit" }).format(new Date()); }
-function escapeHTML(text) { return String(text ?? "").replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#039;"); }
-function drawRoundedRectangle(context, x, y, width, height, radius) {
-  const r = Math.min(radius, width / 2, height / 2); context.beginPath(); context.moveTo(x + r, y); context.arcTo(x + width, y, x + width, y + height, r); context.arcTo(x + width, y + height, x, y + height, r); context.arcTo(x, y + height, x, y, r); context.arcTo(x, y, x + width, y, r); context.closePath();
-}
-function wrapCanvasText(context, text, centerX, startY, maxWidth, lineHeight) {
-  const words = String(text).split(" "); const lines = []; let line = "";
-  words.forEach(word => { const test = line ? `${line} ${word}` : word; if (context.measureText(test).width > maxWidth && line) { lines.push(line); line = word; } else line = test; });
-  if (line) lines.push(line); lines.forEach((lineText, index) => context.fillText(lineText, centerX, startY + index * lineHeight));
-}
-function downloadCanvas(canvas, filename) { const link = document.createElement("a"); link.download = filename; link.href = canvas.toDataURL("image/png"); document.body.appendChild(link); link.click(); link.remove(); }
 function showToast(message) { toast.textContent = message; toast.classList.remove("hidden"); clearTimeout(showToast.timer); showToast.timer = setTimeout(() => toast.classList.add("hidden"), 2800); }
