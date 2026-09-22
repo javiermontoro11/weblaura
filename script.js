@@ -11,17 +11,9 @@ const USER_IDS = {
   LAURA: "ef4258bf-5897-4594-86ac-a134fcd1feec"
 };
 
-const REGULAR_GAME_ROUNDS = 5;
-const PUZZLE_TOTAL_PIECES = 6;
 const WELCOME_MIN_LOAD_MS = 650;
 const WELCOME_SUMMARY_MS = 850;
 
-
-const CHOICES = {
-  piedra: { label: "Piedra", emoji: "✊" },
-  papel: { label: "Papel", emoji: "✋" },
-  tijera: { label: "Tijera", emoji: "✌️" }
-};
 
 const SERVICES = window.JaviEatsPlans?.services || [];
 
@@ -40,52 +32,12 @@ const appScreen = $("app-screen");
 const sessionUserName = $("session-user-name");
 const homeGreeting = $("home-greeting");
 
-const gameHomeStatus = $("game-home-status");
-const gameHomeButton = $("game-home-button");
-const gameModal = $("game-modal");
-const gameRoundLabel = $("game-round-label");
-const gameDraws = $("game-draws");
-const playerScore = $("player-score");
-const machineScore = $("machine-score");
-const playerChoiceVisual = $("player-choice-visual");
-const playerChoiceLabel = $("player-choice-label");
-const machineChoiceVisual = $("machine-choice-visual");
-const machineChoiceLabel = $("machine-choice-label");
-const gameRoundResult = $("game-round-result");
-const gameChoices = $("game-choices");
-const gameFinal = $("game-final");
-const gameFinalIcon = $("game-final-icon");
-const gameFinalTitle = $("game-final-title");
-const gameFinalText = $("game-final-text");
-const prizeReveal = $("prize-reveal");
-const prizeTitle = $("prize-title");
-const prizeDescription = $("prize-description");
-const downloadVoucherBtn = $("download-voucher-btn");
-const redeemVoucherBtn = $("redeem-voucher-btn");
-const gameDailyNote = $("game-daily-note");
-const pieceReveal = $("piece-reveal");
-const pieceRevealTitle = $("piece-reveal-title");
-const pieceRevealText = $("piece-reveal-text");
-const gamePuzzleGrid = $("game-puzzle-grid");
-const gamePuzzleCount = $("game-puzzle-count");
-
-const homePuzzleGrid = $("home-puzzle-grid");
-const homePuzzleCount = $("home-puzzle-count");
-const homePuzzleText = $("home-puzzle-text");
-const openPuzzleBtn = $("open-puzzle-btn");
-const puzzleModal = $("puzzle-modal");
-const puzzleModalGrid = $("puzzle-modal-grid");
-const puzzleModalTitle = $("puzzle-modal-title");
-const puzzleModalText = $("puzzle-modal-text");
-const puzzleModalCount = $("puzzle-modal-count");
-const puzzleModalReward = $("puzzle-modal-reward");
-const puzzleModalPrimary = $("puzzle-modal-primary");
 
 
 
 
 
-const voucherList = $("voucher-list");
+
 
 
 const toast = $("toast");
@@ -93,14 +45,8 @@ const toast = $("toast");
 let supabaseClient = null;
 let currentUser = null;
 let currentRole = "unknown";
-let dailyGame = null;
-let dailyRounds = [];
-let roundLocked = false;
 let clockTimer = null;
 let appReady = false;
-let puzzleWelcomeShown = false;
-let recentPuzzlePieceNumber = null;
-let puzzlePieceAnimationTimer = null;
 
 const state = {
   proposals: [],
@@ -153,6 +99,11 @@ function ysiModule() {
   return window.JaviEatsYSi;
 }
 
+function rewardsModule() {
+  if (!window.JaviEatsRewards) throw new Error("JaviEatsRewards no está cargado.");
+  return window.JaviEatsRewards;
+}
+
 window.JaviEatsApp = {
   getRole: () => currentRole,
   getUser: () => currentUser,
@@ -174,9 +125,9 @@ window.JaviEatsApp = {
   },
   showPage: page => showPage(page),
   showToast: message => showToast(message),
-  openGameModal: () => openGameModal(),
+  openGameModal: () => rewardsModule().openGameModal(),
   openService: (id, options = {}) => openService(id, options),
-  openPuzzle: () => openPuzzleModal(),
+  openPuzzle: () => rewardsModule().openPuzzleModal(),
   openMemoryEditor: (id = null) => memoriesModule().openEditor(id),
   openRemoteMemory: id => memoriesModule().open(id),
   refresh: (options = {}) => syncModule().run(options),
@@ -194,11 +145,12 @@ async function init() {
   syncModule().bindUI();
   plansModule().bindUI();
   ysiModule().bindUI();
+  rewardsModule().bindUI();
   renderServices();
   renderMemories();
-  renderVouchers();
-  renderPuzzleProgress();
-  startClock();
+  rewardsModule().rewardsModule().renderVouchers();
+  rewardsModule().rewardsModule().renderPuzzleProgress();
+  rewardsModule().startClock();
 
   if (!window.supabase?.createClient) {
     authModule().showError("No se ha podido cargar Supabase. Revisa la conexión a internet.");
@@ -222,29 +174,12 @@ function bindEvents() {
   document.querySelectorAll("[data-go]").forEach(button => {
     button.addEventListener("click", () => showPage(button.dataset.go));
   });
-  document.querySelectorAll("[data-game-close]").forEach(el => el.addEventListener("click", closeGameModal));
-  document.querySelectorAll("[data-puzzle-close]").forEach(el => el.addEventListener("click", closePuzzleModal));
-
-  gameHomeButton.addEventListener("click", openGameModal);
-  openPuzzleBtn.addEventListener("click", () => openPuzzleModal());
-  puzzleModalPrimary.addEventListener("click", handlePuzzlePrimaryAction);
-  document.querySelectorAll("[data-choice]").forEach(button => {
-    button.addEventListener("click", () => playGameRound(button.dataset.choice));
-  });
-  downloadVoucherBtn.addEventListener("click", () => {
-    const voucher = getVoucherForCurrentGame();
-    if (voucher) downloadVoucher(voucher);
-  });
-  redeemVoucherBtn.addEventListener("click", () => {
-    const voucher = getVoucherForCurrentGame();
-    if (voucher) proposeVoucherRedemption(voucher);
-  });
 
 
 
 
 
-  voucherList.addEventListener("click", handleVoucherAction);
+
 
 }
 
@@ -275,13 +210,13 @@ async function showApp() {
   if (requestedOpen === "message") {
     // Compatibilidad con enlaces antiguos ya retirados de la interfaz.
     cleanLegacyMessageUrl(params);
-    maybeShowPuzzleWelcome();
+    rewardsModule().maybeShowPuzzleWelcome();
   } else if (requestedOpen === "ysi") {
     maybeFocusYSiFromUrl();
   } else if (requestedOpen === "plans" || requestedOpen === "calendar") {
     maybeFocusPlansFromUrl(params);
   } else {
-    maybeShowPuzzleWelcome();
+    rewardsModule().maybeShowPuzzleWelcome();
   }
 }
 
@@ -338,7 +273,7 @@ function updateWelcomeSummary() {
     : "❤️ Compatibilidad por descubrir";
 
   if (isLaura) {
-    welcomeSummarySecondary.textContent = `🧩 Puzle ${getPuzzlePieceCount()}/${PUZZLE_TOTAL_PIECES}`;
+    welcomeSummarySecondary.textContent = `🧩 Puzle ${rewardsModule().getPuzzlePieceCount()}/${PUZZLE_TOTAL_PIECES}`;
   } else if (current && !current.limite_alcanzado) {
     const position = Number(current.posicion_dia) || Math.min(5, (Number(current.completadas_hoy) || 0) + 1);
     welcomeSummarySecondary.textContent = `💭 ¿Y si…? ${position}/5`;
@@ -384,7 +319,7 @@ function applyRoleUI() {
   plansModule().renderRoleControls();
   renderServices();
   renderYSi();
-  updateDailyGameCard();
+  rewardsModule().rewardsModule().updateDailyGameCard();
   window.JaviEatsMinigames?.refreshAccess?.();
 }
 
@@ -392,8 +327,6 @@ function resetAppSession() {
   syncModule().reset();
   currentUser = null;
   currentRole = "unknown";
-  dailyGame = null;
-  dailyRounds = [];
   appReady = false;
   state.proposals = [];
   state.vouchers = [];
@@ -412,10 +345,7 @@ function resetAppSession() {
   notificationsModule().reset();
   plansModule().reset();
   ysiModule().reset();
-  puzzleWelcomeShown = false;
-  recentPuzzlePieceNumber = null;
-  if (puzzlePieceAnimationTimer) clearTimeout(puzzlePieceAnimationTimer);
-  puzzlePieceAnimationTimer = null;
+  rewardsModule().reset();
 }
 
 function showPage(page) {
@@ -434,20 +364,12 @@ function showPage(page) {
   }
   if (page === "memories") {
     renderMemories();
-    renderVouchers();
+    rewardsModule().rewardsModule().renderVouchers();
   }
   if (page === "minigames") {
     window.JaviEatsMinigames?.showHub?.();
   }
   window.scrollTo({ top: 0, behavior: "smooth" });
-}
-
-function startClock() {
-  updateDailyGameCard();
-  clockTimer = setInterval(() => {
-    updateDailyGameCard();
-    if (!gameModal.classList.contains("hidden")) renderGameModal();
-  }, 1000);
 }
 
 async function runDataSync({ silent = false, reason = "normal" } = {}) {
@@ -483,8 +405,7 @@ async function runDataSync({ silent = false, reason = "normal" } = {}) {
 
   const game = settledSyncValue(results, jobs, "game");
   if (game.ok && game.value) {
-    dailyGame = game.value.game || null;
-    dailyRounds = Array.isArray(game.value.rounds) ? game.value.rounds : [];
+    rewardsModule().applyGameSync(game.value);
   }
 
   const puzzle = settledSyncValue(results, jobs, "puzzle");
@@ -540,9 +461,7 @@ async function fetchYSiHistory() {
   return ysiModule().fetchHistory(supabaseClient);
 }
 async function fetchVouchers() {
-  const { data, error } = await supabaseClient.from("vales").select("*").order("created_at", { ascending: false });
-  if (error) throw error;
-  return data || [];
+  return rewardsModule().fetchVouchers(supabaseClient);
 }
 
 async function fetchNotifications() {
@@ -555,31 +474,10 @@ async function fetchRemoteMemories() {
 }
 
 async function fetchPuzzleProgress() {
-  const { data: puzzle, error } = await supabaseClient
-    .from("puzzles_premio")
-    .select("*")
-    .eq("beneficiaria_id", USER_IDS.LAURA)
-    .order("created_at", { ascending: false })
-    .limit(1)
-    .maybeSingle();
-  if (error) throw error;
-  if (!puzzle) return { puzzle: null, pieces: [] };
-
-  const { data: pieces, error: piecesError } = await supabaseClient
-    .from("piezas_puzzle")
-    .select("*")
-    .eq("puzzle_id", puzzle.id)
-    .order("numero_pieza", { ascending: true });
-  if (piecesError) throw piecesError;
-  return { puzzle, pieces: pieces || [] };
+  return rewardsModule().fetchPuzzleProgress(supabaseClient, USER_IDS.LAURA);
 }
 async function fetchTodayGame(dateKey) {
-  const { data: game, error } = await supabaseClient.from("retos_diarios").select("*").eq("fecha", dateKey).maybeSingle();
-  if (error) throw error;
-  if (!game) return { game: null, rounds: [] };
-  const { data: rounds, error: roundsError } = await supabaseClient.from("rondas_reto").select("*").eq("reto_id", game.id).order("numero", { ascending: true });
-  if (roundsError) throw roundsError;
-  return { game, rounds: rounds || [] };
+  return rewardsModule().fetchTodayGame(supabaseClient, dateKey);
 }
 
 function refreshUI() {
@@ -588,10 +486,10 @@ function refreshUI() {
   renderCalendar();
   renderYSi();
   renderMemories();
-  renderVouchers();
-  renderPuzzleProgress();
+  rewardsModule().rewardsModule().renderVouchers();
+  rewardsModule().rewardsModule().renderPuzzleProgress();
   renderNotifications();
-  updateDailyGameCard();
+  rewardsModule().rewardsModule().updateDailyGameCard();
   window.dispatchEvent(new CustomEvent("javieats:data"));
 }
 
@@ -639,482 +537,10 @@ function maybeRevealYSiResult(options = {}) {
   ysiModule().maybeReveal(options);
 }
 
-async function openGameModal() {
-  if (currentRole === "laura") {
-    try {
-      gameHomeButton.disabled = true;
-      gameHomeStatus.textContent = "Preparando la partida...";
-      const { data, error } = await supabaseClient.rpc("iniciar_reto_diario");
-      if (error) throw error;
-      dailyGame = data?.reto || null;
-      if (dailyGame) {
-        const gameData = await fetchTodayGame(dailyGame.fecha);
-        dailyGame = gameData.game;
-        dailyRounds = gameData.rounds;
-      }
-    } catch (error) {
-      console.error(error);
-      showToast(friendlyGameError(error));
-      updateDailyGameCard();
-      return;
-    } finally {
-      gameHomeButton.disabled = false;
-    }
-  }
-
-  if (!dailyGame && currentRole === "javi") {
-    showToast("Laura todavía no ha empezado el reto de hoy.");
-    return;
-  }
-
-  renderGameModal();
-  gameModal.classList.remove("hidden");
-  document.body.style.overflow = "hidden";
-}
-
-function closeGameModal() {
-  gameModal.classList.add("hidden");
-  document.body.style.overflow = "";
-  updateDailyGameCard();
-}
-
-async function playGameRound(choice) {
-  if (currentRole !== "laura" || !dailyGame || dailyGame.estado === "finalizado" || roundLocked) return;
-
-  roundLocked = true;
-  setChoiceButtonsDisabled(true);
-  playerChoiceVisual.textContent = CHOICES[choice].emoji;
-  playerChoiceLabel.textContent = CHOICES[choice].label;
-  machineChoiceVisual.textContent = "❔";
-  machineChoiceLabel.textContent = "Eligiendo...";
-  machineChoiceVisual.classList.add("thinking");
-  gameRoundResult.textContent = "La máquina está eligiendo desde Supabase...";
-
-  try {
-    const { data, error } = await supabaseClient.rpc("jugar_ronda_reto", { p_eleccion: choice });
-    if (error) throw error;
-
-    dailyGame = data?.reto || dailyGame;
-    if (data?.ronda && !dailyRounds.some(round => round.id === data.ronda.id)) {
-      dailyRounds.push(data.ronda);
-    }
-
-    if (data?.puzzle) {
-      if (state.puzzle?.id !== data.puzzle.id) state.puzzlePieces = [];
-      state.puzzle = data.puzzle;
-    }
-
-    if (data?.pieza) {
-      state.puzzlePieces = [
-        ...state.puzzlePieces.filter(item => item.id !== data.pieza.id),
-        data.pieza
-      ].sort((a, b) => a.numero_pieza - b.numero_pieza);
-      animatePuzzlePiece(data.pieza.numero_pieza);
-    }
-
-    if (data?.vale) {
-      state.vouchers = [
-        data.vale,
-        ...state.vouchers.filter(item => item.id !== data.vale.id)
-      ];
-    }
-
-    renderGameModal();
-    renderVouchers();
-    renderPuzzleProgress();
-    updateDailyGameCard();
-
-    if (data?.pieza && data?.vale) {
-      showToast("¡Puzle completado! Has desbloqueado el masaje de 30 minutos.");
-    } else if (data?.pieza) {
-      showToast(`¡Nueva pieza! Ya tienes ${getPuzzlePieceCount()} de ${PUZZLE_TOTAL_PIECES}.`);
-    }
-  } catch (error) {
-    console.error(error);
-    gameRoundResult.textContent = friendlyGameError(error);
-  } finally {
-    machineChoiceVisual.classList.remove("thinking");
-    roundLocked = false;
-    setChoiceButtonsDisabled(false);
-  }
-}
-
-function renderGameModal() {
-  machineChoiceVisual.classList.remove("thinking");
-  pieceReveal.classList.add("hidden");
-  prizeReveal.classList.add("hidden");
-
-  if (!dailyGame) {
-    playerScore.textContent = "0";
-    machineScore.textContent = "0";
-    gameDraws.textContent = "Empates: 0";
-    gameRoundLabel.textContent = "Partida no iniciada";
-    gameRoundResult.textContent = "Laura todavía no ha empezado la partida.";
-    gameChoices.classList.add("hidden");
-    gameFinal.classList.add("hidden");
-    return;
-  }
-
-  playerScore.textContent = dailyGame.victorias_laura;
-  machineScore.textContent = dailyGame.victorias_maquina;
-  gameDraws.textContent = `Empates: ${dailyGame.empates}`;
-  renderGameRoundHeading();
-  renderLastGameRound();
-
-  const finished = dailyGame.estado === "finalizado";
-  const canPlay = currentRole === "laura" && !finished;
-  gameChoices.classList.toggle("hidden", !canPlay);
-  gameFinal.classList.toggle("hidden", !finished);
-
-  if (!finished) {
-    gameDailyNote.textContent = dailyGame.en_desempate
-      ? "Muerte súbita: el primer resultado que no sea empate decide la partida."
-      : dailyGame.rondas_totales > 0
-        ? "La partida está guardada en Supabase y puedes continuarla desde otro dispositivo."
-        : "El intento de hoy queda asociado a la cuenta de Laura.";
-    setChoiceButtonsDisabled(roundLocked || currentRole !== "laura");
-    return;
-  }
-
-  setChoiceButtonsDisabled(true);
-
-  if (dailyGame.resultado === "ganada") {
-    const piece = getPuzzlePieceForCurrentGame();
-    const voucher = getVoucherForCurrentGame();
-    const completedNow = Boolean(piece && voucher && state.puzzle?.estado === "completado");
-
-    gameFinalIcon.textContent = completedNow ? "💆" : "🧩";
-    gameFinalTitle.textContent = completedNow
-      ? "Laura ha completado el puzle"
-      : "Laura ha ganado el reto diario";
-    gameFinalText.textContent = `Resultado final: Laura ${dailyGame.victorias_laura} - ${dailyGame.victorias_maquina} Máquina.`;
-
-    if (piece) {
-      pieceReveal.classList.remove("hidden");
-      pieceRevealTitle.textContent = completedNow
-        ? "¡La sexta pieza está colocada!"
-        : `¡Pieza ${piece.numero_pieza} conseguida!`;
-      pieceRevealText.textContent = completedNow
-        ? "Has reunido las seis piezas. El vale del masaje ya está disponible."
-        : `El progreso se ha guardado. Ya tienes ${getPuzzlePieceCount()} de ${PUZZLE_TOTAL_PIECES} piezas.`;
-      renderPuzzleGrid(gamePuzzleGrid, { highlightPiece: recentPuzzlePieceNumber });
-      gamePuzzleCount.textContent = puzzleCountLabel();
-    }
-
-    // Compatibilidad con vales antiguos: si ya existía un vale vinculado a la
-    // partida, se sigue mostrando aunque no tenga una pieza del nuevo sistema.
-    if (voucher) {
-      prizeReveal.classList.remove("hidden");
-      prizeTitle.textContent = voucher.titulo || "Masaje de 30 minutos";
-      prizeDescription.textContent = voucher.descripcion || "Premio conseguido en JaviEats.";
-      redeemVoucherBtn.classList.toggle("hidden", currentRole !== "laura");
-    }
-
-    if (completedNow) {
-      gameDailyNote.textContent = `Puzle completado. Nuevo intento en ${timeUntilTomorrow()}.`;
-    } else if (piece) {
-      gameDailyNote.textContent = `La pieza se ha guardado. Nuevo intento en ${timeUntilTomorrow()}.`;
-    } else {
-      gameDailyNote.textContent = `Victoria registrada. Nuevo intento en ${timeUntilTomorrow()}.`;
-    }
-  } else {
-    gameFinalIcon.textContent = "🤖";
-    gameFinalTitle.textContent = "La máquina gana hoy";
-    gameFinalText.textContent = `Resultado final: Laura ${dailyGame.victorias_laura} - ${dailyGame.victorias_maquina} Máquina. Mañana habrá un nuevo intento.`;
-    gameDailyNote.textContent = state.puzzle?.estado === "completado"
-      ? `El puzle completado sigue guardado. Nuevo intento en ${timeUntilTomorrow()}.`
-      : `No pierdes ninguna pieza. Nuevo intento en ${timeUntilTomorrow()}.`;
-  }
-}
-
-function renderGameRoundHeading() {
-  if (dailyGame.estado === "finalizado") {
-    gameRoundLabel.textContent = dailyGame.rondas_totales > REGULAR_GAME_ROUNDS
-      ? "Partida finalizada en muerte súbita"
-      : "Partida finalizada";
-    return;
-  }
-  if (dailyGame.en_desempate) {
-    gameRoundLabel.textContent = `Muerte súbita · ronda extra ${Math.max(1, dailyGame.rondas_totales - REGULAR_GAME_ROUNDS + 1)}`;
-    return;
-  }
-  gameRoundLabel.textContent = `Ronda ${dailyGame.rondas_regulares + 1} de ${REGULAR_GAME_ROUNDS}`;
-}
-
-function renderLastGameRound() {
-  if (!dailyRounds.length) {
-    playerChoiceVisual.textContent = "❔";
-    playerChoiceLabel.textContent = "Sin elegir";
-    machineChoiceVisual.textContent = "❔";
-    machineChoiceLabel.textContent = "Esperando";
-    gameRoundResult.textContent = currentRole === "laura"
-      ? "Elige tu jugada para empezar."
-      : "Laura todavía no ha realizado ninguna jugada.";
-    return;
-  }
-
-  const last = dailyRounds[dailyRounds.length - 1];
-  playerChoiceVisual.textContent = CHOICES[last.eleccion_laura]?.emoji || "❔";
-  playerChoiceLabel.textContent = CHOICES[last.eleccion_laura]?.label || "Sin elegir";
-  machineChoiceVisual.textContent = CHOICES[last.eleccion_maquina]?.emoji || "❔";
-  machineChoiceLabel.textContent = CHOICES[last.eleccion_maquina]?.label || "Esperando";
-  gameRoundResult.textContent = {
-    laura: "Laura gana esta ronda.",
-    maquina: "La máquina gana esta ronda.",
-    empate: "Empate. La ronda cuenta, pero nadie suma victoria."
-  }[last.resultado] || "Ronda guardada.";
-}
-
-function updateDailyGameCard() {
-  if (!gameHomeStatus || !gameHomeButton) return;
-  if (!currentUser) {
-    gameHomeStatus.textContent = "Inicia sesión para ver el reto diario.";
-    gameHomeButton.disabled = true;
-    return;
-  }
-
-  if (!dailyGame) {
-    if (currentRole === "laura") {
-      gameHomeStatus.textContent = state.puzzle?.estado === "completado"
-        ? "Tu puzle anterior está completo. La próxima victoria empezará uno nuevo."
-        : `Partida disponible. Si ganas, sumarás una pieza (${getPuzzlePieceCount()}/${PUZZLE_TOTAL_PIECES}).`;
-      gameHomeButton.textContent = "Jugar partida de hoy";
-      gameHomeButton.disabled = false;
-    } else {
-      gameHomeStatus.textContent = "Laura todavía no ha jugado hoy.";
-      gameHomeButton.textContent = "Esperando a Laura";
-      gameHomeButton.disabled = true;
-    }
-    updatePuzzleModalContent();
-    return;
-  }
-
-  gameHomeButton.disabled = false;
-  if (dailyGame.estado !== "finalizado") {
-    const roundText = dailyGame.en_desempate
-      ? "Muerte súbita"
-      : `${dailyGame.rondas_regulares} de 5 rondas jugadas`;
-    gameHomeStatus.textContent = `${roundText} · Laura ${dailyGame.victorias_laura} - ${dailyGame.victorias_maquina} Máquina · ${dailyGame.empates} empates`;
-    gameHomeButton.textContent = currentRole === "laura" ? "Continuar partida" : "Ver partida";
-    updatePuzzleModalContent();
-    return;
-  }
-
-  if (dailyGame.resultado === "ganada") {
-    const piece = getPuzzlePieceForCurrentGame();
-    const voucher = getVoucherForCurrentGame();
-    if (piece && voucher) {
-      gameHomeStatus.textContent = `Reto superado · puzle completado · masaje desbloqueado · nuevo intento en ${timeUntilTomorrow()}`;
-      gameHomeButton.textContent = "Ver premio";
-    } else if (piece) {
-      gameHomeStatus.textContent = `Reto superado · pieza conseguida · ${puzzleCountLabel()} · nuevo intento en ${timeUntilTomorrow()}`;
-      gameHomeButton.textContent = "Ver pieza";
-    } else if (voucher) {
-      gameHomeStatus.textContent = `Reto superado · premio desbloqueado · nuevo intento en ${timeUntilTomorrow()}`;
-      gameHomeButton.textContent = "Ver premio";
-    } else {
-      gameHomeStatus.textContent = `Reto superado · nuevo intento en ${timeUntilTomorrow()}`;
-      gameHomeButton.textContent = "Ver resultado";
-    }
-  } else {
-    gameHomeStatus.textContent = state.puzzle?.estado === "completado"
-      ? `Intento agotado · el puzle completado sigue guardado · nuevo reto en ${timeUntilTomorrow()}`
-      : `Intento agotado · conservas ${getPuzzlePieceCount()} de ${PUZZLE_TOTAL_PIECES} piezas · nuevo reto en ${timeUntilTomorrow()}`;
-    gameHomeButton.textContent = "Ver resultado";
-  }
-
-  updatePuzzleModalContent();
-}
-
-function getPuzzlePieceCount() {
-  const storedCount = Number(state.puzzle?.piezas_conseguidas);
-  if (Number.isFinite(storedCount)) return Math.min(PUZZLE_TOTAL_PIECES, Math.max(0, storedCount));
-  return Math.min(PUZZLE_TOTAL_PIECES, state.puzzlePieces.length);
-}
-
-function puzzleCountLabel() {
-  return `${getPuzzlePieceCount()} de ${PUZZLE_TOTAL_PIECES} piezas`;
-}
-
-function getPuzzlePieceForCurrentGame() {
-  if (!dailyGame) return null;
-  return state.puzzlePieces.find(piece => piece.reto_id === dailyGame.id) || null;
-}
-
-function renderPuzzleGrid(container, { highlightPiece = null } = {}) {
-  if (!container) return;
-  const unlocked = new Set(state.puzzlePieces.map(piece => Number(piece.numero_pieza)));
-  const count = getPuzzlePieceCount();
-
-  container.innerHTML = Array.from({ length: PUZZLE_TOTAL_PIECES }, (_, index) => {
-    const number = index + 1;
-    const isUnlocked = unlocked.has(number);
-    const isNew = isUnlocked && Number(highlightPiece) === number;
-    return `<span class="puzzle-piece ${isUnlocked ? "is-unlocked" : "is-locked"}${isNew ? " is-new" : ""}" data-piece="${number}" aria-hidden="true"></span>`;
-  }).join("");
-
-  container.classList.toggle("is-complete", count === PUZZLE_TOTAL_PIECES);
-  container.setAttribute("aria-label", `${count} de ${PUZZLE_TOTAL_PIECES} piezas conseguidas`);
-}
-
-function renderPuzzleProgress() {
-  const count = getPuzzlePieceCount();
-  renderPuzzleGrid(homePuzzleGrid);
-  renderPuzzleGrid(puzzleModalGrid);
-  renderPuzzleGrid(gamePuzzleGrid, { highlightPiece: recentPuzzlePieceNumber });
-
-  if (homePuzzleCount) homePuzzleCount.textContent = puzzleCountLabel();
-  if (gamePuzzleCount) gamePuzzleCount.textContent = puzzleCountLabel();
-
-  if (homePuzzleText) {
-    if (state.puzzleLoadError) {
-      homePuzzleText.textContent = "No se ha podido cargar el progreso del puzle.";
-    } else if (state.puzzle?.estado === "completado") {
-      homePuzzleText.textContent = "Puzle completado. El masaje ya está en Mis vales.";
-    } else if (count === 0) {
-      homePuzzleText.textContent = "La primera victoria descubrirá la primera pieza.";
-    } else {
-      const remaining = PUZZLE_TOTAL_PIECES - count;
-      homePuzzleText.textContent = `Te ${remaining === 1 ? "falta" : "faltan"} ${remaining} ${remaining === 1 ? "pieza" : "piezas"} para desbloquear el masaje.`;
-    }
-  }
-
-  updatePuzzleModalContent();
-}
-
-function updatePuzzleModalContent() {
-  if (!puzzleModalTitle || !puzzleModalText || !puzzleModalPrimary) return;
-  const count = getPuzzlePieceCount();
-  const completed = state.puzzle?.estado === "completado";
-
-  renderPuzzleGrid(puzzleModalGrid);
-  puzzleModalCount.textContent = puzzleCountLabel();
-  puzzleModalReward.textContent = completed
-    ? "Premio desbloqueado: masaje de 30 minutos"
-    : "Premio: masaje de 30 minutos";
-
-  if (state.puzzleLoadError) {
-    puzzleModalTitle.textContent = "Puzle pendiente de conexión";
-    puzzleModalText.textContent = "El resto de JaviEats sigue disponible, pero no se ha podido leer el progreso. Revisa que el SQL de la versión 2.4 esté aplicado.";
-  } else if (completed) {
-    puzzleModalTitle.textContent = "¡Puzle completado!";
-    puzzleModalText.textContent = "Las seis piezas están colocadas y el vale del masaje ya está guardado. Tu próxima victoria comenzará un puzle nuevo.";
-  } else if (count === 0) {
-    puzzleModalTitle.textContent = "Puzle del masaje";
-    puzzleModalText.textContent = "Cada partida diaria ganada descubre una pieza. Reúne las seis para desbloquear un masaje de 30 minutos.";
-  } else {
-    const remaining = PUZZLE_TOTAL_PIECES - count;
-    puzzleModalTitle.textContent = "Tu puzle sigue creciendo";
-    puzzleModalText.textContent = `Ya has descubierto ${count} ${count === 1 ? "pieza" : "piezas"}. Te ${remaining === 1 ? "falta" : "faltan"} ${remaining} para conseguir el masaje.`;
-  }
-
-  if (currentRole === "laura") {
-    puzzleModalPrimary.disabled = false;
-    if (!dailyGame) puzzleModalPrimary.textContent = "Jugar reto de hoy";
-    else if (dailyGame.estado !== "finalizado") puzzleModalPrimary.textContent = "Continuar reto de hoy";
-    else puzzleModalPrimary.textContent = "Ver resultado de hoy";
-  } else if (dailyGame) {
-    puzzleModalPrimary.disabled = false;
-    puzzleModalPrimary.textContent = "Ver reto de hoy";
-  } else {
-    puzzleModalPrimary.disabled = true;
-    puzzleModalPrimary.textContent = "Esperando a Laura";
-  }
-}
-
-function openPuzzleModal() {
-  puzzleWelcomeShown = true;
-  renderPuzzleProgress();
-  puzzleModal.classList.remove("hidden");
-  document.body.style.overflow = "hidden";
-}
-
-function closePuzzleModal() {
-  puzzleModal.classList.add("hidden");
-  document.body.style.overflow = "";
-}
-
-function maybeShowPuzzleWelcome() {
-  if (currentRole !== "laura" || puzzleWelcomeShown || !currentUser || state.puzzleLoadError) return;
-  puzzleWelcomeShown = true;
-  setTimeout(() => {
-    if (currentUser && currentRole === "laura" && puzzleModal.classList.contains("hidden")) {
-      openPuzzleModal();
-    }
-  }, 280);
-}
-
-function handlePuzzlePrimaryAction() {
-  if (puzzleModalPrimary.disabled) return;
-  closePuzzleModal();
-  openGameModal();
-}
-
-function animatePuzzlePiece(pieceNumber) {
-  recentPuzzlePieceNumber = Number(pieceNumber);
-  if (puzzlePieceAnimationTimer) clearTimeout(puzzlePieceAnimationTimer);
-  puzzlePieceAnimationTimer = setTimeout(() => {
-    recentPuzzlePieceNumber = null;
-    renderPuzzleProgress();
-    if (!gameModal.classList.contains("hidden")) renderGameModal();
-  }, 2200);
-}
-
-function setChoiceButtonsDisabled(disabled) { document.querySelectorAll("[data-choice]").forEach(button => button.disabled = disabled); }
-
-function getVoucherForCurrentGame() { return dailyGame ? state.vouchers.find(v => v.reto_id === dailyGame.id) || null : null; }
-function renderVouchers() {
-  if (!state.vouchers.length) { voucherList.innerHTML = `<div class="empty">Todavía no hay vales ganados. Completa las 6 piezas del puzle del masaje para conseguir el primero.</div>`; return; }
-  voucherList.innerHTML = state.vouchers.map(voucher => {
-    const active = voucher.estado === "activo";
-    const second = active ? (currentRole === "javi" ? `<button class="btn btn-secondary" type="button" data-voucher-use="${voucher.id}">Marcar canjeado</button>` : `<button class="btn btn-secondary" type="button" data-voucher-redeem="${voucher.id}">Proponer canje</button>`) : "";
-    return `<article class="voucher-card"><div class="voucher-mark">JaviEats</div><p class="eyebrow">Premio conseguido · ${shortDate(dateFromTimestamp(voucher.created_at))}</p><h3>${escapeHTML(voucher.titulo)}</h3><p>${escapeHTML(voucher.descripcion)}</p><span class="voucher-state ${active ? "" : "is-used"}">${active ? "Vale activo" : "Vale canjeado"}</span><br><span class="voucher-code">${voucherCode(voucher)}</span><div class="voucher-buttons"><button class="btn btn-primary" type="button" data-voucher-download="${voucher.id}">Descargar vale</button>${second}</div></article>`;
-  }).join("");
-}
-async function handleVoucherAction(event) {
-  const downloadButton = event.target.closest("[data-voucher-download]");
-  const redeemButton = event.target.closest("[data-voucher-redeem]");
-  const useButton = event.target.closest("[data-voucher-use]");
-  if (downloadButton) { const v = state.vouchers.find(i => i.id === downloadButton.dataset.voucherDownload); if (v) downloadVoucher(v); }
-  if (redeemButton) { const v = state.vouchers.find(i => i.id === redeemButton.dataset.voucherRedeem); if (v) proposeVoucherRedemption(v); }
-  if (useButton) await markVoucherAsUsed(useButton.dataset.voucherUse);
-}
-function proposeVoucherRedemption(voucher) {
-  if (currentRole !== "laura") return;
-  closeGameModal(); showPage("services");
-  openService("masaje", { duration: "30 minutos", note: `Canje del vale ${voucherCode(voucher)} ganado en JaviEats.` });
-}
-async function markVoucherAsUsed(id) {
-  if (currentRole !== "javi" || !confirm("¿Marcar este vale como canjeado?")) return;
-  try {
-    const { data, error } = await supabaseClient.rpc("canjear_vale", { p_vale_id: id });
-    if (error) throw error;
-    state.vouchers = state.vouchers.map(item => item.id === id ? data : item);
-    renderVouchers(); showToast("Vale marcado como canjeado.");
-  } catch (error) { console.error(error); showToast("No se ha podido canjear el vale."); }
-}
-
 function renderMemories() {
   memoriesModule().render();
 }
 
-function downloadVoucher(voucher) {
-  const canvas = document.createElement("canvas"); canvas.width = 1200; canvas.height = 1600;
-  const c = canvas.getContext("2d"); if (!c) return;
-  c.fillStyle = "#f4f0ea"; c.fillRect(0, 0, 1200, 1600);
-  c.fillStyle = "#111"; drawRoundedRectangle(c, 90, 90, 1020, 1420, 54); c.fill();
-  c.fillStyle = "#fff"; drawRoundedRectangle(c, 120, 120, 960, 1360, 42); c.fill();
-  c.fillStyle = "#e85d45"; drawRoundedRectangle(c, 180, 180, 840, 120, 60); c.fill();
-  c.fillStyle = "#fff"; c.textAlign = "center"; c.font = "900 54px Arial"; c.fillText("JaviEats", 600, 258);
-  c.fillStyle = "#111"; c.font = "900 44px Arial"; c.fillText("VALE DESBLOQUEADO", 600, 430);
-  c.fillStyle = "#e85d45"; c.font = "900 76px Arial"; wrapCanvasText(c, voucher.titulo, 600, 610, 820, 88);
-  c.fillStyle = "#6f6a64"; c.font = "600 40px Arial"; wrapCanvasText(c, voucher.descripcion, 600, 840, 760, 56);
-  c.fillStyle = "#111"; c.font = "700 34px Arial"; c.fillText(`Ganado el ${formatDateCompact(dateFromTimestamp(voucher.created_at))}`, 600, 1040);
-  c.font = "900 36px monospace"; c.fillText(voucherCode(voucher), 600, 1215);
-  c.fillStyle = "#6f6a64"; c.font = "500 28px Arial"; wrapCanvasText(c, "Canjeable bajo disponibilidad. Enséñaselo a Javi para hacerlo oficial.", 600, 1330, 780, 42);
-  downloadCanvas(canvas, `vale-javieats-${dateFromTimestamp(voucher.created_at)}.png`);
-  showToast("Vale descargado.");
-}
 /* =========================================================
    Centro de actividad y compatibilidad con enlaces legacy
    ========================================================= */
@@ -1131,7 +557,6 @@ function renderNotifications() {
   notificationsModule().render();
 }
 
-function voucherCode(voucher) { return `JE-${dateFromTimestamp(voucher.created_at).replaceAll("-", "")}-${voucher.id.slice(0, 6).toUpperCase()}`; }
 function normalizeTimeForDate(time) { const clean = String(time || "00:00").slice(0, 8); return clean.length === 5 ? `${clean}:00` : clean; }
 function toDateKeyMadrid(date) {
   const parts = new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/Madrid", year: "numeric", month: "2-digit", day: "2-digit" }).formatToParts(new Date(date));
@@ -1145,18 +570,7 @@ function shortDate(dateKey) { const [y, m, d] = dateKey.split("-").map(Number); 
 function formatTime(time) { return String(time || "").slice(0, 5); }
 function formatDateTime(timestamp) { return new Intl.DateTimeFormat("es-ES", { timeZone: "Europe/Madrid", day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" }).format(new Date(timestamp)); }
 function currentTimeLabel() { return new Intl.DateTimeFormat("es-ES", { timeZone: "Europe/Madrid", hour: "2-digit", minute: "2-digit" }).format(new Date()); }
-function timeUntilTomorrow() {
-  const now = new Date(); const tomorrow = new Date(now); tomorrow.setHours(24, 0, 0, 0);
-  const diff = Math.max(0, tomorrow - now); const h = Math.floor(diff / 3600000); const m = Math.floor((diff % 3600000) / 60000); const s = Math.floor((diff % 60000) / 1000);
-  return `${String(h).padStart(2, "0")} h · ${String(m).padStart(2, "0")} min · ${String(s).padStart(2, "0")} s`;
-}
 function escapeHTML(text) { return String(text ?? "").replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#039;"); }
-function friendlyGameError(error) {
-  const message = String(error?.message || "");
-  if (message.includes("intento de hoy")) return "Laura ya ha utilizado su intento de hoy.";
-  if (message.includes("solamente puede jugarlo Laura")) return "Este reto solamente puede jugarlo Laura.";
-  return "No se ha podido guardar la jugada. Revisa la conexión.";
-}
 function drawRoundedRectangle(context, x, y, width, height, radius) {
   const r = Math.min(radius, width / 2, height / 2); context.beginPath(); context.moveTo(x + r, y); context.arcTo(x + width, y, x + width, y + height, r); context.arcTo(x + width, y + height, x, y + height, r); context.arcTo(x, y + height, x, y, r); context.arcTo(x, y, x + width, y, r); context.closePath();
 }
