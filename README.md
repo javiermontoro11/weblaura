@@ -332,7 +332,7 @@ Los tres contextos maestros viven juntos dentro de `/contextos/`. **Nuestra Vida
 
 `/app/` se reserva para módulos del frontend principal extraídos de forma incremental. En 3.3.6 contiene `app/js/debug.js` y `app/js/memories.js`; no se crearán decenas de archivos pequeños sin una responsabilidad clara.
 
-`app/js/memories.js` es el primer módulo funcional extraído de `script.js`: concentra acceso a `recuerdos_app`, URLs firmadas del bucket privado, caché temporal de URLs y compresión de imágenes. El editor/render todavía permanecen en `script.js` en esta fase para reducir riesgo.
+`app/js/memories.js` es el primer módulo funcional extraído de `script.js` y ya concentra todo el dominio de Recuerdos: acceso a `recuerdos_app`, Storage privado, URLs firmadas, caché temporal, compresión, render, galerías, cartas, editor, alta, edición y borrado. `script.js` conserva únicamente los puntos de integración con la sincronización y la API global.
 
 /supabase/ contiene desde 3.3.6 el historial SQL reproducible. Las migraciones creadas en GitHub no deben confundirse con cambios ya aplicados a producción: su estado debe verificarse explícitamente.
 
