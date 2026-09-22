@@ -122,6 +122,36 @@
       "Posibilidad de añadir merienda o paseo juntos."
     ],
     notePlaceholder: "Ej: paseo largo, quiero ver a Randy y Nala, merienda después..."
+  },
+  {
+    id: "tomar-algo",
+    icon: "☕",
+    title: "Tomar algo",
+    category: "Plan rápido",
+    description: "Café, merienda, terraza o una copa. Un plan sencillo para veros sin montar demasiado.",
+    eta: "30 min-2 h",
+    durations: ["Café rápido", "Merienda", "Algo por la tarde", "Copa / bebida"],
+    bullets: [
+      "Perfecto para un hueco corto o una tarde tranquila.",
+      "El sitio se decide entre los dos.",
+      "Se puede convertir en un plan más largo si surge."
+    ],
+    notePlaceholder: "Ej: café por el centro, merienda, terraza si hace bueno..."
+  },
+  {
+    id: "comer-cenar",
+    icon: "🍽️",
+    title: "Ir a comer / cenar",
+    category: "Salir a comer",
+    description: "Una comida o cena juntos, desde algo improvisado hasta reservar un sitio que os apetezca probar.",
+    eta: "1-3 h",
+    durations: ["Comida", "Cena", "Comer + paseo", "Cena + algo después"],
+    bullets: [
+      "Restaurante o sitio por decidir.",
+      "Sirve tanto para comida como para cena.",
+      "Se puede alargar con paseo, postre o una copa."
+    ],
+    notePlaceholder: "Ej: italiano, hamburguesas, algo por Madrid, cenar pronto..."
   }
 ].map(service => Object.freeze({
     ...service,
