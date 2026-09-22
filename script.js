@@ -40,10 +40,6 @@ const welcomeSummarySecondary = $("welcome-summary-secondary");
 const appScreen = $("app-screen");
 const sessionUserName = $("session-user-name");
 const homeGreeting = $("home-greeting");
-const featuredServices = $("featured-services");
-const allServices = $("all-services");
-const totalProposals = $("total-proposals");
-const nextPlan = $("next-plan");
 
 const gameHomeStatus = $("game-home-status");
 const gameHomeButton = $("game-home-button");
@@ -86,46 +82,8 @@ const puzzleModalCount = $("puzzle-modal-count");
 const puzzleModalReward = $("puzzle-modal-reward");
 const puzzleModalPrimary = $("puzzle-modal-primary");
 
-const serviceModal = $("service-modal");
-const modalIcon = $("modal-icon");
-const modalCategory = $("modal-category");
-const modalTitle = $("modal-title");
-const modalDescription = $("modal-description");
-const modalList = $("modal-list");
-const proposalForm = $("proposal-form");
-const proposalSubmit = $("proposal-submit");
-const serviceId = $("service-id");
-const proposalDate = $("proposal-date");
-const proposalTime = $("proposal-time");
-const proposalDuration = $("proposal-duration");
-const proposalPriority = $("proposal-priority");
-const proposalNote = $("proposal-note");
-const proposalNoteHint = $("proposal-note-hint");
-const proposalStatus = $("proposal-status");
-const proposalSuccess = $("proposal-success");
-const proposalTicketPreview = $("proposal-ticket-preview");
-const downloadProposalTicket = $("download-proposal-ticket");
 
-const calendarTitle = $("calendar-title");
-const calendarGrid = $("calendar-grid");
-const prevMonth = $("prev-month");
-const nextMonth = $("next-month");
-const selectedTitle = $("selected-title");
-const dayBookings = $("day-bookings");
-const bookingList = $("booking-list");
-const clearHistory = $("clear-history");
 
-const addCustomPlanBtn = $("add-custom-plan-btn");
-const customPlanModal = $("custom-plan-modal");
-const customPlanForm = $("custom-plan-form");
-const customPlanTitle = $("custom-plan-title");
-const customPlanDate = $("custom-plan-date");
-const customPlanAllDay = $("custom-plan-all-day");
-const customPlanTimeLabel = $("custom-plan-time-label");
-const customPlanTime = $("custom-plan-time");
-const customPlanDescription = $("custom-plan-description");
-const customPlanSubmit = $("custom-plan-submit");
-const customPlanStatus = $("custom-plan-status");
 
 const ySiStatusBadge = $("y-si-status-badge");
 const ySiCompatibility = $("y-si-compatibility");
@@ -167,9 +125,6 @@ const toast = $("toast");
 let supabaseClient = null;
 let currentUser = null;
 let currentRole = "unknown";
-let calendarDate = new Date();
-let selectedDate = toDateKeyMadrid(new Date());
-let lastProposalTicket = null;
 let dailyGame = null;
 let dailyRounds = [];
 let roundLocked = false;
@@ -268,11 +223,11 @@ async function init() {
   notificationsModule().bindUI();
   pushModule().bindUI();
   syncModule().bindUI();
+  plansModule().bindUI();
   renderServices();
   renderMemories();
   renderVouchers();
   renderPuzzleProgress();
-  setMinDate();
   startClock();
 
   if (!window.supabase?.createClient) {
@@ -297,9 +252,7 @@ function bindEvents() {
   document.querySelectorAll("[data-go]").forEach(button => {
     button.addEventListener("click", () => showPage(button.dataset.go));
   });
-  document.querySelectorAll("[data-service-close]").forEach(el => el.addEventListener("click", closeServiceModal));
   document.querySelectorAll("[data-game-close]").forEach(el => el.addEventListener("click", closeGameModal));
-  document.querySelectorAll("[data-custom-plan-close]").forEach(el => el.addEventListener("click", closeCustomPlanModal));
   document.querySelectorAll("[data-puzzle-close]").forEach(el => el.addEventListener("click", closePuzzleModal));
   document.querySelectorAll("[data-y-si-history-close]").forEach(el => el.addEventListener("click", closeYSiHistoryModal));
 
@@ -325,25 +278,8 @@ function bindEvents() {
     if (voucher) proposeVoucherRedemption(voucher);
   });
 
-  proposalForm.addEventListener("submit", handleProposal);
-  downloadProposalTicket.addEventListener("click", () => {
-    if (lastProposalTicket) downloadTicket(lastProposalTicket);
-  });
 
-  addCustomPlanBtn.addEventListener("click", openCustomPlanModal);
-  customPlanAllDay.addEventListener("change", updateCustomPlanTimeVisibility);
-  customPlanForm.addEventListener("submit", handleCustomPlan);
 
-  prevMonth.addEventListener("click", () => {
-    calendarDate.setMonth(calendarDate.getMonth() - 1);
-    renderCalendar();
-  });
-  nextMonth.addEventListener("click", () => {
-    calendarDate.setMonth(calendarDate.getMonth() + 1);
-    renderCalendar();
-  });
-  clearHistory.addEventListener("click", clearSharedCalendar);
-  [bookingList, dayBookings].forEach(container => container.addEventListener("click", handleBookingAction));
 
 
   voucherList.addEventListener("click", handleVoucherAction);
@@ -483,7 +419,7 @@ function applyRoleUI() {
   const isLaura = currentRole === "laura";
   sessionUserName.textContent = isLaura ? "Laura" : "Javi";
   homeGreeting.textContent = isLaura ? "Hola Laura 👋" : "Hola Javi 👋";
-  clearHistory.classList.toggle("hidden", currentRole !== "javi");
+  plansModule().renderRoleControls();
   renderServices();
   renderYSi();
   updateDailyGameCard();
@@ -512,6 +448,7 @@ function resetAppSession() {
   state.notificationLoadError = false;
   memoriesModule().reset();
   notificationsModule().reset();
+  plansModule().reset();
   ySiSelectedOption = null;
   ySiSelectedDayId = null;
   ySiHistoryFilter = "all";
@@ -535,8 +472,8 @@ function showPage(page) {
     button.classList.toggle("active", button.dataset.page === page);
   });
   if (page === "calendar") {
-    renderCalendar();
-    renderBookings();
+    plansModule().renderCalendar();
+    plansModule().renderBookings();
   }
   if (page === "memories") {
     renderMemories();
@@ -706,295 +643,32 @@ function refreshUI() {
 }
 
 function renderServices() {
-  featuredServices.innerHTML = SERVICES.slice(0, 3).map(serviceTemplate).join("");
-  allServices.innerHTML = SERVICES.map(serviceTemplate).join("");
-  document.querySelectorAll("[data-service]").forEach(card => {
-    card.addEventListener("click", () => openService(card.dataset.service));
-  });
-}
-function serviceTemplate(service) {
-  const actionText = "Proponer plan";
-  return `<button class="service-card" type="button" data-service="${service.id}">
-    <div class="service-row"><div class="service-icon">${service.icon}</div><div>
-      <p class="eyebrow">${escapeHTML(service.category)}</p><h3>${escapeHTML(service.title)}</h3>
-      <p>${escapeHTML(service.description)}</p>
-      <div class="chips"><span class="chip">⏱️ ${escapeHTML(service.eta)}</span><span class="chip">${actionText}</span></div>
-          </div></div></button>`;
-}
-
-function openService(id, options = {}) {
-  const service = SERVICES.find(item => item.id === id);
-  if (!service) return;
-  proposalForm.reset();
-  proposalForm.classList.remove("hidden");
-  proposalSuccess.classList.add("hidden");
-  lastProposalTicket = null;
-  serviceId.value = service.id;
-  modalIcon.textContent = service.icon;
-  modalCategory.textContent = service.category;
-  modalTitle.textContent = service.title;
-  modalDescription.textContent = service.description;
-  modalList.innerHTML = service.bullets.map(item => `<li>${escapeHTML(item)}</li>`).join("");
-  proposalDuration.innerHTML = service.durations.map(item => `<option value="${escapeHTML(item)}">${escapeHTML(item)}</option>`).join("");
-  proposalNote.required = Boolean(service.requiresNote);
-  proposalNote.placeholder = service.notePlaceholder || "Cuéntale a Javi cualquier detalle...";
-  proposalNoteHint.textContent = service.requiresNote ? "Obligatorio en este servicio" : "Opcional";
-  proposalStatus.textContent = "";
-  setMinDate();
-  if (options.duration && service.durations.includes(options.duration)) proposalDuration.value = options.duration;
-  if (options.note) proposalNote.value = options.note;
-  serviceModal.classList.remove("hidden");
-  document.body.style.overflow = "hidden";
-}
-function closeServiceModal() {
-  serviceModal.classList.add("hidden");
-  document.body.style.overflow = "";
-  proposalForm.classList.remove("hidden");
-  proposalSuccess.classList.add("hidden");
-  proposalStatus.textContent = "";
-  lastProposalTicket = null;
-}
-
-async function handleProposal(event) {
-  event.preventDefault();
-  if (!currentUser) return;
-  const service = SERVICES.find(item => item.id === serviceId.value);
-  if (!service) return;
-  if (service.requiresNote && !proposalNote.value.trim()) {
-    proposalStatus.textContent = "En este servicio tienes que explicar qué plan te apetece.";
-    proposalNote.focus();
-    return;
-  }
-  proposalSubmit.disabled = true;
-  proposalStatus.textContent = "Guardando en el calendario compartido...";
-  const payload = {
-    created_by: currentUser.id,
-    entry_type: "service",
-    is_all_day: false,
-    service_id: service.id,
-    service_title: service.title,
-    service_icon: service.icon,
-    category: service.category,
-    plan_date: proposalDate.value,
-    plan_time: proposalTime.value,
-    duration: proposalDuration.value,
-    priority: proposalPriority.value,
-    note: proposalNote.value.trim(),
-    status: "pendiente"
-  };
-  try {
-    const data = await plansModule().create(supabaseClient, payload);
-    state.proposals.push(data);
-    state.proposals.sort(sortProposalsByDate);
-    lastProposalTicket = data;
-    refreshUI(); renderProposalSuccess(data);
-    proposalForm.classList.add("hidden");
-    proposalSuccess.classList.remove("hidden");
-    showToast("Propuesta guardada en el calendario compartido.");
-  } catch (error) {
-    console.error(error);
-    proposalStatus.textContent = "No se ha podido guardar la propuesta. Revisa la conexión.";
-  } finally {
-    proposalSubmit.disabled = false;
-  }
-}
-
-function renderProposalSuccess(proposal) {
-  proposalTicketPreview.innerHTML = `<strong>${proposal.service_icon} ${escapeHTML(proposal.service_title)}</strong>
-    <p>📅 ${formatDate(proposal.plan_date)}</p><p>🕒 ${formatTime(proposal.plan_time)} · ${escapeHTML(proposal.duration)}</p>
-    <p>💭 ${escapeHTML(proposal.priority)}</p>${proposal.note ? `<p>📝 ${escapeHTML(proposal.note)}</p>` : ""}`;
-}
-
-function openCustomPlanModal() {
-  customPlanForm.reset();
-  customPlanStatus.textContent = "";
-  customPlanDate.value = selectedDate || toDateKeyMadrid(new Date());
-  customPlanDate.min = toDateKeyMadrid(new Date());
-  customPlanAllDay.checked = false;
-  customPlanTime.value = "";
-  updateCustomPlanTimeVisibility();
-  customPlanModal.classList.remove("hidden");
-  document.body.style.overflow = "hidden";
-  setTimeout(() => customPlanTitle.focus(), 100);
-}
-function closeCustomPlanModal() {
-  customPlanModal.classList.add("hidden");
-  document.body.style.overflow = "";
-  customPlanStatus.textContent = "";
-}
-function updateCustomPlanTimeVisibility() {
-  const isAllDay = customPlanAllDay.checked;
-  customPlanTimeLabel.classList.toggle("hidden", isAllDay);
-  if (isAllDay) customPlanTime.value = "";
-}
-async function handleCustomPlan(event) {
-  event.preventDefault();
-  if (!currentUser) return;
-  const title = customPlanTitle.value.trim();
-  const description = customPlanDescription.value.trim();
-  const isAllDay = customPlanAllDay.checked;
-  if (!title) {
-    customPlanStatus.textContent = "Escribe un título para el plan.";
-    customPlanTitle.focus();
-    return;
-  }
-  if (!isAllDay && !customPlanTime.value) {
-    customPlanStatus.textContent = "Elige una hora o marca Todo el día.";
-    customPlanTime.focus();
-    return;
-  }
-  customPlanSubmit.disabled = true;
-  customPlanStatus.textContent = "Guardando en el calendario compartido...";
-  const payload = {
-    created_by: currentUser.id,
-    entry_type: "custom",
-    service_id: "custom",
-    service_title: title,
-    service_icon: "📌",
-    category: "Plan libre",
-    plan_date: customPlanDate.value,
-    plan_time: isAllDay ? "12:00" : customPlanTime.value,
-    is_all_day: isAllDay,
-    duration: isAllDay ? "Todo el día" : "Plan libre",
-    priority: "Compartido",
-    note: description,
-    status: "pendiente"
-  };
-  try {
-    const data = await plansModule().create(supabaseClient, payload);
-    state.proposals.push(data);
-    state.proposals.sort(sortProposalsByDate);
-    selectedDate = data.plan_date;
-    const [year, month] = data.plan_date.split("-").map(Number);
-    calendarDate = new Date(year, month - 1, 1);
-    refreshUI();
-    customPlanStatus.textContent = "Plan guardado.";
-    showToast("Plan añadido al calendario.");
-    setTimeout(closeCustomPlanModal, 550);
-  } catch (error) {
-    console.error(error);
-    customPlanStatus.textContent = "No se ha podido guardar el plan.";
-  } finally {
-    customPlanSubmit.disabled = false;
-  }
+  plansModule().renderServices();
 }
 
 function renderStats() {
-  totalProposals.textContent = state.proposals.length;
-  const now = new Date();
-  const future = state.proposals.filter(p => !["cancelada", "realizada"].includes(p.status) && proposalToDate(p) >= now).sort(sortProposalsByDate);
-  nextPlan.textContent = future[0] ? shortDate(future[0].plan_date) : "—";
+  plansModule().renderStats();
 }
 
 function renderBookings() {
-  const proposals = [...state.proposals].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-  bookingList.innerHTML = proposals.length ? proposals.map(bookingTemplate).join("") : `<div class="empty">Todavía no hay planes en el calendario compartido.</div>`;
-}
-
-function bookingTemplate(proposal) {
-  const isCustom = proposal.entry_type === "custom";
-  const timeText = proposal.is_all_day ? "Todo el día" : formatTime(proposal.plan_time);
-  return `<article class="booking-card">
-    <div class="booking-top"><div>
-      <div class="booking-title">${proposal.service_icon} ${escapeHTML(proposal.service_title)}</div>
-      <p>${formatDate(proposal.plan_date)} · ${timeText}${!isCustom ? ` · ${escapeHTML(proposal.duration)}` : ""}</p>
-      ${isCustom ? `<span class="booking-type">Plan compartido</span>` : ""}
-    </div>${!isCustom ? `<span class="status status-${proposal.status}">${statusLabel(proposal.status)}</span>` : ""}</div>
-    ${!isCustom ? `<p><strong>Nivel:</strong> ${escapeHTML(proposal.priority)}</p>` : ""}
-    ${proposal.note ? `<p><strong>${isCustom ? "Descripción:" : "Nota:"}</strong> ${escapeHTML(proposal.note)}</p>` : ""}
-    ${bookingActionsTemplate(proposal)}
-  </article>`;
-}
-
-function bookingActionsTemplate(proposal) {
-  const actions = [];
-  const ownsPlan = proposal.created_by === currentUser?.id;
-  const isSharedUser = currentRole === "javi" || currentRole === "laura";
-  if (!isSharedUser) return "";
-
-  actions.push(`<button class="action-edit" type="button" data-proposal-edit="${proposal.id}">Editar</button>`);
-  if (proposal.status === "pendiente" && !ownsPlan) {
-    actions.push(actionButton(proposal.id, "confirmada", "Aceptar", "action-confirm"));
-    actions.push(actionButton(proposal.id, "cancelada", "Rechazar", "action-cancel"));
-  } else if (proposal.status === "pendiente" && ownsPlan) {
-    actions.push(actionButton(proposal.id, "cancelada", "Cancelar propuesta", "action-cancel"));
-  } else if (proposal.status === "confirmada") {
-    actions.push(actionButton(proposal.id, "realizada", "Marcar realizado", "action-complete"));
-    actions.push(actionButton(proposal.id, "cancelada", "Cancelar", "action-cancel"));
-  }
-  actions.push(deleteProposalButton(proposal.id));
-  return `<div class="booking-actions">${actions.join("")}</div>`;
-}
-function actionButton(id, status, text, className) {
-  return `<button class="${className}" type="button" data-proposal-status="${status}" data-proposal-id="${id}">${text}</button>`;
-}
-function deleteProposalButton(id) {
-  return `<button class="action-delete" type="button" data-proposal-delete="${id}">Eliminar</button>`;
-}
-
-async function handleBookingAction(event) {
-  const statusButton = event.target.closest("[data-proposal-status]");
-  const deleteButton = event.target.closest("[data-proposal-delete]");
-  const editButton = event.target.closest("[data-proposal-edit]");
-  if (statusButton) await updateProposalStatus(statusButton.dataset.proposalId, statusButton.dataset.proposalStatus);
-  if (deleteButton) await deleteProposal(deleteButton.dataset.proposalDelete);
-  if (editButton) window.dispatchEvent(new CustomEvent("javieats:edit-plan", { detail: { id: editButton.dataset.proposalEdit } }));
-}
-async function updateProposalStatus(id, newStatus) {
-  try {
-    const data = await plansModule().update(supabaseClient, id, { status: newStatus });
-    state.proposals = state.proposals.map(item => item.id === id ? data : item);
-    refreshUI();
-    showToast(`Propuesta ${statusLabel(newStatus).toLowerCase()}.`);
-  } catch (error) { console.error(error); showToast("No se ha podido actualizar la propuesta."); }
-}
-async function deleteProposal(id) {
-  if (!confirm("¿Seguro que quieres eliminar este plan del calendario compartido?")) return;
-  try {
-    await plansModule().remove(supabaseClient, id);
-    state.proposals = state.proposals.filter(item => item.id !== id);
-    refreshUI();
-    showToast("Plan eliminado.");
-      } catch (error) { console.error(error); showToast("No se ha podido eliminar el plan."); }
-}
-async function clearSharedCalendar() {
-  if (currentRole !== "javi") return;
-  if (!confirm("Esto borrará todos los planes del calendario compartido para los dos. ¿Continuar?")) return;
-  try {
-    await plansModule().clear(supabaseClient);
-    state.proposals = [];
-    refreshUI();
-    showToast("Calendario compartido limpiado.");
-  } catch (error) { console.error(error); showToast("No se ha podido limpiar el calendario."); }
+  plansModule().renderBookings();
 }
 
 function renderCalendar() {
-  const year = calendarDate.getFullYear();
-  const month = calendarDate.getMonth();
-  calendarTitle.textContent = new Intl.DateTimeFormat("es-ES", { month: "long", year: "numeric" }).format(calendarDate);
-  const firstDay = new Date(year, month, 1);
-  const lastDay = new Date(year, month + 1, 0);
-  const startOffset = (firstDay.getDay() + 6) % 7;
-  const todayKey = toDateKeyMadrid(new Date());
-  let html = "";
-  for (let i = 0; i < startOffset; i++) html += `<button class="day is-empty" type="button"></button>`;
-  for (let day = 1; day <= lastDay.getDate(); day++) {
-    const key = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-    const hasBooking = state.proposals.some(p => p.plan_date === key && p.status !== "cancelada");
-    html += `<button class="day ${key === todayKey ? "is-today" : ""} ${key === selectedDate ? "is-selected" : ""} ${hasBooking ? "has-booking" : ""}" type="button" data-date="${key}">${day}</button>`;
-  }
-  calendarGrid.innerHTML = html;
-  calendarGrid.querySelectorAll("[data-date]").forEach(button => {
-    button.addEventListener("click", () => { selectedDate = button.dataset.date; renderCalendar(); });
-  });
-  renderDayDetail();
-}
-function renderDayDetail() {
-  const proposals = state.proposals.filter(p => p.plan_date === selectedDate).sort(sortProposalsByDate);
-  selectedTitle.textContent = formatDate(selectedDate);
-  dayBookings.innerHTML = proposals.length ? proposals.map(bookingTemplate).join("") : `<div class="empty">No hay planes para este día.</div>`;
+  plansModule().renderCalendar();
 }
 
+function openService(id, options = {}) {
+  plansModule().openService(id, options);
+}
+
+async function updateProposalStatus(id, newStatus) {
+  return plansModule().updateStatus(id, newStatus);
+}
+
+async function deleteProposal(id) {
+  return plansModule().deleteProposal(id);
+}
 
 function ySiOptionLabel(current, optionNumber) {
   const options = Array.isArray(current?.opciones) ? current.opciones : [];
@@ -1807,24 +1481,6 @@ function downloadVoucher(voucher) {
   downloadCanvas(canvas, `vale-javieats-${dateFromTimestamp(voucher.created_at)}.png`);
   showToast("Vale descargado.");
 }
-function downloadTicket(proposal) {
-  const canvas = document.createElement("canvas"); canvas.width = 1200; canvas.height = 1500;
-  const c = canvas.getContext("2d"); if (!c) return;
-  c.fillStyle = "#f4f0ea"; c.fillRect(0, 0, 1200, 1500);
-  c.fillStyle = "#fff"; drawRoundedRectangle(c, 100, 90, 1000, 1320, 56); c.fill();
-  c.strokeStyle = "#111"; c.lineWidth = 8; drawRoundedRectangle(c, 100, 90, 1000, 1320, 56); c.stroke();
-  c.fillStyle = "#111"; drawRoundedRectangle(c, 160, 150, 880, 140, 50); c.fill();
-  c.fillStyle = "#fff"; c.textAlign = "center"; c.font = "900 58px Arial"; c.fillText("JaviEats", 600, 238);
-  c.fillStyle = "#e85d45"; c.font = "900 42px Arial"; c.fillText("PROPUESTA DE PLAN", 600, 390);
-  c.fillStyle = "#111"; c.font = "900 76px Arial"; wrapCanvasText(c, `${proposal.service_icon} ${proposal.service_title}`, 600, 520, 830, 88);
-  c.textAlign = "left"; c.font = "700 39px Arial";
-  [`Fecha: ${formatDateCompact(proposal.plan_date)}`, `Hora: ${formatTime(proposal.plan_time)}`, `Duración: ${proposal.duration}`, `Nivel de ganas: ${proposal.priority}`, `Estado: ${statusLabel(proposal.status)}`].forEach((line, i) => c.fillText(line, 190, 800 + i * 80));
-  if (proposal.note) { c.fillStyle = "#6f6a64"; c.font = "600 34px Arial"; c.textAlign = "center"; wrapCanvasText(c, `Nota: ${proposal.note}`, 600, 1220, 800, 48); }
-  downloadCanvas(canvas, `ticket-javieats-${proposal.plan_date}.png`);
-  showToast("Ticket descargado.");
-}
-
-
 /* =========================================================
    Centro de actividad y compatibilidad con enlaces legacy
    ========================================================= */
@@ -1841,15 +1497,7 @@ function renderNotifications() {
   notificationsModule().render();
 }
 
-function setMinDate() {
-  const today = toDateKeyMadrid(new Date());
-  proposalDate.min = today;
-  if (!proposalDate.value) proposalDate.value = today;
-}
-function statusLabel(status) { return ({ pendiente: "Pendiente", confirmada: "Confirmada", realizada: "Realizada", cancelada: "Cancelada" })[status] || status; }
 function voucherCode(voucher) { return `JE-${dateFromTimestamp(voucher.created_at).replaceAll("-", "")}-${voucher.id.slice(0, 6).toUpperCase()}`; }
-function sortProposalsByDate(a, b) { return `${a.plan_date}T${normalizeTimeForDate(a.plan_time)}`.localeCompare(`${b.plan_date}T${normalizeTimeForDate(b.plan_time)}`); }
-function proposalToDate(p) { return new Date(`${p.plan_date}T${normalizeTimeForDate(p.plan_time)}`); }
 function normalizeTimeForDate(time) { const clean = String(time || "00:00").slice(0, 8); return clean.length === 5 ? `${clean}:00` : clean; }
 function toDateKeyMadrid(date) {
   const parts = new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/Madrid", year: "numeric", month: "2-digit", day: "2-digit" }).formatToParts(new Date(date));
