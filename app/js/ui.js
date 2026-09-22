@@ -128,10 +128,44 @@
       .sort((a, b) => String(b.cerrada_at || b.fecha || "").localeCompare(String(a.cerrada_at || a.fecha || "")))[0] || null;
   }
 
+  function puzzleTotal() {
+    const configured = Number(state().puzzle?.total_piezas);
+    if (Number.isFinite(configured) && configured > 0) return configured;
+    return Number(window.JaviEatsRewards?.puzzleTotalPieces) || 6;
+  }
+
+  function puzzlePrize() {
+    return state().puzzle?.premio || "Masaje de 30 minutos";
+  }
+
   function puzzleCount() {
+    const total = puzzleTotal();
     const direct = Number(state().puzzle?.piezas_conseguidas);
-    if (Number.isFinite(direct)) return Math.max(0, Math.min(6, direct));
-    return Math.max(0, Math.min(6, (state().puzzlePieces || []).length));
+    if (Number.isFinite(direct)) return Math.max(0, Math.min(total, direct));
+    return Math.max(0, Math.min(total, (state().puzzlePieces || []).length));
+  }
+
+  function formatVoucherDate(timestamp) {
+    if (!timestamp) return "Fecha no disponible";
+    const date = new Date(timestamp);
+    if (Number.isNaN(date.getTime())) return "Fecha no disponible";
+    return new Intl.DateTimeFormat("es-ES", {
+      timeZone: "Europe/Madrid",
+      day: "2-digit",
+      month: "long",
+      year: "numeric"
+    }).format(date);
+  }
+
+  function voucherCode(voucher) {
+    if (!voucher?.id || !voucher?.created_at) return "";
+    const date = new Intl.DateTimeFormat("en-CA", {
+      timeZone: "Europe/Madrid",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit"
+    }).format(new Date(voucher.created_at)).replaceAll("-", "");
+    return `JE-${date}-${String(voucher.id).slice(0, 6).toUpperCase()}`;
   }
 
   function puzzlePiecesSet() {
@@ -479,6 +513,26 @@ function memoryImage(memory) {
       const puzzleBtn = event.target.closest("[data-v3-puzzle]");
       if (puzzleBtn) { APP()?.openPuzzle?.(); return; }
 
+      const voucherDownload = event.target.closest("[data-v3-voucher-download]");
+      if (voucherDownload) {
+        const voucher = (state().vouchers || []).find(item => String(item.id) === String(voucherDownload.dataset.v3VoucherDownload));
+        if (voucher) window.JaviEatsRewards?.downloadVoucher?.(voucher);
+        return;
+      }
+
+      const voucherRedeem = event.target.closest("[data-v3-voucher-redeem]");
+      if (voucherRedeem) {
+        const voucher = (state().vouchers || []).find(item => String(item.id) === String(voucherRedeem.dataset.v3VoucherRedeem));
+        if (voucher) window.JaviEatsRewards?.proposeVoucherRedemption?.(voucher);
+        return;
+      }
+
+      const voucherUse = event.target.closest("[data-v3-voucher-use]");
+      if (voucherUse) {
+        await window.JaviEatsRewards?.markVoucherAsUsed?.(voucherUse.dataset.v3VoucherUse);
+        return;
+      }
+
       const serviceBtn = event.target.closest("[data-v3-service]");
       if (serviceBtn) { APP()?.openService?.(serviceBtn.dataset.v3Service); return; }
 
@@ -610,9 +664,10 @@ function memoryImage(memory) {
     if ($("v3-home-ysi-bar")) $("v3-home-ysi-bar").style.width = `${current?.limite_alcanzado ? 100 : Math.max(8, completedToday / 5 * 100)}%`;
 
     const pCount = puzzleCount();
-    if ($("v3-home-puzzle")) $("v3-home-puzzle").textContent = `${pCount} de 6 piezas`;
-    if ($("v3-home-puzzle-copy")) $("v3-home-puzzle-copy").textContent = pCount === 6 ? "Premio desbloqueado" : `Faltan ${6 - pCount} para el premio`;
-    if ($("v3-home-puzzle-bar")) $("v3-home-puzzle-bar").style.width = `${Math.max(7, pCount / 6 * 100)}%`;
+    const pTotal = puzzleTotal();
+    if ($("v3-home-puzzle")) $("v3-home-puzzle").textContent = `${pCount} de ${pTotal} piezas`;
+    if ($("v3-home-puzzle-copy")) $("v3-home-puzzle-copy").textContent = pCount === pTotal ? `${puzzlePrize()} desbloqueado` : `Faltan ${Math.max(0, pTotal - pCount)} para el premio`;
+    if ($("v3-home-puzzle-bar")) $("v3-home-puzzle-bar").style.width = `${Math.max(7, pCount / pTotal * 100)}%`;
 
     const memories = allMemories();
     const last = memories[0];
@@ -698,15 +753,17 @@ function memoryImage(memory) {
       startX = event.clientX;
       startScroll = grid.scrollLeft;
       grid.style.cursor = "grabbing";
-      grid.style.userSelect = "none";
-      grid.setPointerCapture?.(event.pointerId);
     });
 
     grid.addEventListener("pointermove", event => {
       if (!dragging) return;
       const delta = event.clientX - startX;
-      if (Math.abs(delta) > 5) moved = true;
-      grid.scrollLeft = startScroll - delta;
+      if (!moved && Math.abs(delta) > 6) {
+        moved = true;
+        grid.style.userSelect = "none";
+        grid.setPointerCapture?.(event.pointerId);
+      }
+      if (moved) grid.scrollLeft = startScroll - delta;
     });
 
     const stopDrag = event => {
@@ -744,30 +801,33 @@ function memoryImage(memory) {
   function renderUs() {
     const stats = ysiStats();
     const count = puzzleCount();
+    const total = puzzleTotal();
     const memories = allMemories();
     const vouchers = Array.isArray(state().vouchers) ? state().vouchers : [];
     const match = latestYsiMatch();
 
     if ($("v3-us-metric-questions")) $("v3-us-metric-questions").textContent = String(stats.total);
     if ($("v3-us-metric-memories")) $("v3-us-metric-memories").textContent = String(memories.length);
-    if ($("v3-us-metric-puzzle")) $("v3-us-metric-puzzle").textContent = `${count}/6`;
+    if ($("v3-us-metric-puzzle")) $("v3-us-metric-puzzle").textContent = `${count}/${total}`;
 
     if ($("v3-us-compat")) $("v3-us-compat").textContent = stats.total ? `${stats.compatibility}%` : "—";
     if ($("v3-us-compat-copy")) $("v3-us-compat-copy").textContent = stats.total ? `${stats.matches} coincidencias de ${stats.total} preguntas compartidas` : "Responded ¿Y si…? para descubrir vuestra compatibilidad";
     if ($("v3-compat-ring")) $("v3-compat-ring").style.setProperty("--compat", `${stats.compatibility || 0}%`);
     if ($("v3-us-latest-match")) $("v3-us-latest-match").innerHTML = match ? `<small>Última coincidencia</small><strong>“${esc(match.pregunta)}”</strong>` : `<small>Última coincidencia</small><strong>Aún no hay una para enseñar aquí.</strong>`;
 
-    const missing = Math.max(0, 6 - count);
-    if ($("v3-us-puzzle-copy")) $("v3-us-puzzle-copy").textContent = count === 6 ? "Puzle completado. El premio ya está desbloqueado." : `Lleváis ${count} de 6 piezas. Faltan ${missing} para desbloquear el premio.`;
+    const missing = Math.max(0, total - count);
+    if ($("v3-us-puzzle-copy")) $("v3-us-puzzle-copy").textContent = count === total
+      ? `Puzle completado. ${puzzlePrize()} ya está desbloqueado.`
+      : `Lleváis ${count} de ${total} piezas. Faltan ${missing} para desbloquear ${puzzlePrize().toLowerCase()}.`;
     const puzzle = $("v3-us-puzzle-grid");
     if (puzzle) {
       const unlocked = puzzlePiecesSet();
-      puzzle.innerHTML = Array.from({ length: 6 }, (_, i) => {
+      puzzle.innerHTML = Array.from({ length: total }, (_, i) => {
         const n = i + 1;
         return `<span class="puzzle-piece ${unlocked.has(n) ? "is-unlocked" : "is-locked"}" data-piece="${n}" aria-hidden="true"></span>`;
       }).join("");
-      puzzle.classList.toggle("is-complete", count === 6);
-      puzzle.setAttribute("aria-label", `${count} de 6 piezas conseguidas`);
+      puzzle.classList.toggle("is-complete", count === total);
+      puzzle.setAttribute("aria-label", `${count} de ${total} piezas conseguidas`);
     }
 
     const collage = $("v3-us-collage");
@@ -781,13 +841,39 @@ function memoryImage(memory) {
 
     const holder = $("v3-us-vouchers");
     if (holder) {
-      holder.innerHTML = vouchers.length ? vouchers.map((v, index) => `
-        <article class="v3-ticket ${v.estado === "canjeado" ? "is-used" : ""}">
+      holder.innerHTML = vouchers.length ? vouchers.map((v, index) => {
+        const active = v.estado === "activo";
+        const unlockedAt = state().puzzle?.vale_id === v.id && state().puzzle?.completed_at
+          ? state().puzzle.completed_at
+          : v.created_at;
+        const code = voucherCode(v);
+        const secondaryAction = active
+          ? (role() === "javi"
+            ? `<button class="v3-ticket-action secondary" type="button" data-v3-voucher-use="${esc(v.id)}">Marcar canjeado</button>`
+            : `<button class="v3-ticket-action secondary" type="button" data-v3-voucher-redeem="${esc(v.id)}">Proponer canje</button>`)
+          : "";
+        const usedDate = v.estado === "canjeado" && v.canjeado_at
+          ? `<small class="v3-ticket-used-date">Canjeado el ${esc(formatVoucherDate(v.canjeado_at))}</small>`
+          : "";
+
+        return `
+        <article class="v3-ticket ${active ? "" : "is-used"}">
           <span class="v3-ticket-cut cut-left"></span><span class="v3-ticket-cut cut-right"></span>
           <div class="v3-ticket-top"><small>PREMIO JAVIEATS</small><b>#${String(index + 1).padStart(3, "0")}</b></div>
           <strong>${esc(v.titulo || "Vale JaviEats")}</strong>
-          <span>${v.estado === "canjeado" ? "Canjeado" : "Disponible para usar"}</span>
-        </article>`).join("") : `<div class="v3-empty-card">Los premios que desbloqueéis aparecerán aquí.</div>`;
+          <small class="v3-ticket-date">Conseguido el ${esc(formatVoucherDate(unlockedAt))}</small>
+          ${v.descripcion ? `<p class="v3-ticket-description">${esc(v.descripcion)}</p>` : ""}
+          <div class="v3-ticket-meta">
+            <span class="v3-ticket-state">${active ? "Disponible para usar" : "Canjeado"}</span>
+            ${code ? `<code>${esc(code)}</code>` : ""}
+          </div>
+          ${usedDate}
+          <div class="v3-ticket-actions">
+            <button class="v3-ticket-action primary" type="button" data-v3-voucher-download="${esc(v.id)}">Descargar vale</button>
+            ${secondaryAction}
+          </div>
+        </article>`;
+      }).join("") : `<div class="v3-empty-card">Los premios que desbloqueéis aparecerán aquí.</div>`;
     }
   }
 
