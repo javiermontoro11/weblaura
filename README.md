@@ -340,6 +340,8 @@ Los tres contextos maestros viven juntos dentro de `/contextos/`. **Nuestra Vida
 
 JaviEats dispone de un panel técnico oculto cargado desde `app/js/debug.js`.
 
+Además, 3.3.6 incorpora un migrador temporal de recuerdos históricos en `app/js/migrate-legacy-memories.js`. Solo se activa con `?migrate=legacy-memories` y exige una sesión autenticada como Javi.
+
 Se activa únicamente añadiendo:
 
 ```text
@@ -520,6 +522,9 @@ Nuestra Vida conserva su propio versionado. Los bugs o ajustes internos del jueg
 - Preparada una migración con índices para las claves foráneas que carecen de un índice útil como prefijo.
 - Estas migraciones están versionadas en GitHub y **no deben considerarse aplicadas a producción hasta verificar su ejecución en Supabase**.
 - Añadido `app/js/debug.js`, activable solo con `?debug=1`, para diagnosticar sesión, PWA, Service Worker, Push, red y Cache Storage.
+- Preparado el migrador `app/js/migrate-legacy-memories.js` para trasladar los 5 recuerdos históricos a `recuerdos_app` + Storage privado, reutilizando compresión WebP, `legacy_key` único y las políticas actuales del bucket.
+- Durante la transición, si un recuerdo histórico ya existe en Supabase con su `legacy_key`, JaviEats deja de renderizar la copia hardcodeada para evitar duplicados.
+- El lector remoto soporta ahora galerías, cartas almacenadas en `contenido` y la experiencia especial de flores amarillas sin perder su comportamiento actual.
 - Confirmado que el Service Worker principal no cachea actualmente HTML/JS/CSS.
 - Añadido `← Volver a JaviEats` en el menú principal de Nuestra Vida.
 - El botón se inyecta desde `nuestra-vida/access-gate.js`, manteniendo intacto el core de Nuestra Vida 1.0.
