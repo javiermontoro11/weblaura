@@ -297,6 +297,18 @@ Mantiene su flujo diario y su puzle/vale.
 
 ---
 
+# MANTENIMIENTO TÉCNICO 3.3.6
+
+- La modularización del frontend empieza de forma incremental bajo `/app/`; no se llenará la raíz de archivos sueltos.
+- `app/js/debug.js` es el primer módulo independiente y solo se activa con `?debug=1`.
+- El panel de diagnóstico muestra estado de sesión, perfil, red, PWA, Service Worker, Push y Cache Storage sin mostrar secretos.
+- La auditoría confirmó que el Service Worker principal gestiona Push pero no implementa caché propia de HTML/JS/CSS.
+- Se crea `/supabase/migrations/` como historial SQL reproducible.
+- Hay dos migraciones 3.3.6 preparadas: hardening de permisos internos e índices de FKs.
+- Esas migraciones no deben darse por aplicadas en producción hasta comprobar su ejecución real en Supabase.
+
+---
+
 # FORMA DE TRABAJAR
 
 Reglas permanentes:
@@ -333,4 +345,4 @@ A 22/09/2026:
 
 # RESUMEN
 
-**JaviEats 3.3.6 = JaviEats 3.3.5 + inicio de mantenimiento técnico y retorno explícito desde el menú de Nuestra Vida a JaviEats, sin cambios de gameplay ni Supabase.**
+**JaviEats 3.3.6 = JaviEats 3.3.5 + retorno desde Nuestra Vida + inicio de arquitectura modular + diagnóstico técnico + versionado de migraciones de seguridad/índices. Las migraciones SQL están preparadas pero todavía no se consideran aplicadas en producción.**
