@@ -368,11 +368,6 @@ const welcomeSummaryPrimary = $("welcome-summary-primary");
 const welcomeSummarySecondary = $("welcome-summary-secondary");
 const appScreen = $("app-screen");
 const logoutBtn = $("logout-btn");
-const notificationsBtn = $("notifications-btn");
-const notificationsBadge = $("notifications-badge");
-const notificationsModal = $("notifications-modal");
-const notificationsList = $("notifications-list");
-const notificationsReadAll = $("notifications-read-all");
 const sessionUserName = $("session-user-name");
 const syncStatus = $("sync-status");
 const homeGreeting = $("home-greeting");
@@ -547,6 +542,11 @@ function memoriesModule() {
   return window.JaviEatsMemories;
 }
 
+function notificationsModule() {
+  if (!window.JaviEatsNotifications) throw new Error("JaviEatsNotifications no está cargado.");
+  return window.JaviEatsNotifications;
+}
+
 window.JaviEatsApp = {
   getRole: () => currentRole,
   getUser: () => currentUser,
@@ -570,6 +570,7 @@ init();
 async function init() {
   bindEvents();
   memoriesModule().bindUI();
+  notificationsModule().bindUI();
   renderServices();
   renderMemories();
   renderVouchers();
@@ -636,10 +637,7 @@ function bindEvents() {
   turnProfileSwitchBtn?.addEventListener("click", handleTurnProfileSwitch);
   turnProfileContinueBtn?.addEventListener("click", handleTurnProfileContinue);
   logoutBtn.addEventListener("click", logout);
-  notificationsBtn?.addEventListener("click", openNotificationsModal);
-  notificationsReadAll?.addEventListener("click", handleNotificationsBulkAction);
   document.getElementById("push-toggle")?.addEventListener("click", handlePushToggle);
-  notificationsList?.addEventListener("click", handleNotificationClick);
 
   document.querySelectorAll(".nav-btn").forEach(button => {
     button.addEventListener("click", () => showPage(button.dataset.page));
@@ -652,7 +650,6 @@ function bindEvents() {
   document.querySelectorAll("[data-custom-plan-close]").forEach(el => el.addEventListener("click", closeCustomPlanModal));
   document.querySelectorAll("[data-puzzle-close]").forEach(el => el.addEventListener("click", closePuzzleModal));
   document.querySelectorAll("[data-y-si-history-close]").forEach(el => el.addEventListener("click", closeYSiHistoryModal));
-  document.querySelectorAll("[data-notifications-close]").forEach(el => el.addEventListener("click", closeNotificationsModal));
 
   gameHomeButton.addEventListener("click", openGameModal);
   openPuzzleBtn.addEventListener("click", () => openPuzzleModal());
@@ -1063,6 +1060,7 @@ function resetAppSession() {
   state.notifications = [];
   state.notificationLoadError = false;
   memoriesModule().reset();
+  notificationsModule().reset();
   ySiSelectedOption = null;
   ySiSelectedDayId = null;
   ySiHistoryFilter = "all";
@@ -1286,13 +1284,7 @@ async function fetchVouchers() {
 }
 
 async function fetchNotifications() {
-  const { data, error } = await supabaseClient
-    .from("notificaciones")
-    .select("*")
-    .order("created_at", { ascending: false })
-    .limit(50);
-  if (error) throw error;
-  return { notifications: data || [], loadError: false };
+  return notificationsModule().fetchAll(supabaseClient);
 }
 
 
@@ -2483,236 +2475,8 @@ function cleanLegacyMessageUrl(params = new URLSearchParams(window.location.sear
   window.history.replaceState({}, "", cleanUrl);
 }
 
-function refreshNotificationUI() {
-  renderNotifications();
-  window.dispatchEvent(new CustomEvent("javieats:data"));
-}
-
 function renderNotifications() {
-  if (!notificationsBadge || !notificationsList) return;
-
-  const notifications = Array.isArray(state.notifications)
-    ? state.notifications.filter(item => item.tipo !== "mensaje_dia")
-    : [];
-  const unread = notifications.filter(item => !item.leido_at).length;
-
-  notificationsBadge.textContent = unread > 99 ? "99+" : String(unread);
-  notificationsBadge.classList.toggle("hidden", unread === 0 || state.notificationLoadError);
-
-  if (notificationsReadAll) {
-    const hasNotifications = notifications.length > 0 && !state.notificationLoadError;
-    notificationsReadAll.classList.toggle("hidden", !hasNotifications);
-
-    if (hasNotifications) {
-      const clearMode = unread === 0;
-      notificationsReadAll.textContent = clearMode ? "Borrar todo" : "Marcar todo leído";
-      notificationsReadAll.dataset.notificationAction = clearMode ? "clear" : "read";
-      notificationsReadAll.classList.toggle("is-danger", clearMode);
-    } else {
-      notificationsReadAll.classList.remove("is-danger");
-      delete notificationsReadAll.dataset.notificationAction;
-    }
-  }
-
-  if (state.notificationLoadError) {
-    notificationsList.innerHTML = '<div class="notification-empty">Las notificaciones todavía no están disponibles.</div>';
-    return;
-  }
-
-  if (!notifications.length) {
-    notificationsList.innerHTML = '<div class="notification-empty">Todo al día. Cuando el otro haga algo que te afecte, aparecerá aquí.</div>';
-    return;
-  }
-
-  notificationsList.innerHTML = notifications.map(notification => {
-    const unreadClass = notification.leido_at ? "" : " is-unread";
-    const detail = notification.detalle ? `<p>${escapeHTML(notification.detalle)}</p>` : "";
-    return `<div class="notification-row">
-      <button class="notification-item${unreadClass}" type="button" data-notification-id="${notification.id}">
-        <span class="notification-item-icon">${notificationIcon(notification.tipo)}</span>
-        <span class="notification-item-copy"><strong>${escapeHTML(notification.titulo)}</strong>${detail}</span>
-        <span class="notification-item-time">${notificationTimeLabel(notification.created_at)}${notification.leido_at ? "" : '<span class="notification-unread-dot" aria-label="Sin leer"></span>'}<span class="notification-open-mark" aria-hidden="true">›</span></span>
-      </button>
-      <button class="notification-delete-btn" type="button" data-notification-delete="${notification.id}" aria-label="Eliminar notificación" title="Eliminar">&times;</button>
-    </div>`;
-  }).join("");
-}
-
-function notificationIcon(type) {
-  return ({
-    mensaje_dia: "💌",
-    ysi_resultado: "💭",
-    ysi_turno: "💭",
-    ysi_resultado_final: "❤️",
-    puzzle_pieza: "🧩",
-    puzzle_completado: "🎁",
-    plan_nuevo: "📅",
-    plan_estado: "📅",
-    plan_cambio: "📅",
-    recuerdo_nuevo: "📸"
-  })[type] || "🔔";
-}
-
-function notificationTimeLabel(timestamp) {
-  const date = new Date(timestamp);
-  const diff = Math.max(0, Date.now() - date.getTime());
-  if (diff < 60_000) return "Ahora";
-  if (diff < 3_600_000) return `Hace ${Math.max(1, Math.floor(diff / 60_000))} min`;
-  if (diff < 86_400_000) return `Hace ${Math.floor(diff / 3_600_000)} h`;
-  if (diff < 172_800_000) return "Ayer";
-  return shortDate(toDateKeyMadrid(date));
-}
-
-function openNotificationsModal() {
-  renderNotifications();
-  notificationsModal?.classList.remove("hidden");
-  document.body.style.overflow = "hidden";
-}
-
-function closeNotificationsModal() {
-  notificationsModal?.classList.add("hidden");
-  document.body.style.overflow = "";
-}
-
-async function markNotificationRead(id) {
-  const notification = state.notifications.find(item => item.id === id);
-  if (!notification || notification.leido_at) return;
-  const { error } = await supabaseClient.rpc("marcar_notificacion_leida", { p_id: id });
-  if (error) throw error;
-  notification.leido_at = new Date().toISOString();
-  refreshNotificationUI();
-}
-
-
-async function markAllNotificationsRead() {
-  if (state.notificationLoadError || !notificationsReadAll) return;
-  notificationsReadAll.disabled = true;
-  try {
-    const { error } = await supabaseClient.rpc("marcar_todas_notificaciones_leidas");
-    if (error) throw error;
-    const now = new Date().toISOString();
-    state.notifications.forEach(item => { if (!item.leido_at) item.leido_at = now; });
-    refreshNotificationUI();
-  } catch (error) {
-    console.error(error);
-    showToast("No se han podido marcar las notificaciones.");
-  } finally {
-    notificationsReadAll.disabled = false;
-  }
-}
-
-async function deleteNotification(id) {
-  if (!id || state.notificationLoadError) return;
-
-  try {
-    const { data, error } = await supabaseClient.rpc("eliminar_notificacion", { p_id: id });
-    if (error) throw error;
-    if (data !== true) throw new Error("Notification not owned by current user");
-
-    state.notifications = state.notifications.filter(item => item.id !== id);
-    refreshNotificationUI();
-    showToast("Notificación eliminada.");
-  } catch (error) {
-    console.error(error);
-    showToast("No se ha podido eliminar la notificación.");
-  }
-}
-
-async function clearAllNotifications() {
-  if (state.notificationLoadError || !notificationsReadAll) return;
-  const visibleNotifications = state.notifications.filter(item => item.tipo !== "mensaje_dia");
-  if (!visibleNotifications.length) return;
-
-  if (!window.confirm("¿Quieres borrar toda la actividad? Esta acción no se puede deshacer.")) return;
-
-  notificationsReadAll.disabled = true;
-  try {
-    const { error } = await supabaseClient.rpc("vaciar_notificaciones");
-    if (error) throw error;
-
-    state.notifications = [];
-    refreshNotificationUI();
-    showToast("Actividad borrada.");
-  } catch (error) {
-    console.error(error);
-    showToast("No se ha podido borrar la actividad.");
-  } finally {
-    notificationsReadAll.disabled = false;
-  }
-}
-
-async function handleNotificationsBulkAction() {
-  const notifications = state.notifications.filter(item => item.tipo !== "mensaje_dia");
-  const unread = notifications.filter(item => !item.leido_at).length;
-
-  if (unread > 0) {
-    await markAllNotificationsRead();
-    return;
-  }
-
-  if (notifications.length > 0) await clearAllNotifications();
-}
-
-async function handleNotificationClick(event) {
-  const deleteButton = event.target.closest("[data-notification-delete]");
-  if (deleteButton) {
-    event.preventDefault();
-    event.stopPropagation();
-    deleteButton.disabled = true;
-    try {
-      await deleteNotification(deleteButton.dataset.notificationDelete);
-    } finally {
-      if (deleteButton.isConnected) deleteButton.disabled = false;
-    }
-    return;
-  }
-
-  const button = event.target.closest("[data-notification-id]");
-  if (!button) return;
-  const notification = state.notifications.find(item => item.id === button.dataset.notificationId);
-  if (!notification) return;
-
-  try {
-    await markNotificationRead(notification.id);
-  } catch (error) {
-    console.error(error);
-    showToast("No se ha podido marcar la notificación.");
-  }
-
-  closeNotificationsModal();
-  await openNotificationDestination(notification);
-}
-
-async function openNotificationDestination(notification) {
-  const destination = notification.destino || "home";
-  if (destination === "mensaje") {
-    // Compatibilidad con avisos antiguos: llevar a Inicio sin reactivar la función retirada.
-    showPage("home");
-    return;
-  }
-  if (destination === "ysi" || destination === "rps") {
-    showPage("minigames");
-    window.JaviEatsMinigames?.open?.(destination, { force: true });
-    return;
-  }
-  if (destination === "calendar") {
-    showPage("calendar");
-    setTimeout(() => {
-      const target = notification.tipo === "plan_nuevo" ? document.getElementById("v3-plan-pending") : document.getElementById("v3-plan-next");
-      target?.scrollIntoView?.({ behavior: "smooth", block: "start" });
-    }, 120);
-    return;
-  }
-  if (destination === "memories") {
-    showPage("memories");
-    if (notification.entidad_id) setTimeout(() => openRemoteMemory(notification.entidad_id), 160);
-    return;
-  }
-  if (["minigames", "home"].includes(destination)) {
-    showPage(destination);
-    return;
-  }
-  showPage("home");
+  notificationsModule().render();
 }
 
 function setMinDate() {
