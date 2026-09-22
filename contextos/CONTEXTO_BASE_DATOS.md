@@ -349,3 +349,18 @@ Auditoría realizada el 22/09/2026:
 # RESUMEN ACTUAL
 
 `¿Y si…?` tiene no repetición global, batería de 450 preguntas con 431 activas y una compatibilidad móvil basada en las últimas 20 preguntas. Con 75% o más se permiten 2 cambios diarios compartidos; por debajo, 1. La última verificación dio 80% de compatibilidad y confirmó backend actualizado y protección global de no repetición activa.
+
+
+## Seguridad y rendimiento aplicados · 22/09/2026
+
+Supabase registra actualmente tres migraciones de mantenimiento 3.3.6:
+
+- `harden_internal_function_permissions`
+- `add_missing_fk_indexes`
+- `optimize_rls_auth_uid`
+
+Verificación posterior:
+
+- desaparecen los 11 avisos de ejecución anónima de funciones internas `SECURITY DEFINER`;
+- desaparecen los 16 avisos `auth_rls_initplan`;
+- los índices FK recién creados pueden aparecer temporalmente como `unused_index` hasta acumular uso real.
