@@ -11,19 +11,6 @@ const USER_IDS = {
   LAURA: "ef4258bf-5897-4594-86ac-a134fcd1feec"
 };
 
-const AUTH_PROFILES = {
-  javi: {
-    name: "Javi",
-    email: "javiermontorogranados@gmail.com",
-    initial: "J"
-  },
-  laura: {
-    name: "Laura",
-    email: "lauramoramegal@gmail.com",
-    initial: "L"
-  }
-};
-
 const REGULAR_GAME_ROUNDS = 5;
 const PUZZLE_TOTAL_PIECES = 6;
 const Y_SI_REVEAL_MS = 900;
@@ -165,24 +152,6 @@ const $ = id => document.getElementById(id);
 
 const bootScreen = $("boot-screen");
 const authScreen = $("auth-screen");
-const turnProfileMismatch = $("turn-profile-mismatch");
-const turnProfileMismatchTitle = $("turn-profile-mismatch-title");
-const turnProfileMismatchCopy = $("turn-profile-mismatch-copy");
-const turnProfileSwitchBtn = $("turn-profile-switch-btn");
-const turnProfileContinueBtn = $("turn-profile-continue-btn");
-const profileSelector = $("profile-selector");
-const passwordPanel = $("password-panel");
-const authGlobalStatus = $("auth-global-status");
-const authBackBtn = $("auth-back-btn");
-const authBackName = $("auth-back-name");
-const authSelectedAvatar = $("auth-selected-avatar");
-const authSelectedName = $("auth-selected-name");
-const authSelectedHint = $("auth-selected-hint");
-const loginForm = $("login-form");
-const loginEmail = $("login-email");
-const loginPassword = $("login-password");
-const loginSubmit = $("login-submit");
-const loginStatus = $("login-status");
 const welcomeScreen = $("welcome-screen");
 const welcomeCard = welcomeScreen?.querySelector(".welcome-card");
 const welcomeAvatar = $("welcome-avatar");
@@ -191,7 +160,6 @@ const welcomeMessage = $("welcome-message");
 const welcomeSummaryPrimary = $("welcome-summary-primary");
 const welcomeSummarySecondary = $("welcome-summary-secondary");
 const appScreen = $("app-screen");
-const logoutBtn = $("logout-btn");
 const sessionUserName = $("session-user-name");
 const homeGreeting = $("home-greeting");
 const featuredServices = $("featured-services");
@@ -319,10 +287,8 @@ const voucherList = $("voucher-list");
 const toast = $("toast");
 
 let supabaseClient = null;
-let pendingSession = null;
 let currentUser = null;
 let currentRole = "unknown";
-let selectedAuthProfile = null;
 let calendarDate = new Date();
 let selectedDate = toDateKeyMadrid(new Date());
 let lastProposalTicket = null;
@@ -376,6 +342,11 @@ function syncModule() {
   return window.JaviEatsSync;
 }
 
+function authModule() {
+  if (!window.JaviEatsAuth) throw new Error("JaviEatsAuth no está cargado.");
+  return window.JaviEatsAuth;
+}
+
 window.JaviEatsApp = {
   getRole: () => currentRole,
   getUser: () => currentUser,
@@ -385,6 +356,15 @@ window.JaviEatsApp = {
   getVapidPublicKey: () => CONFIG.vapidPublicKey,
   isReady: () => appReady,
   runDataSync: (options = {}) => runDataSync(options),
+  acceptAuthenticatedSession: async (session, role) => {
+    currentUser = session?.user || null;
+    currentRole = role || "unknown";
+    await showApp();
+  },
+  handleSignedOut: () => resetAppSession(),
+  updateAuthenticatedUser: user => {
+    if (user) currentUser = user;
+  },
   showPage: page => showPage(page),
   showToast: message => showToast(message),
   openGameModal: () => openGameModal(),
@@ -423,54 +403,10 @@ async function init() {
     { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } }
   );
 
-  supabaseClient.auth.onAuthStateChange((event, session) => {
-    if (event === "SIGNED_OUT") {
-      resetAppSession();
-      pendingSession = null;
-      showAuthScreen({ resetProfile: true });
-    }
-    if ((event === "TOKEN_REFRESHED" || event === "SIGNED_IN") && session?.user) {
-      pendingSession = session;
-      if (event === "TOKEN_REFRESHED") currentUser = session.user;
-    }
-  });
-
-  try {
-    const { data: { session }, error } = await supabaseClient.auth.getSession();
-    if (error) throw error;
-    pendingSession = session || null;
-    const requestedRole = getRequestedTurnRole();
-
-    if (pendingSession?.user) {
-      const sessionRole = getRoleFromUser(pendingSession.user);
-      if (requestedRole && sessionRole !== "unknown" && requestedRole !== sessionRole) {
-        showTurnProfileMismatch(pendingSession, requestedRole);
-        return;
-      }
-      await handleAuthenticatedSession(pendingSession);
-      return;
-    }
-
-    showAuthScreen({ resetProfile: true });
-    if (requestedRole) {
-      selectAuthProfile(requestedRole);
-      loginStatus.textContent = `Este turno es para ${AUTH_PROFILES[requestedRole].name}. Introduce tu contraseña para continuar.`;
-    }
-  } catch (error) {
-    console.error(error);
-    showAuthScreen({ resetProfile: true });
-  }
+  await authModule().init(supabaseClient);
 }
 
 function bindEvents() {
-  loginForm.addEventListener("submit", handleLogin);
-  document.querySelectorAll("[data-auth-profile]").forEach(button => {
-    button.addEventListener("click", () => selectAuthProfile(button.dataset.authProfile));
-  });
-  authBackBtn.addEventListener("click", () => showAuthProfileSelector());
-  turnProfileSwitchBtn?.addEventListener("click", handleTurnProfileSwitch);
-  turnProfileContinueBtn?.addEventListener("click", handleTurnProfileContinue);
-  logoutBtn.addEventListener("click", logout);
 
   document.querySelectorAll(".nav-btn").forEach(button => {
     button.addEventListener("click", () => showPage(button.dataset.page));
@@ -529,159 +465,6 @@ function bindEvents() {
 
   voucherList.addEventListener("click", handleVoucherAction);
 
-}
-
-function getRequestedTurnRole() {
-  const params = new URLSearchParams(window.location.search);
-  const role = String(params.get("for") || "").toLowerCase();
-  return role === "javi" || role === "laura" ? role : null;
-}
-
-function showTurnProfileMismatch(session, requestedRole) {
-  const currentRoleFromSession = getRoleFromUser(session?.user);
-  const requested = AUTH_PROFILES[requestedRole];
-  const current = AUTH_PROFILES[currentRoleFromSession];
-  if (!requested || !current) {
-    handleAuthenticatedSession(session);
-    return;
-  }
-
-  pendingSession = session;
-  bootScreen?.classList.add("hidden");
-  welcomeScreen?.classList.add("hidden");
-  appScreen.classList.add("hidden");
-  authScreen.classList.remove("hidden");
-  profileSelector.classList.add("hidden");
-  passwordPanel.classList.add("hidden");
-  turnProfileMismatch?.classList.remove("hidden");
-  turnProfileMismatchTitle.textContent = `Este turno es para ${requested.name}`;
-  turnProfileMismatchCopy.textContent = `Ahora mismo este navegador está abierto como ${current.name}. Puedes cambiar a ${requested.name} o seguir con la sesión actual.`;
-  turnProfileSwitchBtn.textContent = `Cambiar a ${requested.name}`;
-  turnProfileContinueBtn.textContent = `Seguir como ${current.name}`;
-}
-
-async function handleTurnProfileSwitch() {
-  const requestedRole = getRequestedTurnRole();
-  if (!requestedRole) return;
-  turnProfileSwitchBtn.disabled = true;
-  try {
-    pendingSession = null;
-    await supabaseClient.auth.signOut();
-    showAuthScreen({ resetProfile: true });
-    selectAuthProfile(requestedRole);
-    loginStatus.textContent = `Este turno es para ${AUTH_PROFILES[requestedRole].name}. Introduce tu contraseña para continuar.`;
-  } finally {
-    turnProfileSwitchBtn.disabled = false;
-  }
-}
-
-async function handleTurnProfileContinue() {
-  if (!pendingSession?.user) return;
-  turnProfileMismatch?.classList.add("hidden");
-  await handleAuthenticatedSession(pendingSession);
-}
-
-function showAuthScreen({ resetProfile = false } = {}) {
-  bootScreen?.classList.add("hidden");
-  welcomeScreen?.classList.add("hidden");
-  appScreen.classList.add("hidden");
-  authScreen.classList.remove("hidden");
-  turnProfileMismatch?.classList.add("hidden");
-  loginStatus.textContent = "";
-  authGlobalStatus.textContent = "";
-  appReady = false;
-  if (resetProfile || !selectedAuthProfile) showAuthProfileSelector();
-}
-
-function showAuthProfileSelector() {
-  turnProfileMismatch?.classList.add("hidden");
-  selectedAuthProfile = null;
-  loginEmail.value = "";
-  loginPassword.value = "";
-  loginStatus.textContent = "";
-  authGlobalStatus.textContent = "";
-  profileSelector.classList.remove("hidden");
-  passwordPanel.classList.add("hidden");
-}
-
-function selectAuthProfile(profileKey) {
-  turnProfileMismatch?.classList.add("hidden");
-  const profile = AUTH_PROFILES[profileKey];
-  if (!profile) return;
-  selectedAuthProfile = profileKey;
-  loginEmail.value = profile.email;
-  loginPassword.value = "";
-  loginStatus.textContent = "";
-  authBackName.textContent = profile.name;
-  authSelectedAvatar.textContent = profile.initial;
-  authSelectedName.textContent = `Hola, ${profile.name}`;
-  authSelectedHint.textContent = "JaviEats ya sabe tu correo. Solo falta tu contraseña.";
-  passwordPanel.querySelector(".selected-profile-card")?.classList.toggle("is-laura", profileKey === "laura");
-  profileSelector.classList.add("hidden");
-  passwordPanel.classList.remove("hidden");
-  setTimeout(() => loginPassword.focus(), 90);
-}
-
-function showAuthError(message) {
-  showAuthScreen({ resetProfile: false });
-  if (selectedAuthProfile) loginStatus.textContent = message;
-  else authGlobalStatus.textContent = message;
-}
-
-async function handleLogin(event) {
-  event.preventDefault();
-  const profile = AUTH_PROFILES[selectedAuthProfile];
-  if (!profile) {
-    showAuthProfileSelector();
-    return;
-  }
-
-  loginStatus.textContent = "Entrando…";
-  loginSubmit.disabled = true;
-  try {
-    const { data, error } = await supabaseClient.auth.signInWithPassword({
-      email: profile.email,
-      password: loginPassword.value
-    });
-    if (error) throw error;
-    if (!data.session?.user) throw new Error("La sesión no se ha creado correctamente.");
-
-    const actualRole = getRoleFromUser(data.session.user);
-    if (actualRole !== selectedAuthProfile) {
-      await supabaseClient.auth.signOut();
-      throw new Error("Esta contraseña no corresponde al perfil seleccionado.");
-    }
-
-    loginPassword.value = "";
-    loginStatus.textContent = "";
-    pendingSession = data.session;
-    await handleAuthenticatedSession(data.session);
-  } catch (error) {
-    console.error(error);
-    loginStatus.textContent = friendlyAuthError(error);
-    loginPassword.select?.();
-  } finally {
-    loginSubmit.disabled = false;
-  }
-}
-
-async function handleAuthenticatedSession(session) {
-  const role = getRoleFromUser(session.user);
-  if (role === "unknown") {
-    await supabaseClient.auth.signOut();
-    showAuthError("Esta cuenta no tiene acceso a JaviEats.");
-    return;
-  }
-  currentUser = session.user;
-  currentRole = role;
-  pendingSession = session;
-  await showApp();
-}
-
-function getRoleFromUser(user) {
-  if (user?.id === USER_IDS.JAVI) return "javi";
-  if (user?.id === USER_IDS.LAURA) return "laura";
-  return "unknown";
 }
 
 async function showApp() {
@@ -822,12 +605,6 @@ function applyRoleUI() {
   renderYSi();
   updateDailyGameCard();
   window.JaviEatsMinigames?.refreshAccess?.();
-}
-
-async function logout() {
-  pendingSession = null;
-  selectedAuthProfile = null;
-  await supabaseClient.auth.signOut();
 }
 
 function resetAppSession() {
@@ -2216,14 +1993,6 @@ function timeUntilTomorrow() {
   return `${String(h).padStart(2, "0")} h · ${String(m).padStart(2, "0")} min · ${String(s).padStart(2, "0")} s`;
 }
 function escapeHTML(text) { return String(text ?? "").replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#039;"); }
-function friendlyAuthError(error) {
-  const message = String(error?.message || "").toLowerCase();
-  if (message.includes("invalid login credentials")) return "Contraseña incorrecta para este perfil.";
-  if (message.includes("email not confirmed")) return "La cuenta todavía no está confirmada en Supabase.";
-  if (message.includes("failed to fetch")) return "No hay conexión con Supabase.";
-  if (message.includes("no corresponde al perfil")) return "Esta contraseña no corresponde al perfil seleccionado.";
-  return "No se ha podido iniciar sesión. Revisa los datos.";
-}
 function friendlyGameError(error) {
   const message = String(error?.message || "");
   if (message.includes("intento de hoy")) return "Laura ya ha utilizado su intento de hoy.";
