@@ -1,17 +1,17 @@
 # JaviEats 💌
 
 **Versión de producto: 3.3 — ESTABLE**  
-**Mantenimiento actual: 3.3.6**
+**Mantenimiento actual: 3.3.7**
 
 JaviEats es una aplicación web privada creada para Laura y Javi. Reúne planes compartidos, recuerdos, minijuegos, actividad, notificaciones y un espacio común pensado para funcionar como una PWA en móvil, tablet y escritorio.
 
-JaviEats 3.3.6 mantiene **Nuestra Vida 1.0** como experiencia principal independiente y abre una fase de mantenimiento técnico. Como primer ajuste, completa la navegación de Nuestra Vida con un retorno explícito a JaviEats desde su menú principal, sin modificar el core del juego.
+JaviEats 3.3.7 mantiene **Nuestra Vida 1.0** como experiencia principal independiente y cierra una revisión de estabilidad posterior a la modularización. Corrige regresiones visuales y de interacción en Planes y Recompensas sin modificar el esquema de Supabase ni el core de Nuestra Vida.
 
-> **Estado actual:** `main` es la fuente de verdad. JaviEats 3.3.6 inicia una fase centrada en mantenimiento, seguridad, arquitectura y estabilidad. Nuestra Vida conserva su core 1.0 y añade el retorno a JaviEats desde la capa de integración `access-gate.js`.
+> **Estado actual:** `main` sigue siendo la fuente de verdad. JaviEats 3.3.7 consolida el mantenimiento técnico con un hotfix de Planes, Puzle y Vales. Nuestra Vida conserva su core 1.0 y su retorno explícito a JaviEats.
 
 ---
 
-## 🚀 JaviEats 3.3.6
+## 🚀 JaviEats 3.3.7
 
 La 3.3 mantiene la filosofía del proyecto:
 
@@ -529,9 +529,10 @@ La línea actual es:
 3.3.4 → recuerdo permanente de las flores amarillas con reproducción de la experiencia
 3.3.5 → ajuste móvil y reinicio fiable de animaciones del recuerdo de flores amarillas
 3.3.6 → inicio de mantenimiento técnico y navegación de retorno desde Nuestra Vida
+3.3.7 → QA final: Planes, Puzle, Vales y coherencia frontend ↔ Supabase
 ```
 
-`3.3.6` es la referencia actual de mantenimiento: inicia la fase de hardening/orden técnico y completa la navegación de Nuestra Vida con un retorno explícito a JaviEats desde su menú principal. Los siguientes cambios deben seguir siendo incrementales y quedar reflejados tanto aquí como en `contextos/CONTEXTO_JAVIEATS.md`.
+`3.3.7` es la referencia actual de mantenimiento: corrige regresiones detectadas tras la modularización, mantiene Supabase como fuente de verdad y deja Planes/Recompensas coherentes con la interfaz v3. Los siguientes cambios deben seguir siendo incrementales y quedar reflejados tanto aquí como en `contextos/CONTEXTO_JAVIEATS.md`.
 
 ## Nuestra Vida
 
@@ -540,6 +541,20 @@ Nuestra Vida conserva su propio versionado. Los bugs o ajustes internos del jueg
 ---
 
 # Historial de versiones
+
+## v3.3.7 — QA final de Planes y Recompensas
+
+- Corregida la apertura de propuestas desde el catálogo de Planes en escritorio: la captura del puntero solo se activa al arrastrar realmente.
+- Los 10 servicios viven ya en `app/js/plans.js`; se elimina el parche de mutación del catálogo desde `index.html`.
+- Corregida la ruta del asset `assets/puzzle-masaje.svg` tras la división de CSS en `/app/css/`.
+- Perfil/Nosotros vuelve a mostrar correctamente el puzle y lee `total_piezas` y `premio` desde Supabase cuando están disponibles.
+- Los vales de la interfaz v3 recuperan fecha de obtención, descripción, código, descarga y acciones de canje.
+- Si un vale está canjeado, se muestra también la fecha de canje cuando existe `canjeado_at`.
+- La fecha del vale vinculado al puzle usa `puzzles_premio.completed_at` cuando corresponde; en el resto de casos utiliza `vales.created_at`.
+- QA de datos: 1 vale actual, 1 puzle completado, 6 piezas, 0 referencias rotas entre `puzzles_premio`, `piezas_puzzle` y `vales`.
+- QA HTML: 283 IDs y 0 duplicados.
+- QA de sintaxis realizado sobre los módulos modificados y el coordinador principal.
+- No hay cambios de esquema ni migraciones nuevas de Supabase.
 
 ## v3.3.6 — Mantenimiento técnico y retorno desde Nuestra Vida
 
