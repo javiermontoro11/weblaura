@@ -167,7 +167,6 @@
     try {
       pendingSession = null;
       await client.auth.signOut();
-      app()?.handleSignedOut?.();
       showAuthScreen({ resetProfile: true });
       selectProfile(requestedRole);
       if ($("login-status")) {
