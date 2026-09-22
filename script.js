@@ -393,7 +393,7 @@ async function init() {
   startClock();
 
   if (!window.supabase?.createClient) {
-    showAuthError("No se ha podido cargar Supabase. Revisa la conexión a internet.");
+    authModule().showError("No se ha podido cargar Supabase. Revisa la conexión a internet.");
     return;
   }
 
