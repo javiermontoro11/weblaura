@@ -53,4 +53,68 @@
 
   document.documentElement.dataset.nvAccess = "granted";
   document.documentElement.dataset.nvRole = role;
+
+  // Integración JaviEats: salida explícita desde el menú principal de Nuestra Vida.
+  // Se mantiene fuera del core del juego para no alterar gameplay ni partidas guardadas.
+  function installJaviEatsBackButton() {
+    const landing = document.getElementById("screenLanding");
+    if (!landing || landing.querySelector("[data-nv-back-javieats]")) return;
+
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "nv-back-javieats";
+    button.dataset.nvBackJavieats = "";
+    button.setAttribute("aria-label", "Volver a JaviEats");
+    button.textContent = "← Volver a JaviEats";
+    button.addEventListener("click", () => {
+      location.href = "../";
+    });
+
+    landing.appendChild(button);
+
+    if (!document.getElementById("nv-javieats-integration-style")) {
+      const style = document.createElement("style");
+      style.id = "nv-javieats-integration-style";
+      style.textContent = `
+        #screenLanding .nv-back-javieats {
+          position: absolute;
+          z-index: 40;
+          top: max(14px, env(safe-area-inset-top));
+          left: max(14px, env(safe-area-inset-left));
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          min-height: 42px;
+          padding: 10px 14px;
+          border: 1px solid rgba(17, 17, 17, .08);
+          border-radius: 999px;
+          background: rgba(255, 255, 255, .94);
+          color: #111;
+          box-shadow: 0 8px 24px rgba(0, 0, 0, .10);
+          font: 850 .76rem/1 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+          cursor: pointer;
+          -webkit-tap-highlight-color: transparent;
+        }
+        #screenLanding .nv-back-javieats:active {
+          transform: translateY(1px);
+        }
+        @media (max-width: 760px) {
+          #screenLanding .nv-back-javieats {
+            top: max(10px, env(safe-area-inset-top));
+            left: max(10px, env(safe-area-inset-left));
+            min-height: 38px;
+            padding: 9px 12px;
+            font-size: .69rem;
+          }
+        }
+      `;
+      document.head.appendChild(style);
+    }
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", installJaviEatsBackButton, { once: true });
+  } else {
+    installJaviEatsBackButton();
+  }
 })();
