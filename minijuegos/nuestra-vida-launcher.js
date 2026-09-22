@@ -1,7 +1,6 @@
 (() => {
   "use strict";
 
-  const RELEASE_AT = Date.parse("2026-09-12T12:00:00Z"); // 14:00 Europe/Madrid
   // 1.0.1 fuerza una navegación nueva para no reutilizar el wrapper de estreno
   // que pudo quedar cacheado en Safari/PWA antes de las 14:00.
   const GAME_URL = "./nuestra-vida/?v=1.0.1";
@@ -21,13 +20,9 @@
     } catch (_) {}
   }
 
-  function canOpen() {
-    return Date.now() >= RELEASE_AT || role() === "javi";
-  }
-
   function handleNavClick(event) {
-    const nav = event.target.closest?.("#v3-mystery-nav");
-    if (!nav || !canOpen()) return;
+    const nav = event.target.closest?.("#v3-life-nav");
+    if (!nav) return;
     event.preventDefault();
     event.stopPropagation();
     event.stopImmediatePropagation();
@@ -37,7 +32,7 @@
 
   function handleMiniLabClick(event) {
     const launcher = event.target.closest?.("[data-nv-minilab-open]");
-    if (!launcher || !canOpen()) return;
+    if (!launcher) return;
     event.preventDefault();
     event.stopPropagation();
     event.stopImmediatePropagation();
@@ -90,5 +85,4 @@
     injectMiniLabCard();
   });
 
-  window.setInterval(syncRoleMarker, 1000);
 })();
