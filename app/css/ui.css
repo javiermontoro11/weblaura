@@ -583,8 +583,18 @@ body.javieats-v3::after {
 .v3-ticket-top small { color:var(--v3-accent); font-size:.58rem; font-weight:950; letter-spacing:.12em; }
 .v3-ticket-top b { color:var(--v3-muted); font-size:.58rem; }
 .v3-ticket > strong { display:block; margin:10px 0 0 26px; font-size:1.02rem; letter-spacing:-.025em; }
-.v3-ticket > span:last-child { display:inline-flex; margin:7px 0 0 26px; padding:5px 8px; border-radius:99px; background:#e9f4ed; color:#2e7550; font-size:.62rem; font-weight:900; }
-.v3-ticket.is-used { filter:grayscale(.55); opacity:.68; }
+.v3-ticket-date { display:block; margin:6px 0 0 26px; color:var(--v3-muted); font-size:.68rem; font-weight:800; }
+.v3-ticket-description { margin:9px 0 0 26px; color:var(--v3-muted); font-size:.72rem; line-height:1.45; }
+.v3-ticket-meta { display:flex; flex-wrap:wrap; align-items:center; gap:7px 9px; margin:10px 0 0 26px; }
+.v3-ticket-state { display:inline-flex; padding:5px 8px; border-radius:99px; background:#e9f4ed; color:#2e7550; font-size:.62rem; font-weight:900; }
+.v3-ticket-meta code { color:#8a817a; font-size:.6rem; font-weight:800; }
+.v3-ticket-used-date { display:block; margin:7px 0 0 26px; color:#817872; font-size:.62rem; font-weight:800; }
+.v3-ticket-actions { display:flex; flex-wrap:wrap; gap:8px; margin:13px 0 0 26px; }
+.v3-ticket-action { min-height:38px; padding:9px 12px; border-radius:12px; font-size:.68rem; font-weight:900; }
+.v3-ticket-action.primary { border:0; background:var(--v3-dark); color:#fff; }
+.v3-ticket-action.secondary { border:1px solid var(--v3-line); background:#fff; color:var(--v3-text); }
+.v3-ticket.is-used { filter:grayscale(.35); opacity:.76; }
+.v3-ticket.is-used .v3-ticket-state { background:#efebe8; color:#665f59; }
 
 /* ---------- Bottom nav: SIEMPRE ABAJO ---------- */
 .javieats-v3 .v3-bottom-nav {
