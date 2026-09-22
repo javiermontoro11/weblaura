@@ -605,13 +605,16 @@ JaviEats usa:
 
 Nuestra Vida estuvo oculto durante el desarrollo para que Laura no lo viera antes de tiempo.
 
-En una integración futura:
+La integración actual incluye una salida explícita desde el menú principal hacia JaviEats mediante `nuestra-vida/access-gate.js`. Este botón se mantiene fuera del core del juego para preservar Nuestra Vida 1.0.
+
+En cualquier ajuste de integración:
 
 - no romper JaviEats,
 - mantener autenticación existente,
 - mantener el juego privado,
-- revisar ruta de entrada,
-- conservar compatibilidad con sesiones.
+- revisar ruta de entrada y salida,
+- conservar compatibilidad con sesiones,
+- mantener disponible `← Volver a JaviEats` en el landing, incluido el retorno al menú después de terminar una partida.
 
 No rehacer arquitectura de Supabase si no es necesario.
 
