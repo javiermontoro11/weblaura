@@ -287,7 +287,8 @@ JaviEats/
 ├── manifest.webmanifest
 ├── service-worker.js
 ├── favicon.ico
-├── app/\n│   └── js/\n│       └── debug.js\n├── assets/
+├── app/\n│   └── js/\n│       ├── debug.js
+│       └── memories.js\n├── assets/
 │   ├── apple-touch-icon.png
 │   ├── icon-192.png
 │   ├── icon-512.png
@@ -329,7 +330,9 @@ El microevento de flores amarillas no crea archivos nuevos: estilos, marcado y a
 
 Los tres contextos maestros viven juntos dentro de `/contextos/`. **Nuestra Vida** conserva su aplicación y recursos dentro de `/nuestra-vida/`; únicamente su launcher de integración con JaviEats vive en `/minijuegos/`.
 
-`/app/` se reserva para módulos del frontend principal extraídos de forma incremental. En 3.3.6 se estrena con `app/js/debug.js`; no se crearán decenas de archivos pequeños sin una responsabilidad clara.
+`/app/` se reserva para módulos del frontend principal extraídos de forma incremental. En 3.3.6 contiene `app/js/debug.js` y `app/js/memories.js`; no se crearán decenas de archivos pequeños sin una responsabilidad clara.
+
+`app/js/memories.js` es el primer módulo funcional extraído de `script.js`: concentra acceso a `recuerdos_app`, URLs firmadas del bucket privado, caché temporal de URLs y compresión de imágenes. El editor/render todavía permanecen en `script.js` en esta fase para reducir riesgo.
 
 /supabase/ contiene desde 3.3.6 el historial SQL reproducible. Las migraciones creadas en GitHub no deben confundirse con cambios ya aplicados a producción: su estado debe verificarse explícitamente.
 
