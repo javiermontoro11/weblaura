@@ -225,6 +225,11 @@ function authModule() {
   return window.JaviEatsAuth;
 }
 
+function plansModule() {
+  if (!window.JaviEatsPlans) throw new Error("JaviEatsPlans no está cargado.");
+  return window.JaviEatsPlans;
+}
+
 window.JaviEatsApp = {
   getRole: () => currentRole,
   getUser: () => currentUser,
@@ -632,9 +637,7 @@ async function runDataSync({ silent = false, reason = "normal" } = {}) {
 }
 
 async function fetchProposals() {
-  const { data, error } = await supabaseClient.from("propuestas").select("*").order("plan_date", { ascending: true }).order("plan_time", { ascending: true });
-  if (error) throw error;
-  return data || [];
+  return plansModule().fetchAll(supabaseClient);
 }
 async function fetchYSiCurrent() {
   const { data, error } = await supabaseClient.rpc("obtener_y_si_actual");
@@ -780,8 +783,7 @@ async function handleProposal(event) {
     status: "pendiente"
   };
   try {
-    const { data, error } = await supabaseClient.from("propuestas").insert(payload).select().single();
-    if (error) throw error;
+    const data = await plansModule().create(supabaseClient, payload);
     state.proposals.push(data);
     state.proposals.sort(sortProposalsByDate);
     lastProposalTicket = data;
@@ -859,8 +861,7 @@ async function handleCustomPlan(event) {
     status: "pendiente"
   };
   try {
-    const { data, error } = await supabaseClient.from("propuestas").insert(payload).select().single();
-    if (error) throw error;
+    const data = await plansModule().create(supabaseClient, payload);
     state.proposals.push(data);
     state.proposals.sort(sortProposalsByDate);
     selectedDate = data.plan_date;
@@ -941,8 +942,7 @@ async function handleBookingAction(event) {
 }
 async function updateProposalStatus(id, newStatus) {
   try {
-    const { data, error } = await supabaseClient.from("propuestas").update({ status: newStatus }).eq("id", id).select().single();
-    if (error) throw error;
+    const data = await plansModule().update(supabaseClient, id, { status: newStatus });
     state.proposals = state.proposals.map(item => item.id === id ? data : item);
     refreshUI();
     showToast(`Propuesta ${statusLabel(newStatus).toLowerCase()}.`);
@@ -951,8 +951,7 @@ async function updateProposalStatus(id, newStatus) {
 async function deleteProposal(id) {
   if (!confirm("¿Seguro que quieres eliminar este plan del calendario compartido?")) return;
   try {
-    const { error } = await supabaseClient.from("propuestas").delete().eq("id", id);
-    if (error) throw error;
+    await plansModule().remove(supabaseClient, id);
     state.proposals = state.proposals.filter(item => item.id !== id);
     refreshUI();
     showToast("Plan eliminado.");
@@ -962,8 +961,7 @@ async function clearSharedCalendar() {
   if (currentRole !== "javi") return;
   if (!confirm("Esto borrará todos los planes del calendario compartido para los dos. ¿Continuar?")) return;
   try {
-    const { error } = await supabaseClient.from("propuestas").delete().neq("id", "00000000-0000-0000-0000-000000000000");
-    if (error) throw error;
+    await plansModule().clear(supabaseClient);
     state.proposals = [];
     refreshUI();
     showToast("Calendario compartido limpiado.");
@@ -2880,8 +2878,7 @@ function memoryImage(memory) {
     };
     try {
       status.textContent = "Guardando…";
-      const { error } = await client.from("propuestas").update(payload).eq("id", editPlanId);
-      if (error) throw error;
+      await window.JaviEatsPlans.update(client, editPlanId, payload);
       status.textContent = "Guardado.";
       await APP()?.refresh?.({ silent: true });
       APP()?.showToast?.("Plan actualizado.");
