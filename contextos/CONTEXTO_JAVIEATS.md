@@ -494,3 +494,7 @@ El hero usa tres paneles reales: ramo izquierdo, selfie central y ramo derecho. 
 ## Nuestro 24 · escenas fotográficas 3.4.3
 
 Septiembre añade assets privados a cuatro escenas: 12/09 cocinitas, 16/09 atardecer, 19/09 Laura y 20/09 perritos. El 24/09 no tiene fotografía. En móvil la timeline elimina su carril lateral y renderiza cada escena a ancho completo para ganar espacio útil. Las fotos privadas se cargan por RPC autenticado y mantienen los efectos ligeros de cada escena.
+
+
+## Nuestro 24 · 3.4.4
+El resumen de septiembre incorpora las cuatro fotos privadas ya asociadas a sus momentos y refuerza las escenas sin foto del 1, 21 y 24 de septiembre. En móvil se reduce la altura y el padding de las tarjetas. No cambia la lógica de autorización, archivo ni carta privada.

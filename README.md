@@ -916,3 +916,8 @@ Revisión de regresión posterior a la modularización:
 - El 12/09 pasa a “Nuestra Vida y modo cocinitas”.
 - En móvil desaparecen la línea y la columna numerada de la cronología; las escenas usan todo el ancho disponible y reducen padding/interlineado sin truncar texto.
 - Las escenas con fotografía conservan microanimaciones ligeras por temática.
+
+### Nuestro 24 · 3.4.4
+- Escenas sin fotografía reforzadas para 1/09, 21/09 y 24/09.
+- Cronología móvil más compacta y con mayor protagonismo visual.
+- Se mantiene soporte para prefers-reduced-motion y la autorización privada por servidor.
