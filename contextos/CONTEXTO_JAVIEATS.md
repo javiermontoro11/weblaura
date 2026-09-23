@@ -486,3 +486,7 @@ Hallazgos y correcciones verificadas:
 - eliminado el gate temporal del 30/08 de Dibuja/No lo digas y su polling de 1 s;
 - cache-busting dinámico de minijuegos alineado con 3.3.6;
 - Nuestra Vida y su MiniLab vuelven a estar realmente protegidos por sesión y tienen ruta explícita de salida a JaviEats.
+
+## Nuestro 24 · Hero 3.4.2
+
+El hero usa tres paneles reales: ramo izquierdo, selfie central y ramo derecho. Los ramos son assets privados obtenidos mediante RPC autenticado. Responsive: tríptico completo en tablet/escritorio y franjas florales laterales en móvil. La entrada del día incluye una intro full-screen automática una vez por sesión/edición antes de mostrar Inicio.

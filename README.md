@@ -901,3 +901,10 @@ Revisión de regresión posterior a la modularización:
 - Se elimina el gate caducado del 30/08 y su polling de 1 segundo en los minijuegos.
 - La UI de bienvenida de Laura obtiene el total del puzzle desde `JaviEatsRewards`, evitando una constante global eliminada durante la modularización.
 - Los módulos dinámicos de minijuegos usan cache-busting de mantenimiento 3.3.6 / Nuestra Vida 1.0.3.
+
+### Hero responsive e intro · 3.4.2
+
+- El hero de Nuestro 24 usa las dos fotos reales de los ramos como paneles laterales y mantiene la foto de Javi + Laura en el centro.
+- Los ramos se sirven desde persistencia privada de Supabase; no se versionan las fotografías personales en GitHub.
+- Desktop/iPad muestran tríptico completo; en móvil los ramos se mantienen como franjas laterales y la foto central recibe la mayor parte del ancho.
+- Al abrir JaviEats durante Nuestro 24 aparece una intro breve a pantalla completa, una vez por sesión y edición; no requiere interacción y respeta `prefers-reduced-motion`.

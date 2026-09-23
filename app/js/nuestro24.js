@@ -38,15 +38,18 @@
   const app = () => root.JaviEatsApp;
   const now = () => performance.now();
   const signed = new Map();
+  const heroAssets = new Map();
   let userId = null, epoch = 0, response = null, receivedAt = 0, lastFetch = -Infinity;
   let inFlight = null, timer = null, mounted = false, opening = false, previousFocus = null;
+  let assetsFetchedFor = null, entryTimer = null;
   let returnPage = 'home';
 
   function clearPrivateView() {
-    epoch += 1; userId = null; response = null; signed.clear(); inFlight = null;
-    opening = false; lastFetch = -Infinity;
-    clearTimeout(timer);
+    epoch += 1; userId = null; response = null; signed.clear(); heroAssets.clear(); inFlight = null;
+    opening = false; lastFetch = -Infinity; assetsFetchedFor = null;
+    clearTimeout(timer); clearTimeout(entryTimer);
     $('n24-home')?.remove();
+    $('n24-entry')?.remove();
     closePhoto();
     const page = $('page-nuestro24');
     if (page?.classList.contains('active')) app()?.showPage?.('home');
@@ -92,18 +95,72 @@
       });
     } catch (_) { /* Missing photos must never prevent reading the month or letter. */ }
   }
+  async function fetchHeroAssets(ctx) {
+    if (!ctx || assetsFetchedFor === ctx.id) return;
+    assetsFetchedFor = ctx.id;
+    try {
+      const {data,error} = await ctx.client.rpc('obtener_nuestro24_assets');
+      if (!isCurrent(ctx)) return;
+      if (error || data?.allowed !== true) return;
+      const assets = data.assets && typeof data.assets === 'object' ? data.assets : {};
+      Object.entries(assets).forEach(([key,url]) => {
+        if ((key === 'ramo-izquierda' || key === 'ramo-derecha') &&
+            typeof url === 'string' &&
+            /^data:image\/webp;base64,[A-Za-z0-9+/=]+$/.test(url) &&
+            url.length < 100000) heroAssets.set(key,url);
+      });
+    } catch (_) { /* The hero remains usable with the centre photo only. */ }
+  }
+  function heroSide(key, className, alt) {
+    const url = heroAssets.get(key);
+    return url ? `<img class="n24-hero-side ${className}" src="${esc(url)}" alt="${esc(alt)}" decoding="async">` : '';
+  }
+  function entrySeenKey(eventDate) {
+    return `n24:intro:${eventDate}:${userId || 'unknown'}`;
+  }
+  function maybeShowEntry(edition) {
+    if (!heroActive() || !edition?.event_date || $('n24-entry')) return;
+    let alreadySeen = false;
+    try { alreadySeen = sessionStorage.getItem(entrySeenKey(edition.event_date)) === '1'; } catch (_) {}
+    if (alreadySeen) return;
+    try { sessionStorage.setItem(entrySeenKey(edition.event_date),'1'); } catch (_) {}
+    const centre = signed.get(edition.hero_path)?.url || '';
+    const left = heroAssets.get('ramo-izquierda') || '';
+    const right = heroAssets.get('ramo-derecha') || '';
+    const overlay = document.createElement('div');
+    overlay.id = 'n24-entry';
+    overlay.className = 'n24-entry';
+    overlay.setAttribute('aria-hidden','true');
+    overlay.innerHTML = `<div class="n24-entry-stage">
+      <div class="n24-entry-pane n24-entry-left">${left?`<img src="${esc(left)}" alt="">`:''}</div>
+      <div class="n24-entry-pane n24-entry-centre">${centre?`<img src="${esc(centre)}" alt="">`:''}</div>
+      <div class="n24-entry-pane n24-entry-right">${right?`<img src="${esc(right)}" alt="">`:''}</div>
+      <div class="n24-entry-shade"></div>
+      <div class="n24-entry-copy"><small>JAVI + LAURA</small><strong>Otro 24 contigo.</strong><span>Y queriéndonos cada vez más.</span></div>
+      <div class="n24-entry-heart">♥</div>
+    </div>`;
+    document.body.appendChild(overlay);
+    requestAnimationFrame(()=>requestAnimationFrame(()=>overlay.classList.add('is-ready')));
+    const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    entryTimer = setTimeout(()=>{
+      overlay.classList.add('is-leaving');
+      entryTimer = setTimeout(()=>overlay.remove(),reduced?350:700);
+    },reduced?800:2450);
+  }
   function renderHome() {
     const home = $('page-home');
     if (!home) return;
-    if (!heroActive()) { $('n24-home')?.remove(); theme(); return; }
+    if (!heroActive()) { $('n24-home')?.remove(); $('n24-entry')?.remove(); theme(); return; }
     const e = response.event;
     let hero = $('n24-home');
     if (!hero) { hero = document.createElement('section'); hero.id='n24-home'; hero.className='n24-home'; home.prepend(hero); }
-    const image = photoMarkup(e.hero_path,'Javi y Laura','n24-hero-photo',true);
-    const signature = [e.event_date,image,response.preview].join('|');
+    const centre = photoMarkup(e.hero_path,'Javi y Laura','n24-hero-photo n24-hero-centre',true);
+    const left = heroSide('ramo-izquierda','n24-hero-left','Ramo de flores');
+    const right = heroSide('ramo-derecha','n24-hero-right','Ramo de flores');
+    const signature = [e.event_date,e.hero_path,Boolean(left),Boolean(right),response.preview].join('|');
     if (hero.dataset.signature !== signature) {
       hero.dataset.signature = signature;
-      hero.innerHTML = `${image}<div class="n24-hero-ambient" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div><div class="n24-hero-shade"></div><div class="n24-hero-copy"><p class="n24-hero-date">${esc(dateLabel(e.event_date))} \u00b7 ${monthsTogether(e.event_date)} meses juntos</p><h2>Otro 24 contigo.<span>Y queri\u00e9ndonos cada vez m\u00e1s.</span></h2><button class="n24-button n24-button-light" type="button" data-n24-open>Ver nuestro mes \u2192</button>${response.preview && app()?.getRole?.()==='javi'?'<small class="n24-preview-tag">Vista anticipada \u00b7 Solo para Javi</small>':''}</div>`;
+      hero.innerHTML = `<div class="n24-hero-media" aria-hidden="true"><div class="n24-hero-panel n24-hero-panel-left">${left}</div><div class="n24-hero-panel n24-hero-panel-centre">${centre}</div><div class="n24-hero-panel n24-hero-panel-right">${right}</div></div><div class="n24-hero-ambient" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div><div class="n24-hero-shade"></div><div class="n24-hero-copy"><p class="n24-hero-date">${esc(dateLabel(e.event_date))} \u00b7 ${monthsTogether(e.event_date)} meses juntos</p><h2>Otro 24 contigo.<span>Y queri\u00e9ndonos cada vez m\u00e1s.</span></h2><button class="n24-button n24-button-light" type="button" data-n24-open>Ver nuestro mes \u2192</button>${response.preview && app()?.getRole?.()==='javi'?'<small class="n24-preview-tag">Vista anticipada \u00b7 Solo para Javi</small>':''}</div>`;
     }
     theme();
   }
@@ -132,9 +189,9 @@
         if (error) throw error;
         const previouslyActive = heroActive();
         response = data; receivedAt = now(); lastFetch = now();
-        await signPhotos(ctx,data?.event);
+        await Promise.all([signPhotos(ctx,data?.event),fetchHeroAssets(ctx)]);
         if (!isCurrent(ctx)) return;
-        renderHome(); schedule();
+        renderHome(); maybeShowEntry(data?.event); schedule();
         if (previouslyActive && !heroActive()) void app()?.refresh?.({silent:true,reason:'nuestro24-archive'});
       } catch (_) {
         if (!isCurrent(ctx)) return;

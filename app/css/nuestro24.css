@@ -227,3 +227,80 @@ body.n24-day::before,body.n24-replay::before{
   .n24-photo-heart,.n24-home-heart,.n24-life-pin,.n24-life-spark,.n24-cup,.n24-duel-card,.n24-together-heart,.n24-paw,.n24-dog-orb,.n24-flower,.n24-pin,.n24-icecream,.n24-bow-heart{opacity:1!important}
   .n24-house{transform:translateX(-50%) translateY(0)}.n24-sun{opacity:1;transform:translate(-50%,22px)}.n24-ball{transform:translateX(205px)}
 }
+
+
+/* Hero triptico real + intro de apertura · 3.4.2 */
+.n24-hero-media{position:absolute;inset:0;z-index:0;display:grid;grid-template-columns:minmax(0,.92fr) minmax(250px,1.18fr) minmax(0,.92fr);overflow:hidden;background:#4f3942}
+.n24-hero-panel{position:relative;min-width:0;min-height:100%;overflow:hidden;background:#4f3942}
+.n24-hero-panel+.n24-hero-panel{box-shadow:-1px 0 rgba(255,255,255,.09)}
+.n24-hero-photo,.n24-hero-side{position:absolute;inset:0;display:block;width:100%;height:100%;max-width:none;object-fit:cover;background:#4f3942}
+.n24-hero-centre{object-position:center 45%}
+.n24-hero-left{object-position:center 57%}
+.n24-hero-right{object-position:center 48%}
+.n24-hero-panel-left::after,.n24-hero-panel-right::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(38,20,29,.03),rgba(38,20,29,.16))}
+.n24-hero-shade{z-index:2;background:linear-gradient(90deg,rgba(33,18,25,.55) 0%,rgba(33,18,25,.18) 42%,rgba(33,18,25,.08) 68%,rgba(33,18,25,.25) 100%),linear-gradient(180deg,transparent 7%,rgba(38,22,29,.05) 36%,rgba(38,22,29,.86) 100%)}
+.n24-hero-copy{z-index:3;width:min(58%,480px);text-shadow:0 2px 18px rgba(25,12,18,.36)}
+.n24-hero-ambient{z-index:3}
+
+/* Intro visible al abrir JaviEats; una vez por sesion y edicion. */
+.n24-entry{position:fixed;inset:0;z-index:10050;display:grid;place-items:center;overflow:hidden;background:#432c35;opacity:0;pointer-events:none;transition:opacity .34s ease}
+.n24-entry.is-ready{opacity:1}
+.n24-entry.is-leaving{opacity:0}
+.n24-entry-stage{position:absolute;inset:0;display:grid;grid-template-columns:minmax(0,.92fr) minmax(260px,1.18fr) minmax(0,.92fr);overflow:hidden;background:#432c35}
+.n24-entry-pane{position:relative;overflow:hidden;transform:scale(1.05);opacity:.25;transition:transform 1.05s cubic-bezier(.2,.8,.2,1),opacity .72s ease}
+.n24-entry-pane img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.n24-entry-left{transform:translateX(-8%) scale(1.05)}
+.n24-entry-right{transform:translateX(8%) scale(1.05)}
+.n24-entry-centre img{object-position:center 44%}
+.n24-entry-left img{object-position:center 57%}
+.n24-entry-right img{object-position:center 48%}
+.n24-entry.is-ready .n24-entry-pane{transform:none;opacity:1}
+.n24-entry-shade{position:absolute;inset:0;z-index:2;background:radial-gradient(circle at 50% 44%,transparent 12%,rgba(40,20,29,.16) 68%),linear-gradient(180deg,rgba(35,18,25,.06),rgba(35,18,25,.64))}
+.n24-entry-copy{position:absolute;z-index:4;left:50%;bottom:max(11vh,74px);width:min(86vw,720px);transform:translate(-50%,22px);display:flex;flex-direction:column;align-items:center;text-align:center;color:#fff8f1;opacity:0;transition:opacity .62s .48s ease,transform .76s .48s cubic-bezier(.2,.8,.2,1);text-shadow:0 3px 24px rgba(24,10,16,.55)}
+.n24-entry.is-ready .n24-entry-copy{opacity:1;transform:translate(-50%,0)}
+.n24-entry-copy small{margin-bottom:12px;font:800 .67rem/1.3 system-ui,sans-serif;letter-spacing:.14em}
+.n24-entry-copy strong{font:400 clamp(2.2rem,6vw,5rem)/1.02 Georgia,'Times New Roman',serif;letter-spacing:-.045em}
+.n24-entry-copy span{margin-top:10px;font:400 clamp(1rem,2.4vw,1.7rem)/1.3 Georgia,'Times New Roman',serif}
+.n24-entry-heart{position:absolute;z-index:4;left:50%;top:18%;color:rgba(255,240,233,.9);font:400 1.2rem Georgia,serif;opacity:0;transform:translateX(-50%) scale(.4)}
+.n24-entry.is-ready .n24-entry-heart{animation:n24EntryHeart 1.25s .72s cubic-bezier(.2,1.35,.3,1) both}
+@keyframes n24EntryHeart{0%{opacity:0;transform:translateX(-50%) scale(.35)}42%{opacity:1;transform:translateX(-50%) scale(1.3)}70%{opacity:.9;transform:translateX(-50%) scale(.95)}100%{opacity:.78;transform:translateX(-50%) scale(1)}}
+
+/* iPad y tablets: mantiene los tres paneles, pero prioriza el selfie. */
+@media(min-width:600px) and (max-width:1100px){
+  .n24-hero-media,.n24-entry-stage{grid-template-columns:minmax(0,.78fr) minmax(280px,1.44fr) minmax(0,.78fr)}
+  .n24-hero-copy{width:min(61%,430px)}
+  .n24-home h2{font-size:clamp(2rem,5.4vw,3.2rem)!important}
+}
+
+/* Movil: los dos ramos siguen presentes como franjas y la foto central manda. */
+@media(max-width:599px){
+  .n24-home{min-height:414px}
+  .n24-hero-copy{min-height:414px;width:100%;padding:25px 23px 28px}
+  .n24-hero-media,.n24-entry-stage{grid-template-columns:16% 68% 16%}
+  .n24-hero-centre,.n24-entry-centre img{object-position:center 45%}
+  .n24-hero-left,.n24-entry-left img{object-position:52% 58%}
+  .n24-hero-right,.n24-entry-right img{object-position:49% 48%}
+  .n24-hero-panel-left::after,.n24-hero-panel-right::after{background:rgba(39,20,29,.12)}
+  .n24-hero-shade{background:linear-gradient(90deg,rgba(36,18,27,.40),rgba(36,18,27,.05) 39%,rgba(36,18,27,.05) 70%,rgba(36,18,27,.30)),linear-gradient(180deg,rgba(28,14,20,.03) 16%,rgba(28,14,20,.18) 48%,rgba(28,14,20,.91) 100%)}
+  .n24-hero-date{margin-bottom:10px;font-size:.66rem}
+  .n24-home h2{max-width:310px;margin-bottom:18px!important;font-size:clamp(1.82rem,8.8vw,2.42rem)!important;line-height:1.03!important}
+  .n24-home h2 span{max-width:280px;margin-top:7px;font-size:.58em}
+  .n24-button-light{min-height:45px;padding:12px 17px;font-size:.82rem}
+  .n24-preview-tag{margin-top:9px;font-size:.59rem}
+  .n24-entry-copy{bottom:max(12vh,78px);width:88vw}
+  .n24-entry-copy small{font-size:.59rem}
+  .n24-entry-copy strong{font-size:clamp(2rem,11vw,3rem)}
+  .n24-entry-copy span{max-width:300px;font-size:1.05rem}
+  .n24-entry-heart{top:16%}
+}
+@media(max-width:359px){
+  .n24-home,.n24-hero-copy{min-height:395px}
+  .n24-hero-media,.n24-entry-stage{grid-template-columns:14% 72% 14%}
+  .n24-hero-copy{padding:22px 18px 24px}
+}
+@media(prefers-reduced-motion:reduce){
+  .n24-entry,.n24-entry-pane,.n24-entry-copy{transition:none!important}
+  .n24-entry-pane{opacity:1!important;transform:none!important}
+  .n24-entry-copy{opacity:1!important;transform:translate(-50%,0)!important}
+  .n24-entry-heart{animation:none!important;opacity:.75!important;transform:translateX(-50%)!important}
+}

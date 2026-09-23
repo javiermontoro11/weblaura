@@ -405,3 +405,7 @@ QA de integridad:
 - 0 `y_si_notificaciones` en error.
 - 0 `mensajes_dia.email_estado='error'`.
 - 0 piezas de puzzle duplicadas por puzzle/número.
+
+## Nuestro 24 · assets privados de hero
+
+`private.nuestro24_assets` almacena los dos ramos del hero fuera del repositorio público. RLS está activado y no existen permisos directos para `anon`/`authenticated`. `public.obtener_nuestro24_assets()` autoriza a Javi en preview y a Laura únicamente después del release de servidor. Las fotografías se cargan como WebP privados y sus bytes no se incluyen en las migraciones versionadas.
