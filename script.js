@@ -210,6 +210,10 @@ async function showApp() {
     // Compatibilidad con enlaces antiguos ya retirados de la interfaz.
     cleanLegacyMessageUrl(params);
     rewardsModule().maybeShowPuzzleWelcome();
+  } else if (requestedOpen === "nuestro24") {
+    showPage("home");
+    cleanLegacyMessageUrl(params);
+    void window.JaviEatsNuestro24?.refresh(true);
   } else if (requestedOpen === "ysi") {
     maybeFocusYSiFromUrl();
   } else if (requestedOpen === "plans" || requestedOpen === "calendar") {
@@ -323,6 +327,7 @@ function applyRoleUI() {
 }
 
 function resetAppSession() {
+  window.JaviEatsNuestro24?.reset();
   syncModule().reset();
   currentUser = null;
   currentRole = "unknown";

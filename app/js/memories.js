@@ -199,6 +199,15 @@
     const content = parseContent(memory);
     const kind = content.kind || (memory.tipo === "letter" ? "letter" : "gallery");
 
+    if (kind === "nuestro24") {
+      if (window.JaviEatsNuestro24?.openMemory) {
+        void window.JaviEatsNuestro24.openMemory(memory);
+      } else {
+        app()?.showToast?.("No se ha podido abrir este recuerdo.");
+      }
+      return;
+    }
+
     if (kind === "yellow-flowers") {
       if (window.JaviEatsYellowFlowers?.openMemory) {
         window.JaviEatsYellowFlowers.openMemory();
@@ -483,7 +492,10 @@
       if (result.error) throw result.error;
       persisted = true;
 
-      const pathsToRemove = [...editorState.removedPaths].filter(Boolean);
+      const removed = [...editorState.removedPaths].filter(Boolean);
+      const pathsToRemove = window.JaviEatsNuestro24
+        ? await window.JaviEatsNuestro24.filterRemovablePhotos(client, removed)
+        : removed;
       if (pathsToRemove.length) {
         const { error: removeError } = await client.storage.from(STORAGE_BUCKET).remove(pathsToRemove);
         if (removeError) console.warn("El recuerdo se guardó, pero no se pudieron limpiar algunas fotos antiguas:", removeError);
@@ -535,7 +547,10 @@
       const { error } = await client.from("recuerdos_app").delete().eq("id", memory.id);
       if (error) throw error;
 
-      const paths = Array.isArray(memory.image_paths) ? memory.image_paths.filter(Boolean) : [];
+      const originalPaths = Array.isArray(memory.image_paths) ? memory.image_paths.filter(Boolean) : [];
+      const paths = window.JaviEatsNuestro24
+        ? await window.JaviEatsNuestro24.filterRemovablePhotos(client, originalPaths)
+        : originalPaths;
       if (paths.length) {
         const { error: removeError } = await client.storage.from(STORAGE_BUCKET).remove(paths);
         if (removeError) console.warn("Se eliminó el recuerdo, pero quedaron archivos huérfanos:", removeError);
