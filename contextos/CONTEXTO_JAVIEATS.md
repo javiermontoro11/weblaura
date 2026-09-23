@@ -498,3 +498,7 @@ Septiembre añade assets privados a cuatro escenas: 12/09 cocinitas, 16/09 atard
 
 ## Nuestro 24 · 3.4.4
 El resumen de septiembre incorpora las cuatro fotos privadas ya asociadas a sus momentos y refuerza las escenas sin foto del 1, 21 y 24 de septiembre. En móvil se reduce la altura y el padding de las tarjetas. No cambia la lógica de autorización, archivo ni carta privada.
+
+
+## Nuestro 24 · 3.4.5
+Se simplifican las escenas sin foto del 1, 21 y 24 de septiembre y se eliminan animaciones infinitas de la cronología. Las escenas se animan una sola vez al entrar en pantalla y usan content-visibility para mejorar rendimiento, especialmente en móvil.

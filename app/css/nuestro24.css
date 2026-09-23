@@ -398,3 +398,60 @@ body.n24-day::before,body.n24-replay::before{
 
 @keyframes n24SkyIn{to{opacity:1}}@keyframes n24MoonIn{to{opacity:1;transform:none}}@keyframes n24WindowOn{to{background:#ffd895;box-shadow:0 0 15px rgba(255,209,132,.5),inset 0 0 0 2px rgba(255,255,255,.2)}}@keyframes n24PathIn{to{opacity:1}}@keyframes n24MeetLeft{0%{opacity:0;transform:translateX(-28px)}100%{opacity:1;transform:translateX(38px)}}@keyframes n24MeetRight{0%{opacity:0;transform:translateX(28px)}100%{opacity:1;transform:translateX(-38px)}}@keyframes n24HomeHeart{0%{opacity:0;transform:translate(-50%,10px) scale(.35)}45%{opacity:1;transform:translate(-50%,-4px) scale(1.22)}100%{opacity:.95;transform:translate(-50%,-12px) scale(1)}}@keyframes n24FlowerGlow{to{opacity:1;transform:translateX(-50%) scale(1)}}@keyframes n24StemGrow{from{opacity:0;clip-path:inset(100% 0 0)}to{opacity:1;clip-path:inset(0)}}@keyframes n24RibbonIn{to{opacity:1;transform:translate(-50%,0)}}@keyframes n24LanePulse{to{opacity:1;transform:scale(1.45)}}@keyframes n24Strike{to{opacity:1;transform:translate(-50%,0) scale(1)}}
 @media(prefers-reduced-motion:reduce){.n24-home-sky,.n24-home-moon,.n24-home-star,.n24-home-path,.n24-home-person,.n24-home-heart,.n24-flower-glow,.n24-stem,.n24-ribbon,.n24-flower-spark,.n24-lane-light,.n24-strike,.n24-bow-spark{animation:none!important;opacity:1!important}.n24-house{transform:translate(-50%,0)!important}.n24-home-moon{transform:none!important}.n24-home-person{transform:none!important}.n24-home-heart{transform:translate(-50%,-12px)!important}.n24-ribbon{transform:translate(-50%,0)!important}.n24-strike{transform:translate(-50%,0)!important}}
+
+
+/* Nuestro 24 3.4.5 · escenas simples y ligeras */
+.n24-story .n24-scene{content-visibility:auto;contain-intrinsic-size:280px}
+.n24-story .n24-scene.is-visible *{animation-iteration-count:1!important}
+
+/* 1 SEP */
+.n24-simple-home{background:linear-gradient(180deg,#51475f,#8b7480 72%,#ead6cb);overflow:hidden}
+.n24-simple-moon{position:absolute;right:17%;top:15%;width:54px;height:54px;border-radius:50%;background:#fff1d0;box-shadow:0 0 24px rgba(255,239,200,.25);opacity:0;transform:translateY(-8px)}
+.n24-simple-house{position:absolute;left:50%;bottom:18%;width:104px;height:74px;transform:translate(-50%,18px);border-radius:7px 7px 3px 3px;background:#f5e9dd;box-shadow:0 12px 24px rgba(42,28,40,.12);opacity:0}
+.n24-simple-house:before{content:"";position:absolute;left:-13px;top:-34px;border-left:65px solid transparent;border-right:65px solid transparent;border-bottom:38px solid #7e5967}
+.n24-simple-house i{position:absolute;left:19px;top:25px;width:24px;height:25px;border-radius:4px;background:#ffd993;box-shadow:0 0 12px rgba(255,211,142,.35)}
+.n24-simple-heart{position:absolute;left:66%;bottom:25%;color:#f5aab3;font:1.35rem Georgia,serif;opacity:0;transform:translateY(8px) scale(.75)}
+.n24-scene.is-visible .n24-simple-moon{animation:n24SimpleFade .55s ease forwards}
+.n24-scene.is-visible .n24-simple-house{animation:n24SimpleRise .6s .08s ease-out forwards}
+.n24-scene.is-visible .n24-simple-heart{animation:n24SimplePop .5s .48s ease-out forwards}
+
+/* 21 SEP */
+.n24-simple-flowers{background:linear-gradient(180deg,#fff7d8,#fffdf3);overflow:hidden}
+.n24-simple-flower{position:absolute;bottom:24%;font-size:2.65rem;opacity:0;transform:translateY(22px) scale(.85);filter:drop-shadow(0 6px 8px rgba(135,104,20,.08))}
+.n24-simple-flower.f1{left:26%;font-size:2.2rem}.n24-simple-flower.f2{left:45%;bottom:20%;font-size:3rem}.n24-simple-flower.f3{right:24%;font-size:2.25rem}
+.n24-simple-flower-heart{position:absolute;left:50%;top:21%;color:#d8a928;font:1.15rem Georgia,serif;opacity:0;transform:translateX(-50%) scale(.7)}
+.n24-scene.is-visible .n24-simple-flower.f1{animation:n24SimpleRise .52s .05s ease-out forwards}
+.n24-scene.is-visible .n24-simple-flower.f2{animation:n24SimpleRise .52s .15s ease-out forwards}
+.n24-scene.is-visible .n24-simple-flower.f3{animation:n24SimpleRise .52s .25s ease-out forwards}
+.n24-scene.is-visible .n24-simple-flower-heart{animation:n24SimplePop .45s .55s ease-out forwards}
+
+/* 24 SEP */
+.n24-simple-bowling{background:linear-gradient(180deg,#4d405d,#716073 62%,#e3c9af);overflow:hidden}
+.n24-simple-ball{position:absolute;left:20%;bottom:24%;width:46px;height:46px;border-radius:50%;background:#5d486c;box-shadow:inset -6px -5px 8px rgba(0,0,0,.13);transform:translateX(-28px);opacity:0}
+.n24-simple-ball:before,.n24-simple-ball:after{content:"";position:absolute;top:11px;width:5px;height:5px;border-radius:50%;background:#bbaac5}.n24-simple-ball:before{left:15px}.n24-simple-ball:after{left:24px}
+.n24-simple-pins{position:absolute;right:22%;bottom:20%;display:flex;align-items:flex-end;gap:8px;opacity:0;transform:translateY(8px)}
+.n24-simple-pins i{display:block;width:14px;height:42px;border-radius:50% 50% 30% 30%;background:linear-gradient(180deg,#fff 0 31%,#d97986 31% 39%,#fff 39%);box-shadow:0 5px 9px rgba(45,30,50,.1)}
+.n24-simple-pins i:nth-child(2){height:49px}
+.n24-simple-ice{position:absolute;right:11%;top:13%;font-size:1.8rem;opacity:0;transform:translateY(-8px)}
+.n24-simple-bow-heart{position:absolute;right:27%;top:18%;color:#efa3af;font:1rem Georgia,serif;opacity:0}
+.n24-scene.is-visible .n24-simple-ball{animation:n24BallShort .65s .06s ease-out forwards}
+.n24-scene.is-visible .n24-simple-pins{animation:n24SimpleRise .45s .28s ease-out forwards}
+.n24-scene.is-visible .n24-simple-ice{animation:n24SimpleFade .42s .65s ease forwards}
+.n24-scene.is-visible .n24-simple-bow-heart{animation:n24SimplePop .4s .78s ease forwards}
+
+@keyframes n24SimpleFade{to{opacity:1;transform:none}}
+@keyframes n24SimpleRise{to{opacity:1;transform:translate(-50%,0)}}
+@keyframes n24SimplePop{to{opacity:1;transform:translateX(-50%) scale(1)}}
+@keyframes n24BallShort{to{opacity:1;transform:translateX(56px) rotate(100deg)}}
+
+/* Corrige transformaciones distintas del helper genérico */
+.n24-simple-flower{--n24-x:0}
+.n24-scene.is-visible .n24-simple-flower{animation-name:n24FlowerLite!important}
+.n24-simple-pins{--n24-x:0}
+.n24-scene.is-visible .n24-simple-pins{animation-name:n24PinsLite!important}
+@keyframes n24FlowerLite{to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes n24PinsLite{to{opacity:1;transform:translateY(0)}}
+
+/* Rendimiento: los decorados del resumen no se quedan animando al hacer scroll */
+.n24-story .n24-life-spark,.n24-story .n24-photo-cooking i,.n24-story .n24-photo-sunset span,
+.n24-story .n24-petal,.n24-story .n24-flower-spark,.n24-story .n24-lane-light,.n24-story .n24-bow-spark{animation:none!important}

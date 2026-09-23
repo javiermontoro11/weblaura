@@ -921,3 +921,8 @@ Revisión de regresión posterior a la modularización:
 - Escenas sin fotografía reforzadas para 1/09, 21/09 y 24/09.
 - Cronología móvil más compacta y con mayor protagonismo visual.
 - Se mantiene soporte para prefers-reduced-motion y la autorización privada por servidor.
+
+### Nuestro 24 · 3.4.5
+- Simplificadas las escenas animadas del 1, 21 y 24 de septiembre.
+- Las animaciones del resumen pasan a ser cortas y de una sola ejecución para mejorar fluidez.
+- Se añade content-visibility a las tarjetas de la cronología para reducir trabajo fuera de pantalla.
