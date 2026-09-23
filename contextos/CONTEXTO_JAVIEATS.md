@@ -18,6 +18,12 @@
 
 Experiencia mensual reutilizable a partir del 24/09/2026.
 
+## Corrección final de preview · 3.4.7
+- 21/09: la tarjeta usa el asset privado moment-2026-09-21-yellow-flowers en lugar de SVG/CSS de flores.
+- 24/09: se elimina la ilustración de bolos; queda una composición abstracta crema/coral con corazones y destellos discretos, sin animación continua.
+- Carta: el frontend conserva letter_markdown como única fuente de texto y recupera el layout estable de invitación, CTA, lectura y cierre.
+- No se cambia la lógica de release, archivo, acceso anticipado ni Push; enabled=false y notification_armed=false hasta aprobación.
+
 - Acceso anticipado exclusivamente para Javi; Laura no recibe el payload privado antes del release.
 - Control de fecha/identidad en servidor con Europe/Madrid.
 - Durante el día 24 Inicio muestra hero especial y ambientación global sin alterar navegación ni funcionalidades.

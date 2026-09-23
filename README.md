@@ -15,6 +15,12 @@ JaviEats 3.3.7 mantiene **Nuestra Vida 1.0** como experiencia principal independ
 
 Rama de preview para la celebración mensual de cada día 24.
 
+### Corrección final de preview · 3.4.7
+- El momento del 21/09 reutiliza una imagen amarilla existente mediante el asset privado de la edición; se elimina la ilustración SVG de flores.
+- El momento del 24/09 deja de representar bolos y usa una composición abstracta estática, romántica y ligera, con una entrada corta al entrar en viewport.
+- La carta mantiene su contenido íntegro en Supabase; se restauran las garantías de layout del CTA y del bloque de lectura tras la reescritura de CSS 3.4.6.
+- enabled y notification_armed permanecen desactivados hasta aprobación visual.
+
 - Javi dispone de acceso anticipado para revisar la experiencia; Laura queda bloqueada hasta las 00:00 de Madrid del día 24 mediante autorización del servidor.
 - Inicio adopta una variante visual especial con hero fotográfico, ambiente, entrada animada y CTA `Ver nuestro mes →`.
 - El resumen mensual combina métricas reales y una cronología visual. Septiembre usa ocho escenas: 31/08, 01/09, estreno de Nuestra Vida, atardecer del 16/09, tarde del 19/09 + Entre tú y yo, perritos del 20/09, flores amarillas y plan del 24/09.
