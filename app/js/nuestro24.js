@@ -104,7 +104,10 @@
       if (error || data?.allowed !== true) return;
       const assets = data.assets && typeof data.assets === 'object' ? data.assets : {};
       Object.entries(assets).forEach(([key,url]) => {
-        if ((key === 'ramo-izquierda' || key === 'ramo-derecha') &&
+        const allowedKey = key === 'ramo-izquierda' ||
+          key === 'ramo-derecha' ||
+          /^moment-\d{4}-\d{2}-\d{2}-[a-z0-9-]+$/.test(key);
+        if (allowedKey &&
             typeof url === 'string' &&
             /^data:image\/webp;base64,[A-Za-z0-9+/=]+$/.test(url) &&
             url.length < 100000) heroAssets.set(key,url);
@@ -202,9 +205,24 @@
     inFlight=task;
     try { await task; } finally { if (inFlight===task) inFlight=null; }
   }
+  function privateMomentPhoto(moment) {
+    const url = moment?.asset_key ? heroAssets.get(moment.asset_key) : '';
+    if (!url) return '';
+    return `<img class="n24-scene-photo n24-scene-photo-private" src="${esc(url)}" alt="${esc(moment.title || 'Momento de septiembre')}" loading="lazy" decoding="async">`;
+  }
+  function photoMomentDecor(visual) {
+    if (visual === 'life') return '<div class="n24-photo-decor n24-photo-cooking" aria-hidden="true"><i></i><i></i><span>♥</span></div>';
+    if (visual === 'sunset') return '<div class="n24-photo-decor n24-photo-sunset" aria-hidden="true"><span>✦</span></div>';
+    if (visual === 'together') return '<div class="n24-photo-decor n24-photo-together" aria-hidden="true"><span class="n24-mini-card">J</span><span class="n24-mini-card">L</span><b>♥</b></div>';
+    if (visual === 'dogs') return '<div class="n24-photo-decor n24-photo-dogs" aria-hidden="true"><span>🐾</span><span>🐾</span></div>';
+    return '<div class="n24-photo-decor" aria-hidden="true"></div>';
+  }
   function sceneVisual(moment) {
     const visual = String(moment?.visual || 'generic');
-    const photo = moment?.photo_path ? photoMarkup(moment.photo_path,moment.title,'n24-scene-photo',visual==='reunion') : '';
+    const privatePhoto = privateMomentPhoto(moment);
+    const memoryPhoto = moment?.photo_path ? photoMarkup(moment.photo_path,moment.title,'n24-scene-photo',visual==='reunion') : '';
+    const photo = privatePhoto || memoryPhoto;
+    if (privatePhoto) return `<div class="n24-scene-art n24-art-photo n24-art-photo-${esc(visual)}">${privatePhoto}<div class="n24-photo-vignette"></div>${photoMomentDecor(visual)}</div>`;
     if (visual === 'reunion') return `<div class="n24-scene-art n24-art-reunion">${photo}<span class="n24-photo-glow"></span><span class="n24-photo-heart" aria-hidden="true">♥</span></div>`;
     if (visual === 'home') return '<div class="n24-scene-art n24-art-home" aria-hidden="true"><span class="n24-home-moon"></span><span class="n24-house"><i></i><b></b></span><span class="n24-home-heart">♥</span></div>';
     if (visual === 'life') return '<div class="n24-scene-art n24-art-life" aria-hidden="true"><span class="n24-life-path"></span><span class="n24-life-pin">♥</span><span class="n24-life-spark n24-life-spark-a">✦</span><span class="n24-life-spark n24-life-spark-b">✦</span></div>';
@@ -255,7 +273,7 @@
       const {data,error}=await ctx.client.rpc('obtener_nuestro24',args);
       if (!isCurrent(ctx)) return;
       if (error || !data?.event) { app()?.showToast?.('Este mes todav\u00eda no est\u00e1 disponible.'); return; }
-      await signPhotos(ctx,data.event);
+      await Promise.all([signPhotos(ctx,data.event),fetchHeroAssets(ctx)]);
       if (!isCurrent(ctx)) return;
       mount(); previousFocus=target;
       returnPage=$('page-memories')?.classList.contains('active')?'memories':'home';

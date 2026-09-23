@@ -409,3 +409,7 @@ QA de integridad:
 ## Nuestro 24 · assets privados de hero
 
 `private.nuestro24_assets` almacena los dos ramos del hero fuera del repositorio público. RLS está activado y no existen permisos directos para `anon`/`authenticated`. `public.obtener_nuestro24_assets()` autoriza a Javi en preview y a Laura únicamente después del release de servidor. Las fotografías se cargan como WebP privados y sus bytes no se incluyen en las migraciones versionadas.
+
+## Nuestro 24 · assets de momentos
+
+`private.nuestro24_moments.asset_key` vincula una escena editorial con un asset privado de `private.nuestro24_assets`. Para septiembre 2026 existen assets para 12/09, 16/09, 19/09 y 20/09. Los bytes WebP no se versionan en GitHub; la migración solo versiona esquema, claves y asociaciones. `private.nuestro24_snapshot(date)` incluye `asset_key` en cada momento.

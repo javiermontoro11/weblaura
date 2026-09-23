@@ -908,3 +908,11 @@ Revisión de regresión posterior a la modularización:
 - Los ramos se sirven desde persistencia privada de Supabase; no se versionan las fotografías personales en GitHub.
 - Desktop/iPad muestran tríptico completo; en móvil los ramos se mantienen como franjas laterales y la foto central recibe la mayor parte del ancho.
 - Al abrir JaviEats durante Nuestro 24 aparece una intro breve a pantalla completa, una vez por sesión y edición; no requiere interacción y respeta `prefers-reduced-motion`.
+
+### Momentos con foto y móvil · 3.4.3
+
+- El resumen de septiembre incorpora cuatro fotos reales privadas: cocinitas (12/09), atardecer (16/09), Laura (19/09) y perritos (20/09). El 24/09 permanece sin foto porque el plan todavía no ha ocurrido.
+- Las fotos se comprimen a WebP para reducir carga y se guardan fuera del repositorio público.
+- El 12/09 pasa a “Nuestra Vida y modo cocinitas”.
+- En móvil desaparecen la línea y la columna numerada de la cronología; las escenas usan todo el ancho disponible y reducen padding/interlineado sin truncar texto.
+- Las escenas con fotografía conservan microanimaciones ligeras por temática.

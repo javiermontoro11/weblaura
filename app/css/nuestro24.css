@@ -304,3 +304,53 @@ body.n24-day::before,body.n24-replay::before{
   .n24-entry-copy{opacity:1!important;transform:translate(-50%,0)!important}
   .n24-entry-heart{animation:none!important;opacity:.75!important;transform:translateX(-50%)!important}
 }
+
+
+/* Fotos reales de momentos + compactacion movil · 3.4.3 */
+.n24-art-photo{background:#33272c}
+.n24-art-photo .n24-scene-photo{z-index:0;object-fit:cover;object-position:center}
+.n24-art-photo-life .n24-scene-photo{object-position:center 56%}
+.n24-art-photo-sunset .n24-scene-photo{object-position:center 52%}
+.n24-art-photo-together .n24-scene-photo{object-position:center 38%}
+.n24-art-photo-dogs .n24-scene-photo{object-position:center 53%}
+.n24-photo-vignette{position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(180deg,transparent 50%,rgba(35,20,27,.24) 100%)}
+.n24-photo-decor{position:absolute;inset:0;z-index:2;pointer-events:none;overflow:hidden}
+.n24-photo-cooking i{position:absolute;bottom:28%;width:2px;height:28px;border-radius:50%;background:rgba(255,255,255,.72);filter:blur(.4px);opacity:0}
+.n24-photo-cooking i:first-child{left:40%}.n24-photo-cooking i:nth-child(2){left:54%;height:34px}
+.n24-photo-cooking span{position:absolute;right:18px;bottom:15px;color:#fff7ef;font:1.15rem Georgia,serif;opacity:0}
+.n24-photo-sunset span{position:absolute;right:18%;top:18%;color:rgba(255,247,223,.92);font-size:1.2rem;opacity:0}
+.n24-photo-together{display:flex;align-items:flex-end;justify-content:flex-end;gap:5px;padding:0 15px 13px}
+.n24-photo-together .n24-mini-card{display:grid;place-items:center;width:29px;height:38px;border-radius:8px;background:rgba(255,250,243,.92);color:#843d50;font:700 .7rem Georgia,serif;box-shadow:0 5px 15px rgba(30,15,20,.14);opacity:0;transform:translateY(12px) rotate(-5deg)}
+.n24-photo-together .n24-mini-card:nth-child(2){transform:translateY(12px) rotate(5deg)}
+.n24-photo-together b{margin:0 0 8px 4px;color:#fff8f1;font:400 1.1rem Georgia,serif;opacity:0}
+.n24-photo-dogs span{position:absolute;font-size:1.3rem;opacity:0}.n24-photo-dogs span:first-child{right:18px;bottom:18px;transform:rotate(-16deg)}.n24-photo-dogs span:last-child{right:56px;bottom:48px;transform:rotate(12deg)}
+.n24-scene.is-visible .n24-photo-cooking i{animation:n24Steam 2.2s .4s ease-in-out infinite}
+.n24-scene.is-visible .n24-photo-cooking i:nth-child(2){animation-delay:.8s}
+.n24-scene.is-visible .n24-photo-cooking span{animation:n24SoftPop .55s .8s forwards}
+.n24-scene.is-visible .n24-photo-sunset span{animation:n24Twinkle 2.4s .5s ease-in-out infinite}
+.n24-scene.is-visible .n24-photo-together .n24-mini-card{animation:n24PhotoCard .58s .42s forwards}
+.n24-scene.is-visible .n24-photo-together .n24-mini-card:nth-child(2){animation-delay:.58s}
+.n24-scene.is-visible .n24-photo-together b{animation:n24SoftPop .5s .85s forwards}
+.n24-scene.is-visible .n24-photo-dogs span:first-child{animation:n24Paw .45s .35s forwards}.n24-scene.is-visible .n24-photo-dogs span:last-child{animation:n24Paw .45s .68s forwards}
+@keyframes n24Steam{0%,100%{opacity:0;transform:translateY(10px) scaleX(.7)}45%{opacity:.72}80%{opacity:0;transform:translateY(-22px) translateX(5px) scaleX(1.25)}}
+@keyframes n24SoftPop{to{opacity:1;transform:none}}
+@keyframes n24PhotoCard{to{opacity:1;transform:translateY(0) rotate(-3deg)}}
+
+/* En movil la cronologia deja de gastar una columna lateral. */
+@media(max-width:599px){
+  .n24-story{margin-top:46px}
+  .n24-story-heading{margin-bottom:20px;padding:0 4px}
+  .n24-story-heading>p:last-child{font-size:.83rem;line-height:1.62}
+  .n24-story-line{gap:16px;padding:0}
+  .n24-story-line::before{display:none}
+  .n24-scene{display:block;min-height:0;border-radius:22px;grid-template-columns:none}
+  .n24-scene-index{display:none}
+  .n24-scene-art,.n24-scene:nth-child(even) .n24-scene-art{display:block;grid-column:auto;grid-row:auto;min-height:0;aspect-ratio:4/3}
+  .n24-art-reunion{min-height:0}
+  .n24-scene-copy,.n24-scene:nth-child(even) .n24-scene-copy{display:block;grid-column:auto;grid-row:auto;padding:18px 18px 21px}
+  .n24-scene-date{margin:0 0 7px!important;font-size:.61rem!important}
+  .n24-scene-copy h3{font-size:clamp(1.42rem,7vw,1.82rem);line-height:1.12}
+  .n24-scene-copy>p:last-child{margin-top:11px;font-size:.83rem;line-height:1.62}
+  .n24-scene-photo{object-fit:cover}
+  .n24-art-reunion .n24-scene-photo{object-position:center 43%}
+}

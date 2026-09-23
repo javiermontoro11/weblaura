@@ -490,3 +490,7 @@ Hallazgos y correcciones verificadas:
 ## Nuestro 24 · Hero 3.4.2
 
 El hero usa tres paneles reales: ramo izquierdo, selfie central y ramo derecho. Los ramos son assets privados obtenidos mediante RPC autenticado. Responsive: tríptico completo en tablet/escritorio y franjas florales laterales en móvil. La entrada del día incluye una intro full-screen automática una vez por sesión/edición antes de mostrar Inicio.
+
+## Nuestro 24 · escenas fotográficas 3.4.3
+
+Septiembre añade assets privados a cuatro escenas: 12/09 cocinitas, 16/09 atardecer, 19/09 Laura y 20/09 perritos. El 24/09 no tiene fotografía. En móvil la timeline elimina su carril lateral y renderiza cada escena a ancho completo para ganar espacio útil. Las fotos privadas se cargan por RPC autenticado y mantienen los efectos ligeros de cada escena.
