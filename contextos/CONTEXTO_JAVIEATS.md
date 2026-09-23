@@ -1,4 +1,4 @@
-# CONTEXTO MAESTRO — JAVIEATS 3.3.7
+# CONTEXTO MAESTRO — JAVIEATS 3.4.0 · PREVIEW NUESTRO 24
 
 > **Ámbito:** contexto funcional y técnico general de JaviEats.
 >
@@ -8,9 +8,24 @@
 >
 > **Repositorio:** `javiermontoro11/weblaura`
 >
-> **Rama:** `main`
+> **Rama de trabajo:** `feature/nuestro-24` · `main` sigue siendo la fuente estable
 >
-> **Estado de referencia:** 22 de septiembre de 2026 · JaviEats 3.3.7 · QA final posterior a la modularización; Planes, Puzle y Vales corregidos; Nuestra Vida mantiene su core 1.0 y su retorno explícito a JaviEats.
+> **Estado de referencia:** 23 de septiembre de 2026 · preview de Nuestro 24 en desarrollo; sin merge a `main` hasta aprobación.
+
+---
+
+# NUESTRO 24 · 3.4.0
+
+Experiencia mensual reutilizable a partir del 24/09/2026.
+
+- Acceso anticipado exclusivamente para Javi; Laura no recibe el payload privado antes del release.
+- Control de fecha/identidad en servidor con Europe/Madrid.
+- Durante el día 24 Inicio muestra hero especial y ambientación global sin alterar navegación ni funcionalidades.
+- `app/js/nuestro24.js` renderiza la experiencia y `app/css/nuestro24.css` encapsula tema, escenas y animaciones.
+- Septiembre tiene ocho momentos curados: primera foto, volver a vernos el 1, Nuestra Vida, atardecer/Vallecas, tomar algo + Entre tú y yo, perritos, flores y bolos/helado.
+- Las microescenas se activan mediante IntersectionObserver y respetan `prefers-reduced-motion`.
+- Los momentos no crean Recuerdos individuales; el snapshot mensual completo se archiva como un único `kind=nuestro24`.
+- La carta permanece literal y separada del resto del relato.
 
 ---
 

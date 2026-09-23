@@ -6,7 +6,22 @@
 >
 > Para Nuestra Vida usar `contextos/CONTEXTO_NUESTRA_VIDA.md`.
 >
-> **Estado de referencia:** 22 de septiembre de 2026 · JaviEats 3.3.6 · auditoría de permisos/RLS realizada y primeras migraciones SQL versionadas en GitHub, pendientes de aplicación explícita en producción.
+> **Estado de referencia:** 23 de septiembre de 2026 · Nuestro 24 aplicado en Supabase con release desactivado durante validación del preview.
+
+---
+
+# NUESTRO 24 · PERSISTENCIA
+
+Aplicado el 23/09/2026.
+
+- `private.nuestro24_settings`: configuración privada, identidades autorizadas, foto hero, carta y estado de release/aviso.
+- `private.nuestro24_moments`: selección editorial por mes con fecha, orden, tipo, visual, texto y referencia opcional a Plan/Recuerdo. RLS activado y permisos directos revocados.
+- `private.nuestro24_snapshot(date)`: snapshot de métricas, recuerdos, planes, momentos y carta.
+- Los Planes del resumen se cuentan por `plan_date` y solo si están `confirmada` o `realizada`.
+- `private.nuestro24_tick()`: crea un único archivo mensual `Nuestro 24 · Mes Año` en `public.recuerdos_app`; se vuelve visible desde el día 25.
+- `public.obtener_nuestro24(date)`: RPC autenticado que controla identidad y release con hora del servidor.
+- El Cron `nuestro24-calendar` es no-op mientras `enabled=false`; el aviso exige además `notification_armed=true`.
+- Las fotografías usadas por el archivo mensual quedan protegidas frente al borrado normal.
 
 ---
 

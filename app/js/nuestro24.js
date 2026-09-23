@@ -76,7 +76,7 @@
     return url ? `<img class="${className}" data-n24-image="${esc(path)}" src="${esc(url)}" alt="${esc(alt)}" loading="${eager?'eager':'lazy'}" decoding="async" referrerpolicy="no-referrer">` : '';
   }
   async function signPhotos(ctx, edition) {
-    const paths = [...new Set([edition?.hero_path,...(edition?.memories || []).map(m => m.photo_path)].filter(p => typeof p === 'string' && p))];
+    const paths = [...new Set([edition?.hero_path,...(edition?.memories || []).map(m => m.photo_path),...(edition?.moments || []).map(m => m.photo_path)].filter(p => typeof p === 'string' && p))];
     const missing = paths.filter(path => !signed.has(path) || signed.get(path).expires < now());
     if (!missing.length) return;
     try {
@@ -103,7 +103,7 @@
     const signature = [e.event_date,image,response.preview].join('|');
     if (hero.dataset.signature !== signature) {
       hero.dataset.signature = signature;
-      hero.innerHTML = `${image}<div class="n24-hero-shade"></div><div class="n24-hero-copy"><p class="n24-hero-date">${esc(dateLabel(e.event_date))} \u00b7 ${monthsTogether(e.event_date)} meses juntos</p><h2>Otro 24 contigo.<span>Y queri\u00e9ndonos cada vez m\u00e1s.</span></h2><button class="n24-button n24-button-light" type="button" data-n24-open>Ver nuestro mes \u2192</button>${response.preview && app()?.getRole?.()==='javi'?'<small class="n24-preview-tag">Vista anticipada \u00b7 Solo para Javi</small>':''}</div>`;
+      hero.innerHTML = `${image}<div class="n24-hero-ambient" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div><div class="n24-hero-shade"></div><div class="n24-hero-copy"><p class="n24-hero-date">${esc(dateLabel(e.event_date))} \u00b7 ${monthsTogether(e.event_date)} meses juntos</p><h2>Otro 24 contigo.<span>Y queri\u00e9ndonos cada vez m\u00e1s.</span></h2><button class="n24-button n24-button-light" type="button" data-n24-open>Ver nuestro mes \u2192</button>${response.preview && app()?.getRole?.()==='javi'?'<small class="n24-preview-tag">Vista anticipada \u00b7 Solo para Javi</small>':''}</div>`;
     }
     theme();
   }
@@ -145,21 +145,46 @@
     inFlight=task;
     try { await task; } finally { if (inFlight===task) inFlight=null; }
   }
-  function renderMemories(memories) {
-    const list = (Array.isArray(memories)?memories:[]).slice(0,4);
+  function sceneVisual(moment) {
+    const visual = String(moment?.visual || 'generic');
+    const photo = moment?.photo_path ? photoMarkup(moment.photo_path,moment.title,'n24-scene-photo',visual==='reunion') : '';
+    if (visual === 'reunion') return `<div class="n24-scene-art n24-art-reunion">${photo}<span class="n24-photo-glow"></span><span class="n24-photo-heart" aria-hidden="true">♥</span></div>`;
+    if (visual === 'home') return '<div class="n24-scene-art n24-art-home" aria-hidden="true"><span class="n24-home-moon"></span><span class="n24-house"><i></i><b></b></span><span class="n24-home-heart">♥</span></div>';
+    if (visual === 'life') return '<div class="n24-scene-art n24-art-life" aria-hidden="true"><span class="n24-life-path"></span><span class="n24-life-pin">♥</span><span class="n24-life-spark n24-life-spark-a">✦</span><span class="n24-life-spark n24-life-spark-b">✦</span></div>';
+    if (visual === 'sunset') return '<div class="n24-scene-art n24-art-sunset" aria-hidden="true"><span class="n24-sun"></span><span class="n24-horizon"></span><span class="n24-stadium"><i></i><i></i><i></i><i></i></span></div>';
+    if (visual === 'together') return '<div class="n24-scene-art n24-art-together" aria-hidden="true"><span class="n24-cup n24-cup-a">☕</span><span class="n24-cup n24-cup-b">☕</span><span class="n24-duel-card n24-duel-a">J</span><span class="n24-duel-card n24-duel-b">L</span><span class="n24-together-heart">♥</span></div>';
+    if (visual === 'dogs') return '<div class="n24-scene-art n24-art-dogs" aria-hidden="true"><span class="n24-paw p1">🐾</span><span class="n24-paw p2">🐾</span><span class="n24-paw p3">🐾</span><span class="n24-dog-orb d1">R</span><span class="n24-dog-orb d2">N</span></div>';
+    if (visual === 'flowers') return '<div class="n24-scene-art n24-art-flowers" aria-hidden="true"><span class="n24-flower f1">🌼</span><span class="n24-flower f2">🌼</span><span class="n24-flower f3">🌼</span><span class="n24-flower f4">🌼</span><span class="n24-petal pt1">●</span><span class="n24-petal pt2">●</span><span class="n24-petal pt3">●</span></div>';
+    if (visual === 'bowling') return '<div class="n24-scene-art n24-art-bowling" aria-hidden="true"><span class="n24-ball">●</span><span class="n24-pin pin1">♙</span><span class="n24-pin pin2">♙</span><span class="n24-pin pin3">♙</span><span class="n24-icecream">🍦</span><span class="n24-bow-heart">♥</span></div>';
+    return '<div class="n24-scene-art n24-art-generic" aria-hidden="true"><span>♥</span></div>';
+  }
+  function renderMoments(moments) {
+    const list = (Array.isArray(moments) ? moments : []).slice(0,10);
     if (!list.length) return '';
-    return `<section class="n24-section" aria-labelledby="n24-moments-heading"><p class="n24-kicker">Un poquito de nosotros</p><h2 id="n24-moments-heading">Algunas cosas que<br>nos deja este mes</h2><div class="n24-memories">${list.map(m => {
-      const image=photoMarkup(m.photo_path,m.title,'n24-memory-photo');
-      const media=image?`<button class="n24-photo-button" type="button" data-n24-photo="${esc(m.photo_path)}" aria-label="Ampliar foto: ${esc(m.title)}">${image}<span aria-hidden="true">\u2197</span></button>`:'';
-      return `<article class="n24-memory ${image?'':'n24-memory-text'}">${media}<div class="n24-memory-copy"><time datetime="${esc(m.date)}">${esc(dateLabel(m.date))}</time><h3>${esc(m.title)}</h3>${m.description?`<p>${esc(m.description)}</p>`:''}</div></article>`;
-    }).join('')}</div></section>`;
+    return `<section class="n24-story n24-section" aria-labelledby="n24-story-heading"><div class="n24-story-heading"><p class="n24-kicker">Nuestro septiembre</p><h2 id="n24-story-heading">Un mes contado<br>por momentos</h2><p>No todo vive en Recuerdos. También hay planes, estrenos y pequeños ratitos que hicieron septiembre muy nuestro.</p></div><div class="n24-story-line">${list.map((m,index) => `<article class="n24-scene scene-${esc(m.visual || 'generic')}" data-n24-scene style="--n24-i:${index}"><div class="n24-scene-index" aria-hidden="true">${String(index+1).padStart(2,'0')}</div>${sceneVisual(m)}<div class="n24-scene-copy"><p class="n24-scene-date">${esc(m.eyebrow || dateLabel(m.date))}</p><h3>${esc(m.title)}</h3>${m.description?`<p>${esc(m.description)}</p>`:''}</div></article>`).join('')}</div></section>`;
+  }
+  function activateMomentAnimations() {
+    const scenes = [...document.querySelectorAll('[data-n24-scene]')];
+    if (!scenes.length) return;
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches || !('IntersectionObserver' in root)) {
+      scenes.forEach(scene => scene.classList.add('is-visible'));
+      return;
+    }
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add('is-visible');
+        observer.unobserve(entry.target);
+      });
+    }, {threshold:.32,rootMargin:'0px 0px -8% 0px'});
+    scenes.forEach(scene => observer.observe(scene));
   }
   function renderExperience(data) {
     const e=data.event, page=$('page-nuestro24');
     if (!page) return;
     const letter=renderLetterSection(e.letter_markdown);
     const preview=data.preview?'<p class="n24-preview-note">Vista previa. El resumen se cerrar\u00e1 al comenzar el d\u00eda 24; los datos todav\u00eda pueden cambiar.</p>':'';
-    page.innerHTML=`<div class="n24-topline"><button class="n24-back" type="button" data-n24-back>\u2190 Volver</button><span>Javi + Laura</span></div><article class="n24-month"><header class="n24-intro"><p class="n24-kicker">${esc(dateLabel(e.event_date))} \u00b7 ${monthsTogether(e.event_date)} meses juntos</p><h1 tabindex="-1">Un mes m\u00e1s<br>para recordar</h1><p>Entre planes, recuerdos y peque\u00f1os momentos, JaviEats ha ido guardando un poquito m\u00e1s de vuestra historia.</p>${preview}</header><figure class="n24-cover">${photoMarkup(e.hero_path,'Javi y Laura','n24-cover-photo',true)}<figcaption>Otro 24 contigo.</figcaption></figure>${renderMetrics(e.metrics)}${renderMemories(e.memories)}${letter}<footer class="n24-ending" ${letter?'hidden':''}><p>Otro 24 m\u00e1s.<br>Y todav\u00eda quedan muchos. \u2764\ufe0f</p><div class="n24-end-buttons"><button class="n24-button" type="button" data-n24-home>Volver a JaviEats</button><button class="n24-text-button" type="button" data-n24-memories>Ver nuestros recuerdos</button></div></footer></article>`;
+    page.innerHTML=`<div class="n24-topline"><button class="n24-back" type="button" data-n24-back>\u2190 Volver</button><span>Javi + Laura</span></div><article class="n24-month"><header class="n24-intro"><p class="n24-kicker">${esc(dateLabel(e.event_date))} \u00b7 ${monthsTogether(e.event_date)} meses juntos</p><h1 tabindex="-1">Un mes m\u00e1s<br>para recordar</h1><p>Entre planes, recuerdos y peque\u00f1os momentos, JaviEats ha ido guardando un poquito m\u00e1s de vuestra historia.</p>${preview}</header><figure class="n24-cover">${photoMarkup(e.hero_path,'Javi y Laura','n24-cover-photo',true)}<figcaption>Otro 24 contigo.</figcaption></figure>${renderMetrics(e.metrics)}${renderMoments(e.moments)}${letter}<footer class="n24-ending" ${letter?'hidden':''}><p>Otro 24 m\u00e1s.<br>Y todav\u00eda quedan muchos. \u2764\ufe0f</p><div class="n24-end-buttons"><button class="n24-button" type="button" data-n24-home>Volver a JaviEats</button><button class="n24-text-button" type="button" data-n24-memories>Ver nuestros recuerdos</button></div></footer></article>`;
   }
   async function open(eventDate = null) {
     if (opening) return;
@@ -178,7 +203,7 @@
       mount(); previousFocus=target;
       returnPage=$('page-memories')?.classList.contains('active')?'memories':'home';
       renderExperience(data);
-      app()?.showPage?.('nuestro24'); theme();
+      app()?.showPage?.('nuestro24'); theme(); activateMomentAnimations();
       requestAnimationFrame(()=>{$('page-nuestro24')?.querySelector('h1')?.focus({preventScroll:true});});
     } catch (_) { if(isCurrent(ctx)) app()?.showToast?.('No se ha podido abrir el mes. Revisa la conexi\u00f3n e int\u00e9ntalo de nuevo.'); }
     finally { if(isCurrent(ctx)) opening=false; target?.removeAttribute('aria-busy'); }

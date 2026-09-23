@@ -1,13 +1,29 @@
 # JaviEats 💌
 
 **Versión de producto: 3.3 — ESTABLE**  
-**Mantenimiento actual: 3.3.7**
+**Mantenimiento actual: 3.4.0 — Nuestro 24 (preview)**
 
 JaviEats es una aplicación web privada creada para Laura y Javi. Reúne planes compartidos, recuerdos, minijuegos, actividad, notificaciones y un espacio común pensado para funcionar como una PWA en móvil, tablet y escritorio.
 
 JaviEats 3.3.7 mantiene **Nuestra Vida 1.0** como experiencia principal independiente y cierra una revisión de estabilidad posterior a la modularización. Corrige regresiones visuales y de interacción en Planes y Recompensas sin modificar el esquema de Supabase ni el core de Nuestra Vida.
 
 > **Estado actual:** `main` sigue siendo la fuente de verdad. JaviEats 3.3.7 consolida el mantenimiento técnico con un hotfix de Planes, Puzle y Vales. Nuestra Vida conserva su core 1.0 y su retorno explícito a JaviEats.
+
+---
+
+## ❤️ JaviEats 3.4.0 · Nuestro 24
+
+Rama de preview para la celebración mensual de cada día 24.
+
+- Javi dispone de acceso anticipado para revisar la experiencia; Laura queda bloqueada hasta las 00:00 de Madrid del día 24 mediante autorización del servidor.
+- Inicio adopta una variante visual especial con hero fotográfico, ambiente, entrada animada y CTA `Ver nuestro mes →`.
+- El resumen mensual combina métricas reales y una cronología visual. Septiembre usa ocho escenas: 31/08, 01/09, estreno de Nuestra Vida, atardecer del 16/09, tarde del 19/09 + Entre tú y yo, perritos del 20/09, flores amarillas y plan del 24/09.
+- Cada escena tiene una microanimación propia activada al entrar en viewport; `prefers-reduced-motion` ofrece una versión estática.
+- Los momentos no se convierten automáticamente en Recuerdos individuales. El resumen mensual completo se archiva como una única experiencia `Nuestro 24 · Mes Año` desde el día 25.
+- Las métricas de Planes se basan en `plan_date` y estados `confirmada/realizada`.
+- La carta de septiembre permanece separada, privada y sin modificaciones.
+- Persistencia: `private.nuestro24_settings`, `private.nuestro24_moments`, snapshot mensual y archivo en `public.recuerdos_app`.
+- El release y el aviso Push siguen desarmados mientras se valida el preview.
 
 ---
 
