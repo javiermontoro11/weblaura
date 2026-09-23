@@ -917,12 +917,11 @@ Revisión de regresión posterior a la modularización:
 - En móvil desaparecen la línea y la columna numerada de la cronología; las escenas usan todo el ancho disponible y reducen padding/interlineado sin truncar texto.
 - Las escenas con fotografía conservan microanimaciones ligeras por temática.
 
-### Nuestro 24 · 3.4.4
-- Escenas sin fotografía reforzadas para 1/09, 21/09 y 24/09.
-- Cronología móvil más compacta y con mayor protagonismo visual.
-- Se mantiene soporte para prefers-reduced-motion y la autorización privada por servidor.
 
-### Nuestro 24 · 3.4.5
-- Simplificadas las escenas animadas del 1, 21 y 24 de septiembre.
-- Las animaciones del resumen pasan a ser cortas y de una sola ejecución para mejorar fluidez.
-- Se añade content-visibility a las tarjetas de la cronología para reducir trabajo fuera de pantalla.
+### Nuestro 24 · 3.4.6
+- CSS reescrito desde cero: sin reglas heredadas acumuladas, sin animaciones infinitas y con cinco keyframes acotados.
+- Las escenas sin foto del 1, 21 y 24 usan ilustraciones SVG ligeras; las flores del 21 son vectoriales y amarillas reales, sin emojis.
+- Los assets privados se solicitan por fecha de edición para que cada recuerdo archivado recupere solo sus imágenes. La clave es (edition_date, asset_key), permitiendo reutilizar nombres como ramo-izquierda en futuros meses sin pisar ediciones anteriores.
+- Corregida la carrera de medianoche para que Laura no reciba estado preview después del release.
+- send-push v4 admite nuestro24, conserva los tipos anteriores y su TTL especial caduca al cambiar de día en Europe/Madrid.
+- Preview de Javi limitado al 23–24 de cada edición; Laura solo entra desde el release del 24 y el archivo del día 25 funciona aunque se desactive un futuro evento.\n- Release y aviso continúan desactivados hasta aprobación explícita.

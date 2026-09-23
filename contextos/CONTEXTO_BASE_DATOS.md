@@ -413,3 +413,31 @@ QA de integridad:
 ## Nuestro 24 · assets de momentos
 
 `private.nuestro24_moments.asset_key` vincula una escena editorial con un asset privado de `private.nuestro24_assets`. Para septiembre 2026 existen assets para 12/09, 16/09, 19/09 y 20/09. Los bytes WebP no se versionan en GitHub; la migración solo versiona esquema, claves y asociaciones. `private.nuestro24_snapshot(date)` incluye `asset_key` en cada momento.
+
+
+## Nuestro 24 · Hardening de release · 23/09/2026
+- Migración aplicada: nuestro24_release_hardening (20260923183134).
+- private.nuestro24_assets incorpora edition_date NOT NULL; cada asset queda asociado a una edición de día 24.
+- public.obtener_nuestro24_assets(date) autoriza por identidad, fecha y estado de archivo/release y devuelve solo los assets de la edición solicitada.
+- public.obtener_nuestro24(date) conserva preview para Javi, bloquea a Laura antes del release y no marca como preview el fallback una vez publicado.
+- Ambos RPC mantienen SECURITY DEFINER de forma intencionada, EXECUTE solo para authenticated/service_role y validación interna de auth.uid().
+- Edge Function send-push v4 reconoce tipo nuestro24 y mantiene los tipos previos; su TTL especial dura hasta el siguiente cambio de día en Europe/Madrid.
+- Pendiente de aprobación: enabled=false y notification_armed=false.
+
+
+### Ajuste de ventana preview/archivo
+Migración aplicada: nuestro24_archive_preview_window (20260923184719).
+
+- Preview de Javi: solo desde el día 23 hasta el final del 24 de cada edición.
+- Laura: no recibe contenido ni assets antes del release del 24.
+- Desde el día 25 un archivo ya creado se puede abrir aunque enabled se haya desactivado para un evento futuro.
+- El hero especial nunca continúa activo el día 25.
+
+
+### Namespace de assets por edición
+Migración aplicada: nuestro24_asset_keys_per_edition (20260923185259).
+
+- La PK de private.nuestro24_assets pasa de asset_key a (edition_date, asset_key).
+- Cada edición puede reutilizar claves locales como ramo-izquierda, ramo-derecha o nombres equivalentes sin sobrescribir meses anteriores.
+- Se eliminó el índice simple edition_date porque la PK compuesta ya lo cubre por prefijo.
+- Verificación transaccional: se pudo insertar ramo-izquierda para 2026-10-24 coexistiendo con septiembre y la prueba fue revertida.

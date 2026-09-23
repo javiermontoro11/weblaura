@@ -95,24 +95,29 @@
       });
     } catch (_) { /* Missing photos must never prevent reading the month or letter. */ }
   }
-  async function fetchHeroAssets(ctx) {
-    if (!ctx || assetsFetchedFor === ctx.id) return;
-    assetsFetchedFor = ctx.id;
+  async function fetchHeroAssets(ctx,eventDate) {
+    if (!ctx || !validDay(eventDate)) return;
+    const cacheKey = `${ctx.id}|${eventDate}`;
+    if (assetsFetchedFor === cacheKey) return;
+    heroAssets.clear();
     try {
-      const {data,error} = await ctx.client.rpc('obtener_nuestro24_assets');
+      const {data,error} = await ctx.client.rpc('obtener_nuestro24_assets',{p_event_date:eventDate});
       if (!isCurrent(ctx)) return;
-      if (error || data?.allowed !== true) return;
+      if (error || data?.allowed !== true || data?.event_date !== eventDate) return;
       const assets = data.assets && typeof data.assets === 'object' ? data.assets : {};
       Object.entries(assets).forEach(([key,url]) => {
         const allowedKey = key === 'ramo-izquierda' ||
           key === 'ramo-derecha' ||
           /^moment-\d{4}-\d{2}-\d{2}-[a-z0-9-]+$/.test(key);
-        if (allowedKey &&
-            typeof url === 'string' &&
-            /^data:image\/webp;base64,[A-Za-z0-9+/=]+$/.test(url) &&
-            url.length < 100000) heroAssets.set(key,url);
+        if (
+          allowedKey &&
+          typeof url === 'string' &&
+          /^data:image\/webp;base64,[A-Za-z0-9+/=]+$/.test(url) &&
+          url.length < 100000
+        ) heroAssets.set(key,url);
       });
-    } catch (_) { /* The hero remains usable with the centre photo only. */ }
+      assetsFetchedFor = cacheKey;
+    } catch (_) { /* Private assets are optional decoration, never a content gate. */ }
   }
   function heroSide(key, className, alt) {
     const url = heroAssets.get(key);
@@ -192,7 +197,7 @@
         if (error) throw error;
         const previouslyActive = heroActive();
         response = data; receivedAt = now(); lastFetch = now();
-        await Promise.all([signPhotos(ctx,data?.event),fetchHeroAssets(ctx)]);
+        await Promise.all([signPhotos(ctx,data?.event),fetchHeroAssets(ctx,data?.event?.event_date)]);
         if (!isCurrent(ctx)) return;
         renderHome(); maybeShowEntry(data?.event); schedule();
         if (previouslyActive && !heroActive()) void app()?.refresh?.({silent:true,reason:'nuestro24-archive'});
@@ -210,28 +215,25 @@
     if (!url) return '';
     return `<img class="n24-scene-photo n24-scene-photo-private" src="${esc(url)}" alt="${esc(moment.title || 'Momento de septiembre')}" loading="lazy" decoding="async">`;
   }
-  function photoMomentDecor(visual) {
-    if (visual === 'life') return '<div class="n24-photo-decor n24-photo-cooking" aria-hidden="true"><i></i><i></i><span>♥</span></div>';
-    if (visual === 'sunset') return '<div class="n24-photo-decor n24-photo-sunset" aria-hidden="true"><span>✦</span></div>';
-    if (visual === 'together') return '<div class="n24-photo-decor n24-photo-together" aria-hidden="true"><span class="n24-mini-card">J</span><span class="n24-mini-card">L</span><b>♥</b></div>';
-    if (visual === 'dogs') return '<div class="n24-photo-decor n24-photo-dogs" aria-hidden="true"><span>🐾</span><span>🐾</span></div>';
-    return '<div class="n24-photo-decor" aria-hidden="true"></div>';
+  function homeIllustration() {
+    return '<div class="n24-scene-art n24-illustration n24-illustration-home" aria-hidden="true"><svg viewBox="0 0 320 220" role="presentation"><circle class="n24-i-moon" cx="248" cy="48" r="27" fill="#FFF0CF"/><g class="n24-i-house"><path d="M93 118L160 61l67 57v77H93z" fill="#F4E7DC"/><path d="M82 119l78-67 78 67-12 14-66-56-66 56z" fill="#815B68"/><rect x="111" y="137" width="30" height="31" rx="5" fill="#FFD894"/><rect x="176" y="145" width="29" height="50" rx="5" fill="#715360"/></g><path class="n24-i-heart" d="M241 137c-8-10-25 2-11 15l11 10 11-10c14-13-3-25-11-15z" fill="#F3A7B0"/></svg></div>';
+  }
+  function flowersIllustration() {
+    return '<div class="n24-scene-art n24-illustration n24-illustration-flowers" aria-hidden="true"><svg viewBox="0 0 320 220" role="presentation"><g stroke="#6F8D61" stroke-width="5" stroke-linecap="round" fill="none"><path class="n24-i-stem s1" d="M106 190L101 119"/><path class="n24-i-stem s2" d="M160 194L160 101"/><path class="n24-i-stem s3" d="M214 190L221 121"/></g><g class="n24-i-flower f1" transform="translate(101 111)"><g fill="#F4CE4B"><ellipse rx="13" ry="24" transform="rotate(0) translate(0 -15)"/><ellipse rx="13" ry="24" transform="rotate(60) translate(0 -15)"/><ellipse rx="13" ry="24" transform="rotate(120) translate(0 -15)"/></g><circle r="10" fill="#B47A24"/></g><g class="n24-i-flower f2" transform="translate(160 93)"><g fill="#F6D85F"><ellipse rx="14" ry="26" transform="rotate(0) translate(0 -16)"/><ellipse rx="14" ry="26" transform="rotate(60) translate(0 -16)"/><ellipse rx="14" ry="26" transform="rotate(120) translate(0 -16)"/></g><circle r="11" fill="#AE7521"/></g><g class="n24-i-flower f3" transform="translate(221 113)"><g fill="#F3C844"><ellipse rx="12" ry="23" transform="rotate(0) translate(0 -14)"/><ellipse rx="12" ry="23" transform="rotate(60) translate(0 -14)"/><ellipse rx="12" ry="23" transform="rotate(120) translate(0 -14)"/></g><circle r="9" fill="#B47A24"/></g><path class="n24-i-flower-heart" d="M160 45c-7-9-21 1-10 13l10 9 10-9c11-12-3-22-10-13z" fill="#D4A326"/></svg></div>';
+  }
+  function bowlingIllustration() {
+    return '<div class="n24-scene-art n24-illustration n24-illustration-bowling" aria-hidden="true"><svg viewBox="0 0 320 220" role="presentation"><g class="n24-i-pins" transform="translate(176 62)"><g transform="translate(0 15)"><path d="M14 0c8 0 12 7 10 17-1 8-7 14-7 24 0 8 7 14 7 25 0 13-9 20-24 20s-24-7-24-20c0-11 7-17 7-25 0-10-6-16-7-24C-26 7-22 0-14 0z" transform="translate(18)" fill="#FFFDF8"/><rect x="6" y="20" width="24" height="7" rx="3.5" fill="#D97D88"/></g><g transform="translate(44 0) scale(.92)"><path d="M14 0c8 0 12 7 10 17-1 8-7 14-7 24 0 8 7 14 7 25 0 13-9 20-24 20s-24-7-24-20c0-11 7-17 7-25 0-10-6-16-7-24C-26 7-22 0-14 0z" transform="translate(18)" fill="#FFFDF8"/><rect x="6" y="20" width="24" height="7" rx="3.5" fill="#D97D88"/></g><g transform="translate(88 15)"><path d="M14 0c8 0 12 7 10 17-1 8-7 14-7 24 0 8 7 14 7 25 0 13-9 20-24 20s-24-7-24-20c0-11 7-17 7-25 0-10-6-16-7-24C-26 7-22 0-14 0z" transform="translate(18)" fill="#FFFDF8"/><rect x="6" y="20" width="24" height="7" rx="3.5" fill="#D97D88"/></g></g><g transform="translate(78 150)"><g class="n24-i-ball"><circle r="34" fill="#684E69"/><circle cx="-7" cy="-9" r="4" fill="#BDA9BD"/><circle cx="7" cy="-10" r="4" fill="#BDA9BD"/><circle cy="3" r="4" fill="#BDA9BD"/></g></g><g class="n24-i-ice" transform="translate(260 42)"><path d="M-14 14h28L0 48z" fill="#DCA66C"/><circle cy="4" r="17" fill="#F4B49D"/><circle cy="-8" r="12" fill="#FFF1D0"/></g><path class="n24-i-bow-heart" d="M232 54c-5-7-16 1-8 10l8 7 8-7c8-9-3-17-8-10z" fill="#D67B8D"/></svg></div>';
   }
   function sceneVisual(moment) {
     const visual = String(moment?.visual || 'generic');
     const privatePhoto = privateMomentPhoto(moment);
     const memoryPhoto = moment?.photo_path ? photoMarkup(moment.photo_path,moment.title,'n24-scene-photo',visual==='reunion') : '';
     const photo = privatePhoto || memoryPhoto;
-    if (privatePhoto) return `<div class="n24-scene-art n24-art-photo n24-art-photo-${esc(visual)}">${privatePhoto}<div class="n24-photo-vignette"></div>${photoMomentDecor(visual)}</div>`;
-    if (visual === 'reunion') return `<div class="n24-scene-art n24-art-reunion">${photo}<span class="n24-photo-glow"></span><span class="n24-photo-heart" aria-hidden="true">♥</span></div>`;
-    if (visual === 'home') return '<div class="n24-scene-art n24-art-home n24-simple-home" aria-hidden="true"><span class="n24-simple-moon"></span><span class="n24-simple-house"><i></i></span><span class="n24-simple-heart">♥</span></div>';
-    if (visual === 'life') return '<div class="n24-scene-art n24-art-life" aria-hidden="true"><span class="n24-life-path"></span><span class="n24-life-pin">♥</span><span class="n24-life-spark n24-life-spark-a">✦</span><span class="n24-life-spark n24-life-spark-b">✦</span></div>';
-    if (visual === 'sunset') return '<div class="n24-scene-art n24-art-sunset" aria-hidden="true"><span class="n24-sun"></span><span class="n24-horizon"></span><span class="n24-stadium"><i></i><i></i><i></i><i></i></span></div>';
-    if (visual === 'together') return '<div class="n24-scene-art n24-art-together" aria-hidden="true"><span class="n24-cup n24-cup-a">☕</span><span class="n24-cup n24-cup-b">☕</span><span class="n24-duel-card n24-duel-a">J</span><span class="n24-duel-card n24-duel-b">L</span><span class="n24-together-heart">♥</span></div>';
-    if (visual === 'dogs') return '<div class="n24-scene-art n24-art-dogs" aria-hidden="true"><span class="n24-paw p1">🐾</span><span class="n24-paw p2">🐾</span><span class="n24-paw p3">🐾</span><span class="n24-dog-orb d1">R</span><span class="n24-dog-orb d2">N</span></div>';
-    if (visual === 'flowers') return '<div class="n24-scene-art n24-art-flowers n24-simple-flowers" aria-hidden="true"><span class="n24-simple-flower f1">🌼</span><span class="n24-simple-flower f2">🌼</span><span class="n24-simple-flower f3">🌼</span><span class="n24-simple-flower-heart">♥</span></div>';
-    if (visual === 'bowling') return '<div class="n24-scene-art n24-art-bowling n24-simple-bowling" aria-hidden="true"><span class="n24-simple-ball"></span><span class="n24-simple-pins"><i></i><i></i><i></i></span><span class="n24-simple-ice">🍦</span><span class="n24-simple-bow-heart">♥</span></div>';
-    return '<div class="n24-scene-art n24-art-generic" aria-hidden="true"><span>♥</span></div>';
+    if (photo) return `<div class="n24-scene-art n24-art-photo">${photo}<span class="n24-photo-vignette" aria-hidden="true"></span></div>`;
+    if (visual === 'home') return homeIllustration();
+    if (visual === 'flowers') return flowersIllustration();
+    if (visual === 'bowling') return bowlingIllustration();
+    return '<div class="n24-scene-art n24-illustration n24-illustration-generic" aria-hidden="true"><span>♥</span></div>';
   }
   function renderMoments(moments) {
     const list = (Array.isArray(moments) ? moments : []).slice(0,10);
@@ -258,7 +260,7 @@
     const e=data.event, page=$('page-nuestro24');
     if (!page) return;
     const letter=renderLetterSection(e.letter_markdown);
-    const preview=data.preview?'<p class="n24-preview-note">Vista previa. El resumen se cerrar\u00e1 al comenzar el d\u00eda 24; los datos todav\u00eda pueden cambiar.</p>':'';
+    const preview=data.preview?'<p class="n24-preview-note">Vista anticipada solo para Javi. Los datos pueden cambiar hasta la publicaci\\u00f3n.</p>':'';
     page.innerHTML=`<div class="n24-topline"><button class="n24-back" type="button" data-n24-back>\u2190 Volver</button><span>Javi + Laura</span></div><article class="n24-month"><header class="n24-intro"><p class="n24-kicker">${esc(dateLabel(e.event_date))} \u00b7 ${monthsTogether(e.event_date)} meses juntos</p><h1 tabindex="-1">Un mes m\u00e1s<br>para recordar</h1><p>Entre planes, recuerdos y peque\u00f1os momentos, JaviEats ha ido guardando un poquito m\u00e1s de vuestra historia.</p>${preview}</header><figure class="n24-cover">${photoMarkup(e.hero_path,'Javi y Laura','n24-cover-photo',true)}<figcaption>Otro 24 contigo.</figcaption></figure>${renderMetrics(e.metrics)}${renderMoments(e.moments)}${letter}<footer class="n24-ending" ${letter?'hidden':''}><p>Otro 24 m\u00e1s.<br>Y todav\u00eda quedan muchos. \u2764\ufe0f</p><div class="n24-end-buttons"><button class="n24-button" type="button" data-n24-home>Volver a JaviEats</button><button class="n24-text-button" type="button" data-n24-memories>Ver nuestros recuerdos</button></div></footer></article>`;
   }
   async function open(eventDate = null) {
@@ -273,7 +275,7 @@
       const {data,error}=await ctx.client.rpc('obtener_nuestro24',args);
       if (!isCurrent(ctx)) return;
       if (error || !data?.event) { app()?.showToast?.('Este mes todav\u00eda no est\u00e1 disponible.'); return; }
-      await Promise.all([signPhotos(ctx,data.event),fetchHeroAssets(ctx)]);
+      await Promise.all([signPhotos(ctx,data.event),fetchHeroAssets(ctx,data.event.event_date)]);
       if (!isCurrent(ctx)) return;
       mount(); previousFocus=target;
       returnPage=$('page-memories')?.classList.contains('active')?'memories':'home';

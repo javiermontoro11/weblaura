@@ -496,9 +496,10 @@ El hero usa tres paneles reales: ramo izquierdo, selfie central y ramo derecho. 
 Septiembre añade assets privados a cuatro escenas: 12/09 cocinitas, 16/09 atardecer, 19/09 Laura y 20/09 perritos. El 24/09 no tiene fotografía. En móvil la timeline elimina su carril lateral y renderiza cada escena a ancho completo para ganar espacio útil. Las fotos privadas se cargan por RPC autenticado y mantienen los efectos ligeros de cada escena.
 
 
-## Nuestro 24 · 3.4.4
-El resumen de septiembre incorpora las cuatro fotos privadas ya asociadas a sus momentos y refuerza las escenas sin foto del 1, 21 y 24 de septiembre. En móvil se reduce la altura y el padding de las tarjetas. No cambia la lógica de autorización, archivo ni carta privada.
 
+## Nuestro 24 · 3.4.6
+La experiencia queda consolidada en una única hoja CSS limpia. El hero mantiene el collage ramo/selfie/ramo y la intro automática. La cronología usa las cuatro fotografías privadas y tres ilustraciones SVG ligeras para 1/09, 21/09 y 24/09, sin animaciones infinitas.
 
-## Nuestro 24 · 3.4.5
-Se simplifican las escenas sin foto del 1, 21 y 24 de septiembre y se eliminan animaciones infinitas de la cronología. Las escenas se animan una sola vez al entrar en pantalla y usan content-visibility para mejorar rendimiento, especialmente en móvil.
+Los assets privados se cargan por edición mediante public.obtener_nuestro24_assets(date) y se identifican por la clave compuesta (edition_date, asset_key), por lo que futuros meses pueden reutilizar nombres locales sin sobrescribir el histórico. El replay de un recuerdo archivado solicita los assets de su propia fecha. Se corrige además el fallback de medianoche para que Laura no vea preview tras el release.
+
+send-push está en v4 y reconoce nuestro24. El preview de Javi se limita al día anterior y al propio 24; Laura sigue bloqueada hasta el release. Desde el día 25 los archivos históricos no dependen de enabled. El aviso continúa desarmado hasta aprobación explícita; main no se modifica hasta completar QA y validación visual.
