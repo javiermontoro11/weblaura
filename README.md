@@ -15,6 +15,10 @@ JaviEats 3.3.7 mantiene **Nuestra Vida 1.0** como experiencia principal independ
 
 Rama de preview para la celebración mensual de cada día 24.
 
+### Corrección de encuadre en Inicio · 3.4.9
+- La tarjeta “Último recuerdo” de Inicio usa el mismo foco vertical que el resto de vistas de Nuestro 24 para que las caras no queden cortadas.
+- Se actualiza únicamente el encuadre de la imagen; no cambia el contenido ni el comportamiento de la tarjeta.
+
 ### Ajuste visual de fotos y carrusel · 3.4.8
 - La foto principal procedente de Recuerdos conserva el archivo completo y cambia únicamente el punto de encuadre para priorizar las caras en Inicio, portada, momento de reencuentro y tarjeta archivada.
 - El momento del 24/09 reemplaza la composición abstracta por un carrusel privado de dos fotos reales de los bolos, con flechas, indicadores y desplazamiento táctil mediante scroll-snap.

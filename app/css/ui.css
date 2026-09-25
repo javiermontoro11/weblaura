@@ -335,7 +335,7 @@ body.javieats-v3::after {
   padding: 18px; border: 0; border-radius: 28px; background: linear-gradient(145deg,#2f2a27,#171615); color:#fff; text-align:left;
   box-shadow: var(--v3-shadow);
 }
-.v3-memory-hero.has-image { background-image: var(--memory-image); background-size: cover; background-position: center; }
+.v3-memory-hero.has-image { background-image: var(--memory-image); background-size: cover; background-position: 50% 24%; }
 .v3-memory-hero-shade { position:absolute; inset:0; background:linear-gradient(180deg,rgba(0,0,0,.04) 28%,rgba(0,0,0,.76) 100%); }
 .v3-memory-hero-copy { position:relative; z-index:2; max-width: 88%; }
 .v3-memory-hero-copy small { display:block; margin-bottom:5px; color:rgba(255,255,255,.68); font-size:.66rem; font-weight:850; text-transform:capitalize; }
