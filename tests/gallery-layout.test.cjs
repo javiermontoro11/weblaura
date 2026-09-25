@@ -17,6 +17,7 @@ test('gallery photos are never cropped inside cards', () => {
   assert.match(css, /\.couple-gallery-photo-wrap img\{[^}]*object-fit:contain/);
 });
 
-test('mobile returns to the previous two-column layout', () => {
-  assert.match(css, /@media\(max-width:520px\)[\s\S]*grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
+test('mobile keeps the user-selected column count', () => {
+  const mobile = css.match(/@media\(max-width:520px\)\{([\s\S]*)\}$/)?.[1] || '';
+  assert.doesNotMatch(mobile, /grid-template-columns:/);
 });
