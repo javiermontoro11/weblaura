@@ -37,6 +37,7 @@ as $$
 $$;
 
 revoke all on function private.galeria_usuario_permitido() from public;
+grant usage on schema private to authenticated;
 grant execute on function private.galeria_usuario_permitido() to authenticated;
 
 drop policy if exists galeria_app_select_javi_laura on public.galeria_app;
