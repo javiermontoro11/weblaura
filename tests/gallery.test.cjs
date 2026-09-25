@@ -44,3 +44,30 @@ test('signed URL freshness respects the refresh margin', () => {
   assert.equal(gallery.isSignedUrlFresh({ expiresAt: now + (4 * 60 * 1000) }, now), false);
   assert.equal(gallery.isSignedUrlFresh(null, now), false);
 });
+
+test('downloadFilename always uses a jpeg extension', () => {
+  assert.equal(
+    gallery.downloadFilename({ id: 'abcdef123456', fecha: '2026-09-25' }),
+    'JaviEats-2026-09-25-abcdef12.jpg'
+  );
+});
+
+test('deleteGalleryAsset removes storage before deleting the database row', async () => {
+  const calls = [];
+  await gallery.deleteGalleryAsset(
+    { id: 'row-1', image_path: 'gallery/a.webp' },
+    async path => { calls.push(`storage:${path}`); },
+    async id => { calls.push(`row:${id}`); }
+  );
+  assert.deepEqual(calls, ['storage:gallery/a.webp', 'row:row-1']);
+});
+
+test('deleteGalleryAsset keeps the row when storage deletion fails', async () => {
+  const calls = [];
+  await assert.rejects(() => gallery.deleteGalleryAsset(
+    { id: 'row-1', image_path: 'gallery/a.webp' },
+    async () => { calls.push('storage'); throw new Error('storage failed'); },
+    async () => { calls.push('row'); }
+  ));
+  assert.deepEqual(calls, ['storage']);
+});

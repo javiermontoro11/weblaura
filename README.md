@@ -13,6 +13,14 @@ JaviEats 3.3.7 mantiene **Nuestra Vida 1.0** como experiencia principal independ
 
 ## 📸 JaviEats 3.5.0 · Nuestra galería
 
+### Galería · encuadre, grid y limpieza · 3.5.1
+- La cuadrícula pasa a un formato tipo perfil de Instagram: piezas cuadradas, prácticamente unidas, sin tarjetas redondeadas ni sombras.
+- Cada miniatura mantiene la foto completa con `object-fit: contain`, usando una copia desenfocada de fondo para rellenar el cuadrado sin cortar cabezas.
+- En móvil se muestran 3 columnas; fecha y descripción permanecen disponibles en el visor y aparecen como overlay al pasar por encima en escritorio.
+- Las descargas se entregan como JPEG de alta calidad sin almacenar una segunda copia en Supabase.
+- El borrado elimina primero el objeto privado de Storage y después confirma la eliminación de su fila en `galeria_app`, evitando archivos huérfanos.
+
+
 - Recuerdos incorpora dos vistas: **Nuestros recuerdos** y **Nuestra galería**.
 - Nuestra galería muestra fotos sueltas en una cuadrícula responsive (6 columnas en escritorio, 4/3 en tamaños intermedios y 2 en móvil).
 - Javi y Laura pueden subir hasta 10 fotos por operación, asignar fecha y descripción, abrir un visor, navegar con flechas/swipe, descargar, editar metadatos y eliminar.

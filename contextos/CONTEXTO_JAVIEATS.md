@@ -1,6 +1,7 @@
 # CONTEXTO MAESTRO — JAVIEATS 3.4.0 · PREVIEW NUESTRO 24
 
 ## Nuestra galería · 25/09/2026
+- Ajuste 3.5.1: grid tipo Instagram sin huecos visuales, miniaturas cuadradas con foto completa, 3 columnas en móvil, descarga JPEG y borrado Storage→BD para evitar objetos huérfanos.
 - Nueva vista dentro de Recuerdos: **Nuestros recuerdos | Nuestra galería**.
 - Grid: 6 columnas escritorio, 4/3 intermedio y 2 móvil.
 - Subida compartida Javi/Laura: máximo 10 fotos por operación, fecha y descripción común inicialmente; después cada foto puede editarse individualmente.

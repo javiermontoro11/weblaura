@@ -58,6 +58,66 @@
     return Boolean(entry && Number(entry.expiresAt) - now > SIGNED_URL_REFRESH_MARGIN_MS);
   }
 
+
+  function downloadFilename(item = {}) {
+    const date = String(item.fecha || "foto");
+    const suffix = String(item.id || "imagen").replace(/[^a-zA-Z0-9]/g, "").slice(0, 8) || "imagen";
+    return `JaviEats-${date}-${suffix}.jpg`;
+  }
+
+  async function deleteGalleryAsset(item, removeStorage, deleteRow) {
+    if (!item?.image_path || !item?.id) throw new Error("Foto de galería inválida.");
+    await removeStorage(item.image_path);
+    await deleteRow(item.id);
+    return true;
+  }
+
+  async function blobToJpeg(blob, quality = 0.97) {
+    if (blob?.type === "image/jpeg") return blob;
+    if (typeof document === "undefined") throw new Error("La conversión JPEG requiere navegador.");
+
+    let source = null;
+    let width = 0;
+    let height = 0;
+    let cleanup = () => {};
+
+    if (typeof createImageBitmap === "function") {
+      const bitmap = await createImageBitmap(blob);
+      source = bitmap;
+      width = bitmap.width;
+      height = bitmap.height;
+      cleanup = () => bitmap.close?.();
+    } else {
+      const objectUrl = URL.createObjectURL(blob);
+      const image = await new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => resolve(img);
+        img.onerror = () => reject(new Error("No se ha podido preparar la imagen para descargar."));
+        img.src = objectUrl;
+      });
+      source = image;
+      width = image.naturalWidth || image.width;
+      height = image.naturalHeight || image.height;
+      cleanup = () => URL.revokeObjectURL(objectUrl);
+    }
+
+    try {
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      const context = canvas.getContext("2d", { alpha: false });
+      if (!context) throw new Error("No se ha podido preparar la descarga JPEG.");
+      context.fillStyle = "#ffffff";
+      context.fillRect(0, 0, width, height);
+      context.drawImage(source, 0, 0, width, height);
+      const jpeg = await new Promise(resolve => canvas.toBlob(resolve, "image/jpeg", quality));
+      if (!jpeg) throw new Error("No se ha podido generar el JPEG.");
+      return jpeg;
+    } finally {
+      cleanup();
+    }
+  }
+
   function escapeHtml(value) {
     return String(value ?? "").replace(/[&<>"']/g, char => ({
       "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;"
@@ -118,8 +178,11 @@
 
     grid.innerHTML = rows.map((item, index) => `
       <button class="couple-gallery-card" type="button" data-gallery-open="${index}" aria-label="Abrir foto del ${escapeHtml(formatDate(item.fecha))}">
-        <span class="couple-gallery-photo-wrap"><img src="${escapeHtml(item.signedUrl)}" alt="${escapeHtml(item.descripcion || `Foto del ${formatDate(item.fecha)}`)}" loading="lazy" decoding="async" /></span>
-        <span class="couple-gallery-meta"><small>${escapeHtml(formatDate(item.fecha))}</small><strong>${escapeHtml(item.descripcion || "Nuestro momento")}</strong></span>
+        <span class="couple-gallery-photo-wrap">
+          <img class="couple-gallery-photo-backdrop" src="${escapeHtml(item.signedUrl)}" alt="" aria-hidden="true" loading="lazy" decoding="async" />
+          <img class="couple-gallery-photo-main" src="${escapeHtml(item.signedUrl)}" alt="${escapeHtml(item.descripcion || `Foto del ${formatDate(item.fecha)}`)}" loading="lazy" decoding="async" />
+          <span class="couple-gallery-meta"><small>${escapeHtml(formatDate(item.fecha))}</small><strong>${escapeHtml(item.descripcion || "Nuestro momento")}</strong></span>
+        </span>
       </button>`).join("");
 
     empty?.classList.toggle("hidden", rows.length > 0 || loading);
@@ -353,21 +416,31 @@
     const item = rows[viewerIndex];
     const client = app()?.getClient?.();
     if (!item || !client || !canManage()) return;
-    if (!confirm("¿Eliminar esta foto de Nuestra galería? Esta acción no se puede deshacer.")) return;
+    if (!confirm("¿Eliminar esta foto de Nuestra galería? Se borrará también del almacenamiento privado.")) return;
     try {
-      const { error: rowError } = await client.from("galeria_app").delete().eq("id", item.id);
-      if (rowError) throw rowError;
-      const { error: storageError } = await client.storage.from(STORAGE_BUCKET).remove([item.image_path]);
-      if (storageError) console.warn("La fila se eliminó, pero el archivo no pudo limpiarse:", storageError);
+      await deleteGalleryAsset(
+        item,
+        async path => {
+          const { error } = await client.storage.from(STORAGE_BUCKET).remove([path]);
+          if (error) throw error;
+        },
+        async id => {
+          const { data, error } = await client.from("galeria_app").delete().eq("id", id).select("id");
+          if (error) throw error;
+          if (!Array.isArray(data) || !data.some(row => row.id === id)) {
+            throw new Error("El archivo se borró, pero no se pudo confirmar el borrado del registro.");
+          }
+        }
+      );
       signedUrlCache.delete(item.image_path);
       rows.splice(viewerIndex, 1);
       if (!rows.length) closeViewer();
       else { viewerIndex = wrapIndex(viewerIndex, rows.length); renderViewer(); }
       renderGrid();
-      app()?.showToast?.("Foto eliminada.");
+      app()?.showToast?.("Foto eliminada por completo.");
     } catch (error) {
       console.error(error);
-      app()?.showToast?.("No se ha podido eliminar la foto.");
+      app()?.showToast?.("No se ha podido completar el borrado. Vuelve a intentarlo.");
     }
   }
 
@@ -378,11 +451,11 @@
     try {
       const { data, error } = await client.storage.from(STORAGE_BUCKET).download(item.image_path);
       if (error) throw error;
-      const url = URL.createObjectURL(data);
+      const jpeg = await blobToJpeg(data, 0.97);
+      const url = URL.createObjectURL(jpeg);
       const anchor = document.createElement("a");
       anchor.href = url;
-      const ext = item.image_path.split(".").pop() || "webp";
-      anchor.download = `JaviEats-${item.fecha || "foto"}.${ext}`;
+      anchor.download = downloadFilename(item);
       document.body.appendChild(anchor);
       anchor.click();
       anchor.remove();
@@ -450,7 +523,7 @@
     show("memories");
   }
 
-  const api = { pageRange, clampFiles, wrapIndex, normalizeRow, isSignedUrlFresh, bindUI, refresh, show, reset, isGalleryActive };
+  const api = { pageRange, clampFiles, wrapIndex, normalizeRow, isSignedUrlFresh, downloadFilename, deleteGalleryAsset, bindUI, refresh, show, reset, isGalleryActive };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   if (typeof window !== "undefined") window.JaviEatsGallery = Object.freeze(api);
 })();
