@@ -1,11 +1,12 @@
-# CONTEXTO MAESTRO — JAVIEATS 3.4.0 · PREVIEW NUESTRO 24
+# CONTEXTO MAESTRO — JAVIEATS 3.5 · PRODUCCIÓN
 
 ## Nuestra galería · 25/09/2026
+- **Versión de producto actual: JaviEats 3.5 — ESTABLE. Mantenimiento actual: 3.5.3.**
 - Ajuste 3.5.3: selector local de 3/5/10 fotos por fila. Preferencia persistida en localStorage; no consume Supabase.
 - Ajuste 3.5.2: restaurado el diseño de tarjetas anterior; solo se cambia el encuadre a `contain` para evitar cortes. Se conservan descarga JPEG y borrado Storage→BD.
 - Ajuste 3.5.1: grid tipo Instagram sin huecos visuales, miniaturas cuadradas con foto completa, 3 columnas en móvil, descarga JPEG y borrado Storage→BD para evitar objetos huérfanos.
 - Nueva vista dentro de Recuerdos: **Nuestros recuerdos | Nuestra galería**.
-- Grid: 6 columnas escritorio, 4/3 intermedio y 2 móvil.
+- Grid configurable: **3, 5 o 10 fotos por fila**; 5 por defecto. La preferencia es local al dispositivo.
 - Subida compartida Javi/Laura: máximo 10 fotos por operación, fecha y descripción común inicialmente; después cada foto puede editarse individualmente.
 - Visor privado con anterior/siguiente, swipe, descarga, edición y borrado.
 - Frontend encapsulado en `app/js/gallery.js` + `app/css/gallery.css`.
@@ -23,9 +24,9 @@
 >
 > **Repositorio:** `javiermontoro11/weblaura`
 >
-> **Rama de trabajo:** `feature/nuestro-24` · `main` sigue siendo la fuente estable
+> **Rama actual:** `main` · fuente de verdad y producción.
 >
-> **Estado de referencia:** 23 de septiembre de 2026 · preview de Nuestro 24 en desarrollo; sin merge a `main` hasta aprobación.
+> **Estado de referencia:** 25 de septiembre de 2026 · JaviEats 3.5 desplegado; PR #8 fusionada. `feature/nuestro-24` queda únicamente como rama histórica ya integrada.
 
 ---
 
@@ -56,7 +57,7 @@ Experiencia mensual reutilizable a partir del 24/09/2026.
 
 # PROMPT PARA CONTINUAR EN UN CHAT NUEVO
 
-Quiero que continúes el desarrollo y mantenimiento de **JaviEats 3.3.7** sin empezar de cero.
+Quiero que continúes el desarrollo y mantenimiento de **JaviEats 3.5** (mantenimiento actual 3.5.3) sin empezar de cero.
 
 La prioridad es:
 

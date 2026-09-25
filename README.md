@@ -1,13 +1,13 @@
 # JaviEats 💌
 
-**Versión de producto: 3.3 — ESTABLE**  
-**Mantenimiento actual: 3.5.0 — Nuestra galería + Nuestro 24 (preview)**
+**Versión de producto: 3.5 — ESTABLE**  
+**Mantenimiento actual: 3.5.3 — Nuestra galería en producción**
 
 JaviEats es una aplicación web privada creada para Laura y Javi. Reúne planes compartidos, recuerdos, minijuegos, actividad, notificaciones y un espacio común pensado para funcionar como una PWA en móvil, tablet y escritorio.
 
-JaviEats 3.3.7 mantiene **Nuestra Vida 1.0** como experiencia principal independiente y cierra una revisión de estabilidad posterior a la modularización. Corrige regresiones visuales y de interacción en Planes y Recompensas sin modificar el esquema de Supabase ni el core de Nuestra Vida.
+JaviEats 3.5 consolida como nueva versión estable el trabajo de Nuestro 24 y añade **Nuestra galería** dentro de Recuerdos: subida compartida, visor privado, descarga JPEG, borrado completo de Storage + base de datos y selector local de 3/5/10 fotos por fila.
 
-> **Estado actual:** `main` sigue siendo la fuente de verdad. JaviEats 3.3.7 consolida el mantenimiento técnico con un hotfix de Planes, Puzle y Vales. Nuestra Vida conserva su core 1.0 y su retorno explícito a JaviEats.
+> **Estado actual:** `main` es la fuente de verdad y está desplegado en producción. JaviEats 3.5 mantiene **Nuestra Vida 1.0** como experiencia independiente y conserva el historial 3.4.x de Nuestro 24 como parte ya integrada del producto.
 
 ---
 
@@ -34,7 +34,7 @@ JaviEats 3.3.7 mantiene **Nuestra Vida 1.0** como experiencia principal independ
 
 
 - Recuerdos incorpora dos vistas: **Nuestros recuerdos** y **Nuestra galería**.
-- Nuestra galería muestra fotos sueltas en una cuadrícula responsive (6 columnas en escritorio, 4/3 en tamaños intermedios y 2 en móvil).
+- Nuestra galería muestra fotos sueltas en una cuadrícula responsive con selector **3 / 5 / 10 fotos por fila**; el valor por defecto es 5 y la preferencia se conserva localmente en cada dispositivo.
 - Javi y Laura pueden subir hasta 10 fotos por operación, asignar fecha y descripción, abrir un visor, navegar con flechas/swipe, descargar, editar metadatos y eliminar.
 - Las imágenes reutilizan el bucket privado `recuerdos` bajo `gallery/` y la misma compresión de Recuerdos (máximo 1600 px, objetivo aproximado 700 KB).
 - La carga se pagina en bloques de 24 fotos y las URLs firmadas se generan solo para los bloques cargados.
@@ -44,7 +44,7 @@ JaviEats 3.3.7 mantiene **Nuestra Vida 1.0** como experiencia principal independ
 
 ## ❤️ JaviEats 3.4.0 · Nuestro 24
 
-Rama de preview para la celebración mensual de cada día 24.
+Funcionalidad desarrollada durante la serie 3.4.x e integrada posteriormente en JaviEats 3.5. La rama de preview ya fue fusionada en `main`.
 
 ### Corrección de encuadre en Inicio · 3.4.9
 - La tarjeta “Último recuerdo” de Inicio usa el mismo foco vertical que el resto de vistas de Nuestro 24 para que las caras no queden cortadas.
@@ -163,7 +163,7 @@ Esta separación es deliberada. No se debe volver a fusionar todo dentro de `min
 JaviEats y Nuestra Vida mantienen versionados distintos:
 
 ```text
-JaviEats 3.3 / mantenimiento 3.3.6
+JaviEats 3.5 / mantenimiento 3.5.3
 Nuestra Vida 1.0 / patches propios cuando sean necesarios
 ```
 
@@ -602,6 +602,16 @@ Nuestra Vida conserva su propio versionado. Los bugs o ajustes internos del jueg
 ---
 
 # Historial de versiones
+
+## v3.5.3 — Nuestra galería en producción
+
+- **JaviEats 3.5** pasa a ser la versión de producto estable.
+- **3.5.3** queda como mantenimiento actual.
+- Nuestra galería está integrada dentro de Recuerdos con subida múltiple, fecha, descripción, visor, edición, descarga JPEG y borrado completo Storage + BD.
+- El grid permite seleccionar **3, 5 o 10 fotos por fila** y guarda esa preferencia en `localStorage`, sin consumir Supabase.
+- Las imágenes se almacenan privadas y optimizadas; la galería carga por bloques de 24 elementos.
+- Nuestro 24 deja de figurar como preview activa: su trabajo 3.4.x está integrado en `main`.
+- Nuestra Vida conserva su versionado independiente 1.0.
 
 ## v3.3.7 — QA final de Planes y Recompensas
 
