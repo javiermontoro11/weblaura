@@ -13,6 +13,12 @@ JaviEats 3.3.7 mantiene **Nuestra Vida 1.0** como experiencia principal independ
 
 ## 📸 JaviEats 3.5.0 · Nuestra galería
 
+### Galería · vuelta al diseño anterior · 3.5.2
+- Se recupera el diseño anterior de tarjetas redondeadas, separación, sombras, metadatos visibles y 2 columnas en móvil.
+- Único cambio visual respecto a esa versión: las fotos usan `object-fit: contain` para que nunca se corte la cabeza ni los bordes importantes.
+- Se mantienen las mejoras no visuales ya pedidas: descarga JPEG y borrado completo Storage + base de datos.
+
+
 ### Galería · encuadre, grid y limpieza · 3.5.1
 - La cuadrícula pasa a un formato tipo perfil de Instagram: piezas cuadradas, prácticamente unidas, sin tarjetas redondeadas ni sombras.
 - Cada miniatura mantiene la foto completa con `object-fit: contain`, usando una copia desenfocada de fondo para rellenar el cuadrado sin cortar cabezas.

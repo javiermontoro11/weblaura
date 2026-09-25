@@ -178,11 +178,8 @@
 
     grid.innerHTML = rows.map((item, index) => `
       <button class="couple-gallery-card" type="button" data-gallery-open="${index}" aria-label="Abrir foto del ${escapeHtml(formatDate(item.fecha))}">
-        <span class="couple-gallery-photo-wrap">
-          <img class="couple-gallery-photo-backdrop" src="${escapeHtml(item.signedUrl)}" alt="" aria-hidden="true" loading="lazy" decoding="async" />
-          <img class="couple-gallery-photo-main" src="${escapeHtml(item.signedUrl)}" alt="${escapeHtml(item.descripcion || `Foto del ${formatDate(item.fecha)}`)}" loading="lazy" decoding="async" />
-          <span class="couple-gallery-meta"><small>${escapeHtml(formatDate(item.fecha))}</small><strong>${escapeHtml(item.descripcion || "Nuestro momento")}</strong></span>
-        </span>
+        <span class="couple-gallery-photo-wrap"><img src="${escapeHtml(item.signedUrl)}" alt="${escapeHtml(item.descripcion || `Foto del ${formatDate(item.fecha)}`)}" loading="lazy" decoding="async" /></span>
+        <span class="couple-gallery-meta"><small>${escapeHtml(formatDate(item.fecha))}</small><strong>${escapeHtml(item.descripcion || "Nuestro momento")}</strong></span>
       </button>`).join("");
 
     empty?.classList.toggle("hidden", rows.length > 0 || loading);
