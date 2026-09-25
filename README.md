@@ -1,31 +1,33 @@
 # JaviEats 💌
 
-**Versión de producto: 3.5 — ESTABLE**  
-**Mantenimiento actual: 3.5.3 — Nuestra galería en producción**
+**Versión de producto: 3.4 — ESTABLE**  
+**Mantenimiento actual: 3.4.13 — Nuestra galería en producción**
+
+> **Regularización de versión (25/09/2026):** las etiquetas usadas durante el desarrollo `3.5.0 → 3.5.3` se renumeran de forma canónica como `3.4.10 → 3.4.13`. No hay cambio funcional asociado a esta regularización; evita saltarse una versión mayor/menor que nunca llegó a consolidarse como release independiente.
 
 JaviEats es una aplicación web privada creada para Laura y Javi. Reúne planes compartidos, recuerdos, minijuegos, actividad, notificaciones y un espacio común pensado para funcionar como una PWA en móvil, tablet y escritorio.
 
-JaviEats 3.5 consolida como nueva versión estable el trabajo de Nuestro 24 y añade **Nuestra galería** dentro de Recuerdos: subida compartida, visor privado, descarga JPEG, borrado completo de Storage + base de datos y selector local de 3/5/10 fotos por fila.
+JaviEats 3.4 consolida como nueva versión estable el trabajo de Nuestro 24 y añade **Nuestra galería** dentro de Recuerdos: subida compartida, visor privado, descarga JPEG, borrado completo de Storage + base de datos y selector local de 3/5/10 fotos por fila.
 
-> **Estado actual:** `main` es la fuente de verdad y está desplegado en producción. JaviEats 3.5 mantiene **Nuestra Vida 1.0** como experiencia independiente y conserva el historial 3.4.x de Nuestro 24 como parte ya integrada del producto.
+> **Estado actual:** `main` es la fuente de verdad y está desplegado en producción. JaviEats 3.4 mantiene **Nuestra Vida 1.0** como experiencia independiente y conserva el historial 3.4.x de Nuestro 24 como parte ya integrada del producto.
 
 ---
 
-## 📸 JaviEats 3.5.0 · Nuestra galería
+## 📸 JaviEats 3.4.10 · Nuestra galería
 
-### Galería · selector de fotos por fila · 3.5.3
+### Galería · selector de fotos por fila · 3.4.13
 - Nuestra galería permite elegir **3, 5 o 10 fotos por fila** desde un selector junto al botón de subida.
 - La preferencia se guarda en `localStorage` del dispositivo, sin lecturas ni escrituras adicionales en Supabase.
 - El diseño de tarjetas y el encuadre `contain` se mantienen intactos.
 
 
-### Galería · vuelta al diseño anterior · 3.5.2
+### Galería · vuelta al diseño anterior · 3.4.12
 - Se recupera el diseño anterior de tarjetas redondeadas, separación, sombras, metadatos visibles y 2 columnas en móvil.
 - Único cambio visual respecto a esa versión: las fotos usan `object-fit: contain` para que nunca se corte la cabeza ni los bordes importantes.
 - Se mantienen las mejoras no visuales ya pedidas: descarga JPEG y borrado completo Storage + base de datos.
 
 
-### Galería · encuadre, grid y limpieza · 3.5.1
+### Galería · encuadre, grid y limpieza · 3.4.11
 - La cuadrícula pasa a un formato tipo perfil de Instagram: piezas cuadradas, prácticamente unidas, sin tarjetas redondeadas ni sombras.
 - Cada miniatura mantiene la foto completa con `object-fit: contain`, usando una copia desenfocada de fondo para rellenar el cuadrado sin cortar cabezas.
 - En móvil se muestran 3 columnas; fecha y descripción permanecen disponibles en el visor y aparecen como overlay al pasar por encima en escritorio.
@@ -44,7 +46,7 @@ JaviEats 3.5 consolida como nueva versión estable el trabajo de Nuestro 24 y a�
 
 ## ❤️ JaviEats 3.4.0 · Nuestro 24
 
-Funcionalidad desarrollada durante la serie 3.4.x e integrada posteriormente en JaviEats 3.5. La rama de preview ya fue fusionada en `main`.
+Funcionalidad desarrollada durante la serie 3.4.x e integrada posteriormente en la línea estable JaviEats 3.4. La rama de preview ya fue fusionada en `main`.
 
 ### Corrección de encuadre en Inicio · 3.4.9
 - La tarjeta “Último recuerdo” de Inicio usa el mismo foco vertical que el resto de vistas de Nuestro 24 para que las caras no queden cortadas.
@@ -163,11 +165,11 @@ Esta separación es deliberada. No se debe volver a fusionar todo dentro de `min
 JaviEats y Nuestra Vida mantienen versionados distintos:
 
 ```text
-JaviEats 3.5 / mantenimiento 3.5.3
+JaviEats 3.4 / mantenimiento 3.4.13
 Nuestra Vida 1.0 / patches propios cuando sean necesarios
 ```
 
-Los sufijos `?v=` de CSS/JS/íconos son revisiones de caché de cada asset y **no representan la versión global del producto**; no tienen por qué coincidir con 3.5.3.
+Los sufijos `?v=` de CSS/JS/íconos son revisiones de caché de cada asset y **no representan la versión global del producto**; no tienen por qué coincidir con 3.4.13.
 
 Un bug de Nuestra Vida no obliga a cambiar el número principal de JaviEats, y un ajuste del shell de JaviEats no debe implicar rediseñar el juego.
 
@@ -605,10 +607,10 @@ Nuestra Vida conserva su propio versionado. Los bugs o ajustes internos del jueg
 
 # Historial de versiones
 
-## v3.5.3 — Nuestra galería en producción
+## v3.4.13 — Nuestra galería en producción
 
-- **JaviEats 3.5** pasa a ser la versión de producto estable.
-- **3.5.3** queda como mantenimiento actual.
+- **JaviEats 3.4** queda como versión de producto estable tras regularizar el salto que se había etiquetado provisionalmente como 3.5.
+- **3.4.13** queda como mantenimiento actual.
 - Nuestra galería está integrada dentro de Recuerdos con subida múltiple, fecha, descripción, visor, edición, descarga JPEG y borrado completo Storage + BD.
 - El grid permite seleccionar **3, 5 o 10 fotos por fila** y guarda esa preferencia en `localStorage`, sin consumir Supabase.
 - Las imágenes se almacenan privadas y optimizadas; la galería carga por bloques de 24 elementos.

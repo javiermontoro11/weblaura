@@ -1,10 +1,11 @@
-# CONTEXTO MAESTRO — JAVIEATS 3.5 · PRODUCCIÓN
+# CONTEXTO MAESTRO — JAVIEATS 3.4 · PRODUCCIÓN
 
 ## Nuestra galería · 25/09/2026
-- **Versión de producto actual: JaviEats 3.5 — ESTABLE. Mantenimiento actual: 3.5.3.**
-- Ajuste 3.5.3: selector local de 3/5/10 fotos por fila. Preferencia persistida en localStorage; no consume Supabase.
-- Ajuste 3.5.2: restaurado el diseño de tarjetas anterior; solo se cambia el encuadre a `contain` para evitar cortes. Se conservan descarga JPEG y borrado Storage→BD.
-- Ajuste 3.5.1: grid tipo Instagram sin huecos visuales, miniaturas cuadradas con foto completa, 3 columnas en móvil, descarga JPEG y borrado Storage→BD para evitar objetos huérfanos.
+- **Regularización canónica:** lo que se etiquetó provisionalmente como 3.5.0/3.5.1/3.5.2/3.5.3 pasa a ser 3.4.10/3.4.11/3.4.12/3.4.13. Los commits antiguos pueden conservar las etiquetas 3.5.x como referencia histórica, pero la versión vigente es 3.4.13.
+- **Versión de producto actual: JaviEats 3.4 — ESTABLE. Mantenimiento actual: 3.4.13.**
+- Ajuste 3.4.13: selector local de 3/5/10 fotos por fila. Preferencia persistida en localStorage; no consume Supabase.
+- Ajuste 3.4.12: restaurado el diseño de tarjetas anterior; solo se cambia el encuadre a `contain` para evitar cortes. Se conservan descarga JPEG y borrado Storage→BD.
+- Ajuste 3.4.11: grid tipo Instagram sin huecos visuales, miniaturas cuadradas con foto completa, 3 columnas en móvil, descarga JPEG y borrado Storage→BD para evitar objetos huérfanos.
 - Nueva vista dentro de Recuerdos: **Nuestros recuerdos | Nuestra galería**.
 - Grid configurable: **3, 5 o 10 fotos por fila**; 5 por defecto. La preferencia es local al dispositivo.
 - Subida compartida Javi/Laura: máximo 10 fotos por operación, fecha y descripción común inicialmente; después cada foto puede editarse individualmente.
@@ -26,7 +27,7 @@
 >
 > **Rama actual:** `main` · fuente de verdad y producción.
 >
-> **Estado de referencia:** 25 de septiembre de 2026 · JaviEats 3.5 desplegado; PR #8 fusionada. `feature/nuestro-24` queda únicamente como rama histórica ya integrada.
+> **Estado de referencia:** 25 de septiembre de 2026 · JaviEats 3.4.13 desplegado; PR #8 fusionada. `feature/nuestro-24` queda únicamente como rama histórica ya integrada.
 
 ---
 
@@ -57,7 +58,7 @@ Experiencia mensual reutilizable a partir del 24/09/2026.
 
 # PROMPT PARA CONTINUAR EN UN CHAT NUEVO
 
-Quiero que continúes el desarrollo y mantenimiento de **JaviEats 3.5** (mantenimiento actual 3.5.3) sin empezar de cero.
+Quiero que continúes el desarrollo y mantenimiento de **JaviEats 3.4** (mantenimiento actual 3.4.13) sin empezar de cero.
 
 La prioridad es:
 

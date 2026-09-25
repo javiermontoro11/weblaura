@@ -1,3 +1,5 @@
+> **SUPERSEDED (25/09/2026):** este plan fijó provisionalmente JaviEats 3.5/3.5.3. La numeración canónica se regularizó después a **JaviEats 3.4 / mantenimiento 3.4.13**. Mapeo: 3.5.0→3.4.10, 3.5.1→3.4.11, 3.5.2→3.4.12, 3.5.3→3.4.13. Se conserva este archivo únicamente como historial de la decisión anterior.
+
 # JaviEats 3.5 Version Normalization Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.

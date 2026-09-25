@@ -6,11 +6,11 @@
 >
 > Para Nuestra Vida usar `contextos/CONTEXTO_NUESTRA_VIDA.md`.
 >
-> **Estado de referencia:** 23 de septiembre de 2026 · Nuestro 24 aplicado en Supabase con release desactivado durante validación del preview.
+> **Estado de referencia:** 25 de septiembre de 2026 · JaviEats 3.4.13 en producción. Nuestra galería aplicada y verificada en Supabase; Nuestro 24 activo para la edición de septiembre.
 
 ---
 
-# NUESTRA GALERÍA · 25/09/2026
+# NUESTRA GALERÍA · JaviEats 3.4.10–3.4.13 · 25/09/2026
 
 Tabla: `public.galeria_app`.
 
@@ -27,6 +27,7 @@ Tabla: `public.galeria_app`.
 # NUESTRO 24 · PERSISTENCIA
 
 Aplicado el 23/09/2026.
+- Estado verificado el 25/09/2026: `private.nuestro24_settings.enabled=true`, `notification_armed=true` y la notificación de septiembre ya figura encolada; las dos identidades autorizadas están configuradas.
 
 - `private.nuestro24_settings`: configuración privada, identidades autorizadas, foto hero, carta y estado de release/aviso.
 - `private.nuestro24_moments`: selección editorial por mes con fecha, orden, tipo, visual, texto y referencia opcional a Plan/Recuerdo. RLS activado y permisos directos revocados.
