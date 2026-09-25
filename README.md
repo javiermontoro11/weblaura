@@ -15,6 +15,10 @@ JaviEats 3.3.7 mantiene **Nuestra Vida 1.0** como experiencia principal independ
 
 Rama de preview para la celebración mensual de cada día 24.
 
+### Ajuste visual de fotos y carrusel · 3.4.8
+- La foto principal procedente de Recuerdos conserva el archivo completo y cambia únicamente el punto de encuadre para priorizar las caras en Inicio, portada, momento de reencuentro y tarjeta archivada.
+- El momento del 24/09 reemplaza la composición abstracta por un carrusel privado de dos fotos reales de los bolos, con flechas, indicadores y desplazamiento táctil mediante scroll-snap.
+- Las fotos del carrusel se sirven desde `private.nuestro24_assets`; el payload archivado referencia sus claves mediante `asset_keys` y no expone rutas públicas.
 ### Corrección final de preview · 3.4.7
 - El momento del 21/09 reutiliza una imagen amarilla existente mediante el asset privado de la edición; se elimina la ilustración SVG de flores.
 - El momento del 24/09 deja de representar bolos y usa una composición abstracta estática, romántica y ligera, con una entrada corta al entrar en viewport.

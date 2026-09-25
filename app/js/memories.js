@@ -158,7 +158,7 @@
       ? `<button class="btn btn-secondary memory-edit-btn" type="button" data-edit-remote-memory="${memory.id}" aria-label="Editar ${escapeHtml(memory.titulo)}">✎</button>`
       : "";
 
-    return `<article class="memory-card is-remote"><div class="timeline-dot"></div><div class="memory-date">${formatDate(memory.fecha)}</div>${media}<div class="memory-body"><p class="eyebrow">Guardado en JaviEats</p><h3>${escapeHtml(memory.titulo)}</h3><p>${escapeHtml(memory.descripcion || "")}</p><div class="memory-card-actions"><button class="btn btn-secondary memory-open-btn" type="button" data-remote-memory-id="${memory.id}">${actionLabel}</button>${edit}</div></div></article>`;
+    return `<article class="memory-card is-remote${kind === "nuestro24" ? " is-nuestro24" : ""}"><div class="timeline-dot"></div><div class="memory-date">${formatDate(memory.fecha)}</div>${media}<div class="memory-body"><p class="eyebrow">Guardado en JaviEats</p><h3>${escapeHtml(memory.titulo)}</h3><p>${escapeHtml(memory.descripcion || "")}</p><div class="memory-card-actions"><button class="btn btn-secondary memory-open-btn" type="button" data-remote-memory-id="${memory.id}">${actionLabel}</button>${edit}</div></div></article>`;
   }
 
   function render() {

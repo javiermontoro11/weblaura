@@ -37,7 +37,7 @@ body.n24-day #page-home::before {
 .n24-hero-panel { position: relative; min-width: 0; overflow: hidden; background: #6f515b; }
 .n24-hero-panel img { width: 100%; height: 100%; display: block; object-fit: cover; }
 .n24-hero-panel-left img,.n24-hero-panel-right img { object-position: 48% 50%; }
-.n24-hero-panel-centre img { object-position: 50% 42%; }
+.n24-hero-panel-centre img { object-position: 50% 24%; }
 .n24-hero-shade {
   position: absolute;
   inset: 0;
@@ -96,7 +96,7 @@ body.n24-day #page-home::before {
 .n24-entry-centre { left: 31%; width: 38%; }
 .n24-entry-right { right: 0; width: 31%; }
 .n24-entry-pane img { width: 100%; height: 100%; object-fit: cover; }
-.n24-entry-centre img { object-position: 50% 42%; }
+.n24-entry-centre img { object-position: 50% 24%; }
 .n24-entry-shade { position: absolute; inset: 0; z-index: 1; background: linear-gradient(90deg,rgba(52,31,39,.34),transparent 48%,rgba(52,31,39,.20)); }
 .n24-entry-copy {
   position: absolute;
@@ -168,7 +168,7 @@ body.n24-day #page-home::before {
   background: #e7d5cf;
   box-shadow: 0 22px 52px rgba(87,57,66,.12);
 }
-.n24-cover-photo { width: 100%; height: 100%; display: block; object-fit: cover; object-position: 50% 42%; }
+.n24-cover-photo { width: 100%; height: 100%; display: block; object-fit: cover; object-position: 50% 24%; }
 .n24-cover::after { content: ""; position: absolute; inset: 0; background: linear-gradient(0deg,rgba(54,34,41,.40),transparent 45%); pointer-events: none; }
 .n24-cover figcaption { position: absolute; z-index: 1; left: 24px; bottom: 20px; color: #fffaf5; font: 400 1.45rem/1 Georgia,"Times New Roman",serif; }
 
@@ -228,6 +228,86 @@ body.n24-day #page-home::before {
 .n24-art-photo { background: #e8d9d3; }
 .n24-scene-photo { width: 100%; height: 100%; min-height: 330px; display: block; object-fit: cover; object-position: 50% 50%; }
 .n24-photo-vignette { position: absolute; inset: 0; pointer-events: none; background: linear-gradient(0deg,rgba(48,29,36,.14),transparent 40%); }
+.scene-reunion .n24-scene-photo { object-position: 50% 24%; }
+.n24-carousel { isolation: isolate; background: #1d171a; }
+.n24-carousel-track {
+  width: 100%;
+  height: 100%;
+  min-height: 330px;
+  display: flex;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  overscroll-behavior-inline: contain;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.n24-carousel-track::-webkit-scrollbar { display: none; }
+.n24-carousel-slide {
+  flex: 0 0 100%;
+  min-width: 100%;
+  min-height: 330px;
+  margin: 0;
+  display: grid;
+  place-items: center;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  background: #1d171a;
+}
+.n24-carousel-photo {
+  width: 100%;
+  height: 100%;
+  min-height: 330px;
+  display: block;
+  object-fit: contain;
+  object-position: 50% 50%;
+}
+.n24-carousel-arrow {
+  position: absolute;
+  z-index: 4;
+  top: 50%;
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  transform: translateY(-50%);
+  border: 1px solid rgba(255,255,255,.26);
+  border-radius: 50%;
+  background: rgba(29,23,26,.72);
+  color: #fffaf5;
+  font-size: 1.55rem;
+  line-height: 1;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 5px 18px rgba(0,0,0,.18);
+}
+.n24-carousel-prev { left: 12px; }
+.n24-carousel-next { right: 12px; }
+.n24-carousel-dots {
+  position: absolute;
+  z-index: 4;
+  left: 50%;
+  bottom: 12px;
+  display: flex;
+  gap: 7px;
+  transform: translateX(-50%);
+  padding: 6px 8px;
+  border-radius: 999px;
+  background: rgba(29,23,26,.52);
+  backdrop-filter: blur(7px);
+}
+.n24-carousel-dots button {
+  width: 7px;
+  height: 7px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255,250,245,.44);
+}
+.n24-carousel-dots button[aria-current="true"] {
+  width: 18px;
+  border-radius: 999px;
+  background: #fffaf5;
+}
 
 .n24-illustration { display: grid; place-items: center; }
 .n24-illustration svg { width: min(78%,330px); height: auto; overflow: visible; }
@@ -379,6 +459,8 @@ body.n24-day #page-home::before {
   .n24-scene { display: block; min-height: 0; border-radius: 22px; }
   .n24-scene-art { min-height: 0; aspect-ratio: 16/10; }
   .n24-scene-photo { min-height: 0; }
+  .n24-carousel-track,.n24-carousel-slide,.n24-carousel-photo { min-height: 0; }
+  .n24-carousel-arrow { width: 36px; height: 36px; }
   .n24-scene-copy { padding: 19px 18px 22px; }
   .n24-scene-copy h3 { font-size: clamp(1.75rem,7vw,2.25rem); line-height: 1.03; }
   .n24-scene-copy > p:last-child { margin-top: 11px; font-size: .86rem; line-height: 1.58; }

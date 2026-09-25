@@ -40,6 +40,10 @@
   background: linear-gradient(135deg, #f7eee8, #f4e1dc);
 }
 
+.memory-card.is-nuestro24 .memory-cover {
+  object-position: 50% 24%;
+}
+
 .memory-card-actions {
   display: grid;
   grid-template-columns: 1fr auto;
