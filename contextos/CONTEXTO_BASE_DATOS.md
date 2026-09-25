@@ -56,8 +56,8 @@ Desde 3.3.6, todo cambio SQL nuevo debe quedar además versionado bajo `supabase
 # TABLAS `public` AUDITADAS
 
 1. `galeria_app`
-3. `marcas_mensajes_javi`
-2. `mensajes_dia`
+2. `marcas_mensajes_javi`
+3. `mensajes_dia`
 4. `mensajes_laura`
 5. `notificaciones`
 6. `piezas_puzzle`

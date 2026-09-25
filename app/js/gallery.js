@@ -54,6 +54,10 @@
     };
   }
 
+  function isSignedUrlFresh(entry, now = Date.now()) {
+    return Boolean(entry && Number(entry.expiresAt) - now > SIGNED_URL_REFRESH_MARGIN_MS);
+  }
+
   function escapeHtml(value) {
     return String(value ?? "").replace(/[&<>"']/g, char => ({
       "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;"
@@ -84,7 +88,7 @@
     const paths = [...new Set(items.map(item => item.image_path).filter(Boolean))];
     const missing = paths.filter(path => {
       const cached = signedUrlCache.get(path);
-      return !cached || cached.expiresAt - now <= SIGNED_URL_REFRESH_MARGIN_MS;
+      return !isSignedUrlFresh(cached, now);
     });
     if (missing.length) {
       const { data, error } = await client.storage.from(STORAGE_BUCKET).createSignedUrls(missing, SIGNED_URL_SECONDS);
@@ -176,7 +180,10 @@
     });
     const addMemory = $("add-memory-btn");
     if (addMemory) addMemory.classList.toggle("hidden", activeMode === "gallery" || !canManage());
-    if (activeMode === "gallery" && !loadedOnce) void refresh({ reset: true });
+    if (activeMode === "gallery") {
+      const stale = rows.some(item => !isSignedUrlFresh(signedUrlCache.get(item.image_path)));
+      if (!loadedOnce || stale) void refresh({ reset: true });
+    }
   }
 
   function isGalleryActive() {
@@ -443,7 +450,7 @@
     show("memories");
   }
 
-  const api = { pageRange, clampFiles, wrapIndex, normalizeRow, bindUI, refresh, show, reset, isGalleryActive };
+  const api = { pageRange, clampFiles, wrapIndex, normalizeRow, isSignedUrlFresh, bindUI, refresh, show, reset, isGalleryActive };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   if (typeof window !== "undefined") window.JaviEatsGallery = Object.freeze(api);
 })();

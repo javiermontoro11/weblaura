@@ -37,3 +37,10 @@ test('normalizeRow keeps only the gallery fields used by the UI', () => {
     created_at: '2026-09-25T10:00:00Z', updated_at: '2026-09-25T10:00:00Z', signedUrl: ''
   });
 });
+
+test('signed URL freshness respects the refresh margin', () => {
+  const now = 1_000_000;
+  assert.equal(gallery.isSignedUrlFresh({ expiresAt: now + (6 * 60 * 1000) }, now), true);
+  assert.equal(gallery.isSignedUrlFresh({ expiresAt: now + (4 * 60 * 1000) }, now), false);
+  assert.equal(gallery.isSignedUrlFresh(null, now), false);
+});

@@ -1,15 +1,7 @@
-### Nuestra galería · 3.5.0
-- Recuerdos incorpora dos vistas: **Nuestros recuerdos** y **Nuestra galería**.
-- Nuestra galería muestra fotos sueltas en una cuadrícula responsive (6 columnas en escritorio, 4/3 en tamaños intermedios y 2 en móvil).
-- Javi y Laura pueden subir hasta 10 fotos por operación, asignar fecha y descripción, abrir un visor, navegar con flechas/swipe, descargar, editar metadatos y eliminar.
-- Las imágenes reutilizan el bucket privado `recuerdos` bajo `gallery/` y la misma compresión de Recuerdos (máximo 1600 px, objetivo aproximado 700 KB).
-- La carga se pagina en bloques de 24 fotos y las URLs firmadas se generan solo para los bloques cargados.
-- Inicio muestra la foto completa del último recuerdo en primer plano y usa una capa de fondo para rellenar la tarjeta ancha sin cortar a ninguno de los dos.
-
 # JaviEats 💌
 
 **Versión de producto: 3.3 — ESTABLE**  
-**Mantenimiento actual: 3.4.0 — Nuestro 24 (preview)**
+**Mantenimiento actual: 3.5.0 — Nuestra galería + Nuestro 24 (preview)**
 
 JaviEats es una aplicación web privada creada para Laura y Javi. Reúne planes compartidos, recuerdos, minijuegos, actividad, notificaciones y un espacio común pensado para funcionar como una PWA en móvil, tablet y escritorio.
 
@@ -18,6 +10,17 @@ JaviEats 3.3.7 mantiene **Nuestra Vida 1.0** como experiencia principal independ
 > **Estado actual:** `main` sigue siendo la fuente de verdad. JaviEats 3.3.7 consolida el mantenimiento técnico con un hotfix de Planes, Puzle y Vales. Nuestra Vida conserva su core 1.0 y su retorno explícito a JaviEats.
 
 ---
+
+## 📸 JaviEats 3.5.0 · Nuestra galería
+
+- Recuerdos incorpora dos vistas: **Nuestros recuerdos** y **Nuestra galería**.
+- Nuestra galería muestra fotos sueltas en una cuadrícula responsive (6 columnas en escritorio, 4/3 en tamaños intermedios y 2 en móvil).
+- Javi y Laura pueden subir hasta 10 fotos por operación, asignar fecha y descripción, abrir un visor, navegar con flechas/swipe, descargar, editar metadatos y eliminar.
+- Las imágenes reutilizan el bucket privado `recuerdos` bajo `gallery/` y la misma compresión de Recuerdos (máximo 1600 px, objetivo aproximado 700 KB).
+- La carga se pagina en bloques de 24 fotos y las URLs firmadas se generan solo para los bloques cargados.
+- Inicio muestra la foto completa del último recuerdo en primer plano y usa una capa de fondo para rellenar la tarjeta ancha sin cortar a ninguno de los dos.
+
+
 
 ## ❤️ JaviEats 3.4.0 · Nuestro 24
 
