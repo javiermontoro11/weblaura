@@ -1,5 +1,20 @@
 # CONTEXTO MAESTRO — JAVIEATS 3.4.0 · PREVIEW NUESTRO 24
 
+## Nuestra galería · 25/09/2026
+- Ajuste 3.5.3: selector local de 3/5/10 fotos por fila. Preferencia persistida en localStorage; no consume Supabase.
+- Ajuste 3.5.2: restaurado el diseño de tarjetas anterior; solo se cambia el encuadre a `contain` para evitar cortes. Se conservan descarga JPEG y borrado Storage→BD.
+- Ajuste 3.5.1: grid tipo Instagram sin huecos visuales, miniaturas cuadradas con foto completa, 3 columnas en móvil, descarga JPEG y borrado Storage→BD para evitar objetos huérfanos.
+- Nueva vista dentro de Recuerdos: **Nuestros recuerdos | Nuestra galería**.
+- Grid: 6 columnas escritorio, 4/3 intermedio y 2 móvil.
+- Subida compartida Javi/Laura: máximo 10 fotos por operación, fecha y descripción común inicialmente; después cada foto puede editarse individualmente.
+- Visor privado con anterior/siguiente, swipe, descarga, edición y borrado.
+- Frontend encapsulado en `app/js/gallery.js` + `app/css/gallery.css`.
+- Persistencia en `public.galeria_app`; objetos en el bucket privado `recuerdos` bajo `gallery/`.
+- Reutiliza `JaviEatsMemories.compressImage()`: máximo 1600 px y objetivo aproximado 700 KB.
+- La carga es incremental en bloques de 24 fotos para contener lecturas, firmas y transferencia de Supabase.
+- La tarjeta **Último recuerdo** de Inicio muestra la foto completa en primer plano sobre un fondo de relleno, evitando el recorte que impedía ver a Javi y Laura a la vez.
+
+
 > **Ámbito:** contexto funcional y técnico general de JaviEats.
 >
 > Para Supabase/base de datos usar `contextos/CONTEXTO_BASE_DATOS.md`.
@@ -18,6 +33,10 @@
 
 Experiencia mensual reutilizable a partir del 24/09/2026.
 
+## Ajuste visual final · Nuestro 24 3.4.8
+- Se mantiene la foto original completa del recuerdo usado como hero; el frontend solo desplaza `object-position` hacia arriba para que las caras queden dentro del recorte en hero, intro, portada, escena de reencuentro y tarjeta archivada de Recuerdos.
+- La escena 08 (24/09, “Quién sabe qué deparará la tarde”) usa un carrusel de dos assets privados `moment-2026-09-24-bowling-1` y `moment-2026-09-24-bowling-2`.
+- El carrusel tiene flechas, indicadores y swipe nativo en móvil con `scroll-snap`; si faltan los dos assets conserva la ilustración abstracta como fallback.
 ## Corrección final de preview · 3.4.7
 - 21/09: la tarjeta usa el asset privado moment-2026-09-21-yellow-flowers en lugar de SVG/CSS de flores.
 - 24/09: se elimina la ilustración de bolos; queda una composición abstracta crema/coral con corazones y destellos discretos, sin animación continua.

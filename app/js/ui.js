@@ -369,7 +369,9 @@ function memoryImage(memory) {
       if (btn) btn.textContent = "+ Añadir recuerdo";
     }
     if (!$("v3-memory-overview")) {
-      hero?.insertAdjacentHTML("afterend", `<section id="v3-memory-overview" class="v3-memory-overview"></section>`);
+      const memoriesView = $("memories-view");
+      if (memoriesView) memoriesView.insertAdjacentHTML("afterbegin", `<section id="v3-memory-overview" class="v3-memory-overview"></section>`);
+      else hero?.insertAdjacentHTML("afterend", `<section id="v3-memory-overview" class="v3-memory-overview"></section>`);
     }
     page.querySelector(".vouchers-title")?.classList.add("v3-hide");
     $("voucher-list")?.classList.add("v3-hide");

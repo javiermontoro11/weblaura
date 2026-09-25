@@ -31,7 +31,14 @@
     if (!String(text || '').trim()) return '';
     return `<section class="n24-letter-invitation"><span class="n24-seal" aria-hidden="true">J + L</span><p class="n24-kicker">Y ahora s\u00ed\u2026</p><h2>Hay algo que Javi<br>quer\u00eda decirte.</h2><button class="n24-button" type="button" data-n24-letter aria-controls="n24-letter" aria-expanded="false">Abrir mi carta \u2764\ufe0f</button></section><section class="n24-letter" id="n24-letter" hidden aria-label="Carta de Javi"><div class="n24-letter-paper" tabindex="-1">${renderLetter(text)}</div></section>`;
   }
-  const helpers = {monthsTogether,canShowHero,renderLetter,renderMetrics,renderLetterSection,serverTimeAt};
+  function carouselAssetKeys(moment) {
+    const keys = Array.isArray(moment?.asset_keys) ? moment.asset_keys : [];
+    return [...new Set(keys.filter(key =>
+      typeof key === 'string' &&
+      /^moment-\d{4}-\d{2}-\d{2}-[a-z0-9-]+$/.test(key)
+    ))].slice(0,8);
+  }
+  const helpers = {monthsTogether,canShowHero,renderLetter,renderMetrics,renderLetterSection,serverTimeAt,carouselAssetKeys};
   if (typeof module === 'object' && module.exports) { module.exports = helpers; return; }
   if (!root?.document || root.JaviEatsNuestro24) return;
   const $ = id => document.getElementById(id);
@@ -215,6 +222,14 @@
     if (!url) return '';
     return `<img class="n24-scene-photo n24-scene-photo-private" src="${esc(url)}" alt="${esc(moment.title || 'Momento de septiembre')}" loading="lazy" decoding="async">`;
   }
+  function privateMomentCarousel(moment) {
+    const slides = carouselAssetKeys(moment)
+      .map(key => ({key,url:heroAssets.get(key)}))
+      .filter(item => item.url);
+    if (slides.length < 2) return '';
+    const title = moment?.title || 'Plan del 24 de septiembre';
+    return `<div class="n24-scene-art n24-art-photo n24-carousel" data-n24-carousel data-n24-carousel-index="0"><div class="n24-carousel-track" data-n24-carousel-track aria-label="Fotos de ${esc(title)}">${slides.map((item,index) => `<div class="n24-carousel-slide" data-n24-carousel-slide="${index}" aria-hidden="${index===0?'false':'true'}"><img class="n24-carousel-photo" src="${esc(item.url)}" alt="${esc(`${title} · foto ${index+1} de ${slides.length}`)}" loading="lazy" decoding="async"></div>`).join('')}</div><button class="n24-carousel-arrow n24-carousel-prev" type="button" data-n24-carousel-prev aria-label="Foto anterior">‹</button><button class="n24-carousel-arrow n24-carousel-next" type="button" data-n24-carousel-next aria-label="Foto siguiente">›</button><div class="n24-carousel-dots" aria-label="Seleccionar foto">${slides.map((_,index) => `<button type="button" data-n24-carousel-dot="${index}" aria-label="Ver foto ${index+1}" aria-current="${index===0?'true':'false'}"></button>`).join('')}</div></div>`;
+  }
   function homeIllustration() {
     return '<div class="n24-scene-art n24-illustration n24-illustration-home" aria-hidden="true"><svg viewBox="0 0 320 220" role="presentation"><circle class="n24-i-moon" cx="248" cy="48" r="27" fill="#FFF0CF"/><g class="n24-i-house"><path d="M93 118L160 61l67 57v77H93z" fill="#F4E7DC"/><path d="M82 119l78-67 78 67-12 14-66-56-66 56z" fill="#815B68"/><rect x="111" y="137" width="30" height="31" rx="5" fill="#FFD894"/><rect x="176" y="145" width="29" height="50" rx="5" fill="#715360"/></g><path class="n24-i-heart" d="M241 137c-8-10-25 2-11 15l11 10 11-10c14-13-3-25-11-15z" fill="#F3A7B0"/></svg></div>';
   }
@@ -223,9 +238,11 @@
   }
   function sceneVisual(moment) {
     const visual = String(moment?.visual || 'generic');
+    const carousel = visual === 'bowling' ? privateMomentCarousel(moment) : '';
     const privatePhoto = privateMomentPhoto(moment);
     const memoryPhoto = moment?.photo_path ? photoMarkup(moment.photo_path,moment.title,'n24-scene-photo',visual==='reunion') : '';
     const photo = privatePhoto || memoryPhoto;
+    if (carousel) return carousel;
     if (photo) return `<div class="n24-scene-art n24-art-photo">${photo}<span class="n24-photo-vignette" aria-hidden="true"></span></div>`;
     if (visual === 'home') return homeIllustration();
     if (visual === 'bowling') return futurePlanIllustration();
@@ -252,6 +269,47 @@
     }, {threshold:.32,rootMargin:'0px 0px -8% 0px'});
     scenes.forEach(scene => observer.observe(scene));
   }
+  function updateCarouselState(carousel,index,scroll = false) {
+    const track = carousel.querySelector('[data-n24-carousel-track]');
+    const slides = [...carousel.querySelectorAll('[data-n24-carousel-slide]')];
+    const dots = [...carousel.querySelectorAll('[data-n24-carousel-dot]')];
+    if (!track || !slides.length) return;
+    const normalized = ((index % slides.length) + slides.length) % slides.length;
+    carousel.dataset.n24CarouselIndex = String(normalized);
+    slides.forEach((slide,i) => slide.setAttribute('aria-hidden',i===normalized?'false':'true'));
+    dots.forEach((dot,i) => dot.setAttribute('aria-current',i===normalized?'true':'false'));
+    if (scroll) {
+      const target = slides[normalized];
+      track.scrollTo({
+        left: target.offsetLeft,
+        behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'
+      });
+    }
+  }
+  function activateMomentCarousels() {
+    document.querySelectorAll('[data-n24-carousel]').forEach(carousel => {
+      if (carousel.dataset.n24CarouselReady === '1') return;
+      const track = carousel.querySelector('[data-n24-carousel-track]');
+      const slides = [...carousel.querySelectorAll('[data-n24-carousel-slide]')];
+      if (!track || slides.length < 2) return;
+      carousel.dataset.n24CarouselReady = '1';
+      const current = () => Number(carousel.dataset.n24CarouselIndex || 0);
+      carousel.querySelector('[data-n24-carousel-prev]')?.addEventListener('click',() => updateCarouselState(carousel,current()-1,true));
+      carousel.querySelector('[data-n24-carousel-next]')?.addEventListener('click',() => updateCarouselState(carousel,current()+1,true));
+      carousel.querySelectorAll('[data-n24-carousel-dot]').forEach(dot => {
+        dot.addEventListener('click',() => updateCarouselState(carousel,Number(dot.dataset.n24CarouselDot || 0),true));
+      });
+      let raf = 0;
+      track.addEventListener('scroll',() => {
+        cancelAnimationFrame(raf);
+        raf = requestAnimationFrame(() => {
+          const width = track.clientWidth || 1;
+          updateCarouselState(carousel,Math.round(track.scrollLeft / width),false);
+        });
+      },{passive:true});
+      updateCarouselState(carousel,0,false);
+    });
+  }
   function renderExperience(data) {
     const e=data.event, page=$('page-nuestro24');
     if (!page) return;
@@ -276,7 +334,7 @@
       mount(); previousFocus=target;
       returnPage=$('page-memories')?.classList.contains('active')?'memories':'home';
       renderExperience(data);
-      app()?.showPage?.('nuestro24'); theme(); activateMomentAnimations();
+      app()?.showPage?.('nuestro24'); theme(); activateMomentAnimations(); activateMomentCarousels();
       requestAnimationFrame(()=>{$('page-nuestro24')?.querySelector('h1')?.focus({preventScroll:true});});
     } catch (_) { if(isCurrent(ctx)) app()?.showToast?.('No se ha podido abrir el mes. Revisa la conexi\u00f3n e int\u00e9ntalo de nuevo.'); }
     finally { if(isCurrent(ctx)) opening=false; target?.removeAttribute('aria-busy'); }

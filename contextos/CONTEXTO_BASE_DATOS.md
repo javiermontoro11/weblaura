@@ -10,6 +10,20 @@
 
 ---
 
+# NUESTRA GALERÍA · 25/09/2026
+
+Tabla: `public.galeria_app`.
+
+- Metadatos por foto: `id`, `created_by`, `fecha`, `descripcion`, `image_path`, `created_at`, `updated_at`.
+- RLS activado; SELECT/INSERT/UPDATE/DELETE limitados a las dos cuentas autorizadas de JaviEats.
+- La autorización reutiliza las identidades privadas ya mantenidas en `private.nuestro24_settings` mediante `private.galeria_usuario_permitido()`.
+- INSERT exige `created_by = auth.uid()`.
+- UPDATE está restringido por permisos de columna a `fecha`, `descripcion` y `updated_at`; no permite cambiar autor ni ruta.
+- Índice de lectura: `(fecha DESC, created_at DESC)`.
+- Bucket: reutiliza `recuerdos` (privado), bajo prefijo `gallery/`; no existe un bucket adicional.
+- El frontend carga 24 filas por bloque y firma únicamente las rutas cargadas.
+- Migración: `supabase/migrations/20260925_01_gallery.sql`; ejecutada y verificada el 25/09/2026.
+
 # NUESTRO 24 · PERSISTENCIA
 
 Aplicado el 23/09/2026.
@@ -41,25 +55,26 @@ Desde 3.3.6, todo cambio SQL nuevo debe quedar además versionado bajo `supabase
 
 # TABLAS `public` AUDITADAS
 
-1. `marcas_mensajes_javi`
-2. `mensajes_dia`
-3. `mensajes_laura`
-4. `notificaciones`
-5. `piezas_puzzle`
-6. `preguntas_diarias`
-7. `propuestas`
-8. `push_subscriptions`
-9. `puzzles_premio`
-10. `recordatorios_email`
-11. `recuerdos_app`
-12. `respuestas_diarias`
-13. `retos_diarios`
-14. `rondas_reto`
-15. `vales`
-16. `y_si_dias`
-17. `y_si_notificaciones`
-18. `y_si_preguntas`
-19. `y_si_respuestas`
+1. `galeria_app`
+2. `marcas_mensajes_javi`
+3. `mensajes_dia`
+4. `mensajes_laura`
+5. `notificaciones`
+6. `piezas_puzzle`
+7. `preguntas_diarias`
+8. `propuestas`
+9. `push_subscriptions`
+10. `puzzles_premio`
+11. `recordatorios_email`
+12. `recuerdos_app`
+13. `respuestas_diarias`
+14. `retos_diarios`
+15. `rondas_reto`
+16. `vales`
+17. `y_si_dias`
+18. `y_si_notificaciones`
+19. `y_si_preguntas`
+20. `y_si_respuestas`
 
 No eliminar nada por parecer legacy sin revisar frontend, RPC, triggers y dependencias.
 

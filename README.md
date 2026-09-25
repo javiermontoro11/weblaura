@@ -1,7 +1,7 @@
 # JaviEats 💌
 
 **Versión de producto: 3.3 — ESTABLE**  
-**Mantenimiento actual: 3.4.0 — Nuestro 24 (preview)**
+**Mantenimiento actual: 3.5.0 — Nuestra galería + Nuestro 24 (preview)**
 
 JaviEats es una aplicación web privada creada para Laura y Javi. Reúne planes compartidos, recuerdos, minijuegos, actividad, notificaciones y un espacio común pensado para funcionar como una PWA en móvil, tablet y escritorio.
 
@@ -11,10 +11,49 @@ JaviEats 3.3.7 mantiene **Nuestra Vida 1.0** como experiencia principal independ
 
 ---
 
+## 📸 JaviEats 3.5.0 · Nuestra galería
+
+### Galería · selector de fotos por fila · 3.5.3
+- Nuestra galería permite elegir **3, 5 o 10 fotos por fila** desde un selector junto al botón de subida.
+- La preferencia se guarda en `localStorage` del dispositivo, sin lecturas ni escrituras adicionales en Supabase.
+- El diseño de tarjetas y el encuadre `contain` se mantienen intactos.
+
+
+### Galería · vuelta al diseño anterior · 3.5.2
+- Se recupera el diseño anterior de tarjetas redondeadas, separación, sombras, metadatos visibles y 2 columnas en móvil.
+- Único cambio visual respecto a esa versión: las fotos usan `object-fit: contain` para que nunca se corte la cabeza ni los bordes importantes.
+- Se mantienen las mejoras no visuales ya pedidas: descarga JPEG y borrado completo Storage + base de datos.
+
+
+### Galería · encuadre, grid y limpieza · 3.5.1
+- La cuadrícula pasa a un formato tipo perfil de Instagram: piezas cuadradas, prácticamente unidas, sin tarjetas redondeadas ni sombras.
+- Cada miniatura mantiene la foto completa con `object-fit: contain`, usando una copia desenfocada de fondo para rellenar el cuadrado sin cortar cabezas.
+- En móvil se muestran 3 columnas; fecha y descripción permanecen disponibles en el visor y aparecen como overlay al pasar por encima en escritorio.
+- Las descargas se entregan como JPEG de alta calidad sin almacenar una segunda copia en Supabase.
+- El borrado elimina primero el objeto privado de Storage y después confirma la eliminación de su fila en `galeria_app`, evitando archivos huérfanos.
+
+
+- Recuerdos incorpora dos vistas: **Nuestros recuerdos** y **Nuestra galería**.
+- Nuestra galería muestra fotos sueltas en una cuadrícula responsive (6 columnas en escritorio, 4/3 en tamaños intermedios y 2 en móvil).
+- Javi y Laura pueden subir hasta 10 fotos por operación, asignar fecha y descripción, abrir un visor, navegar con flechas/swipe, descargar, editar metadatos y eliminar.
+- Las imágenes reutilizan el bucket privado `recuerdos` bajo `gallery/` y la misma compresión de Recuerdos (máximo 1600 px, objetivo aproximado 700 KB).
+- La carga se pagina en bloques de 24 fotos y las URLs firmadas se generan solo para los bloques cargados.
+- Inicio muestra la foto completa del último recuerdo en primer plano y usa una capa de fondo para rellenar la tarjeta ancha sin cortar a ninguno de los dos.
+
+
+
 ## ❤️ JaviEats 3.4.0 · Nuestro 24
 
 Rama de preview para la celebración mensual de cada día 24.
 
+### Corrección de encuadre en Inicio · 3.4.9
+- La tarjeta “Último recuerdo” de Inicio usa el mismo foco vertical que el resto de vistas de Nuestro 24 para que las caras no queden cortadas.
+- Se actualiza únicamente el encuadre de la imagen; no cambia el contenido ni el comportamiento de la tarjeta.
+
+### Ajuste visual de fotos y carrusel · 3.4.8
+- La foto principal procedente de Recuerdos conserva el archivo completo y cambia únicamente el punto de encuadre para priorizar las caras en Inicio, portada, momento de reencuentro y tarjeta archivada.
+- El momento del 24/09 reemplaza la composición abstracta por un carrusel privado de dos fotos reales de los bolos, con flechas, indicadores y desplazamiento táctil mediante scroll-snap.
+- Las fotos del carrusel se sirven desde `private.nuestro24_assets`; el payload archivado referencia sus claves mediante `asset_keys` y no expone rutas públicas.
 ### Corrección final de preview · 3.4.7
 - El momento del 21/09 reutiliza una imagen amarilla existente mediante el asset privado de la edición; se elimina la ilustración SVG de flores.
 - El momento del 24/09 deja de representar bolos y usa una composición abstracta estática, romántica y ligera, con una entrada corta al entrar en viewport.
