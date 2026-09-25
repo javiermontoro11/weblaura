@@ -13,6 +13,12 @@ JaviEats 3.3.7 mantiene **Nuestra Vida 1.0** como experiencia principal independ
 
 ## 📸 JaviEats 3.5.0 · Nuestra galería
 
+### Galería · selector de fotos por fila · 3.5.3
+- Nuestra galería permite elegir **3, 5 o 10 fotos por fila** desde un selector junto al botón de subida.
+- La preferencia se guarda en `localStorage` del dispositivo, sin lecturas ni escrituras adicionales en Supabase.
+- El diseño de tarjetas y el encuadre `contain` se mantienen intactos.
+
+
 ### Galería · vuelta al diseño anterior · 3.5.2
 - Se recupera el diseño anterior de tarjetas redondeadas, separación, sombras, metadatos visibles y 2 columnas en móvil.
 - Único cambio visual respecto a esa versión: las fotos usan `object-fit: contain` para que nunca se corte la cabeza ni los bordes importantes.

@@ -503,6 +503,7 @@
       if (Math.abs(delta) >= 55) changeViewer(delta < 0 ? 1 : -1);
     }, { passive: true });
     window.addEventListener("javieats:data", () => { if (activeMode === "gallery") show("gallery"); });
+    window.JaviEatsGalleryLayout?.bindUI?.();
     show("memories");
   }
 
