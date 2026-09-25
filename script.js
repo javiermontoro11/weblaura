@@ -68,6 +68,11 @@ function memoriesModule() {
   return window.JaviEatsMemories;
 }
 
+function galleryModule() {
+  if (!window.JaviEatsGallery) throw new Error("JaviEatsGallery no está cargado.");
+  return window.JaviEatsGallery;
+}
+
 function notificationsModule() {
   if (!window.JaviEatsNotifications) throw new Error("JaviEatsNotifications no está cargado.");
   return window.JaviEatsNotifications;
@@ -139,6 +144,7 @@ init();
 async function init() {
   bindEvents();
   memoriesModule().bindUI();
+  galleryModule().bindUI();
   notificationsModule().bindUI();
   pushModule().bindUI();
   syncModule().bindUI();
@@ -346,6 +352,7 @@ function resetAppSession() {
   state.notifications = [];
   state.notificationLoadError = false;
   memoriesModule().reset();
+  galleryModule().reset();
   notificationsModule().reset();
   plansModule().reset();
   ysiModule().reset();

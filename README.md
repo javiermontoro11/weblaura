@@ -1,3 +1,11 @@
+### Nuestra galería · 3.5.0
+- Recuerdos incorpora dos vistas: **Nuestros recuerdos** y **Nuestra galería**.
+- Nuestra galería muestra fotos sueltas en una cuadrícula responsive (6 columnas en escritorio, 4/3 en tamaños intermedios y 2 en móvil).
+- Javi y Laura pueden subir hasta 10 fotos por operación, asignar fecha y descripción, abrir un visor, navegar con flechas/swipe, descargar, editar metadatos y eliminar.
+- Las imágenes reutilizan el bucket privado `recuerdos` bajo `gallery/` y la misma compresión de Recuerdos (máximo 1600 px, objetivo aproximado 700 KB).
+- La carga se pagina en bloques de 24 fotos y las URLs firmadas se generan solo para los bloques cargados.
+- Inicio muestra la foto completa del último recuerdo en primer plano y usa una capa de fondo para rellenar la tarjeta ancha sin cortar a ninguno de los dos.
+
 # JaviEats 💌
 
 **Versión de producto: 3.3 — ESTABLE**  

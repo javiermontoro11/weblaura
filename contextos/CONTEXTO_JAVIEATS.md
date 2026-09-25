@@ -1,5 +1,17 @@
 # CONTEXTO MAESTRO — JAVIEATS 3.4.0 · PREVIEW NUESTRO 24
 
+## Nuestra galería · 25/09/2026
+- Nueva vista dentro de Recuerdos: **Nuestros recuerdos | Nuestra galería**.
+- Grid: 6 columnas escritorio, 4/3 intermedio y 2 móvil.
+- Subida compartida Javi/Laura: máximo 10 fotos por operación, fecha y descripción común inicialmente; después cada foto puede editarse individualmente.
+- Visor privado con anterior/siguiente, swipe, descarga, edición y borrado.
+- Frontend encapsulado en `app/js/gallery.js` + `app/css/gallery.css`.
+- Persistencia en `public.galeria_app`; objetos en el bucket privado `recuerdos` bajo `gallery/`.
+- Reutiliza `JaviEatsMemories.compressImage()`: máximo 1600 px y objetivo aproximado 700 KB.
+- La carga es incremental en bloques de 24 fotos para contener lecturas, firmas y transferencia de Supabase.
+- La tarjeta **Último recuerdo** de Inicio muestra la foto completa en primer plano sobre un fondo de relleno, evitando el recorte que impedía ver a Javi y Laura a la vez.
+
+
 > **Ámbito:** contexto funcional y técnico general de JaviEats.
 >
 > Para Supabase/base de datos usar `contextos/CONTEXTO_BASE_DATOS.md`.
