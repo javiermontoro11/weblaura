@@ -4,7 +4,7 @@
   const params = new URLSearchParams(window.location.search);
   if (params.get("debug") !== "1") return;
 
-  const VERSION = "3.3.6";
+  const VERSION = "3.5.3";
   const PANEL_ID = "javieats-debug-panel";
   const recentErrors = [];
 

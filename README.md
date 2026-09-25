@@ -167,6 +167,8 @@ JaviEats 3.5 / mantenimiento 3.5.3
 Nuestra Vida 1.0 / patches propios cuando sean necesarios
 ```
 
+Los sufijos `?v=` de CSS/JS/íconos son revisiones de caché de cada asset y **no representan la versión global del producto**; no tienen por qué coincidir con 3.5.3.
+
 Un bug de Nuestra Vida no obliga a cambiar el número principal de JaviEats, y un ajuste del shell de JaviEats no debe implicar rediseñar el juego.
 
 ---
